@@ -1,0 +1,155 @@
+{{ define "admin-import" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $show := or (eq $d.Status.Status "none") (eq $d.Status.Status "") -}}
+
+<script>
+	window._lists = {{ ToJSON $d.AllLists }};
+	window._selectedLists = {{ ToJSON $d.SelectedLists }};
+	window._importStatus = {{ ToJSON $d.Status }};
+</script>
+
+<section class="import" x-data="importView()">
+	<header class="row page-header">
+		<div class="col-6">
+			<h1 class="page-title">{{ .L.T "import.title" }}</h1>
+		</div>
+	</header>
+
+	<div class="card page-content">
+		<!-- Upload form. -->
+		{{ if $show }}
+			<form @submit.prevent="onUpload">
+				<div class="row fields">
+					<div class="col-4">
+						<fieldset class="vstack gap-6">
+							<legend>{{ .L.T "import.mode" }}</legend>
+							<div class="hstack">
+								<label><input type="radio" name="mode" value="subscribe" x-model="form.mode" data-cy="check-subscribe" /> {{ .L.T "import.subscribe" }}</label>
+								<label><input type="radio" name="mode" value="blocklist" x-model="form.mode" data-cy="check-blocklist" /> {{ .L.T "import.blocklist" }}</label>
+							</div>
+							<label data-field>
+								<input type="checkbox" role="switch" x-model="form.overwriteUserInfo" data-cy="overwrite-user-info" /> {{ .L.T "import.overwriteUserInfo" }}
+								<small data-hint>{{ .L.T "import.overwriteUserInfoHelp" }}</small>
+							</label>
+						</fieldset>
+					</div>
+					<div class="col-4">
+						<fieldset class="vstack gap-6">
+							<legend>{{ .L.T "globals.fields.status" }}</legend>
+							<template x-if="form.mode === 'subscribe'">
+								<div class="hstack">
+									<label><input type="radio" name="subStatus" value="unconfirmed" x-model="form.subStatus" data-cy="check-unconfirmed" /> {{ .L.T "subscribers.status.unconfirmed" }}</label>
+									<label><input type="radio" name="subStatus" value="confirmed" x-model="form.subStatus" data-cy="check-confirmed" /> {{ .L.T "subscribers.status.confirmed" }}</label>
+								</div>
+							</template>
+							<template x-if="form.mode === 'blocklist'">
+								<label><input type="radio" name="subStatus" value="unsubscribed" x-model="form.subStatus" data-cy="check-unsubscribed" /> {{ .L.T "subscribers.status.unsubscribed" }}</label>
+							</template>
+							<template x-if="form.mode === 'subscribe'">
+								<label data-field>
+									<input type="checkbox" role="switch" x-model="form.overwriteSubStatus" data-cy="overwrite-sub-status" /> {{ .L.T "import.overwriteSubStatus" }}
+									<small data-hint>{{ .L.T "import.overwriteSubStatusHelp" }}</small>
+								</label>
+							</template>
+						</fieldset>
+					</div>
+					<div class="col-4">
+						<fieldset class="vstack gap-6">
+							<legend>{{ .L.T "import.csvDelim" }}</legend>
+							<label data-field class="delimiter">
+								<input name="delim" x-model="form.delim" placeholder="," maxlength="1" required />
+								<small data-hint>{{ .L.T "import.csvDelimHelp" }}</small>
+							</label>
+						</fieldset>
+					</div>
+				</div>
+
+				<template x-if="form.mode === 'subscribe'">
+					{{ template "list-selector" dict "Root" . "Model" "form.lists" "ListID" "import-lists" "Label" "globals.terms.lists" "Placeholder" "import.listSubHelp" }}
+				</template>
+
+				<div data-field>
+					<ot-upload>
+						<div data-field class="vstack">
+							<input type="file" name="file" accept=".csv,.zip" hidden @change="form.file = $event.target.files[0]" />
+							<strong>{{ .L.T "import.csvFile" }}</strong>
+
+							<button type="button" class="ghost" aria-label="{{ .L.T "import.csvFile" }}">
+								{{ Icon "upload" }}
+							</button>
+
+							<div data-files>
+								<small data-hint>{{ .L.T "import.csvFileHelp" }}</small>
+							</div>
+						</div>
+					</ot-upload>
+				</div>
+
+				<div class="hstack">
+					<button type="submit" data-variant="primary" data-cy="btn-upload" :disabled="!canUpload || isProcessing" :aria-busy="isProcessing">
+						{{ Icon "upload" }} {{ .L.T "import.upload" }}
+					</button>
+				</div>
+			</form>
+		{{ end }}
+
+		<!-- Running / done status. -->
+		{{ if not $show }}
+			<section class="status">
+				<article class="card stat-card">
+					<div class="row">
+						<header class="col-8">
+							<small class="text-light hstack">
+								<span class="badge" :data-variant="statusVariant" x-text="progress + '%'"></span>
+								<span x-show="isRunning" aria-busy="true" data-spinner="small"></span>
+							</small>
+							<div class="stat-value capitalize" :class="{ 'text-danger': status.status === 'failed' || status.status === 'stopped' }" x-text="status.status">{{ $d.Status.Status }}</div>
+						</header>
+						<div class="col-4 hstack justify-end items-center">
+							<button type="button" data-variant="danger" data-cy="btn-stop" x-show="!isDone" @click="stopImport" :disabled="isProcessing || status.status === 'stopping'" :aria-busy="isProcessing">{{ .L.T "import.stopImport" }}</button>
+							<button type="button" data-variant="primary" data-cy="btn-done" x-show="isDone" @click="stopImport" :disabled="isProcessing" :aria-busy="isProcessing">{{ .L.T "import.importDone" }}</button>
+						</div>
+					</div>
+					<footer>
+						<progress value="0" :value="progress" max="100"></progress>
+						<small class="text-light" x-text="recordsLabel">{{ .L.Ts "import.recordsCount" "num" (printf "%d" $d.Status.Imported) "total" (printf "%d" $d.Status.Total) }}</small>
+					</footer>
+				</article>
+
+				<div class="import-logs log-view mt-6">
+					<div class="lines" x-ref="logLines">
+						<template x-for="(l, i) in logLines" :key="i">
+							<span class="line">
+								<span class="timestamp" x-text="l.timestamp"></span>
+								<span class="file" x-show="l.file && l.file !== '*'" x-text="l.file + ':'"></span>
+								<span class="log-message" x-text="l.message"></span>
+							</span>
+						</template>
+					</div>
+				</div>
+			</section>
+		{{ end }}
+
+		{{ if $show }}
+			<div class="import-help mt-6">
+				<hr />
+				<h6>{{ .L.T "import.instructions" }}</h6>
+				<p class="text-light">{{ .L.T "import.instructionsHelp" }}</p>
+				<blockquote class="csv-example">
+					<code class="csv-headers"><span>email,</span> <span>name,</span> <span>attributes</span></code>
+				</blockquote>
+
+				<h6>{{ .L.T "import.csvExample" }}</h6>
+				<pre class="csv-example">email,name,attributes
+user1@mail.com,"User One","{""age"": 42, ""planet"": ""Mars""}"
+user2@mail.com,"User Two","{""age"": 24, ""job"": ""Time Traveller""}"</pre>
+			</div>
+		{{ end }}
+	</div>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/import.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

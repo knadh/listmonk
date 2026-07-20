@@ -75,6 +75,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
 		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
 		g.GET(path.Join(uriAdmin, "/lists/forms"), a.ViewForms)
+		g.GET(path.Join(uriAdmin, "/import"), a.ViewImport)
 		g.GET(path.Join(uriAdmin, "/subscribers"), a.ViewSubscribers)
 		g.POST(path.Join(uriAdmin, "/subscribers"), a.ViewSubscribers)
 		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), hasID(a.ViewSubscribers))

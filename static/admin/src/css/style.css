@@ -1098,6 +1098,10 @@ section.import {
         max-height: 240px;
         text-align: start;
     }
+
+    .fields fieldset {
+        min-height: 170px;
+    }
 }
 
 .media-files {
