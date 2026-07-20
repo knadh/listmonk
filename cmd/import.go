@@ -13,6 +13,49 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// importView is the admin view for the subscriber import page.
+type importView struct {
+	adminView
+
+	AllLists      []models.List
+	SelectedLists []models.List
+	Status        subimporter.Status
+}
+
+// ViewImport renders the HTML view for the subscriber CSV import page.
+func (a *App) ViewImport(c echo.Context) error {
+	// Get the lists the user can access.
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	// Get the lists to pre-select (in the form) from the `list_id`` query param.
+	var selected []models.List
+	if ids, err := getQueryInts("list_id", c.QueryParams()); err == nil && len(ids) > 0 {
+		s := make(map[int]struct{}, len(ids))
+		for _, id := range ids {
+			s[id] = struct{}{}
+		}
+		for _, l := range allLists {
+			if _, ok := s[l.ID]; ok {
+				selected = append(selected, l)
+			}
+		}
+	}
+
+	data := importView{
+		adminView:     newAdminView(c, a.i18n.T("import.title"), ""),
+		AllLists:      allLists,
+		SelectedLists: selected,
+
+		// Live import stats.
+		Status: a.importer.GetStats(),
+	}
+
+	return c.Render(http.StatusOK, "admin-import", data)
+}
+
 // ImportSubscribers handles the uploading and bulk importing of
 // a ZIP file of one or more CSV files.
 func (a *App) ImportSubscribers(c echo.Context) error {

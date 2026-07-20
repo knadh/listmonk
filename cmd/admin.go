@@ -71,6 +71,12 @@ var adminJSI18nKeys = []string{
 	"lists.optins.single",
 	"lists.optins.double",
 
+	"import.importStarted",
+	"import.subscribeWarning",
+	"import.recordsCount",
+	"import.importDone",
+	"import.stopImport",
+
 	"public.sub",
 	"public.subName",
 	"subscribers.email",
