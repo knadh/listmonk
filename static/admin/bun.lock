@@ -14,7 +14,7 @@
         "@codemirror/search": "^6.7.1",
         "@codemirror/state": "^6.7.0",
         "@codemirror/view": "^6.43.4",
-        "@knadh/oat": "^0.6.2",
+        "@knadh/oat": "^0.7.0",
         "@lezer/highlight": "^1.2.3",
         "alpinejs": "^3.15.12",
       },
@@ -43,7 +43,7 @@
 
     "@codemirror/view": ["@codemirror/view@6.43.4", "", { "dependencies": { "@codemirror/state": "^6.7.0", "crelt": "^1.0.6", "style-mod": "^4.1.0", "w3c-keyname": "^2.2.4" } }, "sha512-YImu23iyKfncJzT7sRy+rEqEhSc8RhOHqDxwy4WzXRKJwYm6iwf/9OJk5ctCAdZ6yi2ZqaGEvmf55fSVqMDrgg=="],
 
-    "@knadh/oat": ["@knadh/oat@0.6.2", "", {}, "sha512-8jpbhUj8tZ84MqBQ4IJQNMwBthxgFW+mYsALQO+tTWh/ZQHJT7nm1vreyV4hRyQlc/FUZhPKm/r1cVDKJkuwuw=="],
+    "@knadh/oat": ["@knadh/oat@0.7.0", "", {}, "sha512-WVfaj/07sdLT9i99oR+4JObyy/YrlTXiwSDs/ZeIBE63i9WaksrIQhj+v9HjFHqRgEvZBCU8q6ALpu5sSDARIw=="],
 
     "@lezer/common": ["@lezer/common@1.5.2", "", {}, "sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ=="],
 
