@@ -52,7 +52,8 @@ WHERE ($1 = 0 OR bounces.id = $1)
     AND ($2 = 0 OR bounces.campaign_id = $2)
     AND ($3 = 0 OR bounces.subscriber_id = $3)
     AND ($4 = '' OR bounces.source = $4)
-ORDER BY %order% OFFSET $5 LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
+    AND ($5 = '' OR bounces.type = $5::bounce_type)
+ORDER BY %order% OFFSET $6 LIMIT (CASE WHEN $7 < 1 THEN NULL ELSE $7 END);
 
 -- name: delete-bounces
 DELETE FROM bounces WHERE $2 = TRUE OR id = ANY($1);

@@ -40,6 +40,7 @@ type serverConfig struct {
 
 var adminJSI18nKeys = []string{
 	"globals.buttons.back",
+	"globals.terms.bounce",
 	"globals.buttons.cancel",
 	"globals.buttons.ok",
 	"globals.messages.copied",
