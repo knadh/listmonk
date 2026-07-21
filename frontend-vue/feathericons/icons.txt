@@ -40,3 +40,5 @@ code
 refresh-cw
 more-vertical
 check-square
+star
+alert-triangle
