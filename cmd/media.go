@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
@@ -21,6 +22,48 @@ var (
 	vectorExts = []string{"svg"}
 	imageExts  = []string{"gif", "png", "jpg", "jpeg"}
 )
+
+// mediaView is the admin view for the media gallery page.
+type mediaView struct {
+	adminView
+
+	Media    []media.Media
+	Provider string
+	Page     models.PageProps
+}
+
+// ViewMedia renders the HTML gallery view for uploaded media.
+func (a *App) ViewMedia(c echo.Context) error {
+	res, props, err := a.getMedia(c)
+	if err != nil {
+		return err
+	}
+
+	data := mediaView{
+		adminView: newAdminView(c, a.i18n.T("media.title"), ""),
+		Media:     res,
+		Provider:  a.cfg.MediaUpload.Provider,
+		Page:      props,
+	}
+
+	return c.Render(http.StatusOK, "admin-media", data)
+}
+
+// getMedia queries paginated media items from the DB.
+func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) {
+	q := makeQuery(c.Request().URL.Query(), map[string]string{
+		"page":  "",
+		"query": "",
+	})
+
+	pg := a.pg.NewFromURL(q)
+	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, q.Get("query"), pg.Offset, pg.Limit)
+	if err != nil {
+		return nil, models.PageProps{}, err
+	}
+
+	return res, models.NewPageProps(q, total, pg.Page, pg.PerPage), nil
+}
 
 // UploadMedia handles media file uploads.
 func (a *App) UploadMedia(c echo.Context) error {

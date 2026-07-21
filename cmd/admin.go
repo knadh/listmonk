@@ -49,6 +49,7 @@ var adminJSI18nKeys = []string{
 	"globals.messages.created",
 	"globals.messages.deleted",
 	"globals.messages.deletedCount",
+	"globals.messages.done",
 	"globals.messages.numSelected",
 	"globals.messages.selectAll",
 	"globals.messages.updated",
