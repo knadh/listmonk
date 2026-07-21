@@ -45,7 +45,7 @@ func (a *App) ViewImport(c echo.Context) error {
 	}
 
 	data := importView{
-		adminView:     newAdminView(c, a.i18n.T("import.title"), ""),
+		adminView:     newAdminView(c, a.i18n.T("import.title"), "", "subscribers.import"),
 		AllLists:      allLists,
 		SelectedLists: selected,
 

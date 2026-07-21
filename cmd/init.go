@@ -1140,6 +1140,18 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			name = template.HTMLEscapeString(name)
 			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/icons.svg#icon-%s"></use></svg>`, u.RootPath, name))
 		},
+		"IsNav": func(current, id string) template.HTMLAttr {
+			if current == id {
+				return template.HTMLAttr(` aria-current="page"`)
+			}
+			return ""
+		},
+		"ExpandNav": func(current, section string) template.HTMLAttr {
+			if current == section || strings.HasPrefix(current, section+".") {
+				return template.HTMLAttr(" open")
+			}
+			return ""
+		},
 		"ToJSON":        jsonForTpl,
 		"Can":           can,
 		"CanManageList": canManageList,

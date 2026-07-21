@@ -52,7 +52,7 @@ func (a *App) ViewUsers(c echo.Context) error {
 	}
 
 	data := usersView{
-		adminView: newAdminView(c, a.i18n.T("globals.terms.users"), ""),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.users"), "", "users.users"),
 		Users:     users,
 	}
 
@@ -92,7 +92,7 @@ func (a *App) ViewUser(c echo.Context) error {
 	}
 
 	data := userView{
-		adminView: newAdminView(c, title, ""),
+		adminView: newAdminView(c, title, "", "users.users"),
 		User:      user,
 		IsEditing: isEditing,
 		UserRoles: userRoles,

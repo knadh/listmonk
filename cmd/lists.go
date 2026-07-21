@@ -55,8 +55,13 @@ func (a *App) ViewLists(c echo.Context) error {
 		return err
 	}
 
+	pageID := "lists.all"
+	if c.QueryParam("status") == models.ListStatusArchived {
+		pageID = "lists.archived"
+	}
+
 	data := listsView{
-		adminView:        newAdminView(c, a.i18n.T("globals.terms.lists"), ""),
+		adminView:        newAdminView(c, a.i18n.T("globals.terms.lists"), "", pageID),
 		Lists:            lists,
 		Page:             props,
 		CacheSlowQueries: ko.Bool("app.cache_slow_queries"),
@@ -81,7 +86,7 @@ func (a *App) ViewList(c echo.Context) error {
 	}
 
 	data := listView{
-		adminView: newAdminView(c, list.Name, ""),
+		adminView: newAdminView(c, list.Name, "", "lists.all"),
 		List:      list,
 	}
 
@@ -108,7 +113,7 @@ func (a *App) ViewForms(c echo.Context) error {
 		adminView
 		PublicLists []publicListForm
 	}{
-		adminView:   newAdminView(c, a.i18n.T("forms.title"), ""),
+		adminView:   newAdminView(c, a.i18n.T("forms.title"), "", "lists.forms"),
 		PublicLists: out,
 	}
 

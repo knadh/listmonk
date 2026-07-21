@@ -123,7 +123,7 @@ func (a *App) ViewSubscribers(c echo.Context) error {
 	}
 
 	data := subscribersView{
-		adminView:   newAdminView(c, a.i18n.T("globals.terms.subscribers"), ""),
+		adminView:   newAdminView(c, a.i18n.T("globals.terms.subscribers"), "", "subscribers.all"),
 		Subscribers: subs,
 		Page:        props,
 		AllLists:    allLists,
@@ -151,7 +151,7 @@ func (a *App) ViewSubscriber(c echo.Context) error {
 	}
 
 	data := subscriberView{
-		adminView:  newAdminView(c, out.Email, ""),
+		adminView:  newAdminView(c, out.Email, "", "subscribers.all"),
 		Tab:        tab,
 		Subscriber: out,
 		AllLists:   allLists,
@@ -173,7 +173,7 @@ func (a *App) ViewSubscriberBounces(c echo.Context) error {
 	}
 
 	data := subscriberView{
-		adminView:  newAdminView(c, out.Email, ""),
+		adminView:  newAdminView(c, out.Email, "", "subscribers.all"),
 		Tab:        "bounces",
 		Subscriber: out,
 		Bounces:    bounces,
@@ -195,7 +195,7 @@ func (a *App) ViewSubscriberActivity(c echo.Context) error {
 	}
 
 	data := subscriberView{
-		adminView:  newAdminView(c, out.Email, ""),
+		adminView:  newAdminView(c, out.Email, "", "subscribers.all"),
 		Tab:        "activity",
 		Subscriber: out,
 	}
