@@ -1,0 +1,67 @@
+{{ define "admin-settings" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<script>
+	const _settings = {{ ToJSON $d.Settings }};
+	const _userRoles = {{ ToJSON $d.UserRoles }};
+	const _listRoles = {{ ToJSON $d.ListRoles }};
+</script>
+
+<form class="settings" @submit.prevent="onSubmit" x-data="settingsView(_settings, _userRoles, _listRoles)">
+		<header class="row page-header">
+			<div class="col-6">
+				<h1 class="page-title">
+					{{ .L.T "settings.title" }}
+					<span>({{ $d.Version }})</span>
+				</h1>
+			</div>
+			<div class="col-6 col-end align-right hstack justify-end">
+				<div class="search-form settings-search">
+					<fieldset class="group">
+						<input type="search" x-ref="search" data-cy="search" @input="onSearch($event)"
+							aria-label="{{ .L.T "globals.buttons.search" }}" placeholder="{{ .L.T "globals.buttons.search" }}" />
+						<button type="button" class="outline" @click.prevent="clearSearch" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
+					</fieldset>
+				</div>
+				{{- if $d.Can "settings:manage" }}
+					<button type="submit" data-variant="primary" data-cy="btn-save" data-spinner="small"
+						:aria-busy="isLoading('settings')" :disabled="isLoading('settings')">
+						{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}
+					</button>
+				{{- end }}
+			</div>
+		</header>
+
+		<div class="card page-content">
+			<ot-tabs class="settings-tabs" x-ref="tabs" data-anchor="tab">
+				<div class="settings-sidebar" role="tablist" aria-orientation="vertical" @click="onTabClick($event)" @keydown="onTabKeydown($event)">
+					<button type="button" role="tab" id="general">{{ .L.T "settings.general.name" }}</button>
+					<button type="button" role="tab" id="performance">{{ .L.T "settings.performance.name" }}</button>
+					<button type="button" role="tab" id="privacy">{{ .L.T "settings.privacy.name" }}</button>
+					<button type="button" role="tab" id="security">{{ .L.T "settings.security.name" }}</button>
+					<button type="button" role="tab" id="media">{{ .L.T "settings.media.title" }}</button>
+					<button type="button" role="tab" id="smtp">{{ .L.T "settings.smtp.name" }}</button>
+					<button type="button" role="tab" id="bounces">{{ .L.T "settings.bounces.name" }}</button>
+					<button type="button" role="tab" id="messengers">{{ .L.T "settings.messengers.name" }}</button>
+					<button type="button" role="tab" id="appearance">{{ .L.T "settings.appearance.name" }}</button>
+				</div>
+
+				<div role="tabpanel">{{ template "settings-general" . }}</div>
+				<div role="tabpanel">{{ template "settings-performance" . }}</div>
+				<div role="tabpanel">{{ template "settings-privacy" . }}</div>
+				<div role="tabpanel">{{ template "settings-security" . }}</div>
+				<div role="tabpanel">{{ template "settings-media" . }}</div>
+				<div role="tabpanel">{{ template "settings-smtp" . }}</div>
+				<div role="tabpanel">{{ template "settings-bounces" . }}</div>
+				<div role="tabpanel">{{ template "settings-messengers" . }}</div>
+				<div role="tabpanel">{{ template "settings-appearance" . }}</div>
+			</ot-tabs>
+		</div>
+</form>
+
+<script type="module" src="{{ URI "/admin/static/js/code-editor.js" }}?v={{ .AssetVersion }}" defer></script>
+<script type="module" src="{{ URI "/admin/static/js/views/settings.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

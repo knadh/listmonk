@@ -98,6 +98,9 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/users/roles/lists/:id"), hasID(a.ViewListRole))
 		g.GET(path.Join(uriAdmin, "/users/roles/:id"), hasID(a.ViewUserRole))
 		g.GET(path.Join(uriAdmin, "/users/:id"), hasID(a.ViewUser))
+
+		// Settings.
+		g.GET(path.Join(uriAdmin, "/settings"), a.ViewSettings)
 	}
 
 	// =================================================================
