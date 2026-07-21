@@ -944,24 +944,13 @@ section.campaigns {
 }
 
 section.analytics {
-    .charts {
-        min-height: 100px;
-        position: relative;
-    }
-
-    .chart {
-        margin-block-end: var(--space-16);
-        max-width: 100%;
-    }
-
+    /* Fixed-height, position:relative wrappers so Chart.js can size the canvas
+       without the responsive resize feedback loop. */
+    .chart-box,
     .donut-container {
         position: relative;
+        height: 340px;
     }
-}
-
-.chart canvas {
-    height: 400px;
-    max-width: 100%;
 }
 
 .preview {
