@@ -85,6 +85,17 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), hasID(a.ViewSubscriber))
 		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), hasID(a.ViewSubscriberBounces))
 		g.GET(path.Join(uriAdmin, "/subscribers/:id/activity"), hasID(a.ViewSubscriberActivity))
+
+		// Users and roles. Static segments are registered before the :id param routes.
+		g.GET(path.Join(uriAdmin, "/users"), a.ViewUsers)
+		g.GET(path.Join(uriAdmin, "/users/new"), a.ViewUser)
+		g.GET(path.Join(uriAdmin, "/users/roles"), a.ViewUserRoles)
+		g.GET(path.Join(uriAdmin, "/users/roles/new"), a.ViewUserRole)
+		g.GET(path.Join(uriAdmin, "/users/roles/lists"), a.ViewListRoles)
+		g.GET(path.Join(uriAdmin, "/users/roles/lists/new"), a.ViewListRole)
+		g.GET(path.Join(uriAdmin, "/users/roles/lists/:id"), hasID(a.ViewListRole))
+		g.GET(path.Join(uriAdmin, "/users/roles/:id"), hasID(a.ViewUserRole))
+		g.GET(path.Join(uriAdmin, "/users/:id"), hasID(a.ViewUser))
 	}
 
 	// =================================================================

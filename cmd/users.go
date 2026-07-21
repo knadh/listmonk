@@ -18,6 +18,103 @@ var (
 	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\-\.@]+$`)
 )
 
+// usersView is the admin page view for the users list page.
+type usersView struct {
+	adminView
+
+	Users []auth.User
+}
+
+// userView is the admin page view for a single user's add/edit form.
+type userView struct {
+	adminView
+
+	User      auth.User
+	IsEditing bool
+	UserRoles []auth.Role
+	ListRoles []auth.ListRole
+}
+
+// ViewUsers renders the HTML view listing all users.
+func (a *App) ViewUsers(c echo.Context) error {
+	if !can(auth.GetUser(c), auth.PermUsersGet) {
+		return auth.ErrPermDenied
+	}
+
+	users, err := a.core.GetUsers()
+	if err != nil {
+		return err
+	}
+
+	// Blank out the password hashes.
+	for n := range users {
+		users[n].Password = null.String{}
+	}
+
+	data := usersView{
+		adminView: newAdminView(c, a.i18n.T("globals.terms.users"), ""),
+		Users:     users,
+	}
+
+	return c.Render(http.StatusOK, "admin-users", data)
+}
+
+// ViewUser renders the HTML add/edit form for a user. It handles both the "new user"
+// (no ID) and the "edit user" (ID in the URI) cases.
+func (a *App) ViewUser(c echo.Context) error {
+	if !can(auth.GetUser(c), auth.PermUsersGet) {
+		return auth.ErrPermDenied
+	}
+
+	var (
+		user      auth.User
+		isEditing bool
+	)
+	if c.Get("id") != nil {
+		out, err := a.core.GetUser(getID(c), "", "")
+		if err != nil {
+			return err
+		}
+		out.Password = null.String{}
+		user = out
+		isEditing = true
+	}
+
+	// Roles for the role selectors.
+	userRoles, listRoles, err := a.getRoles()
+	if err != nil {
+		return err
+	}
+
+	title := a.i18n.T("users.newUser")
+	if isEditing {
+		title = user.Name
+	}
+
+	data := userView{
+		adminView: newAdminView(c, title, ""),
+		User:      user,
+		IsEditing: isEditing,
+		UserRoles: userRoles,
+		ListRoles: listRoles,
+	}
+
+	return c.Render(http.StatusOK, "admin-user", data)
+}
+
+// getRoles fetches user and list roles for the user-form role selectors.
+func (a *App) getRoles() ([]auth.Role, []auth.ListRole, error) {
+	userRoles, err := a.core.GetRoles()
+	if err != nil {
+		return nil, nil, err
+	}
+	listRoles, err := a.core.GetListRoles()
+	if err != nil {
+		return nil, nil, err
+	}
+	return userRoles, listRoles, nil
+}
+
 // GetUser retrieves a single user by ID.
 func (a *App) GetUser(c echo.Context) error {
 	// Get the user from the DB.

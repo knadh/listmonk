@@ -78,6 +78,18 @@ table {
         border-bottom: 1px solid var(--border);
     }
 
+    td {
+        .tag {
+            border-radius: var(--radius-small);
+            color: var(--muted-foreground);
+            padding: calc(var(--space-1) / 4) var(--space-2);
+
+            &:hover {
+                color: var(--foreground);
+            }
+        }
+    }
+
     .view {
         color: var(--faint-foreground);
         font-size: var(--text-8);
@@ -620,20 +632,24 @@ ol.no {
 
 svg.icon {
     display: inline-block;
-    height: 1.5em;
+    height: 1em;
     margin-inline-end: 0.2em;
     vertical-align: -0.125em;
     width: 1em;
+    align-self: center;
 }
 
 .page-404 h1 {
     font-size: 6rem;
 }
 
+.page-header .back {
+    display: inline-flex;
+    align-items: center;
+}
 .page-header .back .icon {
     font-size: var(--text-1);
     margin: 0;
-    vertical-align: -0.225em;
 }
 .page-header h1,
 .page-header h4 {
@@ -830,18 +846,6 @@ section.lists {
             text-align: center;
         }
     }
-    td {
-        .tag {
-            border-radius: var(--radius-small);
-            color: var(--muted-foreground);
-            padding: calc(var(--space-1) / 4) var(--space-2);
-
-            &:hover {
-                color: var(--foreground);
-            }
-        }
-    }
-
     .subscriber-stats {
         label {
             font-size: var(--text-8);

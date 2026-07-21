@@ -1,0 +1,104 @@
+{{ define "admin-user-role" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $canManage := $d.Can "roles:manage" -}}
+{{- $base := URI "/admin/users/roles" -}}
+
+<script>
+	window._role = {{ ToJSON $d.Role }};
+	window._permGroups = {{ ToJSON $d.PermGroups }};
+</script>
+<section class="roles" x-data="roleForm({ type: 'user', isEditing: {{ $d.IsEditing }}, canManage: {{ $canManage }} })">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">
+					{{- if $d.IsEditing }}{{ $d.Role.Name.String }}{{ else }}{{ .L.T "users.newUserRole" }}{{ end -}}
+				</h1>
+			</div>
+		</div>
+		{{- if $d.IsEditing }}
+			<div class="col-6 align-right">
+				<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+				</button>
+			</div>
+		{{- end }}
+	</header>
+
+	<form method="post" @submit.prevent="onSubmit">
+		<div class="card page-content content">
+			<section class="dialog-body">
+				<label data-field>
+					{{ .L.T "globals.fields.name" }}
+					<input name="name" maxlength="200" autofocus required :disabled="disabled" x-model="form.name" />
+				</label>
+
+				<div class="row">
+					<div class="col-9"><label>{{ .L.T "users.perms" }}</label></div>
+					<div class="col-3 align-right">
+						<button type="button" class="small outline" :disabled="disabled" @click.prevent="onToggleSelect">{{ .L.T "globals.buttons.toggleSelect" }}</button>
+					</div>
+				</div>
+
+				<table>
+					<thead>
+						<tr>
+							<th>{{ .L.T "users.roleGroup" }}</th>
+							<th>{{ .L.T "users.perms" }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{- range $d.PermGroups }}
+							<tr>
+								<td>{{ $.L.T (printf "globals.terms.%s" .Group) }}</td>
+								<td>
+									<div class="vstack gap-1">
+										{{- range .Permissions }}
+											<label>
+												<input type="checkbox" value="{{ . }}" x-model="form.permissions" :disabled="disabled" />
+												{{- if eq . "subscribers:sql_query" }}
+													<span class="text-danger">{{ . }}</span>
+													<a href="https://listmonk.app/docs/roles-and-permissions/#subscriberssql_query" target="_blank" rel="noopener noreferrer" class="text-danger" aria-label="Warning: high risk permission">
+														{{ Icon "alert-triangle" }}
+													</a>
+												{{- else if eq . "users:manage" }}
+													<span class="text-danger">{{ . }}</span>
+													<a href="https://listmonk.app/docs/roles-and-permissions/#:~:text=users:manage" target="_blank" rel="noopener noreferrer" class="text-danger" aria-label="Warning: high risk permission">
+														{{ Icon "alert-triangle" }}
+													</a>
+												{{ else }}
+													{{ . }}
+												{{- end }}
+											</label>
+										{{- end }}
+									</div>
+								</td>
+							</tr>
+						{{- end }}
+					</tbody>
+				</table>
+			</section>
+
+			<footer class="dialog-foot">
+				<div class="row mt-6">
+					<div class="col-6">
+						<a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer" class="text-light text-8">
+							{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
+						</a>
+					</div>
+					<div class="col-6 hstack justify-end">
+						<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
+						<button type="submit" data-variant="primary" data-cy="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</form>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/roles.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

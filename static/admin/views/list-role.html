@@ -1,0 +1,100 @@
+{{ define "admin-list-role" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $canManage := $d.Can "roles:manage" -}}
+{{- $base := URI "/admin/users/roles/lists" -}}
+
+<script>
+	window._role = {{ ToJSON $d.Role }};
+	window._lists = {{ ToJSON $d.AllLists }};
+</script>
+<section class="roles" x-data="roleForm({ type: 'list', isEditing: {{ $d.IsEditing }}, canManage: {{ $canManage }} })">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">
+					{{- if $d.IsEditing }}{{ $d.Role.Name.String }}{{ else }}{{ .L.T "users.newListRole" }}{{ end -}}
+				</h1>
+			</div>
+		</div>
+		{{- if $d.IsEditing }}
+			<div class="col-6 align-right">
+				<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+				</button>
+			</div>
+		{{- end }}
+	</header>
+
+	<form method="post" @submit.prevent="onSubmit">
+		<div class="card page-content content">
+			<section class="dialog-body">
+				<label data-field>
+					{{ .L.T "globals.fields.name" }}
+					<input name="name" maxlength="200" autofocus required :disabled="disabled" x-model="form.name" />
+				</label>
+
+				<div data-field>
+					<label>{{ .L.T "globals.terms.list" }}</label>
+					<fieldset class="group">
+						<select aria-label="{{ .L.Tc "globals.terms.list" 1 }}" x-model.number="form.curList" :disabled="disabled || filteredLists.length < 1">
+							<template x-for="l in filteredLists" :key="l.id">
+								<option :value="l.id" x-text="l.name"></option>
+							</template>
+						</select>
+						<button type="button" data-variant="primary" @click="onAddListPerm" :disabled="disabled || !form.curList">{{ .L.T "globals.buttons.add" }}</button>
+					</fieldset>
+				</div>
+
+				<table>
+					<thead>
+						<tr>
+							<th width="50%">{{ .L.Tc "globals.terms.list" 1 }}</th>
+							<th width="20%">{{ .L.T "users.perms" }}</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<template x-for="l in form.lists" :key="l.id">
+							<tr>
+								<td><a :href="`{{ URI "/admin/lists" }}/${l.id}`" x-text="l.name"></a></td>
+								<td>
+									<div class="hstack gap-3">
+										<label><input type="checkbox" value="list:get" x-model="l.permissions" :disabled="disabled" /> {{ .L.T "globals.buttons.view" }}</label>
+										<label><input type="checkbox" value="list:manage" x-model="l.permissions" :disabled="disabled" /> {{ .L.T "globals.buttons.manage" }}</label>
+									</div>
+								</td>
+								<td class="align-right">
+									<button type="button" class="ghost icon" data-variant="danger" :disabled="disabled" @click="onDeleteListPerm(l.id)" :aria-label="`{{ .L.T "globals.buttons.delete" }} ${l.name}`">{{ Icon "trash-2" }}</button>
+								</td>
+							</tr>
+						</template>
+						<template x-if="form.lists.length === 0">
+							<tr><td colspan="3" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+						</template>
+					</tbody>
+				</table>
+			</section>
+
+			<footer class="dialog-foot">
+				<div class="row mt-6">
+					<div class="col-6">
+						<a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer" class="text-light text-8">
+							{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
+						</a>
+					</div>
+					<div class="col-6 hstack justify-end">
+						<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
+						<button type="submit" data-variant="primary" data-cy="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</form>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/roles.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

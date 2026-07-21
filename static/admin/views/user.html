@@ -1,0 +1,138 @@
+{{ define "admin-user" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $base := URI "/admin/users" -}}
+{{- $canSave := $d.Can "users:manage" -}}
+
+<script>
+	window._user = {{ ToJSON $d.User }};
+	window._userRoles = {{ ToJSON $d.UserRoles }};
+</script>
+<section class="users" x-data="userForm({ isEditing: {{ $d.IsEditing }}, canSave: {{ $canSave }} })">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">
+					{{- if $d.IsEditing }}{{ $d.User.Name }}{{ else }}{{ .L.T "users.newUser" }}{{ end -}}
+				</h1>
+				{{- if and $d.IsEditing (eq $d.User.Status "disabled") }}<span class="badge enum" data-variant="danger">{{ $.L.T "users.status.disabled" }}</span>{{ end }}
+			</div>
+		</div>
+		{{- if $d.IsEditing }}
+			<div class="col-6 align-right">
+				<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+				</button>
+			</div>
+		{{- end }}
+	</header>
+
+	<form method="post" @submit.prevent="onSubmit">
+		<div class="card page-content content">
+			<section class="dialog-body">
+				<div data-field>
+					<label for="user-type">{{ .L.T "users.type" }}</label>
+					<select name="type" id="user-type" autofocus x-model="form.type" :disabled="isEditing">
+						<option value="user">{{ .L.T "users.type.user" }}</option>
+						<option value="api">{{ .L.T "users.type.api" }}</option>
+					</select>
+				</div>
+
+				<fieldset>
+					<legend>{{ .L.T "users.profile" }}</legend>
+					<label data-field>
+						{{ .L.T "users.username" }}
+						<input name="username" maxlength="200" required autocomplete="off" pattern="[a-zA-Z0-9_\-\.@]+$" autofocus x-model="form.username" />
+						<small data-hint>{{ .L.T "users.usernameHelp" }}</small>
+					</label>
+
+					<label data-field>
+						{{ .L.T "globals.fields.name" }}
+						<input name="name" maxlength="200" x-model="form.name" />
+					</label>
+
+					<label data-field :aria-disabled="form.type === 'api'">
+						{{ .L.T "subscribers.email" }}
+						<input name="email" type="email" maxlength="200" :required="form.type !== 'api'" x-model="form.email" :disabled="form.type === 'api'" />
+					</label>
+
+					<div data-field>
+						<label for="user-status">{{ .L.T "globals.fields.status" }}</label>
+						<select name="status" id="user-status" required x-model="form.status">
+							<option value="enabled">{{ .L.T "users.status.enabled" }}</option>
+							<option value="disabled">{{ .L.T "users.status.disabled" }}</option>
+						</select>
+					</div>
+				</fieldset>
+
+				<fieldset :disabled="form.type === 'api'">
+					<legend>{{ .L.T "users.password" }}</legend>
+					<label data-field>
+						<input type="checkbox" x-model="form.password_login" /> {{ .L.T "users.passwordEnable" }}
+					</label>
+					<label data-field>
+						{{ .L.T "users.password" }}
+						<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && !isEditing" x-model="form.password" />
+					</label>
+					<label data-field>
+						{{ .L.T "users.passwordRepeat" }}
+						<input type="password" name="password2" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && !isEditing && form.password" x-model="form.password2" />
+					</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>{{ .L.Tc "users.roles" 2 }}</legend>
+					<div data-field>
+						<label for="user-role">{{ .L.Tc "users.userRole" 1 }}</label>
+						<select name="user_role" id="user-role" required x-model.number="form.user_role_id">
+							{{- range $d.UserRoles }}
+								<option value="{{ .ID }}">{{ .Name.String }}</option>
+							{{- end }}
+						</select>
+					</div>
+					<div data-field>
+						<label for="list-role">{{ .L.Tc "users.listRole" 2 }}</label>
+						<select name="list_role" id="list-role" x-model="form.list_role_id">
+							<option value="">&mdash; {{ .L.T "globals.terms.none" }} &mdash;</option>
+							{{- range $d.ListRoles }}
+								<option value="{{ .ID }}">{{ .Name.String }}</option>
+							{{- end }}
+						</select>
+					</div>
+				</fieldset>
+			</section>
+
+			<footer class="dialog-foot hstack gap-3 justify-end">
+				<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
+				{{- if $canSave }}
+					<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('users.save')" :aria-busy="isLoading('users.save')">{{ .L.T "globals.buttons.save" }}</button>
+				{{- end }}
+			</footer>
+		</div>
+	</form>
+
+	{{- if $canSave }}
+		<dialog class="b-modal" x-ref="tokenDialog" @close="onTokenDialogClose">
+			<div class="dialog-card content">
+				<header class="dialog-head">
+					<h3 class="dialog-title">{{ .L.T "users.type.api" }}</h3>
+				</header>
+				<section class="dialog-body">
+					<p class="text-light">{{ .L.T "users.apiOneTimeToken" }}</p>
+					<button type="button" class="w-100" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" @click="copyToClipboard(apiToken)">
+						<span x-text="apiToken"></span> {{ Icon "copy" }}
+					</button>
+				</section>
+				<footer class="dialog-foot align-right">
+					<button type="button" data-variant="primary" @click="$refs.tokenDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+				</footer>
+			</div>
+		</dialog>
+	{{- end }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/users.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
