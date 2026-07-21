@@ -1,0 +1,90 @@
+{{ define "admin-campaign-analytics" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<script>
+	window._selectedCampaigns = {{ ToJSON $d.Campaigns }};
+	window._analytics = {{ if $d.HasData }}{{ ToJSON $d.Data }}{{ else }}null{{ end }};
+</script>
+
+<section class="analytics">
+	<header class="row page-header">
+		<div class="col-8">
+			<h1 class="page-title">{{ .L.T "analytics.title" }}</h1>
+		</div>
+	</header>
+
+	<div class="vstack gap-6">
+		<form method="get" action="{{ URI "/admin/campaigns/analytics" }}" class="card" x-data="analyticsForm()" @submit="submitting = true">
+			<div class="row">
+				<div class="col-5">
+					<label data-field>
+						{{ .L.T "globals.terms.campaigns" }}
+						<ot-taginput x-model="campaigns">
+							<input list="analytics-campaigns" placeholder="{{ .L.T "globals.terms.campaigns" }}" @input="onQuery($el)" @pointerdown="onQuery($el)" @focus="onQuery($el)" />
+							<datalist id="analytics-campaigns"></datalist>
+						</ot-taginput>
+					</label>
+					<template x-for="c in campaigns" :key="c.id">
+						<input type="hidden" name="id" :value="c.id" />
+					</template>
+				</div>
+
+				<div class="col-7">
+					<data data-field>
+						<label>{{ .L.T "analytics.fromDate" }} &rarr; {{ .L.T "analytics.toDate" }}</label>
+						<fieldset class="group">
+							<input type="datetime-local" name="from" value="{{ $d.FromInput }}" aria-label="{{ .L.T "analytics.fromDate" }}" data-cy="from" />
+							<input type="datetime-local" name="to" value="{{ $d.ToInput }}" aria-label="{{ .L.T "analytics.toDate" }}" data-cy="to" />
+							<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="campaigns.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
+								{{ .L.T "globals.buttons.view" }}
+							</button>
+						</fieldset>
+						{{- if $d.DisableTracking }}
+							<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.trackingDisabled" }}</span>
+						{{- else if not $d.IndividualTracking }}
+							<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.nonIndividualTracking" }}</span>
+						{{- end }}
+					</data>
+				</div>
+			</div>
+		</form>
+
+		{{- if $d.HasData }}
+			{{- $empty := .L.T "globals.messages.emptyState" }}
+			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Empty" $empty }}
+			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Empty" $empty }}
+			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Empty" $empty }}
+
+			<article class="card">
+				<h4>{{ .L.T "analytics.links" }}</h4>
+				{{- if $d.Data.Links }}
+					<div class="chart-box"><canvas id="chart-links"></canvas></div>
+				{{- else }}
+					<p class="text-light align-center">{{ $empty }}</p>
+				{{- end }}
+			</article>
+		{{- end }}
+	</div>
+</section>
+
+<script src="{{ URI "/admin/static/vendor/chart.min.js" }}?v={{ .AssetVersion }}" defer></script>
+<script type="module" src="{{ URI "/admin/static/js/views/analytics.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
+
+{{ define "analytics-chart" -}}
+{{- $key := .Key -}}
+<article class="card">
+	<h4>{{ .Title }}{{ if gt .Count 0 }} <span class="text-lighter">({{ FormatNumber .Count }})</span>{{ end }}</h4>
+	{{- if gt .Count 0 }}
+		<div class="row">
+			<div class="col-9"><div class="chart-box"><canvas id="chart-{{ $key }}"></canvas></div></div>
+			<div class="col-3 donut-container"><canvas id="chart-{{ $key }}-donut"></canvas></div>
+		</div>
+	{{- else }}
+		<p class="text-light align-center">{{ .Empty }}</p>
+	{{- end }}
+</article>
+{{- end }}

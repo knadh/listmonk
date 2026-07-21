@@ -18,6 +18,7 @@ const vendor = [
   ['node_modules/alpinejs/dist/cdn.min.js', 'vendor/alpinejs.min.js'],
   ['node_modules/@knadh/oat/oat.min.js', 'vendor/oat.min.js'],
   ['node_modules/@knadh/oat/oat.min.css', 'vendor/oat.min.css'],
+  ['node_modules/chart.js/dist/chart.umd.js', 'vendor/chart.min.js'],
 ];
 
 async function build() {

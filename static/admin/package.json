@@ -20,6 +20,7 @@
     "@codemirror/view": "^6.43.4",
     "@knadh/oat": "^0.7.0",
     "@lezer/highlight": "^1.2.3",
-    "alpinejs": "^3.15.12"
+    "alpinejs": "^3.15.12",
+    "chart.js": "^4.4.1"
   }
 }

@@ -607,54 +607,6 @@ func (a *App) TestCampaign(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// GetCampaignViewAnalytics retrieves view counts for a campaign.
-func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
-	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
-	}
-
-	if len(ids) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
-	}
-
-	// Ensure the user has access to campaigns via lists.
-	for _, id := range ids {
-		if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
-			return err
-		}
-	}
-
-	var (
-		typ  = c.Param("type")
-		from = c.QueryParams().Get("from")
-		to   = c.QueryParams().Get("to")
-	)
-	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
-	}
-
-	// Campaign link stats.
-	if typ == "links" {
-		out, err := a.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(http.StatusOK, okResp{out})
-	}
-
-	// Get the analytics numbers from the DB for the campaigns.
-	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, okResp{out})
-}
-
 // sendTestMessage takes a campaign and a subscriber and sends out a sample campaign message.
 func (a *App) sendTestMessage(sub models.Subscriber, camp *models.Campaign) error {
 	if err := a.manager.LoadInlineImages(camp); err != nil {

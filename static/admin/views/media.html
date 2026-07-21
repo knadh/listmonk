@@ -1,0 +1,101 @@
+{{ define "admin-media" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<section class="media-files" x-data="mediaView">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack">
+				<h1 class="page-title">
+					{{ .L.T "media.title" }}
+					<span>({{ $d.Page.Total }})</span>
+				</h1>
+				{{- if $d.Provider }}<div class="text-7 text-lighter">{{ $d.Provider }}</div>{{ end }}
+			</div>
+		</div>
+		<div class="col-6 col-end align-right hstack justify-end">
+			<form method="get" action="{{ URI "/admin/campaigns/media" }}" class="search-form">
+				{{- $d.Page.FormFields "query" -}}
+				<fieldset class="group">
+					<input name="query" aria-label="Search" data-cy="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+				</fieldset>
+			</form>
+			{{- if $d.Can "media:manage" }}
+				<button type="button" data-variant="primary" class="btn-new" data-cy="btn-upload" @click="onOpenUpload">
+					{{ Icon "upload" }} {{ .L.T "media.upload" }}
+				</button>
+			{{- end }}
+		</div>
+	</header>
+
+	<div class="card page-content">
+		{{- if $d.Media }}
+			<ul class="unstyled gallery">
+				{{- range $d.Media }}
+					<li data-cy="media-item">
+						<figure class="card">
+							<a class="thumb" href="{{ .URL }}" target="_blank" rel="noopener noreferrer" title="{{ .Filename }}">
+								{{- if .ThumbURL.Valid }}
+									<img src="{{ .ThumbURL.String }}" alt="{{ .Filename }}" />
+								{{- else }}
+									<span class="ext">{{ .Filename | ext | trimPrefix "." | upper }}</span>
+								{{- end }}
+							</a>
+							<figcaption>
+								<span class="filename" title="{{ .Filename }}">{{ .Filename }}</span>
+								<span class="text-light text-8">{{ NiceDate .CreatedAt }}</span>
+							</figcaption>
+							{{- if $d.Can "media:manage" }}
+								<ot-dropdown class="actions">
+									<button popovertarget="media-actions-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
+									<menu popover id="media-actions-{{ .ID }}">
+										<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" @click.prevent="onDelete({{ .ID }}, {{ ToJSON .Filename }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+									</menu>
+								</ot-dropdown>
+							{{- end }}
+						</figure>
+					</li>
+				{{- end }}
+			</ul>
+		{{- else }}
+			<div class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</div>
+		{{- end }}
+
+		{{- template "pagination" $d.Page.Pagination }}
+	</div>
+
+	{{- if $d.Can "media:manage" }}
+		<dialog class="b-modal" x-ref="dialog">
+			<form @submit.prevent="onUpload">
+				<div class="dialog-card content">
+					<header class="dialog-head">
+						<h3 class="dialog-title">{{ .L.T "media.upload" }}</h3>
+					</header>
+					<section class="dialog-body">
+						<div data-field>
+							<ot-upload>
+								<div data-field class="vstack">
+									<input type="file" name="file" multiple hidden @change="files = [...$event.target.files]" />
+									<button type="button" class="ghost" aria-label="{{ .L.T "media.upload" }}">{{ Icon "upload" }}</button>
+									<div data-files><small data-hint>{{ .L.T "media.uploadHelp" }}</small></div>
+								</div>
+							</ot-upload>
+						</div>
+					</section>
+					<footer class="dialog-foot hstack gap-3 justify-end">
+						<button type="button" class="outline" @click="onClose">{{ .L.T "globals.buttons.close" }}</button>
+						<button type="submit" data-variant="primary" data-cy="btn-submit" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
+							{{ Icon "upload" }} {{ .L.T "media.upload" }}
+						</button>
+					</footer>
+				</div>
+			</form>
+		</dialog>
+	{{- end }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/media.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
