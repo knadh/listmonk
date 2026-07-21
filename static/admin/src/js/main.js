@@ -107,9 +107,8 @@ export async function api(name, uri, method, data) {
       return out.data;
     }
 
-    const message = out.message || resp.statusText;
-    u.toast(message, 'danger');
-    throw new Error(message);
+    // Throw with the server message; the single .catch below shows the toast.
+    throw new Error(out.message || resp.statusText);
   }).catch((err) => {
     getStore().loading[name] = false;
     u.toast(err.message, 'danger');

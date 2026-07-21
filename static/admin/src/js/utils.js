@@ -175,6 +175,16 @@ export function reload(toast) {
   window.location.reload();
 }
 
+// Navigate to a URL. If a toast object is given, it's put in
+// sessionStorage and shown as a toast after the navigation.
+export function redirect(url, toast) {
+  if (toast) {
+    sessionStorage.setItem('reload-toast', JSON.stringify(toast));
+  }
+
+  window.location.href = url;
+}
+
 
 export function copyToClipboard(text) {
   if (!navigator.clipboard) {

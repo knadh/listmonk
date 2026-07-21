@@ -1,0 +1,76 @@
+{{ define "admin-roles" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $base := URI "/admin/users/roles" -}}
+{{- if eq $d.Type "list" }}{{ $base = URI "/admin/users/roles/lists" }}{{ end -}}
+
+<section class="roles" x-data="rolesView({ type: {{ ToJSON $d.Type }} })">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack">
+				<h1 class="page-title">
+					{{ if eq $d.Type "list" }}{{ .L.T "users.listRoles" }}{{ else }}{{ .L.T "users.userRoles" }}{{ end }}
+					<span>({{ len $d.Roles }})</span>
+				</h1>
+			</div>
+		</div>
+		<div class="col-6 col-end align-right hstack justify-end">
+			{{- if $d.Can "roles:manage" }}
+				<a href="{{ $base }}/new" class="button" data-variant="primary" data-cy="btn-new">
+					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
+				</a>
+			{{- end }}
+		</div>
+	</header>
+
+	<div class="card page-content has-table">
+		<div class="table-wrapper">
+			<table>
+				<thead>
+					<tr>
+						<th class="cy-name">{{ .L.Tc "users.role" 1 }}</th>
+						<th class="cy-created_at">{{ .L.T "globals.fields.createdAt" }}</th>
+						<th class="cy-updated_at">{{ .L.T "globals.fields.updatedAt" }}</th>
+						<th class="actions align-right"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{- range $d.Roles }}
+						<tr data-id="{{ .ID }}">
+							<td>
+								<a href="{{ $base }}/{{ .ID }}">
+									{{- if eq .ID 1 }}<span class="badge enum super">{{ Icon "star" }}{{ .Name }}</span>{{ else }}{{ .Name }}{{ end -}}
+								</a>
+							</td>
+							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>
+							<td class="date-stack">{{ NiceDate .UpdatedAt }}</td>
+							<td class="actions align-right">
+								{{- if $d.Can "roles:manage" }}
+									<ot-dropdown>
+										<button popovertarget="role-actions-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
+											{{ Icon "more-vertical" }}
+										</button>
+										<menu popover id="role-actions-{{ .ID }}">
+											<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" :disabled="isLoading('roles')" @click.prevent="onCloneRole({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
+											{{- if ne .ID 1 }}
+												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('roles')" @click.prevent="onDeleteRole({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+											{{- end }}
+										</menu>
+									</ot-dropdown>
+								{{- end }}
+							</td>
+						</tr>
+					{{- else }}
+						<tr><td colspan="4" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+					{{- end }}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/roles.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
