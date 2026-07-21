@@ -61,7 +61,14 @@ func (a *App) GetSettings(c echo.Context) error {
 		return err
 	}
 
-	// Empty out passwords.
+	maskSettings(&s)
+
+	return c.JSON(http.StatusOK, okResp{s})
+}
+
+// maskSettings replaces sensitive values (passwords, secrets, keys) in the
+// settings with masked placeholders of the same length.
+func maskSettings(s *models.Settings) {
 	for i := range s.SMTP {
 		s.SMTP[i].Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SMTP[i].Password))
 	}
@@ -80,8 +87,65 @@ func (a *App) GetSettings(c echo.Context) error {
 	s.BounceLettermint.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceLettermint.Key))
 	s.SecurityCaptcha.HCaptcha.Secret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SecurityCaptcha.HCaptcha.Secret))
 	s.OIDC.ClientSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.OIDC.ClientSecret))
+}
 
-	return c.JSON(http.StatusOK, okResp{s})
+// roleOption is a minimal role representation for the settings OIDC role dropdowns.
+type roleOption struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// settingsView is the admin page view for the settings form.
+type settingsView struct {
+	adminView
+
+	Settings  models.Settings
+	UserRoles []roleOption
+	ListRoles []roleOption
+	Version   string
+}
+
+// ViewSettings renders the HTML view for the settings form.
+func (a *App) ViewSettings(c echo.Context) error {
+	if !can(auth.GetUser(c), "settings:get") {
+		return auth.ErrPermDenied
+	}
+
+	s, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+	maskSettings(&s)
+
+	// Roles for the OIDC default-role dropdowns (security tab).
+	var userRoles, listRoles []roleOption
+	if can(auth.GetUser(c), auth.PermRolesGet) {
+		ur, err := a.core.GetRoles()
+		if err != nil {
+			return err
+		}
+		for _, r := range ur {
+			userRoles = append(userRoles, roleOption{ID: r.ID, Name: r.Name.String})
+		}
+
+		lr, err := a.core.GetListRoles()
+		if err != nil {
+			return err
+		}
+		for _, r := range lr {
+			listRoles = append(listRoles, roleOption{ID: r.ID, Name: r.Name.String})
+		}
+	}
+
+	data := settingsView{
+		adminView: newAdminView(c, a.i18n.T("settings.title"), "", "settings.all"),
+		Settings:  s,
+		UserRoles: userRoles,
+		ListRoles: listRoles,
+		Version:   versionString,
+	}
+
+	return c.Render(http.StatusOK, "admin-settings", data)
 }
 
 // UpdateSettings returns settings from the DB.

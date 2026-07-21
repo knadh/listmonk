@@ -1,0 +1,87 @@
+{{ define "settings-messengers" -}}
+<div class="mb-6 settings-items messengers" data-keywords="messenger sms push notification webhook postback external channel" x-show="form.messengers.length > 0">
+	<template x-for="(item, n) in form.messengers" :key="n">
+		<details class="repeat-block" :open="item.open" @toggle="setOpen('messengers', n, $event.target.open)">
+			<summary>
+				<div class="row">
+					<div class="col-5">
+						<div class="hstack">
+							<span class="text-light" x-text="`#${n + 1}`"></span>
+							<span class="text-muted" x-show="item.name || item.root_url" x-text="item.name || item.root_url"></span>
+						</div>
+					</div>
+					<div class="col-7 col-end">
+						<div class="hstack gap-6 justify-end">
+							<label data-field @click.stop>
+								<input type="checkbox" role="switch" x-model="item.enabled" />
+								{{ .L.T "globals.buttons.enabled" }}
+							</label>
+							<button type="button" class="outline small" data-variant="danger" data-cy="btn-delete-messenger" @click.stop.prevent="removeMessenger(n)">
+								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
+							</button>
+						</div>
+					</div>
+				</div>
+			</summary>
+
+			<div class="accordion-body">
+			<div :aria-disabled="!item.enabled">
+				<label data-field>
+					{{ .L.T "globals.fields.name" }}
+					<input maxlength="200" placeholder="mymessenger" x-model="item.name" />
+					<small data-hint>{{ .L.T "settings.messengers.nameHelp" }}</small>
+				</label>
+
+				<label data-field>
+					{{ .L.T "settings.messengers.url" }}
+					<input type="url" pattern="https?://.*" maxlength="200" placeholder="https://postback.messenger.net/path" x-model="item.root_url" />
+					<small data-hint>{{ .L.T "settings.messengers.urlHelp" }}</small>
+				</label>
+
+				<label data-field>
+					{{ .L.T "settings.messengers.username" }}
+					<input maxlength="200" x-model="item.username" />
+				</label>
+
+				<label data-field>
+					{{ .L.T "settings.messengers.password" }}
+					<input type="password" maxlength="200" placeholder="{{ .L.T "globals.messages.passwordChange" }}" x-model="item.password" />
+					<small data-hint>{{ .L.T "globals.messages.passwordChange" }}</small>
+				</label>
+
+				<fieldset>
+					<legend>{{ .L.T "settings.connection" }}</legend>
+					<div class="row">
+						<div class="col-4">
+							<label data-field>
+								{{ .L.T "settings.messengers.maxConns" }}
+								<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.max_conns" />
+								<small data-hint>{{ .L.T "settings.messengers.maxConnsHelp" }}</small>
+							</label>
+						</div>
+						<div class="col-4">
+							<label data-field>
+								{{ .L.T "settings.messengers.retries" }}
+								<input type="number" min="1" max="1000" placeholder="2" x-model.number="item.max_msg_retries" />
+								<small data-hint>{{ .L.T "settings.messengers.retriesHelp" }}</small>
+							</label>
+						</div>
+						<div class="col-4">
+							<label data-field>
+								{{ .L.T "settings.messengers.timeout" }}
+								<input maxlength="10" placeholder="5s" x-model="item.timeout" />
+								<small data-hint>{{ .L.T "settings.messengers.timeoutHelp" }}</small>
+							</label>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+			</div>
+		</details>
+	</template>
+</div>
+
+<button type="button" data-variant="primary" class="btn-new" @click="addMessenger">
+	{{ Icon "plus" }} {{ .L.T "globals.buttons.addNew" }}
+</button>
+{{- end }}

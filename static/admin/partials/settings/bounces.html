@@ -1,0 +1,228 @@
+{{ define "settings-bounces" -}}
+<div class="settings-items">
+	<label data-field data-cy="btn-enable-bounce" data-keywords="bounce processing email delivery failures soft hard complaint enable">
+		<input type="checkbox" role="switch" x-model="form['bounce.enabled']" />
+		{{ .L.T "settings.bounces.enable" }}
+	</label>
+
+	<template x-if="form['bounce.enabled']">
+		<div class="settings-items">
+			{{- range $typ := list "soft" "hard" "complaint" }}
+				<fieldset data-keywords="bounce {{ $typ }} action count threshold unsubscribe blocklist delete">
+					<legend>{{ $.L.T (printf "bounces.%s" $typ) }}</legend>
+					<div class="row">
+						<div class="col-6">
+							<label data-field data-cy="btn-bounce-count">
+								{{ $.L.T "settings.bounces.count" }}
+								<input type="number" min="1" max="1000" placeholder="3" x-model.number="form['bounce.actions']['{{ $typ }}'].count" />
+								<small data-hint>{{ $.L.T "settings.bounces.countHelp" }}</small>
+							</label>
+						</div>
+						<div class="col-6">
+							<div data-field>
+								<label>{{ $.L.T "settings.bounces.action" }}</label>
+								<select x-model="form['bounce.actions']['{{ $typ }}'].action">
+									<option value="none">{{ $.L.T "globals.terms.none" }}</option>
+									<option value="unsubscribe">{{ $.L.T "email.unsub" }}</option>
+									<option value="blocklist">{{ $.L.T "settings.bounces.blocklist" }}</option>
+									<option value="delete">{{ $.L.T "globals.buttons.delete" }}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+			{{- end }}
+
+			<hr />
+
+			<label data-field data-cy="btn-enable-bounce-webhook" data-keywords="bounce webhook notifications endpoint enable">
+				<input type="checkbox" role="switch" x-model="form['bounce.webhooks_enabled']" />
+				{{ $.L.T "settings.bounces.enableWebhooks" }}
+				<small data-hint><a href="https://listmonk.app/docs/bounces" target="_blank" rel="noopener noreferrer">{{ $.L.T "globals.buttons.learnMore" }} &rarr;</a></small>
+			</label>
+
+			<template x-if="form['bounce.webhooks_enabled']">
+				<div class="settings-items">
+					<div data-keywords="bounce ses amazon sns aws webhook">
+						<label data-field data-cy="btn-enable-bounce-ses">
+							<input type="checkbox" role="switch" x-model="form['bounce.ses_enabled']" />
+							{{ $.L.T "settings.bounces.enableSES" }}
+						</label>
+					</div>
+
+					<div data-keywords="bounce azure webhook shared secret header">
+						<label data-field data-cy="btn-enable-bounce-azure">
+							<input type="checkbox" role="switch" x-model="form['bounce.azure'].enabled" />
+							{{ $.L.T "settings.bounces.enableAzure" }}
+						</label>
+						<template x-if="form['bounce.azure'].enabled">
+							<fieldset>
+								<label data-field>
+									{{ $.L.T "settings.bounces.azureSharedSecret" }}
+									<input type="password" x-model="form['bounce.azure'].shared_secret" data-cy="bounce-azure-shared-secret" />
+									<small data-hint>{{ $.L.T "settings.bounces.azureSharedSecretHelp" }}</small>
+								</label>
+								<label data-field>
+									{{ $.L.T "settings.bounces.azureSharedSecretHeader" }}
+									<input type="text" x-model="form['bounce.azure'].shared_secret_header" data-cy="bounce-azure-shared-secret-header" />
+									<small data-hint>{{ $.L.T "settings.bounces.azureSharedSecretHeaderHelp" }}</small>
+								</label>
+							</fieldset>
+						</template>
+					</div>
+
+					<div data-keywords="bounce sendgrid webhook key">
+						<label data-field data-cy="btn-enable-bounce-sendgrid">
+							<input type="checkbox" role="switch" x-model="form['bounce.sendgrid_enabled']" />
+							{{ $.L.T "settings.bounces.enableSendgrid" }}
+						</label>
+						<template x-if="form['bounce.sendgrid_enabled']">
+							<fieldset>
+								<label data-field>
+									{{ $.L.T "settings.bounces.sendgridKey" }}
+									<input type="password" x-model="form['bounce.sendgrid_key']" />
+									<small data-hint>{{ $.L.T "globals.messages.passwordChange" }}</small>
+								</label>
+							</fieldset>
+						</template>
+					</div>
+
+					<div data-keywords="bounce postmark webhook username password">
+						<label data-field data-cy="btn-enable-bounce-postmark">
+							<input type="checkbox" role="switch" x-model="form['bounce.postmark'].enabled" />
+							{{ $.L.T "settings.bounces.enablePostmark" }}
+						</label>
+						<template x-if="form['bounce.postmark'].enabled">
+							<fieldset>
+								<label data-field>
+									{{ $.L.T "settings.bounces.postmarkUsername" }}
+									<input type="text" x-model="form['bounce.postmark'].username" />
+									<small data-hint>{{ $.L.T "settings.bounces.postmarkUsernameHelp" }}</small>
+								</label>
+								<label data-field>
+									{{ $.L.T "settings.bounces.postmarkPassword" }}
+									<input type="password" x-model="form['bounce.postmark'].password" />
+									<small data-hint>{{ $.L.T "globals.messages.passwordChange" }}</small>
+								</label>
+							</fieldset>
+						</template>
+					</div>
+
+					<div data-keywords="bounce forwardemail forward email webhook key">
+						<label data-field data-cy="btn-enable-bounce-forwardemail">
+							<input type="checkbox" role="switch" x-model="form['bounce.forwardemail'].enabled" />
+							{{ $.L.T "settings.bounces.enableForwardemail" }}
+						</label>
+						<template x-if="form['bounce.forwardemail'].enabled">
+							<fieldset>
+								<label data-field>
+									{{ $.L.T "settings.bounces.forwardemailKey" }}
+									<input type="password" x-model="form['bounce.forwardemail'].key" />
+									<small data-hint>{{ $.L.T "globals.messages.passwordChange" }}</small>
+								</label>
+							</fieldset>
+						</template>
+					</div>
+
+					<div data-keywords="bounce lettermint webhook key">
+						<label data-field data-cy="btn-enable-bounce-lettermint">
+							<input type="checkbox" role="switch" x-model="form['bounce.lettermint'].enabled" />
+							{{ $.L.T "settings.bounces.enableLettermint" }}
+						</label>
+						<template x-if="form['bounce.lettermint'].enabled">
+							<fieldset>
+								<label data-field>
+									{{ $.L.T "settings.bounces.lettermintKey" }}
+									<input type="password" x-model="form['bounce.lettermint'].key" data-cy="bounce-lettermint-key" />
+									<small data-hint>{{ $.L.T "globals.messages.passwordChange" }}</small>
+								</label>
+							</fieldset>
+						</template>
+					</div>
+				</div>
+			</template>
+
+			<hr />
+
+			<label data-field data-cy="btn-enable-bounce-mailbox" data-keywords="bounce mailbox pop imap scan inbox host poll">
+				<input type="checkbox" role="switch" x-model="form['bounce.mailboxes'][0].enabled" />
+				{{ $.L.T "settings.bounces.enableMailbox" }}
+			</label>
+
+			<template x-if="form['bounce.mailboxes'][0].enabled">
+				<div class="settings-items">
+					<template x-for="(item, n) in form['bounce.mailboxes']" :key="n">
+						<fieldset>
+							<div data-field>
+								<label>{{ $.L.T "settings.bounces.type" }}</label>
+								<select x-model="item.type">
+									<option value="pop">POP</option>
+								</select>
+							</div>
+
+							<div class="row">
+								<div class="col-8">
+									<label data-field>
+										{{ $.L.T "settings.mailserver.host" }}
+										<input maxlength="200" placeholder="bounce.yourmailserver.net" x-model="item.host" />
+										<small data-hint>{{ $.L.T "settings.mailserver.hostHelp" }}</small>
+									</label>
+								</div>
+								<div class="col-4">
+									<label data-field>
+										{{ $.L.T "settings.mailserver.port" }}
+										<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.port" />
+										<small data-hint>{{ $.L.T "settings.mailserver.portHelp" }}</small>
+									</label>
+								</div>
+							</div>
+
+							<div data-field>
+								<label>{{ $.L.T "settings.mailserver.authProtocol" }}</label>
+								<select x-model="item.auth_protocol">
+									<option value="none">none</option>
+									<option value="userpass">userpass</option>
+								</select>
+							</div>
+
+							<label data-field>
+								{{ $.L.T "settings.mailserver.username" }}
+								<input maxlength="200" placeholder="mysmtp" :disabled="item.auth_protocol === 'none'" x-model="item.username" />
+							</label>
+
+							<label data-field>
+								{{ $.L.T "settings.mailserver.password" }}
+								<input type="password" maxlength="200" :disabled="item.auth_protocol === 'none'" x-model="item.password" />
+								<small data-hint>{{ $.L.T "settings.mailserver.passwordHelp" }}</small>
+							</label>
+
+							<div class="row">
+								<div class="col-6">
+									<label data-field>
+										<input type="checkbox" role="switch" x-model="item.tls_enabled" />
+										{{ $.L.T "settings.mailserver.tls" }}
+										<small data-hint>{{ $.L.T "settings.mailserver.tlsHelp" }}</small>
+									</label>
+								</div>
+								<div class="col-6">
+									<label data-field>
+										<input type="checkbox" role="switch" :disabled="!item.tls_enabled" x-model="item.tls_skip_verify" />
+										{{ $.L.T "settings.mailserver.skipTLS" }}
+										<small data-hint>{{ $.L.T "settings.mailserver.skipTLSHelp" }}</small>
+									</label>
+								</div>
+							</div>
+
+							<label data-field>
+								{{ $.L.T "settings.bounces.scanInterval" }}
+								<input maxlength="10" placeholder="15m" x-model="item.scan_interval" />
+								<small data-hint>{{ $.L.T "settings.bounces.scanIntervalHelp" }}</small>
+							</label>
+						</fieldset>
+					</template>
+				</div>
+			</template>
+		</div>
+	</template>
+</div>
+{{- end }}

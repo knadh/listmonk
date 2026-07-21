@@ -1,0 +1,81 @@
+{{ define "settings-performance" -}}
+<div class="settings-items">
+	<fieldset data-keywords="performance concurrency message rate batch size errors threshold throughput sending speed workers">
+		<legend>{{ .L.T "settings.performance.name" }}</legend>
+		<label data-field>
+			{{ .L.T "settings.performance.concurrency" }}
+			<input type="number" name="app.concurrency" min="1" max="10000" placeholder="5" x-model.number="form['app.concurrency']" />
+			<small data-hint>{{ .L.T "settings.performance.concurrencyHelp" }}</small>
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.performance.messageRate" }}
+			<input type="number" name="app.message_rate" min="1" max="100000" placeholder="5" x-model.number="form['app.message_rate']" />
+			<small data-hint>{{ .L.T "settings.performance.messageRateHelp" }}</small>
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.performance.batchSize" }}
+			<input type="number" name="app.batch_size" min="1" max="100000" placeholder="1000" x-model.number="form['app.batch_size']" />
+			<small data-hint>{{ .L.T "settings.performance.batchSizeHelp" }}</small>
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.performance.maxErrThreshold" }}
+			<input type="number" name="app.max_send_errors" min="0" max="100000" placeholder="1999" x-model.number="form['app.max_send_errors']" />
+			<small data-hint>{{ .L.T "settings.performance.maxErrThresholdHelp" }}</small>
+		</label>
+	</fieldset>
+
+	<fieldset data-keywords="sliding window rate limit throttle duration cap sending">
+		<legend>{{ .L.T "settings.performance.slidingWindow" }}</legend>
+		<div class="row">
+			<div class="col-6">
+				<label data-field>
+					<input type="checkbox" role="switch" x-model="form['app.message_sliding_window']" />
+					{{ .L.T "globals.buttons.enable" }}
+					<small data-hint>{{ .L.T "settings.performance.slidingWindowHelp" }}</small>
+				</label>
+			</div>
+			<div class="col-3" :aria-disabled="!form['app.message_sliding_window']">
+				<label data-field>
+					{{ .L.T "settings.performance.slidingWindowRate" }}
+					<input type="number" min="1" max="10000000" placeholder="25" :disabled="!form['app.message_sliding_window']" x-model.number="form['app.message_sliding_window_rate']" />
+					<small data-hint>{{ .L.T "settings.performance.slidingWindowRateHelp" }}</small>
+				</label>
+			</div>
+			<div class="col-3" :aria-disabled="!form['app.message_sliding_window']">
+				<label data-field>
+					{{ .L.T "settings.performance.slidingWindowDuration" }}
+					<input placeholder="1h" maxlength="10" :disabled="!form['app.message_sliding_window']" x-model="form['app.message_sliding_window_duration']" />
+					<small data-hint>{{ .L.T "settings.performance.slidingWindowDurationHelp" }}</small>
+				</label>
+			</div>
+		</div>
+	</fieldset>
+
+	<fieldset data-keywords="cache slow queries dashboard cron interval materialized stats">
+		<legend>{{ .L.T "settings.performance.cacheSlowQueries" }}</legend>
+		<div class="row">
+			<div class="col-4">
+				<label data-field>
+					<input type="checkbox" role="switch" x-model="form['app.cache_slow_queries']" />
+					{{ .L.T "globals.buttons.enable" }}
+					<small data-hint>{{ .L.T "settings.performance.cacheSlowQueriesHelp" }}</small>
+				</label>
+			</div>
+			<div class="col-4" :aria-disabled="!form['app.cache_slow_queries']">
+				<label data-field>
+					{{ .L.T "settings.maintenance.cron" }}
+					<input placeholder="0 3 * * *" :disabled="!form['app.cache_slow_queries']" x-model="form['app.cache_slow_queries_interval']" />
+				</label>
+			</div>
+			<div class="col-4 vcenter">
+				<a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferrer">
+					{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
+				</a>
+			</div>
+		</div>
+	</fieldset>
+</div>
+{{- end }}

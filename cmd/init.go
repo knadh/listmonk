@@ -948,7 +948,18 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		lo.Fatalf("error parsing public templates: %v", err)
 	}
 
-	adminTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/admin/*/*.html")
+	// Admin templates live in /admin/views and /admin/partials, plus nested
+	// module partials like /admin/partials/settings. Glob both levels and parse
+	// them into a single template set (all files use {{ define }} blocks).
+	adminPaths, err := fs.Glob("/admin/*/*.html")
+	if err != nil {
+		lo.Fatalf("error globbing admin templates: %v", err)
+	}
+	nestedPaths, err := fs.Glob("/admin/partials/*/*.html")
+	if err != nil {
+		lo.Fatalf("error globbing nested admin templates: %v", err)
+	}
+	adminTpl, err := stuffbin.ParseTemplates(tplFuncs, fs, append(adminPaths, nestedPaths...)...)
 	if err != nil {
 		lo.Fatalf("error parsing admin templates: %v", err)
 	}

@@ -1,0 +1,34 @@
+{{ define "settings-appearance" -}}
+<div class="settings-items">
+	<ot-tabs class="settings-subtabs">
+		<div role="tablist">
+			<button type="button" role="tab">{{ .L.T "settings.appearance.adminName" }}</button>
+			<button type="button" role="tab">{{ .L.T "settings.appearance.publicName" }}</button>
+		</div>
+
+		<div role="tabpanel">
+			<p class="text-light">{{ .L.T "settings.appearance.adminHelp" }}</p>
+			<fieldset data-keywords="appearance admin custom css style theme ui">
+				<legend>{{ .L.T "settings.appearance.customCSS" }}</legend>
+				<code-editor lang="css" x-init="$el.value = form['appearance.admin.custom_css']" @input="form['appearance.admin.custom_css'] = $event.target.value"></code-editor>
+			</fieldset>
+			<fieldset data-keywords="appearance admin custom javascript js script ui">
+				<legend>{{ .L.T "settings.appearance.customJS" }}</legend>
+				<code-editor lang="javascript" x-init="$el.value = form['appearance.admin.custom_js']" @input="form['appearance.admin.custom_js'] = $event.target.value"></code-editor>
+			</fieldset>
+		</div>
+
+		<div role="tabpanel">
+			<p class="text-light">{{ .L.T "settings.appearance.publicHelp" }}</p>
+			<fieldset data-keywords="appearance public custom css style theme subscription page">
+				<legend>{{ .L.T "settings.appearance.customCSS" }}</legend>
+				<code-editor lang="css" x-init="$el.value = form['appearance.public.custom_css']" @input="form['appearance.public.custom_css'] = $event.target.value"></code-editor>
+			</fieldset>
+			<fieldset data-keywords="appearance public custom javascript js script subscription page">
+				<legend>{{ .L.T "settings.appearance.customJS" }}</legend>
+				<code-editor lang="javascript" x-init="$el.value = form['appearance.public.custom_js']" @input="form['appearance.public.custom_js'] = $event.target.value"></code-editor>
+			</fieldset>
+		</div>
+	</ot-tabs>
+</div>
+{{- end }}
