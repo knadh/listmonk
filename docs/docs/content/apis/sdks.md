@@ -16,6 +16,7 @@ A list of 3rd party client libraries and SDKs that have been written for listmon
 - [listmonk-php-client](https://github.com/arunnabraham/listmonk-php-client) — PHP API client
 - [php-listmonk](https://github.com/junisan/php-listmonk) — PHP API client
 - [go-listmonk](https://github.com/EzeXchange-API/go-listmonk) — Go API client
+- [listmonk-ruby](https://github.com/polydice/listmonk-ruby) — Ruby API client
 - [listmonk-nodejs-api](https://github.com/mihairaulea/listmonk-nodejs-api) — NodeJS API client
 - [@maloma/listmonk](https://codeberg.org/maloma/listmonk-sdk) — NodeJS/Bun Typescript SDK
 - [listmonk-laravel](https://github.com/theafolayan/listmonk-laravel) — Laravel API Client
