@@ -53,6 +53,7 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 | `https://listmonk.yoursite.com/webhooks/service/postmark`     | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
 | `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                  | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                           |
 | `https://listmonk.yoursite.com/webhooks/service/lettermint`   | Lettermint webhook                     | [More info](https://lettermint.co/knowledge-base/guides/send-newsletter-with-listmonk)                                                |
+| `https://listmonk.yoursite.com/webhooks/service/anypost`      | Anypost webhook                        | [More info](https://anypost.com/docs/webhooks)                                                                        |
 
 ## Amazon Simple Email Service (SES)
 
@@ -111,6 +112,29 @@ If you use Azure Communication Services Email, listmonk can receive delivery rep
 4. During subscription creation, Event Grid sends a subscription validation event. listmonk automatically returns `validationResponse` for this handshake.
 5. Subscribe to `Microsoft.Communication.EmailDeliveryReportReceived` events. listmonk maps relevant statuses to bounce records.
 6. Send test mail and verify bounces in listmonk.
+
+## Anypost
+
+If you use [Anypost](https://anypost.com) as your SMTP provider, listmonk can receive its webhook events and turn them into bounces. listmonk maps `email.bounced` to hard bounces (soft when the failure is transient) and `email.complained` to complaints. It also maps `email.suppressed` (a send Anypost dropped because the address was already on your suppression list): those carrying `data.suppression.reason` of `permanent_bounce` become hard bounces and `complaint` become complaints, keeping listmonk in sync even if it never saw the original event. Suppressions for `unsubscribed` and `manual` reasons are opt-outs, not bounces, and are ignored. Bounces are attributed to campaigns automatically: Anypost echoes the `X-Listmonk-Campaign` header on its events. Complaints arriving via feedback loops and out-of-band bounces carry no headers, so those are recorded against the subscriber without a campaign.
+
+1. In the [Anypost dashboard](https://anypost.com), create a webhook endpoint with:
+    - URL: `https://listmonk.yoursite.com/webhooks/service/anypost`
+    - Events: `email.bounced`, `email.complained`, `email.suppressed`
+2. Copy the webhook's signing secret (`whsec_...`), shown once at creation.
+3. Enable the integration via the listmonk [settings API](https://listmonk.app/docs/apis/apis/) (the admin UI does not have fields for it yet). The API takes the full settings object, so fetch it, blank out the masked secrets (listmonk preserves secrets submitted as empty strings), set the Anypost keys, and PUT it back:
+
+```shell
+curl -su 'api_username:access_token' 'http://localhost:9000/api/settings' \
+	| jq '.data
+		| walk(if type == "string" and test("^•+$") then "" else . end)
+		| .["bounce.enabled"] = true
+		| .["bounce.webhooks_enabled"] = true
+		| .["bounce.anypost"] = {"enabled": true, "key": "whsec_..."}' \
+	| curl -u 'api_username:access_token' -X PUT 'http://localhost:9000/api/settings' \
+		-H 'Content-Type: application/json' --data @-
+```
+
+4. Send test mail and verify bounces in listmonk.
 
 ## Exporting bounces
 

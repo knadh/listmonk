@@ -273,6 +273,20 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		}
 		bounces = append(bounces, bs...)
 
+	// Anypost.
+	case service == "anypost" && a.bounce.Anypost != nil:
+		sig := c.Request().Header.Get("Anypost-Signature")
+		bs, err := a.bounce.Anypost.ProcessBounce(sig, rawReq)
+		if err != nil {
+			a.log.Printf("error processing anypost notification: %v", err)
+			if _, ok := err.(*echo.HTTPError); ok {
+				return err
+			}
+
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+		bounces = append(bounces, bs...)
+
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("bounces.unknownService"))
 	}

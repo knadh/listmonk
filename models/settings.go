@@ -141,6 +141,10 @@ type Settings struct {
 		Enabled bool   `json:"enabled"`
 		Key     string `json:"key"`
 	} `json:"bounce.lettermint"`
+	BounceAnypost struct {
+		Enabled bool   `json:"enabled"`
+		Key     string `json:"key"`
+	} `json:"bounce.anypost"`
 	BounceBoxes []struct {
 		UUID          string `json:"uuid"`
 		Enabled       bool   `json:"enabled"`

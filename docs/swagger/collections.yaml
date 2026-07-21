@@ -3583,6 +3583,10 @@ components:
           type: string
         bounce.postmark_password:
           type: string
+        bounce.anypost.enabled:
+          type: boolean
+        bounce.anypost.key:
+          type: string
         bounce.mailboxes:
           type: array
           items:
