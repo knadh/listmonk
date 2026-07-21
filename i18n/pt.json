@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Cópia de {name}",
     "campaigns.customHeadersHelp": "Lista de headers customizados para anexar às mensagens de saída, e.g.: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Dia e hora",
+    "campaigns.downloadPDF": "Guardar como PDF",
     "campaigns.ended": "Terminada",
     "campaigns.errorSendTest": "Erro ao enviar teste: {error}",
     "campaigns.fieldInvalidBody": "Erro ao compilar corpo da campanha: {error}",

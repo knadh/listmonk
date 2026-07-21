@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Copie a {name}",
     "campaigns.customHeadersHelp": "Matrice de antete personalizate care să fie atașate la mesajele trimise. ex: [{\"X-Custom\": \"valoare\"}, {\"X-Custom2\": \"valoare\"}]",
     "campaigns.dateAndTime": "Data și ora",
+    "campaigns.downloadPDF": "Salvează ca PDF",
     "campaigns.ended": "Terminat",
     "campaigns.errorSendTest": "Test de trimitere a erorilor: {error}",
     "campaigns.fieldInvalidBody": "Eroare la compilarea corpului campaniei: {error}",

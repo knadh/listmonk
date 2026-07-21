@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Αντίγραφο του {name}",
     "campaigns.customHeadersHelp": "Πίνακας με προσαρμοσμένες κεφαλίδες που θα προστεθούν στα εξερχόμενα μηνύματα. Π.χ.: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Ημερομηνία και ώρα",
+    "campaigns.downloadPDF": "Αποθήκευση ως PDF",
     "campaigns.ended": "Ολοκληρώθηκε",
     "campaigns.errorSendTest": "Σφάλμα κατά την αποστολή του δοκιμαστικού μηνύματος: {error}",
     "campaigns.fieldInvalidBody": "Σφάλμα κατά τη σύνταξη του περιεχομένου της εκστρατείας: {error}",

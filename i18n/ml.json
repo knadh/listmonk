@@ -39,6 +39,7 @@
     "campaigns.copyOf": "{name} ന്റെ പകർപ്പ്",
     "campaigns.customHeadersHelp": "അയക്കുന്ന സന്ദേശങ്ങളിൽ ചെ‍ർക്കാനുള്ള ഇഷ്‌ടാനുസൃത തലക്കെട്ടുകളുടെ ഒരു നിര. ഉദാ: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "തിയതിയും സമയവും",
+    "campaigns.downloadPDF": "PDF ആയി സംരക്ഷിക്കുക",
     "campaigns.ended": "അവസാനിച്ചു",
     "campaigns.errorSendTest": "ടെസ്റ്റ് അയയ്ക്കുന്നത് പരാജയപ്പെട്ടു: {error}",
     "campaigns.fieldInvalidBody": "ക്യാമ്പേയ്ന്റെ ചട്ടക്കൂട് തയ്യാറാക്കുന്നതിൽ പരാജയപ്പെട്ടു : {error}",

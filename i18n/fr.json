@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Copie de {name}",
     "campaigns.customHeadersHelp": "Array d'en-têtes personnalisés à joindre aux messages sortants. eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Date et heure",
+    "campaigns.downloadPDF": "Enregistrer en PDF",
     "campaigns.ended": "Terminée",
     "campaigns.errorSendTest": "Erreur lors de l'envoi du test : {error}",
     "campaigns.fieldInvalidBody": "Erreur lors de la compilation du corps de la campagne : {error}",

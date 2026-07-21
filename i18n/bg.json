@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Копие на {name}",
     "campaigns.customHeadersHelp": "Масив от персонализирани хедъри, които да се прикачат към изходящите съобщения. Напр.: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Дата и час",
+    "campaigns.downloadPDF": "Запазване като PDF",
     "campaigns.ended": "Приключила",
     "campaigns.errorSendTest": "Грешка при изпращане на тест: {error}",
     "campaigns.fieldInvalidBody": "Грешка при съставяне на тялото на кампанията: {error}",

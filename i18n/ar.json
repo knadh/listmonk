@@ -39,6 +39,7 @@
     "campaigns.copyOf": "نسخة من {name}",
     "campaigns.customHeadersHelp": "مصفوفة ترويسات مخصصة. مثال: [{\"X-Custom\": \"value\"}]",
     "campaigns.dateAndTime": "التاريخ والوقت",
+    "campaigns.downloadPDF": "حفظ بصيغة PDF",
     "campaigns.ended": "انتهت",
     "campaigns.errorSendTest": "خطأ في إرسال الاختبار: {error}",
     "campaigns.fieldInvalidBody": "خطأ في تجميع محتوى الحملة: {error}",

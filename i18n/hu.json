@@ -39,6 +39,7 @@
     "campaigns.copyOf": "{name} másolata",
     "campaigns.customHeadersHelp": "Kimenő üzenetek extra fejlécei. Például: [{\"X-K1\": \"V1\"}, {\"X-K2\": \"V2\"}]",
     "campaigns.dateAndTime": "Dátum és idő",
+    "campaigns.downloadPDF": "Mentés PDF-ként",
     "campaigns.ended": "Vége",
     "campaigns.errorSendTest": "Hiba a teszt küldésekor: {error}",
     "campaigns.fieldInvalidBody": "Hibás tartalom: {error}",

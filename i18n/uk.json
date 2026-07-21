@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Копія {name}",
     "campaigns.customHeadersHelp": "Масив власних заголовків, які слід додавати до вихідних листів, наприклад: [{\"X-Custom\": \"значення\"}, {\"X-Custom2\": \"тощо\"}]",
     "campaigns.dateAndTime": "Дата й час",
+    "campaigns.downloadPDF": "Зберегти як PDF",
     "campaigns.ended": "Завершено",
     "campaigns.errorSendTest": "Помилка пробного надсилання: {error}",
     "campaigns.fieldInvalidBody": "Помилка побудови тексту кампанії: {error}",

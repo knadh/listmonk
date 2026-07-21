@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopie van {name}",
     "campaigns.customHeadersHelp": "Array van aangepaste headers om toe te voegen aan uitgaande berichten. bv: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "campaigns.dateAndTime": "Datum en tijd",
+    "campaigns.downloadPDF": "Opslaan als PDF",
     "campaigns.ended": "Beëindigd",
     "campaigns.errorSendTest": "Fout bij verzenden test: {error}",
     "campaigns.fieldInvalidBody": "Fout bij het compileren van campagne-inhoud: {error}",

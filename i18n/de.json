@@ -39,6 +39,7 @@
     "campaigns.copyOf": "Kopie von {name}",
     "campaigns.customHeadersHelp": "Liste von benutzerdefinierten Headern, welche in ausgehenden Nachrichten gesetzt werden sollen . Beispiel: [{\"X-Header\": \"wert\"}, {\"X-Header2\": \"wert\"}]",
     "campaigns.dateAndTime": "Datum und Zeit",
+    "campaigns.downloadPDF": "Als PDF speichern",
     "campaigns.ended": "Abgeschlossen",
     "campaigns.errorSendTest": "Fehler beim Senden der Testmail: {error}",
     "campaigns.fieldInvalidBody": "Fehler beim Erstellen des Kampagneninhalts: {error}",
