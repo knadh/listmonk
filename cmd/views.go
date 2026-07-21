@@ -10,13 +10,15 @@ import (
 type adminView struct {
 	Title       string
 	Description string
+	PageID      string
 	Profile     auth.User
 }
 
-func newAdminView(c echo.Context, title, description string) adminView {
+func newAdminView(c echo.Context, title, description, pageID string) adminView {
 	return adminView{
 		Title:       title,
 		Description: description,
+		PageID:      pageID,
 		Profile:     auth.GetUser(c),
 	}
 }

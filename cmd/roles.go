@@ -61,7 +61,7 @@ func (a *App) ViewUserRoles(c echo.Context) error {
 	}
 
 	data := rolesView{
-		adminView: newAdminView(c, a.i18n.T("users.userRoles"), ""),
+		adminView: newAdminView(c, a.i18n.T("users.userRoles"), "", "users.user-roles"),
 		Type:      "user",
 		Roles:     rows,
 	}
@@ -86,7 +86,7 @@ func (a *App) ViewListRoles(c echo.Context) error {
 	}
 
 	data := rolesView{
-		adminView: newAdminView(c, a.i18n.T("users.listRoles"), ""),
+		adminView: newAdminView(c, a.i18n.T("users.listRoles"), "", "users.list-roles"),
 		Type:      "list",
 		Roles:     rows,
 	}
@@ -124,7 +124,7 @@ func (a *App) ViewUserRole(c echo.Context) error {
 	}
 
 	data := roleFormView{
-		adminView:  newAdminView(c, title, ""),
+		adminView:  newAdminView(c, title, "", "users.user-roles"),
 		IsEditing:  isEditing,
 		Role:       role,
 		PermGroups: groups,
@@ -176,7 +176,7 @@ func (a *App) ViewListRole(c echo.Context) error {
 	}
 
 	data := roleFormView{
-		adminView: newAdminView(c, title, ""),
+		adminView: newAdminView(c, title, "", "users.list-roles"),
 		IsEditing: isEditing,
 		Role:      role,
 		AllLists:  lists,
