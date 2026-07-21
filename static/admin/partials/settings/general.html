@@ -1,0 +1,100 @@
+{{ define "settings-general" -}}
+<div class="settings-items">
+	<fieldset data-keywords="site name root url logo favicon language locale branding domain title">
+		<legend>{{ .L.T "settings.general.name" }}</legend>
+		<label data-field>
+			{{ .L.T "settings.general.siteName" }}
+			<input name="app.site_name" maxlength="300" required x-model="form['app.site_name']" />
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.general.rootURL" }}
+			<input name="app.root_url" type="url" pattern="https?://.*" maxlength="300" required
+				placeholder="https://listmonk.yoursite.com" x-model="form['app.root_url']" />
+			<small data-hint>{{ .L.T "settings.general.rootURLHelp" }}</small>
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.general.logoURL" }}
+			<input name="app.logo_url" type="url" pattern="https?://.*" maxlength="300"
+				placeholder="https://listmonk.yoursite.com/logo.png" x-model="form['app.logo_url']" />
+			<small data-hint>{{ .L.T "settings.general.logoURLHelp" }}</small>
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.general.faviconURL" }}
+			<input name="app.favicon_url" type="url" pattern="https?://.*" maxlength="300"
+				placeholder="https://listmonk.yoursite.com/favicon.png" x-model="form['app.favicon_url']" />
+			<small data-hint>{{ .L.T "settings.general.faviconURLHelp" }}</small>
+		</label>
+		<div data-field>
+			<label for="app-lang">{{ .L.T "settings.general.language" }}</label>
+			<select id="app-lang" name="app.lang" x-model="form['app.lang']">
+				{{- range $.ConfigJS.Langs }}
+					<option value="{{ .Code }}">{{ .Name }}</option>
+				{{- end }}
+			</select>
+			<small data-hint>
+				<a href="https://listmonk.app/docs/i18n/#additional-language-packs" target="_blank" rel="noopener noreferrer">{{ .L.T "globals.buttons.more" }} &rarr;</a>
+			</small>
+		</div>
+	</fieldset>
+
+	<fieldset data-keywords="from email address admin notification emails sender">
+		<legend>{{ .L.T "subscribers.email" }}</legend>
+		<label data-field>
+			{{ .L.T "settings.general.fromEmail" }}
+			<input name="app.from_email" pattern="((.+?)\s)?<(.+?)@(.+?)>" maxlength="300"
+				placeholder="Listmonk <noreply@listmonk.yoursite.com>" x-model="form['app.from_email']" />
+			<small data-hint>{{ .L.T "settings.general.fromEmailHelp" }}</small>
+		</label>
+
+		<label data-field>
+			{{ .L.T "settings.general.adminNotifEmails" }}
+			<ot-taginput x-model="form['app.notify_emails']"><input placeholder="you@yoursite.com" /></ot-taginput>
+			<small data-hint>{{ .L.T "settings.general.adminNotifEmailsHelp" }}</small>
+		</label>
+	</fieldset>
+
+	<fieldset data-keywords="subscription public page opt-in optin confirmation double signup">
+		<legend>{{ .L.T "globals.terms.subscriptions" }}</legend>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['app.enable_public_subscription_page']" />
+			{{ .L.T "settings.general.enablePublicSubPage" }}
+			<small data-hint>{{ .L.T "settings.general.enablePublicSubPageHelp" }}</small>
+		</label>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['app.send_optin_confirmation']" />
+			{{ .L.T "settings.general.sendOptinConfirm" }}
+			<small data-hint>{{ .L.T "settings.general.sendOptinConfirmHelp" }}</small>
+		</label>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['app.show_optin_page']" />
+			{{ .L.T "settings.general.showOptinPage" }}
+			<small data-hint>{{ .L.T "settings.general.showOptinPageHelp" }}</small>
+		</label>
+	</fieldset>
+
+	<fieldset data-keywords="public archive rss feed campaigns">
+		<legend>{{ .L.T "campaigns.archive" }}</legend>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['app.enable_public_archive']" />
+			{{ .L.T "settings.general.enablePublicArchive" }}
+			<small data-hint>{{ .L.T "settings.general.enablePublicArchiveHelp" }}</small>
+		</label>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['app.enable_public_archive_rss_content']" />
+			{{ .L.T "settings.general.enablePublicArchiveRSSContent" }}
+			<small data-hint>{{ .L.T "settings.general.enablePublicArchiveRSSContentHelp" }}</small>
+		</label>
+	</fieldset>
+
+	<hr />
+
+	<label data-field data-keywords="check updates version announcements notifications">
+		<input type="checkbox" role="switch" x-model="form['app.check_updates']" />
+		{{ .L.T "settings.general.checkUpdates" }}
+		<small data-hint>{{ .L.T "settings.general.checkUpdatesHelp" }}</small>
+	</label>
+</div>
+{{- end }}

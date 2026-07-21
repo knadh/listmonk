@@ -99,6 +99,11 @@ var adminJSI18nKeys = []string{
 	"subscribers.status.unsubscribed",
 	"subscribers.status.confirmed",
 	"subscribers.status.unconfirmed",
+
+	"settings.title",
+	"settings.smtp.testEnterEmail",
+	"campaigns.testSent",
+	"globals.messages.passwordChangeFull",
 }
 
 func (a *App) makeServerConfig() (serverConfig, error) {

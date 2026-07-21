@@ -1,0 +1,79 @@
+{{ define "settings-privacy" -}}
+<div class="settings-items">
+	<fieldset data-keywords="privacy tracking open click individual subscriber opt-in ip analytics">
+		<legend>{{ .L.T "settings.privacy.name" }}</legend>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['privacy.disable_tracking']" />
+			{{ .L.T "settings.privacy.disableTracking" }}
+			<small data-hint>{{ .L.T "settings.privacy.disableTrackingHelp" }}</small>
+		</label>
+		<label data-field>
+			<input type="checkbox" role="switch" :disabled="form['privacy.disable_tracking']" x-model="form['privacy.individual_tracking']" />
+			{{ .L.T "settings.privacy.individualSubTracking" }}
+			<small data-hint>{{ .L.T "settings.privacy.individualSubTrackingHelp" }}</small>
+		</label>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['privacy.record_optin_ip']" />
+			{{ .L.T "settings.privacy.recordOptinIP" }}
+			<small data-hint>{{ .L.T "settings.privacy.recordOptinIPHelp" }}</small>
+		</label>
+	</fieldset>
+
+	<fieldset data-keywords="privacy permissions blocklist preferences export wipe gdpr data subscriber rights">
+		<legend>{{ .L.T "users.perms" }}</legend>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['privacy.allow_blocklist']" />
+			{{ .L.T "settings.privacy.allowBlocklist" }}
+			<small data-hint>{{ .L.T "settings.privacy.allowBlocklistHelp" }}</small>
+		</label>
+
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['privacy.allow_preferences']" />
+			{{ .L.T "settings.privacy.allowPrefs" }}
+			<small data-hint>{{ .L.T "settings.privacy.allowPrefsHelp" }}</small>
+		</label>
+
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['privacy.allow_export']" />
+			{{ .L.T "settings.privacy.allowExport" }}
+			<small data-hint>{{ .L.T "settings.privacy.allowExportHelp" }}</small>
+		</label>
+
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['privacy.allow_wipe']" />
+			{{ .L.T "settings.privacy.allowWipe" }}
+			<small data-hint>{{ .L.T "settings.privacy.allowWipeHelp" }}</small>
+		</label>
+	</fieldset>
+
+	<label data-field class="mt-6" data-keywords="list unsubscribe header rfc email one-click">
+		<input type="checkbox" role="switch" x-model="form['privacy.unsubscribe_header']" />
+		{{ .L.T "settings.privacy.listUnsubHeader" }}
+		<small data-hint>{{ .L.T "settings.privacy.listUnsubHeaderHelp" }}</small>
+	</label>
+
+	<hr />
+
+	<fieldset data-keywords="domain blocklist allowlist email address filter block allow deny">
+		<legend>{{ .L.T "settings.privacy.domainBlocklist" }}</legend>
+		<ot-tabs class="settings-subtabs">
+			<div role="tablist">
+				<button type="button" role="tab">{{ .L.T "settings.privacy.domainBlocklist" }} (<span x-text="countLines(form['privacy.domain_blocklist'])"></span>)</button>
+				<button type="button" role="tab">{{ .L.T "settings.privacy.domainAllowlist" }} (<span x-text="countLines(form['privacy.domain_allowlist'])"></span>)</button>
+			</div>
+			<div role="tabpanel">
+				<label data-field>
+					<textarea rows="8" x-model="form['privacy.domain_blocklist']"></textarea>
+					<small data-hint>{{ .L.T "settings.privacy.domainBlocklistHelp" }}</small>
+				</label>
+			</div>
+			<div role="tabpanel">
+				<label data-field>
+					<textarea rows="8" x-model="form['privacy.domain_allowlist']"></textarea>
+					<small data-hint>{{ .L.T "settings.privacy.domainAllowlistHelp" }}</small>
+				</label>
+			</div>
+		</ot-tabs>
+	</fieldset>
+</div>
+{{- end }}
