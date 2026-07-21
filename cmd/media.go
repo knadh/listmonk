@@ -40,7 +40,7 @@ func (a *App) ViewMedia(c echo.Context) error {
 	}
 
 	data := mediaView{
-		adminView: newAdminView(c, a.i18n.T("media.title"), ""),
+		adminView: newAdminView(c, a.i18n.T("media.title"), "", "campaigns.media"),
 		Media:     res,
 		Provider:  a.cfg.MediaUpload.Provider,
 		Page:      props,

@@ -41,7 +41,7 @@ func (a *App) ViewBounces(c echo.Context) error {
 	}
 
 	data := bouncesView{
-		adminView: newAdminView(c, a.i18n.T("globals.terms.bounces"), ""),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.bounces"), "", "subscribers.bounces"),
 		Bounces:   res,
 		Page:      models.NewPageProps(q, total, pg.Page, pg.PerPage),
 	}
