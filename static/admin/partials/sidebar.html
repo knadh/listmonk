@@ -48,7 +48,7 @@
 						<li><a href="{{ URI "/admin/campaigns/new" }}" data-cy="new-campaign">{{ .L.T "menu.newCampaign" }}</a></li>
 					{{ end }}
 					{{ if Can $u "media:get" "media:manage" }}
-						<li><a href="{{ URI "/admin/media" }}" data-cy="media">{{ .L.T "menu.media" }}</a></li>
+						<li><a href="{{ URI "/admin/campaigns/media" }}" data-cy="media">{{ .L.T "menu.media" }}</a></li>
 					{{ end }}
 					{{ if Can $u "templates:get" }}
 						<li><a href="{{ URI "/admin/templates" }}" data-cy="templates">{{ .L.T "globals.terms.templates" }}</a></li>
