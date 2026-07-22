@@ -65,6 +65,7 @@ type Campaign struct {
 	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
 	Tpl                 *template.Template `json:"-"`
 	SubjectTpl          *txttpl.Template   `json:"-"`
+	FromEmailTpl        *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
 	// HeaderTpls is holds optionally {{ templated }} campaign headers.
@@ -139,19 +140,15 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 // CompileTemplate compiles a campaign body template into its base
 // template and sets the resultant template to Campaign.Tpl.
 func (c *Campaign) CompileTemplate(f template.FuncMap) error {
-	// If the subject line has a template string, compile it.
-	if hasTplExpr(c.Subject) {
-		subj := c.Subject
-		for _, r := range regTplFuncs {
-			subj = r.regExp.ReplaceAllString(subj, r.replace)
-		}
+	var err error
+	c.SubjectTpl, err = compileTxtTpl("subject", c.Subject, f)
+	if err != nil {
+		return err
+	}
 
-		var txtFuncs map[string]any = f
-		subjTpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(subj)
-		if err != nil {
-			return fmt.Errorf("error compiling subject: %v", err)
-		}
-		c.SubjectTpl = subjTpl
+	c.FromEmailTpl, err = compileTxtTpl("from", c.FromEmail, f)
+	if err != nil {
+		return err
 	}
 
 	// Compile the base template.
@@ -197,7 +194,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	}
 	c.Tpl = out
 
-	if hasTplExpr(c.AltBody.String) {
+	if HasTplExpr(c.AltBody.String) {
 		b := c.AltBody.String
 		for _, r := range regTplFuncs {
 			b = r.regExp.ReplaceAllString(b, r.replace)
@@ -209,42 +206,45 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		c.AltBodyTpl = bTpl
 	}
 
-	// Compile any header values that contain template expressions.
-	for _, set := range c.Headers {
-		for _, val := range set {
-			if hasTplExpr(val) {
+	for i, set := range c.Headers {
+		for hdr, val := range set {
+			if !HasTplExpr(val) {
+				continue
+			}
+
+			tpl, err := compileTxtTpl(fmt.Sprintf("header %q", hdr), val, f)
+			if err != nil {
+				return err
+			}
+
+			if c.HeaderTpls == nil {
 				c.HeaderTpls = make([]map[string]*txttpl.Template, len(c.Headers))
-				break
 			}
-		}
-		if c.HeaderTpls != nil {
-			break
-		}
-	}
-	if c.HeaderTpls != nil {
-		var txtFuncs map[string]any = f
-		for i, set := range c.Headers {
-			c.HeaderTpls[i] = make(map[string]*txttpl.Template, len(set))
-			for hdr, val := range set {
-				if !hasTplExpr(val) {
-					continue
-				}
-				tpl, err := txttpl.New(ContentTpl).Funcs(txtFuncs).Parse(val)
-				if err != nil {
-					return fmt.Errorf("error compiling header %q: %v", hdr, err)
-				}
-				c.HeaderTpls[i][hdr] = tpl
+			if c.HeaderTpls[i] == nil {
+				c.HeaderTpls[i] = make(map[string]*txttpl.Template)
 			}
+			c.HeaderTpls[i][hdr] = tpl
 		}
 	}
 
 	return nil
 }
 
-// hasTplExpr checks whether a given string has a Go template expression with {{ and  }}.
-func hasTplExpr(s string) bool {
-	_, after, ok := strings.Cut(s, "{{")
-	return ok && strings.Contains(after, "}}")
+func compileTxtTpl(label, val string, f template.FuncMap) (*txttpl.Template, error) {
+	if !HasTplExpr(val) {
+		return nil, nil
+	}
+
+	for _, r := range regTplFuncs {
+		val = r.regExp.ReplaceAllString(val, r.replace)
+	}
+
+	tpl, err := txttpl.New(ContentTpl).Funcs(f).Parse(val)
+	if err != nil {
+		return nil, fmt.Errorf("error compiling %s: %v", label, err)
+	}
+
+	return tpl, nil
 }
 
 // ConvertContent converts a campaign's body from one format to another,
@@ -269,4 +269,10 @@ func (c *Campaign) ConvertContent(from, to string) (string, error) {
 	}
 
 	return out, nil
+}
+
+// HasTplExpr checks whether a given string has a Go template expression with {{ and  }}.
+func HasTplExpr(s string) bool {
+	_, after, ok := strings.Cut(s, "{{")
+	return ok && strings.Contains(after, "}}")
 }
