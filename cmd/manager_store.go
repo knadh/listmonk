@@ -1,12 +1,15 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/models"
 	"github.com/lib/pq"
+	null "gopkg.in/volatiletech/null.v6"
 )
 
 // store implements DataSource over the primary
@@ -18,11 +21,12 @@ type store struct {
 }
 
 type runningCamp struct {
-	CampaignID       int    `db:"campaign_id"`
-	CampaignType     string `db:"campaign_type"`
-	LastSubscriberID int    `db:"last_subscriber_id"`
-	MaxSubscriberID  int    `db:"max_subscriber_id"`
-	ListID           int    `db:"list_id"`
+	CampaignID       int         `db:"campaign_id"`
+	CampaignType     string      `db:"campaign_type"`
+	LastSubscriberID int         `db:"last_subscriber_id"`
+	MaxSubscriberID  int         `db:"max_subscriber_id"`
+	ListID           int         `db:"list_id"`
+	SubscriberQuery  null.String `db:"subscriber_query"`
 }
 
 func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
@@ -61,9 +65,23 @@ func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) 
 		return nil, nil
 	}
 
-	var out []models.Subscriber
-	err := s.queries.NextCampaignSubscribers.Select(&out, camps[0].CampaignID, camps[0].CampaignType, camps[0].LastSubscriberID, camps[0].MaxSubscriberID, pq.Array(listIDs), limit)
-	return out, err
+	rc := camps[0]
+
+	// No segment: unchanged prepared-statement fast path.
+	if !rc.SubscriberQuery.Valid || strings.TrimSpace(rc.SubscriberQuery.String) == "" {
+		var out []models.Subscriber
+		err := s.queries.NextCampaignSubscribers.Select(&out, rc.CampaignID, rc.CampaignType, rc.LastSubscriberID, rc.MaxSubscriberID, pq.Array(listIDs), limit)
+		return out, err
+	}
+
+	// Segment present: splice the (validated-at-save) query into the filtered template.
+	return s.core.NextCampaignFilteredSubscribers(rc.CampaignID, rc.CampaignType, rc.LastSubscriberID, rc.MaxSubscriberID, listIDs, rc.SubscriberQuery.String, limit)
+}
+
+// SetCampaignToSend recomputes and persists to_send for a filtered campaign and returns the
+// new value. Called once when a filtered campaign starts.
+func (s *store) SetCampaignToSend(c *models.Campaign) (int, error) {
+	return s.core.SetCampaignFilteredToSend(c.ID, c.SubscriberQuery.String)
 }
 
 // GetCampaign fetches a campaign from the database.
