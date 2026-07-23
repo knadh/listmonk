@@ -69,6 +69,8 @@ var adminJSI18nKeys = []string{
 	"globals.terms.month",
 	"globals.terms.year",
 	"globals.terms.year",
+	"globals.terms.subscribers",
+	"globals.terms.subscriptions",
 
 	"lists.confirmDelete",
 	"lists.confirmSub",
