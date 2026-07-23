@@ -99,15 +99,7 @@ func (p *pipe) wait(duration time.Duration) {
 // in the current batch or not. A false indicates that all subscribers
 // have been processed, or that a campaign has been paused or cancelled.
 func (p *pipe) NextSubscribers() (bool, error) {
-	// Fetch the next batch of subscribers from a 'running' campaign.
-	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.m.cfg.BatchSize)
-	if err != nil {
-		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
-	}
-
-	// There are no subscribers from the query. Either all subscribers on the campaign
-	// have been processed, or the campaign has changed from 'running' to 'paused' or 'cancelled'.
-	if len(subs) == 0 {
+	if p.stopped.Load() {
 		return false, nil
 	}
 
@@ -132,6 +124,18 @@ func (p *pipe) NextSubscribers() (bool, error) {
 		if p.stopped.Load() {
 			return false, nil
 		}
+	}
+
+	// Fetch the next batch of subscribers from a 'running' campaign.
+	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.m.cfg.BatchSize)
+	if err != nil {
+		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
+	}
+
+	// There are no subscribers from the query. Either all subscribers on the campaign
+	// have been processed, or the campaign has changed from 'running' to 'paused' or 'cancelled'.
+	if len(subs) == 0 {
+		return false, nil
 	}
 
 	// Is there a sliding window limit configured?
@@ -173,7 +177,7 @@ func (p *pipe) NextSubscribers() (bool, error) {
 					wait.Round(time.Second)*1)
 
 				p.m.slidingCount = 0
-				time.Sleep(wait)
+				p.wait(wait)
 			}
 		}
 	}
