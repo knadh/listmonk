@@ -145,6 +145,10 @@ func (p *pipe) NextSubscribers() (bool, error) {
 
 	// Push messages.
 	for _, s := range subs {
+		if p.stopped.Load() {
+			return false, nil
+		}
+
 		msg, err := p.newMessage(s)
 		if err != nil {
 			p.m.log.Printf("error rendering message (%s) (%s): %v", p.camp.Name, s.Email, err)
@@ -169,6 +173,13 @@ func (p *pipe) NextSubscribers() (bool, error) {
 			p.m.slidingCount++
 			if p.m.slidingCount >= p.m.cfg.SlidingWindowRate {
 				wait := p.m.cfg.SlidingWindowDuration - diff
+
+				if p.m.cfg.SendCalendar {
+					calendarWait, hasRules := p.m.cfg.SendCalenderSchedule.GetNextWindowWait(time.Now().Add(wait))
+					if hasRules && calendarWait > 0 {
+						wait += calendarWait
+					}
+				}
 
 				p.m.log.Printf("messages exceeded (%d) for the window (%v since %s). Sleeping for %s.",
 					p.m.slidingCount,
