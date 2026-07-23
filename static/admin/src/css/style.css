@@ -1065,7 +1065,7 @@ section.analytics {
         color: var(--primary);
         display: inline-block;
         margin-inline-end: var(--space-2);
-        min-width: 175px;
+        min-width: 100px;
         user-select: auto;
     }
 

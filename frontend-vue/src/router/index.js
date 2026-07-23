@@ -53,18 +53,6 @@ const routes = [
     meta: { title: 'globals.terms.settings', group: 'settings' },
     component: () => import('../views/Settings.vue'),
   },
-  {
-    path: '/settings/logs',
-    name: 'logs',
-    meta: { title: 'logs.title', group: 'settings' },
-    component: () => import('../views/Logs.vue'),
-  },
-  {
-    path: '/settings/maintenance',
-    name: 'maintenance',
-    meta: { title: 'maintenance.title', group: 'settings' },
-    component: () => import('../views/Maintenance.vue'),
-  },
 ];
 
 const router = new VueRouter({
