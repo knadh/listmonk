@@ -427,6 +427,27 @@ func (a *App) handleSettingsRestart(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
+// logsView is the admin page view for the log viewer.
+type logsView struct {
+	adminView
+
+	Lines []string
+}
+
+// ViewLogs renders the HTML view for the application log viewer.
+func (a *App) ViewLogs(c echo.Context) error {
+	if !can(auth.GetUser(c), "settings:get") {
+		return auth.ErrPermDenied
+	}
+
+	data := logsView{
+		adminView: newAdminView(c, a.i18n.T("logs.title"), "", "settings.logs"),
+		Lines:     a.bufLog.Lines(),
+	}
+
+	return c.Render(http.StatusOK, "admin-logs", data)
+}
+
 // GetLogs returns the log entries stored in the log buffer.
 func (a *App) GetLogs(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{a.bufLog.Lines()})

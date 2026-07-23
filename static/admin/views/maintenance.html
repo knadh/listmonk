@@ -1,0 +1,160 @@
+{{ define "admin-maintenance" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<section class="maintenance" x-data="maintenanceView">
+	<header class="row page-header">
+		<div class="col-8">
+			<h1 class="page-title">{{ .L.T "maintenance.title" }}</h1>
+			<p class="text-light text-7">{{ .L.T "maintenance.help" }}</p>
+		</div>
+	</header>
+
+	<div class="page-content vstack gap-6">
+		<!-- Subscribers -->
+		<div class="card">
+			<h4 class="text-4">{{ .L.T "globals.terms.subscribers" }}</h4>
+			<div class="row">
+				<div class="col-4">
+					<label data-field>
+						Data
+						<select aria-label="Data" x-model="subscriberType">
+							<option value="orphan">{{ .L.T "dashboard.orphanSubs" }}</option>
+							<option value="blocklisted">{{ .L.T "subscribers.status.blocklisted" }}</option>
+						</select>
+						<small data-hint>{{ .L.T "maintenance.orphanHelp" }}</small>
+					</label>
+				</div>
+				<div class="col-8 col-end hstack justify-end">
+					<button type="button" data-variant="danger" data-cy="btn-delete-subscribers"
+						:disabled="isLoading('maintenance')" :aria-busy="isLoading('maintenance')" data-spinner="small"
+						@click="deleteSubscribers">
+						{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Subscriptions -->
+		<div class="card">
+			<h4 class="text-4">{{ .L.Tc "globals.terms.subscriptions" 2 }}</h4>
+			<div class="row">
+				<div class="col-4">
+					<label data-field>
+						Data
+						<select aria-label="Data" x-model="subscriptionType">
+							<option value="optin">{{ .L.T "maintenance.maintenance.unconfirmedOptins" }}</option>
+						</select>
+					</label>
+				</div>
+				<div class="col-4">
+					<label data-field>
+						{{ .L.T "maintenance.olderThan" }}
+						<input type="date" x-model="subscriptionDate" required />
+					</label>
+				</div>
+				<div class="col-4 col-end hstack justify-end">
+					<button type="button" data-variant="danger" data-cy="btn-delete-subscriptions"
+						:disabled="isLoading('maintenance') || !subscriptionDate" :aria-busy="isLoading('maintenance')" data-spinner="small"
+						@click="deleteSubscriptions">
+						{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Analytics -->
+		<div class="card">
+			<h4 class="text-4">{{ .L.T "globals.terms.analytics" }}</h4>
+			<div class="row">
+				<div class="col-4">
+					<label data-field>
+						Data
+						<select aria-label="Data" x-model="analyticsType">
+							<option value="all">{{ .L.T "globals.terms.all" }}</option>
+							<option value="views">{{ .L.T "dashboard.campaignViews" }}</option>
+							<option value="clicks">{{ .L.T "dashboard.linkClicks" }}</option>
+						</select>
+					</label>
+				</div>
+				<div class="col-4">
+					<label data-field>
+						{{ .L.T "maintenance.olderThan" }}
+						<input type="date" x-model="analyticsDate" required />
+					</label>
+				</div>
+				<div class="col-4 col-end hstack justify-end">
+					<button type="button" data-variant="danger" data-cy="btn-delete-analytics"
+						:disabled="isLoading('maintenance') || !analyticsDate" :aria-busy="isLoading('maintenance')" data-spinner="small"
+						@click="deleteAnalytics">
+						{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
+					</button>
+				</div>
+			</div>
+
+			<hr />
+			<h5 class="text-5">{{ .L.T "subscribers.export" }}</h5>
+			<div class="row">
+				<div class="col-4">
+					<label data-field>
+						Data
+						<select aria-label="Data" x-model="exportType">
+							<option value="views">{{ .L.T "dashboard.campaignViews" }}</option>
+							<option value="clicks">{{ .L.T "dashboard.linkClicks" }}</option>
+						</select>
+					</label>
+				</div>
+				<div class="col-4">
+					<label data-field>
+						{{ .L.T "analytics.fromDate" }}
+						<input type="date" x-model="exportDate" required />
+					</label>
+				</div>
+				<div class="col-4 col-end hstack justify-end">
+					<a class="button" data-variant="primary" data-cy="btn-export-analytics"
+						:href="exportURL" :aria-disabled="!exportDate">
+						{{ Icon "download-cloud" }} {{ .L.T "subscribers.export" }}
+					</a>
+				</div>
+			</div>
+		</div>
+
+		{{- if $d.Can "settings:manage" }}
+		<!-- Database -->
+		<form class="card" @submit.prevent="onUpdateDBSettings">
+			<h4 class="text-4">{{ .L.T "maintenance.database.title" }}</h4>
+			<h5 class="text-5">Vacuum</h5>
+			<p class="text-light text-7">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
+			<div class="row">
+				<div class="col-3">
+					<label data-field>
+						<input type="checkbox" role="switch" x-model="dbSettings.vacuum" />
+						{{ .L.T "globals.buttons.enabled" }}
+					</label>
+				</div>
+				<div class="col-4" :aria-disabled="!dbSettings.vacuum">
+					<label data-field>
+						{{ .L.T "settings.maintenance.cron" }}
+						<input placeholder="0 2 * * *" pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)"
+							:disabled="!dbSettings.vacuum" x-model="dbSettings.vacuum_cron_interval" />
+					</label>
+				</div>
+				<div class="col-5 col-end hstack justify-end">
+					<button type="submit" data-variant="primary" data-cy="btn-save-db"
+						:disabled="isSaving" :aria-busy="isSaving" data-spinner="small">
+						{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}
+					</button>
+				</div>
+			</div>
+		</form>
+		{{- end }}
+	</div>
+</section>
+
+<script>
+	window._dbSettings = {{ ToJSON $d.DBSettings }};
+</script>
+<script type="module" src="{{ URI "/admin/static/js/views/maintenance.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

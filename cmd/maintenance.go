@@ -8,8 +8,39 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/labstack/echo/v4"
 )
+
+// maintenanceView is the admin page view for the maintenance/garbage-collection page.
+type maintenanceView struct {
+	adminView
+
+	DBSettings struct {
+		Vacuum         bool   `json:"vacuum"`
+		VacuumInterval string `json:"vacuum_cron_interval"`
+	}
+}
+
+// ViewMaintenance renders the HTML view for the maintenance page.
+func (a *App) ViewMaintenance(c echo.Context) error {
+	if !can(auth.GetUser(c), "settings:maintain") {
+		return auth.ErrPermDenied
+	}
+
+	s, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+
+	data := maintenanceView{
+		adminView: newAdminView(c, a.i18n.T("maintenance.title"), "", "settings.maintenance"),
+	}
+	data.DBSettings.Vacuum = s.MaintenanceDB.Vacuum
+	data.DBSettings.VacuumInterval = s.MaintenanceDB.VacuumInterval
+
+	return c.Render(http.StatusOK, "admin-maintenance", data)
+}
 
 // GCSubscribers garbage collects (deletes) orphaned or blocklisted subscribers.
 func (a *App) GCSubscribers(c echo.Context) error {
