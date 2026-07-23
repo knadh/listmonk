@@ -593,6 +593,11 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		lo.Println("running in passive mode. won't process campaigns.")
 	}
 
+	var schedule models.CalendarSchedule
+	if err := ko.UnmarshalWithConf("app.message_calendar_schedule", &schedule, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+		lo.Printf("error unmarshalling app.message_calendar_schedule: %v", err)
+	}
+
 	mgr := manager.New(manager.Config{
 		BatchSize:             ko.Int("app.batch_size"),
 		Concurrency:           ko.Int("app.concurrency"),
@@ -612,6 +617,8 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		SlidingWindow:         ko.Bool("app.message_sliding_window"),
 		SlidingWindowDuration: ko.Duration("app.message_sliding_window_duration"),
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
+		SendCalendar:          ko.Bool("app.message_send_calendar"),
+		SendCalenderSchedule:  schedule,
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
 	}, newManagerStore(q, co, md), i, lo)

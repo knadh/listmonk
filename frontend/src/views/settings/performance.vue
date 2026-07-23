@@ -56,6 +56,52 @@
     <div>
       <hr />
       <div class="columns">
+        <div class="column is-12">
+          <b-field :message="$t('settings.performance.sendCalendarHelp')">
+            <b-switch v-model="data['app.message_send_calendar']" name="app.message_send_calendar">
+              {{ $t('settings.performance.sendCalendar') }}
+            </b-switch>
+          </b-field>
+        </div>
+      </div>
+
+      <div v-if="data['app.message_send_calendar']" style="margin-top: 15px; margin-bottom: 20px;">
+        <table class="table is-narrow is-fullwidth" style="background: transparent;">
+          <thead>
+            <tr>
+              <th style="width: 30%">Day</th>
+              <th style="width: 35%">{{ $t('settings.performance.startAt') }}</th>
+              <th style="width: 35%">{{ $t('settings.performance.endAt') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="day in weekdays" :key="day">
+              <td style="vertical-align: middle;">
+                <b-switch v-model="data['app.message_calendar_schedule'][day].enabled">
+                  <span class="is-capitalized">{{ day }}</span>
+                </b-switch>
+              </td>
+              <td>
+                <b-field>
+                  <b-input v-model="data['app.message_calendar_schedule'][day].start_at" type="time"
+                    :disabled="!data['app.message_calendar_schedule'][day].enabled" size="is-small" />
+                </b-field>
+              </td>
+              <td>
+                <b-field>
+                  <b-input v-model="data['app.message_calendar_schedule'][day].end_at" type="time"
+                    :disabled="!data['app.message_calendar_schedule'][day].enabled" size="is-small" />
+                </b-field>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- global sending calendar -->
+
+    <div>
+      <hr />
+      <div class="columns">
         <div class="column is-4">
           <b-field :message="$t('settings.performance.cacheSlowQueriesHelp')">
             <b-switch v-model="data['app.cache_slow_queries']" name="app.cache_slow_queries">
@@ -95,7 +141,23 @@ export default Vue.extend({
     return {
       data: this.form,
       regDuration,
+      weekdays: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
     };
+  },
+
+  created() {
+    if (!this.data['app.message_calendar_schedule']) {
+      Vue.set(this.data, 'app.message_calendar_schedule', {});
+    }
+    this.weekdays.forEach((day) => {
+      if (!this.data['app.message_calendar_schedule'][day]) {
+        Vue.set(this.data['app.message_calendar_schedule'], day, {
+          enabled: false,
+          start_at: '09:00',
+          end_at: '17:00',
+        });
+      }
+    });
   },
 });
 </script>

@@ -1,6 +1,10 @@
 package models
 
-import "gopkg.in/volatiletech/null.v6"
+import (
+	"time"
+
+	"gopkg.in/volatiletech/null.v6"
+)
 
 // Settings represents the app settings stored in the DB.
 type Settings struct {
@@ -28,6 +32,9 @@ type Settings struct {
 	AppMessageSlidingWindow         bool   `json:"app.message_sliding_window"`
 	AppMessageSlidingWindowDuration string `json:"app.message_sliding_window_duration"`
 	AppMessageSlidingWindowRate     int    `json:"app.message_sliding_window_rate"`
+
+	AppMessageSendCalendar     bool             `json:"app.message_send_calendar"`
+	AppMessageCalendarSchedule CalendarSchedule `json:"app.message_calendar_schedule"`
 
 	PrivacyIndividualTracking bool     `json:"privacy.individual_tracking"`
 	PrivacyDisableTracking    bool     `json:"privacy.disable_tracking"`
@@ -165,4 +172,85 @@ type Settings struct {
 	AdminCustomJS   string `json:"appearance.admin.custom_js"`
 	PublicCustomCSS string `json:"appearance.public.custom_css"`
 	PublicCustomJS  string `json:"appearance.public.custom_js"`
+}
+
+// CalendarRule represents a recurring schedule rule for campaign sending
+type CalendarRule struct {
+	Enabled bool   `json:"enabled"`
+	StartAt string `json:"start_at"`
+	EndAt   string `json:"end_at"`
+}
+
+// CalendarSchedule defines the weekly schedule.
+type CalendarSchedule struct {
+	Sunday    CalendarRule `json:"sunday"`
+	Monday    CalendarRule `json:"monday"`
+	Tuesday   CalendarRule `json:"tuesday"`
+	Wednesday CalendarRule `json:"wednesday"`
+	Thursday  CalendarRule `json:"thursday"`
+	Friday    CalendarRule `json:"friday"`
+	Saturday  CalendarRule `json:"saturday"`
+}
+
+// GetRule returns the CalendarRule for a given time.Weekday.
+func (s CalendarSchedule) GetRule(d time.Weekday) CalendarRule {
+	switch d {
+	case time.Sunday:
+		return s.Sunday
+	case time.Monday:
+		return s.Monday
+	case time.Tuesday:
+		return s.Tuesday
+	case time.Wednesday:
+		return s.Wednesday
+	case time.Thursday:
+		return s.Thursday
+	case time.Friday:
+		return s.Friday
+	case time.Saturday:
+		return s.Saturday
+	default:
+		return CalendarRule{}
+	}
+}
+
+// GetNextWindowWait calculates the duration to sleep until the next allowed window.
+// It returns (duration, hasActiveRules). If no rules are enabled at all,
+// hasActiveRules is false.
+func (s CalendarSchedule) GetNextWindowWait(now time.Time) (time.Duration, bool) {
+	// check if we are inside or before today's windoe
+	todayRule := s.GetRule(now.Weekday())
+	if todayRule.Enabled {
+		start, err1 := time.Parse("15:04", todayRule.StartAt)
+		end, err2 := time.Parse("15:04", todayRule.EndAt)
+
+		if err1 == nil && err2 == nil {
+			// convert times to current day
+			todayStart := time.Date(now.Year(), now.Month(), now.Day(), start.Hour(), start.Minute(), 0, 0, now.Location())
+			todayEnd := time.Date(now.Year(), now.Month(), now.Day(), end.Hour(), end.Minute(), 0, 0, now.Location())
+
+			if now.Before(todayStart) {
+				return todayStart.Sub(now), true
+			}
+			if now.After(todayStart) && now.Before(todayEnd) {
+				return 0, true // Currently in the window
+			}
+		}
+	}
+
+	// Loop through the next 7 days to find the next enabled window
+	for i := 1; i <= 7; i++ {
+		nextDay := now.AddDate(0, 0, i)
+		rule := s.GetRule(nextDay.Weekday())
+		if rule.Enabled {
+			start, err := time.Parse("15:04", rule.StartAt)
+			if err != nil {
+				continue
+			}
+			// Construct start time for that target day
+			targetStart := time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), start.Hour(), start.Minute(), 0, 0, now.Location())
+			return targetStart.Sub(now), true
+		}
+	}
+	return 0, false
 }

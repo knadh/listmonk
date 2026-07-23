@@ -74,6 +74,26 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 	return p, nil
 }
 
+// wait sleeps for the specified duration or until the campaign is stopped.
+func (p *pipe) wait(duration time.Duration) {
+	const checkInterval = 1 * time.Second
+	end := time.Now().Add(duration)
+
+	for time.Now().Before(end) {
+		if p.stopped.Load() {
+			return
+		}
+		// Calculate remaining time & sleep for a short chunk
+		remaining := end.Sub(time.Now())
+		if remaining > checkInterval {
+			time.Sleep(checkInterval)
+		} else {
+			time.Sleep(remaining)
+			return
+		}
+	}
+}
+
 // NextSubscribers processes the next batch of subscribers in a given campaign.
 // It returns a bool indicating whether any subscribers were processed
 // in the current batch or not. A false indicates that all subscribers
@@ -89,6 +109,29 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	// have been processed, or the campaign has changed from 'running' to 'paused' or 'cancelled'.
 	if len(subs) == 0 {
 		return false, nil
+	}
+
+	// Global Sending calendar check
+	if p.m.cfg.SendCalendar {
+		now := time.Now()
+		waitDuration, hasRules := p.m.cfg.SendCalenderSchedule.GetNextWindowWait(now)
+
+		if !hasRules {
+			// if calendar is enabled but no days are enabled/configured
+			// sleep for a fallback duration(so we dont busy-loop)
+			p.m.log.Printf("global sending calendar is enabled but no active windows configured. pausing.")
+			p.wait(1 * time.Hour)
+		} else if waitDuration > 0 {
+			p.m.log.Printf("outside global sending calendar window. waiting for %s until next window.",
+				waitDuration.Round(time.Second))
+			p.wait(waitDuration)
+		}
+
+		// If the campaign was stopped while we were sleeping exit early
+
+		if p.stopped.Load() {
+			return false, nil
+		}
 	}
 
 	// Is there a sliding window limit configured?

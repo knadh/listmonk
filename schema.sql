@@ -239,6 +239,8 @@ INSERT INTO settings (key, value) VALUES
     ('app.message_sliding_window', 'false'),
     ('app.message_sliding_window_duration', '"1h"'),
     ('app.message_sliding_window_rate', '10000'),
+    ('app.message_send_calendar', 'false'),
+    ('app.message_calendar_schedule', '{"sunday":{"enabled":false,"start_at":"09:00","end_at":"17:00"},"monday":{"enabled":false,"start_at":"09:00","end_at":"17:00"},"tuesday":{"enabled":false,"start_at":"09:00","end_at":"17:00"},"wednesday":{"enabled":false,"start_at":"09:00","end_at":"17:00"},"thursday":{"enabled":false,"start_at":"09:00","end_at":"17:00"},"friday":{"enabled":false,"start_at":"09:00","end_at":"17:00"},"saturday":{"enabled":false,"start_at":"09:00","end_at":"17:00"}}'),
     ('app.cache_slow_queries', 'false'),
     ('app.cache_slow_queries_interval', '"0 3 * * *"'),
     ('app.enable_public_archive', 'true'),

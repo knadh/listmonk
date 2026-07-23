@@ -136,6 +136,8 @@ type Config struct {
 	SlidingWindow         bool
 	SlidingWindowDuration time.Duration
 	SlidingWindowRate     int
+	SendCalendar          bool
+	SendCalenderSchedule  models.CalendarSchedule
 	RequeueOnError        bool
 	FromEmail             string
 	IndividualTracking    bool
