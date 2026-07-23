@@ -1,0 +1,33 @@
+{{ define "admin-logs" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+
+<section class="logs relative" x-data="logsView">
+	<header class="row page-header">
+		<div class="col-8">
+			<h1 class="page-title">{{ .L.T "logs.title" }}</h1>
+		</div>
+	</header>
+
+	<div class="card page-content">
+		<div class="log-view">
+			<div class="lines" x-ref="lines">
+				<template x-for="(l, i) in lines" :key="i">
+					<span class="line">
+						<span class="timestamp" x-text="l.timestamp"></span>
+						<span class="file" x-show="l.file && l.file !== '*'" x-text="l.file + ':'"></span>
+						<span class="log-message" x-text="l.message"></span>
+					</span>
+				</template>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	window._logs = {{ ToJSON $d.Lines }};
+</script>
+<script type="module" src="{{ URI "/admin/static/js/views/logs.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

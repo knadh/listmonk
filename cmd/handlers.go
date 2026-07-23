@@ -101,6 +101,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 		// Settings.
 		g.GET(path.Join(uriAdmin, "/settings"), a.ViewSettings)
+		g.GET(path.Join(uriAdmin, "/settings/logs"), a.ViewLogs)
+		g.GET(path.Join(uriAdmin, "/settings/maintenance"), a.ViewMaintenance)
 	}
 
 	// =================================================================
