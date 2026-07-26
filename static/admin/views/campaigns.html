@@ -1,0 +1,176 @@
+{{ define "admin-campaigns" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $base := URI "/admin/campaigns" -}}
+{{- $tags := $d.Page.Param "tag" -}}
+
+<section class="campaigns" x-data="campaignsView">
+	<header class="row page-header">
+		<div class="col-6">
+			<h1 class="page-title">
+				{{ .L.T "globals.terms.campaigns" }}
+				{{- if $tags }} <span class="text-light">#{{ $tags }}</span>{{ end }}
+				<span>({{ $d.Page.Total }})</span>
+			</h1>
+		</div>
+		<div class="col-6 col-end align-right hstack justify-end">
+			<form method="get" action="{{ $base }}" class="search-form">
+				{{- $d.Page.FormFields "query" "page" -}}
+				<fieldset class="group">
+					<input name="query" aria-label="Search" data-cy="query" placeholder="{{ .L.T "campaigns.queryPlaceholder" }}" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+				</fieldset>
+			</form>
+			{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
+				<a href="{{ URI "/admin/campaigns/new" }}" class="button" data-variant="primary" data-cy="btn-new">
+					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
+				</a>
+			{{- end }}
+		</div>
+	</header>
+
+	<div class="card page-content has-table">
+		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('campaigns')" @change="onChange($event)">
+			{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
+				<template x-if="numSelected > 0">
+					<ot-dropdown class="bulk-actions">
+						<button popovertarget="camp-bulk-actions" type="button" class="small" data-cy="btn-bulk-actions">
+							<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
+						</button>
+						<menu popover id="camp-bulk-actions">
+							{{- if gt $d.Page.Total $d.Page.PerPage }}
+								<button type="button" role="menuitem" class="ghost" data-cy="select-all-campaigns" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
+									{{ Icon "check-square" }} <span x-text="selectAllLabel"></span>
+								</button>
+							{{- end }}
+							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete-campaigns" :disabled="isLoading('campaigns')" @click.prevent="onDeleteSelected(numSelected, selectedQueryParams().toString())">
+								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span>
+							</button>
+						</menu>
+					</ot-dropdown>
+				</template>
+			{{- end }}
+
+			<table>
+				<thead>
+					<tr>
+						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
+						<th width="15%" class="cy-status">{{ $d.Page.SortLink $base "status" (.L.T "globals.fields.status") }}</th>
+						<th width="20%" class="cy-name">{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
+						<th width="15%" class="cy-lists">{{ .L.T "globals.terms.lists" }}</th>
+						<th width="20%" class="cy-timestamp">{{ $d.Page.SortLink $base "created_at" (.L.T "campaigns.timestamps") }}</th>
+						<th width="15%">{{ .L.T "campaigns.stats" }}</th>
+						<th width="5%" class="align-right"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{- range $d.Campaigns }}
+						{{- $canStart := and (eq .Status "draft") (not .SendAt.Valid) -}}
+						{{- $canSchedule := and (eq .Status "draft") .SendAt.Valid -}}
+						{{- $canPause := eq .Status "running" -}}
+						{{- $canResume := eq .Status "paused" -}}
+						{{- $canCancel := or (eq .Status "running") (eq .Status "paused") -}}
+						{{- $isDone := or (eq .Status "finished") (eq .Status "cancelled") -}}
+						<tr data-campaign-id="{{ .ID }}" {{ if eq .Status "running" }}class="running"{{ end }}>
+							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
+							<td class="status">
+								<a href="{{ $base }}/{{ .ID }}">
+									<span class="badge enum status-{{ .Status }}" data-cy="status-{{ .Status }}">{{ $.L.T (printf "campaigns.status.%s" .Status) }}</span>
+									{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
+								</a>
+								{{- if or (eq .Status "scheduled") .SendAt.Valid }}
+									<div class="text-8 text-light">{{ Icon "clock" }} {{ NiceDate .SendAt }}</div>
+								{{- end }}
+							</td>
+							<td>
+								{{- if eq .Type "optin" }}<span class="badge enum optin">{{ $.L.T "lists.optin" }}</span>{{ end }}
+								<a href="{{ $base }}/{{ .ID }}">{{ .Name }}</a>
+								<p class="text-light text-7">{{ .Subject }}</p>
+								<div class="hstack gap-1">
+									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="badge outline tag">#{{ . }}</a>{{ end }}
+								</div>
+							</td>
+							<td class="lists">
+								<ul>
+									{{- range .ParsedLists }}
+										<li><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}">{{ .Name }}</a></li>
+									{{- end }}
+								</ul>
+							</td>
+							<td class="stats">
+								<dl class="text-8">
+									<dt>{{ $.L.T "globals.fields.createdAt" }}</dt><dd>{{ NiceDate .CreatedAt }}</dd>
+									{{- if .StartedAt.Valid }}
+										<dt>{{ $.L.T "campaigns.startedAt" }}</dt><dd>{{ NiceDate .StartedAt }}</dd>
+									{{- end }}
+									{{- if and $isDone .UpdatedAt.Valid }}
+										<dt>{{ $.L.T "campaigns.ended" }}</dt><dd>{{ NiceDate .UpdatedAt }}</dd>
+									{{- end }}
+								</dl>
+							</td>
+							<td class="stats">
+								<dl class="text-8">
+									<dt>{{ $.L.T "campaigns.views" }}</dt><dd>{{ FormatNumber .Views }}</dd>
+									<dt>{{ $.L.T "campaigns.clicks" }}</dt><dd>{{ FormatNumber .Clicks }}</dd>
+									<dt>{{ $.L.T "campaigns.sent" }}</dt><dd><span data-stat="sent">{{ FormatNumber .Sent }}</span> / <span data-stat="to_send">{{ FormatNumber .ToSend }}</span></dd>
+									<dt>{{ $.L.T "globals.terms.bounces" }}</dt><dd><a href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ .ID }}" class="unstyled">{{ FormatNumber .Bounces }}</a></dd>
+									{{- if eq .Status "running" }}
+										<dt class="send-rate">{{ Icon "activity" }}</dt><dd><span data-stat="rate">0</span> / {{ $.L.T "campaigns.rateMinuteShort" }}</dd>
+										<dt>{{ $.L.T "campaigns.progress" }}</dt><dd><progress data-stat="progress" value="{{ .Sent }}" max="{{ .ToSend }}"></progress></dd>
+									{{- end }}
+								</dl>
+							</td>
+							<td class="actions align-right">
+								<ot-dropdown>
+									<button popovertarget="camp-actions-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
+										{{ Icon "more-vertical" }}
+									</button>
+									<menu popover id="camp-actions-{{ .ID }}">
+										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+										<button type="button" role="menuitem" class="ghost" data-cy="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "campaigns.preview" }}</button>
+										{{- if $d.Can "campaigns:send" }}
+											{{- if $canStart }}
+												<button type="button" role="menuitem" class="ghost" data-cy="btn-start" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'running')">{{ Icon "send" }} {{ $.L.T "campaigns.start" }}</button>
+											{{- end }}
+											{{- if $canSchedule }}
+												<button type="button" role="menuitem" class="ghost" data-cy="btn-schedule" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'scheduled', true)">{{ Icon "clock" }} {{ $.L.T "campaigns.schedule" }}</button>
+											{{- end }}
+											{{- if $canPause }}
+												<button type="button" role="menuitem" class="ghost" data-cy="btn-pause" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'paused')">{{ Icon "pause" }} {{ $.L.T "campaigns.pause" }}</button>
+											{{- end }}
+											{{- if $canResume }}
+												<button type="button" role="menuitem" class="ghost" data-cy="btn-resume" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'running')">{{ Icon "send" }} {{ $.L.T "campaigns.send" }}</button>
+											{{- end }}
+											{{- if $canCancel }}
+												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-cancel" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'cancelled')">{{ Icon "x-circle" }} {{ $.L.T "globals.buttons.cancel" }}</button>
+											{{- end }}
+										{{- end }}
+										{{- if $d.Can "campaigns:get_analytics" }}
+											<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-analytics">{{ Icon "bar-chart-2" }} {{ $.L.T "globals.terms.analytics" }}</a>
+										{{- end }}
+										{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
+											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
+											<hr />
+											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('campaigns')" @click.prevent="onDelete({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+										{{- end }}
+									</menu>
+								</ot-dropdown>
+							</td>
+						</tr>
+					{{- else }}
+						<tr><td colspan="7" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+					{{- end }}
+				</tbody>
+			</table>
+
+			{{- template "pagination" $d.Page.Pagination }}
+		</div>
+	</div>
+
+	{{ template "campaign-preview" . }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/campaigns.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}

@@ -5,20 +5,17 @@ import {
 } from '../main.js';
 import * as u from '../utils.js';
 
-function component() {
+function component(mode) {
   return {
     files: [],
     isUploading: false,
+    isPicker: mode === 'picker',
 
     // ===============
     // Event handlers.
-    onOpenUpload() {
-      this.files = [];
-      this.$refs.dialog.showModal();
-    },
-
-    onClose() {
-      this.$refs.dialog.close();
+    // Post the picked media to the parent window (picker runs inside an iframe).
+    onPick(m) {
+      window.parent.postMessage({ type: 'media-select', media: m }, window.location.origin);
     },
 
     async onUpload() {
@@ -64,5 +61,5 @@ function component() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('mediaView', component);
+  window.Alpine.data('mediaView', (mode) => component(mode));
 }, { once: true });

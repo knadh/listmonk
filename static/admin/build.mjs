@@ -21,6 +21,44 @@ const vendor = [
   ['node_modules/chart.js/dist/chart.umd.js', 'vendor/chart.min.js'],
 ];
 
+// TinyMCE has a lot of files to copy.
+// TINY_PLUGINS and TINY_LANGS MUST mirror src/js/richtext-editor.js.
+const TINY_PLUGINS = [
+  'anchor', 'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen',
+  'help', 'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
+  'table', 'visualblocks', 'visualchars', 'wordcount',
+];
+const TINY_LANGS = ['cs', 'de', 'es_MX', 'fr_FR', 'it_IT', 'pl', 'pt_PT', 'pt_BR', 'ro', 'tr'];
+
+async function copyTinyMCE() {
+  const from = (p) => path.join(root, 'node_modules/tinymce', p);
+  const copy = async (src, destRel) => {
+    const dest = path.join(dist, 'tinymce', destRel);
+    await mkdir(path.dirname(dest), { recursive: true });
+    await cp(src, dest, { recursive: true });
+  };
+
+  // Core, theme, icons.
+  await copy(from('tinymce.min.js'), 'tinymce.min.js');
+  await copy(from('themes/silver/theme.min.js'), 'themes/silver/theme.min.js');
+  await copy(from('icons/default/icons.min.js'), 'icons/default/icons.min.js');
+
+  // Skins and UI.
+  await copy(from('skins/ui/oxide'), 'skins/ui/oxide');
+  await copy(from('skins/content/default/content.min.css'), 'skins/content/default/content.min.css');
+
+  // Plugins.
+  for (const p of TINY_PLUGINS) {
+    await copy(from(`plugins/${p}/plugin.min.js`), `plugins/${p}/plugin.min.js`);
+  }
+  await copy(from('plugins/emoticons/js/emojis.min.js'), 'plugins/emoticons/js/emojis.min.js');
+
+  // Language packs.
+  for (const l of TINY_LANGS) {
+    await copy(path.join(root, 'node_modules/tinymce-i18n/langs5', `${l}.js`), `lang/${l}.js`);
+  }
+}
+
 async function build() {
   // Fresh /dist dir.
   await rm(dist, { recursive: true, force: true });
@@ -32,6 +70,7 @@ async function build() {
   for (const [from, to] of vendor) {
     await cp(path.join(root, from), path.join(dist, to));
   }
+  await copyTinyMCE();
 
   // Entry points = modules loaded directly by a <script> tag: the global main.js and
   // every per-view module under src/js/views/.
@@ -40,7 +79,13 @@ async function build() {
     .map((f) => path.join(srcJS, 'views', f));
 
   const result = await Bun.build({
-    entrypoints: [path.join(srcJS, 'main.js'), path.join(srcJS, 'code-editor.js'), ...views],
+    entrypoints: [
+      path.join(srcJS, 'main.js'),
+      path.join(srcJS, 'code-editor.js'),
+      path.join(srcJS, 'richtext-editor.js'),
+      path.join(srcJS, 'visual-editor.js'),
+      ...views,
+    ],
     outdir: path.join(dist, 'js'),
     root: srcJS,
     splitting: true,

@@ -49,6 +49,23 @@ func (a *App) ViewMedia(c echo.Context) error {
 	return c.Render(http.StatusOK, "admin-media", data)
 }
 
+// ViewMediaFragment renders the header/footer-less media gallery for in iframes (popup dialogs).
+func (a *App) ViewMediaFragment(c echo.Context) error {
+	res, props, err := a.getMedia(c)
+	if err != nil {
+		return err
+	}
+
+	data := mediaView{
+		adminView: newAdminView(c, a.i18n.T("media.title"), "", "campaigns.media"),
+		Media:     res,
+		Provider:  a.cfg.MediaUpload.Provider,
+		Page:      props,
+	}
+
+	return c.Render(http.StatusOK, "admin-media-fragment", data)
+}
+
 // getMedia queries paginated media items from the DB.
 func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) {
 	q := makeQuery(c.Request().URL.Query(), map[string]string{
@@ -57,6 +74,7 @@ func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) 
 	})
 
 	pg := a.pg.NewFromURL(q)
+	pg.Limit = 100
 	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, q.Get("query"), pg.Offset, pg.Limit)
 	if err != nil {
 		return nil, models.PageProps{}, err

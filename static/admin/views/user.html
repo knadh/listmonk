@@ -113,10 +113,10 @@
 	</form>
 
 	{{- if $canSave }}
-		<dialog class="b-modal" x-ref="tokenDialog" @close="onTokenDialogClose">
+		<dialog x-ref="tokenDialog" @close="onTokenDialogClose">
 			<div class="dialog-card content">
 				<header class="dialog-head">
-					<h3 class="dialog-title">{{ .L.T "users.type.api" }}</h3>
+					<h4 class="dialog-title">{{ .L.T "users.type.api" }}</h4>
 				</header>
 				<section class="dialog-body">
 					<p class="text-light">{{ .L.T "users.apiOneTimeToken" }}</p>

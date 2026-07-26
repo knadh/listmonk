@@ -1,11 +1,4 @@
-{{ define "admin-header" }}
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>{{ .Data.Title }} - {{ .SiteName }}</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-
+{{ define "admin-head-assets" }}
 	<link href="{{ URI "/admin/static/vendor/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/custom.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
@@ -21,6 +14,16 @@
 	{{ else }}
 		<link rel="icon" href="{{ URI "/admin/static/favicon.png" }}?v={{ .AssetVersion }}" type="image/png" />
 	{{ end }}
+{{ end }}
+
+{{ define "admin-header" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{{ .Data.Title }} - {{ .SiteName }}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+	{{ template "admin-head-assets" . }}
 </head>
 <body x-data="adminApp">
 	<div id="app" data-sidebar-layout>
@@ -69,19 +72,16 @@
 		</main>
 	</div>
 	<template id="confirm-dialog-template">
-		<dialog class="b-modal">
+		<dialog>
 			<div class="dialog-card content">
-				<header class="dialog-head">
-					<h4 data-confirm-title>{{ .L.T "globals.messages.confirm" }}</h4>
-				</header>
 				<section class="dialog-body">
 					<div data-field>
 						<p data-confirm-message></p>
 					</div>
 				</section>
 				<footer class="dialog-foot align-right">
+					<button type="button" autofocus data-variant="primary" data-confirm-ok>{{ .L.T "globals.buttons.ok" }}</button>
 					<button type="button" class="outline" data-confirm-cancel>{{ .L.T "globals.buttons.cancel" }}</button>
-					<button type="button" data-variant="primary" data-confirm-ok>{{ .L.T "globals.buttons.ok" }}</button>
 				</footer>
 			</div>
 		</dialog>

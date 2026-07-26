@@ -1,0 +1,50 @@
+{{ define "media-gallery-item" -}}
+{{- $root := .Root -}}
+{{- if eq .Mode "attach" -}}
+<figure class="card">
+	<a class="thumb" :href="m.url" target="_blank" rel="noopener noreferrer" :title="m.filename">
+		<template x-if="m.thumb_url">
+			<img :src="m.thumb_url" :alt="m.filename" />
+		</template>
+		<template x-if="!m.thumb_url">
+			<span class="ext" x-text="fileExt(m.filename)"></span>
+		</template>
+	</a>
+	<figcaption>
+		<span class="filename" :title="m.filename" x-text="m.filename"></span>
+		<span class="text-light text-8" x-text="niceDate(m.created_at)"></span>
+	</figcaption>
+	<ot-dropdown class="actions">
+		<button type="button" class="ghost small icon" aria-label="{{ $root.L.T "globals.buttons.more" }}" popovertarget="attach" :popovertarget="`attach-${idx}`">{{ Icon "more-vertical" }}</button>
+		<menu popover :id="`attach-${idx}`">
+			<button type="button" role="menuitem" class="ghost" data-variant="danger" :disabled="!canEdit" @click.prevent="onDeleteAttachment(m)">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</button>
+		</menu>
+	</ot-dropdown>
+</figure>
+{{- else -}}
+{{- $picker := eq .Mode "picker" -}}
+{{- $canManage := .CanManage -}}
+{{- $m := .Media -}}
+<figure class="card">
+	<a class="thumb" href="{{ $m.URL }}" {{ if $picker }}@click.prevent="onPick({{ ToJSON $m }})"{{ else }}target="_blank" rel="noopener noreferrer"{{ end }} title="{{ $m.Filename }}">
+		{{- if $m.ThumbURL.Valid }}
+			<img src="{{ $m.ThumbURL.String }}" alt="{{ $m.Filename }}" />
+		{{- else }}
+			<span class="ext">{{ $m.Filename | ext | trimPrefix "." | upper }}</span>
+		{{- end }}
+	</a>
+	<figcaption>
+		<span class="filename" title="{{ $m.Filename }}">{{ $m.Filename }}</span>
+		<span class="text-light text-8">{{ NiceDate $m.CreatedAt }}</span>
+	</figcaption>
+	{{- if $canManage }}
+		<ot-dropdown class="actions">
+			<button popovertarget="media-actions-{{ $m.ID }}" type="button" class="ghost small icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
+			<menu popover id="media-actions-{{ $m.ID }}">
+				<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" @click.prevent="onDelete({{ $m.ID }}, {{ ToJSON $m.Filename }})">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</button>
+			</menu>
+		</ot-dropdown>
+	{{- end }}
+</figure>
+{{- end -}}
+{{- end }}
