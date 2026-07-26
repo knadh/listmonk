@@ -1,0 +1,34 @@
+{{ define "admin-media-fragment" -}}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{{ .Data.Title }} - {{ .SiteName }}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+	{{ template "admin-head-assets" . }}
+</head>
+<body class="media-fragment">
+	<div class="container">
+		{{ template "media-gallery" dict "Root" . "Mode" "picker" }}
+	</div>
+	<template id="confirm-dialog-template">
+		<dialog>
+			<div class="dialog-card content">
+				<section class="dialog-body">
+					<div data-field>
+						<p data-confirm-message></p>
+					</div>
+				</section>
+				<footer class="dialog-foot align-right">
+					<button type="button" autofocus data-variant="primary" data-confirm-ok>{{ .L.T "globals.buttons.ok" }}</button>
+					<button type="button" class="outline" data-confirm-cancel>{{ .L.T "globals.buttons.cancel" }}</button>
+				</footer>
+			</div>
+		</dialog>
+	</template>
+	<script type="module" src="{{ URI "/admin/static/js/views/media.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script type="module" src="{{ URI "/admin/static/js/main.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script src="{{ URI "/admin/static/vendor/alpinejs.min.js" }}?v={{ .AssetVersion }}" defer></script>
+</body>
+</html>
+{{- end }}

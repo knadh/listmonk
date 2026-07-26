@@ -65,10 +65,10 @@
 	</div>
 
 	{{- if $canSave }}
-		<dialog class="b-modal" x-ref="manageDialog">
+		<dialog x-ref="manageDialog">
 			<form @submit.prevent="onManageLists">
 				<div class="dialog-card content">
-					<header class="dialog-head"><h3 class="dialog-title">{{ $root.L.T "subscribers.manageLists" }}</h3></header>
+					<header class="dialog-head"><h4 class="dialog-title">{{ $root.L.T "subscribers.manageLists" }}</h4></header>
 					<section class="dialog-body">
 						{{ template "manage-lists-form" dict "Root" $root "Model" "manage" "ListID" "manage-lists" }}
 					</section>

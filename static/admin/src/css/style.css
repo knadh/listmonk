@@ -27,10 +27,11 @@
 }
 
 * {
+    --body: light-dark(#f9f9f9, #171717);
     --primary: #0055d4;
     --ring: #0055d4;
     --muted-foreground: light-dark(#7a7a7a, #a1a1aa);
-    --container-max: 1040px;
+    --container-max: 1150px;
     --border: light-dark(#e5e7eb, #52525b);
     --font-sans: "Inter", system-ui, sans-serif;
     --text-1: 1.75rem;
@@ -40,9 +41,7 @@ html, body {
     font-size: 15px;
 }
 body {
-    background:
-        radial-gradient(circle at 50% 0, light-dark(#ffffff, #262626) 0, transparent 360px),
-        light-dark(#f6f7f8, #171717);
+    background: var(--body);
     font-family: "Inter", system-ui, sans-serif;
 }
 
@@ -66,6 +65,10 @@ button.link-button {
     &:hover {
         text-decoration: underline;
     }
+}
+
+fieldset > [data-field]:last-of-type {
+    margin-block-end: 0;
 }
 
 table {
@@ -160,6 +163,8 @@ table {
 }
 
 dialog {
+    padding: 0;
+    overflow: auto;
     border-radius: var(--radius-medium);
 
     .header-title {
@@ -185,7 +190,7 @@ dialog {
 
     &.private,
     &.scheduled,
-    &.paused,
+    &.status-paused,
     &.tx,
     &.api,
     &.double,
@@ -204,12 +209,12 @@ dialog {
         color: #3b8cff;
     }
 
-
-    /* Subscription statuses */
+    /* Subscription/campaign statuses */
     sup.status-confirmed {
         color: #36995b;
     }
-    &.status-confirmed {
+    &.status-confirmed,
+    &.status-finished {
         background: #dcfce7;
         color: #36995b;
     }
@@ -217,7 +222,8 @@ dialog {
     sup.status-unsubscribed {
         color: #ff5722;
     }
-    &.status-unsubscribed {
+    &.status-unsubscribed,
+    &.status-cancelled {
         background: #fff1f0;
         color: #ff5722;
     }
@@ -231,7 +237,7 @@ dialog {
     }
 
     &.disabled,
-    &.draft,
+    &.status-draft,
     &.optin,
     &.single,
     .oat-tag-input & {
@@ -447,8 +453,11 @@ aside[data-sidebar] {
     }
 }
 .sql-btn {
-    position: relative;
     border-right: 0;
+}
+
+.dot-indicator {
+    position: relative;
 
     &.is-active::before {
         content: "";
@@ -467,8 +476,7 @@ aside[data-sidebar] {
     }
 }
 
-/* The advanced SQL query editor, shown in an ot-dropdown popover off the search box. */
-.sql-editor.sql-editor {
+.sql-editor.sql-editor:popover-open {
     width: min(90vw, 40rem);
     padding: var(--space-3);
     display: flex;
@@ -493,6 +501,64 @@ aside[data-sidebar] {
         inset: auto !important;
         top: calc(anchor(bottom) + var(--space-1)) !important;
         right: anchor(right) !important;
+    }
+}
+
+.campaign-test.campaign-test:popover-open {
+    width: min(90vw, 24rem);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+@supports (anchor-name: --a) {
+    .campaign-test-btn {
+        anchor-name: --campaign-test-anchor;
+    }
+
+    .campaign-test.campaign-test {
+        position-anchor: --campaign-test-anchor;
+        inset: auto !important;
+        top: calc(anchor(bottom) + var(--space-1)) !important;
+        right: anchor(right) !important;
+    }
+
+    .media-upload-btn {
+        anchor-name: --media-upload-anchor;
+    }
+
+    .media-upload.media-upload {
+        position-anchor: --media-upload-anchor;
+        inset: auto !important;
+        top: calc(anchor(bottom) + var(--space-1)) !important;
+        right: anchor(right) !important;
+    }
+}
+
+.media-upload.media-upload:popover-open {
+    width: min(90vw, 24rem);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.media-picker-modal {
+    padding: 0;
+    min-width: min(90vw, 900px);
+    max-height: calc(100vh - 40px);
+
+    .dialog-body {
+        background: var(--body);
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    iframe {
+        border: 0;
+        min-height: 70vh;
+        width: 100%;
     }
 }
 
@@ -835,19 +901,32 @@ td .badge, .oat-data-table .badge {
     margin-block: 1px;
 }
 
+td.stats dl {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: baseline;
+    column-gap: var(--space-2);
+    row-gap: var(--space-1);
+    margin: 0;
+}
+
+td.stats dt {
+    flex-shrink: 0;
+    min-width: 100px;
+    color: var(--muted-foreground);
+}
+
+td.stats dd {
+    flex: 1 1 auto;
+    min-width: max-content;
+    margin: 0;
+}
+
 /* Lists */
 section.lists {
     th, td {
         &.subscribers {
             text-align: center;
-        }
-    }
-    .subscriber-stats {
-        label {
-            font-size: var(--text-8);
-            font-weight: var(--font-semibold);
-            display: inline-block;
-            min-width: 100px;
         }
     }
 
@@ -932,16 +1011,13 @@ section.campaigns {
             color: var(--faint-foreground);
         }
 
-        .send-rate,
-        .scheduled {
-            font-size: var(--text-7);
+        td.stats dt {
+            min-width: 75px;
         }
     }
 }
 
 section.analytics {
-    /* Fixed-height, position:relative wrappers so Chart.js can size the canvas
-       without the responsive resize feedback loop. */
     .chart-box,
     .donut-container {
         position: relative;
@@ -949,17 +1025,42 @@ section.analytics {
     }
 }
 
-.preview {
+.preview-modal {
     padding: 0;
     position: relative;
+    min-width: 1100px;
+    max-width: 960px;
+    max-height: calc(100vh - 40px);
+
+    .dialog-body {
+        padding: 0;
+    }
 
     #iframe {
         border: 0;
-        margin: 0 0 -5px;
         max-height: 100%;
         min-height: 70vh;
         padding: 0;
+        margin: 0;
         width: 100%;
+    }
+}
+
+/* Source code / Insert HTML dialog for the richtext editor. Same approach as
+   .preview-modal: cap the dialog height; the code editor scrolls internally. */
+.code-source-modal {
+    padding: 0;
+    width: 90vw;
+    max-width: 1100px;
+    max-height: calc(100vh - 40px);
+
+    .dialog-body {
+        padding: 0;
+    }
+
+    .code-editor {
+        border: 0;
+        border-radius: 0;
     }
 }
 
@@ -988,6 +1089,64 @@ section.analytics {
 
     .cm-gutters {
         margin-inline-end: var(--space-3);
+    }
+}
+
+/* Campaign content editor. */
+section.campaign {
+    .editor .editor-body {
+        margin-block: var(--space-3);
+        position: relative;
+        min-height: 65vh;
+    }
+
+    [role="tabpanel"] {
+        padding: 0;
+    }
+
+    .editor .editor-body.is-loading > * {
+        visibility: hidden;
+    }
+
+    .editor .editor-body.is-loading::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 2rem;
+        height: 2rem;
+        border: 3px solid var(--muted);
+        border-top-color: var(--primary);
+        border-radius: var(--radius-full);
+        animation: spin 1s linear infinite;
+        z-index: 2;
+    }
+
+    visual-editor {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-small);
+        width: 100%;
+    }
+
+    visual-editor iframe {
+        border: 0;
+        width: 100%;
+        min-height: 65vh;
+    }
+
+    richtext-editor {
+        display: block;
+    }
+
+    .plain-editor {
+        min-height: 65vh;
+    }
+
+    .alt-body textarea {
+        margin-block-start: var(--space-3);
+        min-height: 150px;
+        width: 100%;
     }
 }
 
@@ -1093,21 +1252,23 @@ section.import {
     }
 }
 
-.media-files {
+.media-files,
+.attachments {
     .gallery {
         display: grid;
         gap: var(--space-4);
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         list-style: none;
     }
 
     figure {
         position: relative;
+        padding: 0;
     }
 
     .thumb {
         align-items: center;
-        aspect-ratio: 1;
+        aspect-ratio: 4 / 3;
         background: var(--faint);
         border-radius: var(--radius-medium);
         display: flex;
@@ -1115,21 +1276,22 @@ section.import {
         overflow: hidden;
 
         img {
-            height: 100%;
+            max-height: 100%;
+            max-width: 100%;
             object-fit: cover;
-            width: 100%;
         }
     }
 
     figcaption {
         display: grid;
-        padding-block: var(--space-2);
+        padding: var(--space-2);
     }
 
     .filename {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        font-size: var(--text-7);
     }
 
     .actions {
@@ -1325,40 +1487,40 @@ th.role-toggle-select a {
     display: none !important;
 }
 
-.b-modal {
-    max-width: min(96vw, 1200px);
-    width: min(100% - 2rem, 32rem);
+dialog {
+    .dialog-card {
+        padding: 0;
+    }
+
+    .dialog-head {
+        background: var(--muted);
+        border-bottom: 1px solid var(--border);
+        padding: var(--space-3) var(--space-4);
+        /* margin-bottom: var(--space-6); */
+
+        .dialog-title {
+            margin: 0;
+            font-size: var(--text-7);
+        }
+    }
+
+    .dialog-body {
+        padding: var(--space-4);
+    }
+
+    .dialog-foot {
+        display: flex;
+        gap: var(--space-2);
+        justify-content: flex-end;
+        padding: var(--space-3) var(--space-4) var(--space-4) var(--space-3);
+
+        button {
+            min-width: 75px;
+        }
+    }
 }
 
-.b-modal>form>.dialog-card,
-.b-modal>.dialog-card {
-    display: contents;
-}
 
-.b-modal>form>.dialog-card>header,
-.b-modal>.dialog-card>header {
-    background: var(--faint);
-    padding: var(--space-6);
-    padding-block-end: var(--space-2);
-    margin-block-end: var(--space-4);
-}
-
-.b-modal>form>.dialog-card> :is(div, section),
-.b-modal>.dialog-card> :is(div, section) {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding: var(--space-6);
-    padding-block-start: 0;
-}
-
-.b-modal>form>.dialog-card>footer,
-.b-modal>.dialog-card>footer {
-    display: flex;
-    gap: var(--space-2);
-    justify-content: flex-end;
-    padding: var(--space-6);
-    padding-block-start: 0;
-}
 
 .pagination {
     text-align: right;

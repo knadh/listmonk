@@ -34,6 +34,23 @@ const (
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 
+// CampaignList is a minimal representation of a campaign's associated list,
+// parsed from the raw Lists JSON for use in HTML views.
+type CampaignList struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// CampaignMedia is a minimal representation of a campaign's attached media,
+// parsed from the raw Media JSON for use in HTML views.
+type CampaignMedia struct {
+	ID        int       `json:"id"`
+	Filename  string    `json:"filename"`
+	URL       string    `json:"url"`
+	ThumbURL  string    `json:"thumb_url"`
+	CreatedAt null.Time `json:"created_at"`
+}
+
 // Campaign represents an e-mail campaign.
 type Campaign struct {
 	Base
@@ -100,6 +117,36 @@ type CampaignMeta struct {
 	StartedAt null.Time `db:"started_at" json:"started_at"`
 	ToSend    int       `db:"to_send" json:"to_send"`
 	Sent      int       `db:"sent" json:"sent"`
+}
+
+// ParsedLists unmarshals the campaign's raw Lists JSON into a slice for
+// rendering in HTML views.
+func (c Campaign) ParsedLists() []CampaignList {
+	if len(c.Lists) == 0 {
+		return nil
+	}
+
+	var out []CampaignList
+	if err := json.Unmarshal(c.Lists, &out); err != nil {
+		return nil
+	}
+
+	return out
+}
+
+// ParsedMedia unmarshals the campaign's raw Media JSON into a slice for
+// rendering in HTML views.
+func (c Campaign) ParsedMedia() []CampaignMedia {
+	if len(c.Media) == 0 {
+		return nil
+	}
+
+	var out []CampaignMedia
+	if err := json.Unmarshal(c.Media, &out); err != nil {
+		return nil
+	}
+
+	return out
 }
 
 // GetIDs returns the list of campaign IDs.

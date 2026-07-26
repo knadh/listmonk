@@ -1,0 +1,15 @@
+{{ define "media-picker" -}}
+<dialog class="media-picker-modal" x-ref="mediaDialog" @close="onMediaClose">
+	<div class="dialog-card">
+		<header class="dialog-head hstack justify-between">
+			<h4 class="dialog-title">{{ .L.T "media.title" }}</h4>
+		</header>
+		<section class="dialog-body">
+			<iframe x-ref="mediaFrame" title="{{ .L.T "media.title" }}"></iframe>
+		</section>
+		<footer class="dialog-foot align-right">
+			<button type="button" class="outline" autofocus @click="$refs.mediaDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+		</footer>
+	</div>
+</dialog>
+{{- end }}

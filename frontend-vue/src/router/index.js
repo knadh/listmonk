@@ -18,12 +18,6 @@ const routes = [
     component: () => import('../views/Dashboard.vue'),
   },
   {
-    path: '/campaigns',
-    name: 'campaigns',
-    meta: { title: 'globals.terms.campaigns', group: 'campaigns' },
-    component: () => import('../views/Campaigns.vue'),
-  },
-  {
     path: '/campaigns/templates',
     name: 'templates',
     meta: { title: 'globals.terms.templates', group: 'campaigns' },
@@ -34,12 +28,6 @@ const routes = [
     name: 'campaignAnalytics',
     meta: { title: 'analytics.title', group: 'campaigns' },
     component: () => import('../views/CampaignAnalytics.vue'),
-  },
-  {
-    path: '/campaigns/:id',
-    name: 'campaign',
-    meta: { title: 'globals.terms.campaign', group: 'campaigns' },
-    component: () => import('../views/Campaign.vue'),
   },
   {
     path: '/user/profile',

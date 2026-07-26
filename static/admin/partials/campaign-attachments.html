@@ -1,0 +1,21 @@
+{{ define "campaign-attachments" -}}
+{{- $root := .Root -}}
+{{- $canManage := .CanManage -}}
+{{- $canSend := .CanSend -}}
+<div class="card page-content attachments">
+	<ul class="unstyled gallery">
+		<template x-for="(m, idx) in form.media" :key="m.id || m.filename">
+			<li data-cy="media-item">
+				{{- template "media-gallery-item" dict "Root" $root "Mode" "attach" }}
+			</li>
+		</template>
+	</ul>
+	<template x-if="form.media.length === 0">
+		<div class="align-center text-light">{{ $root.L.T "globals.messages.emptyState" }}</div>
+	</template>
+
+	<footer class="hstack mt-6">
+		<button type="button" data-variant="primary" @click="onOpenMedia('attach')" :disabled="!canEdit" data-cy="btn-attach">{{ Icon "plus" }} {{ $root.L.T "campaigns.addAttachments" }}</button>
+	</footer>
+</div>
+{{- end }}

@@ -1,0 +1,21 @@
+{{ define "campaign-preview" -}}
+<dialog class="preview-modal" x-ref="previewDialog" @close="onPreviewClose">
+	<div class="dialog-card">
+		<header class="dialog-head hstack justify-between">
+			<h4 class="dialog-title" x-text="preview.title"></h4>
+		</header>
+		<section class="dialog-body preview" :aria-busy="preview.loading">
+			<form method="post" x-ref="previewForm" :action="preview.url" target="campaign-preview-frame">
+				<input type="hidden" name="template_id" :value="preview.templateID" />
+				<input type="hidden" name="content_type" :value="preview.contentType" />
+				<input type="hidden" name="archive_meta" :value="preview.archiveMeta" />
+				<input type="hidden" name="body" :value="preview.body" />
+			</form>
+			<iframe id="iframe" name="campaign-preview-frame" x-ref="previewFrame" title="{{ .L.T "campaigns.preview" }}" @load="preview.loading = false"></iframe>
+		</section>
+		<footer class="dialog-foot align-right">
+			<button type="button" class="outline" autofocus @click="$refs.previewDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+		</footer>
+	</div>
+</dialog>
+{{- end }}

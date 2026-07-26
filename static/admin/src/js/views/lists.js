@@ -91,7 +91,7 @@ function component(list = null) {
         messenger: 'email',
         type: 'optin',
       });
-      window.location.href = `/admin/campaigns/${data.id}#content`;
+      window.location.href = `/admin/campaigns/${data.id}#tab=content`;
     },
 
     // ===============

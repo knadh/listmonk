@@ -30,8 +30,6 @@ class CodeEditor extends HTMLElement {
     // Handle if `.value` was assigned before the element was upgraded.
     this._upgradeProperty('value');
 
-    // The (optional) nested textarea with the initial value, which also doubles as the
-    // form-submission field. CodeMirror renders into a separate mount div.
     this.textarea = this.querySelector('textarea');
     const initial = this.textarea
       ? this.textarea.value
@@ -43,7 +41,7 @@ class CodeEditor extends HTMLElement {
     const mount = document.createElement('div');
     this.appendChild(mount);
 
-    // Apply .code-editor styles to the <code-editor> tag.
+    // Apply styles to the <code-editor> tag.
     this.classList.add('code-editor');
 
     const langFn = LANGS[this.getAttribute('lang')] || html;
@@ -91,6 +89,10 @@ class CodeEditor extends HTMLElement {
         ],
       }),
     });
+
+    queueMicrotask(() => {
+      this.dispatchEvent(new CustomEvent('editor-ready', { bubbles: true }));
+    });
   }
 
   disconnectedCallback() {
@@ -114,7 +116,7 @@ class CodeEditor extends HTMLElement {
       return;
     }
 
-    // Ignore self-edit / no change.
+    // Ignore and internal updates.
     if (this.internalUpdate || v === this.editor.state.doc.toString()) {
       return;
     }

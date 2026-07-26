@@ -1,0 +1,70 @@
+{{ define "media-gallery" -}}
+{{- $root := .Root -}}
+{{- $d := $root.Data -}}
+{{- $mode := .Mode -}}
+{{- $picker := eq .Mode "picker" -}}
+{{- $canManage := $d.Can "media:manage" -}}
+<section class="media-files" x-data="mediaView({{ if $picker }}'picker'{{ else }}'manage'{{ end }})">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack">
+				<h1 class="page-title">
+					{{ $root.L.T "media.title" }}
+					<span>({{ $d.Page.Total }})</span>
+				</h1>
+				{{- if $d.Provider }}<div class="text-7 text-lighter">{{ $d.Provider }}</div>{{ end }}
+			</div>
+		</div>
+		<div class="col-6 col-end align-right hstack justify-end">
+			<form method="get" action="{{ URI "/admin/campaigns/media" }}{{ if $picker }}/fragment{{ end }}" class="search-form">
+				{{- $d.Page.FormFields "query" -}}
+				<fieldset class="group">
+					<input name="query" aria-label="Search" data-cy="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+				</fieldset>
+			</form>
+			{{- if $canManage }}
+				<ot-dropdown>
+					<button type="button" data-variant="primary" class="btn-new media-upload-btn" popovertarget="media-upload" data-cy="btn-upload">
+						{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
+					</button>
+					<div popover id="media-upload" class="media-upload">
+						<form @submit.prevent="onUpload">
+							<div data-field>
+								<ot-upload>
+									<div data-field class="vstack">
+										<input type="file" name="file" multiple hidden @change="files = [...$event.target.files]" />
+										<button type="button" class="ghost" aria-label="{{ $root.L.T "media.upload" }}">{{ Icon "upload" }}</button>
+										<div data-files><small data-hint>{{ $root.L.T "media.uploadHelp" }}</small></div>
+									</div>
+								</ot-upload>
+							</div>
+							<div class="hstack justify-end">
+								<button type="submit" data-variant="primary" data-cy="btn-submit" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
+									{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
+								</button>
+							</div>
+						</form>
+					</div>
+				</ot-dropdown>
+			{{- end }}
+		</div>
+	</header>
+
+	<div class="card page-content">
+		{{- if $d.Media }}
+			<ul class="unstyled gallery">
+				{{- range $d.Media }}
+					<li data-cy="media-item">
+						{{- template "media-gallery-item" dict "Root" $root "Mode" $mode "CanManage" $canManage "Media" . }}
+					</li>
+				{{- end }}
+			</ul>
+		{{- else }}
+			<div class="align-center text-light">{{ $root.L.T "globals.messages.emptyState" }}</div>
+		{{- end }}
+
+		{{- template "pagination" $d.Page.Pagination }}
+	</div>
+</section>
+{{- end }}
