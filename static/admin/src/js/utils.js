@@ -126,6 +126,20 @@ export function formatNumber(value) {
   return new Intl.NumberFormat().format(value);
 }
 
+// Client-side equivalent of the server's NiceDate ("Mon, 02 Jan 2006").
+export function niceDate(iso) {
+  if (!iso) {
+    return '';
+  }
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return '';
+  }
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${days[d.getDay()]}, ${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 export function parseQueryIDs(ids) {
   if (!ids) {
     return [];

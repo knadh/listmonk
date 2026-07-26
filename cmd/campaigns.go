@@ -51,6 +51,185 @@ var (
 	reSlug        = regexp.MustCompile(`[^\p{L}\p{M}\p{N}]`)
 )
 
+// campaignsView is the admin page view for the campaigns list page.
+type campaignsView struct {
+	adminView
+
+	Campaigns []models.Campaign
+	Page      models.PageProps
+}
+
+// campaignView is the admin page view for creating/editing a single campaign.
+type campaignView struct {
+	adminView
+
+	IsNew           bool
+	Campaign        models.Campaign
+	Templates       []models.Template
+	AllLists        []models.List
+	SelectedListIDs []int
+	ArchiveURL      string
+}
+
+// ViewNewCampaign renders the new campaign page (only the "campaign" tab).
+func (a *App) ViewNewCampaign(c echo.Context) error {
+	tpls, err := a.core.GetTemplates("", true)
+	if err != nil {
+		return err
+	}
+
+	// Pre-selected lists from ?list_id query params (filtered by permission).
+	var selIDs []int
+	if raw := c.QueryParams()["list_id"]; len(raw) > 0 {
+		ids, _ := parseStringIDs(raw)
+		user := auth.GetUser(c)
+		selIDs = user.GetPermittedListIDs(ids)
+	}
+
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	data := campaignView{
+		adminView:       newAdminView(c, a.i18n.T("campaigns.newCampaign"), "", "campaigns.new"),
+		IsNew:           true,
+		Campaign:        models.Campaign{Type: models.CampaignTypeRegular, ContentType: models.CampaignContentTypeRichtext},
+		Templates:       tpls,
+		AllLists:        allLists,
+		SelectedListIDs: selIDs,
+	}
+
+	return c.Render(http.StatusOK, "admin-campaign", data)
+}
+
+// ViewCampaign renders the single-page editor for an existing campaign. The
+// tabs (campaign/content/attribs/archive) are inline on this page, deep-linked
+// via the URL hash (#tab=<id>). Legacy per-tab paths (/campaigns/:id/:tab) are
+// redirected to the canonical hash form for backward compatibility.
+func (a *App) ViewCampaign(c echo.Context) error {
+	id := getID(c)
+
+	switch c.Param("tab") {
+	case "content", "attribs", "archive":
+		return c.Redirect(http.StatusFound, fmt.Sprintf("%s/campaigns/%d#tab=%s", uriAdmin, id, c.Param("tab")))
+	}
+
+	// Check if the user has access to the campaign.
+	if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+		return err
+	}
+
+	camp, err := a.core.GetCampaign(id, "", "")
+	if err != nil {
+		return err
+	}
+
+	// Enrich the attached media with their public URL + thumbnail so the frontend
+	// can render an image gallery. The stored media JSON only carries id + filename.
+	if med := camp.ParsedMedia(); len(med) > 0 {
+		for i := range med {
+			// Look up the full media record for its URL + thumbnail. Media may have
+			// been deleted (id 0), in which case fall back to the stored filename.
+			if med[i].ID > 0 {
+				if m, err := a.core.GetMedia(med[i].ID, "", "", a.media); err == nil {
+					med[i].URL = m.URL
+					med[i].ThumbURL = m.ThumbURL.String
+					med[i].CreatedAt = m.CreatedAt
+					continue
+				}
+			}
+			med[i].URL = a.media.GetURL(med[i].Filename)
+		}
+		if b, err := json.Marshal(med); err == nil {
+			camp.Media = b
+		}
+	}
+
+	tpls, err := a.core.GetTemplates("", true)
+	if err != nil {
+		return err
+	}
+
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	// Public archive URL has the slug if its set or the campaign UUID otherwise.
+	archiveURL := a.urlCfg.ArchiveURL
+	if camp.ArchiveSlug.Valid {
+		archiveURL, _ = url.JoinPath(a.urlCfg.ArchiveURL, camp.ArchiveSlug.String)
+	} else {
+		archiveURL, _ = url.JoinPath(a.urlCfg.ArchiveURL, camp.UUID)
+	}
+
+	data := campaignView{
+		adminView:  newAdminView(c, camp.Name, "", "campaigns.all"),
+		Campaign:   camp,
+		Templates:  tpls,
+		AllLists:   allLists,
+		ArchiveURL: archiveURL,
+	}
+
+	return c.Render(http.StatusOK, "admin-campaign", data)
+}
+
+// ViewCampaigns renders the HTML list view for campaigns.
+func (a *App) ViewCampaigns(c echo.Context) error {
+	camps, props, err := a.getViewCampaigns(c)
+	if err != nil {
+		return err
+	}
+
+	data := campaignsView{
+		adminView: newAdminView(c, a.i18n.T("globals.terms.campaigns"), "", "campaigns.all"),
+		Campaigns: camps,
+		Page:      props,
+	}
+
+	return c.Render(http.StatusOK, "admin-campaigns", data)
+}
+
+// getViewCampaigns queries paginated campaigns for the HTML list view.
+func (a *App) getViewCampaigns(c echo.Context) ([]models.Campaign, models.PageProps, error) {
+	q := makeQuery(c.Request().URL.Query(), map[string]string{
+		"page":     "",
+		"query":    "",
+		"order_by": "",
+		"order":    "",
+		"status":   "",
+		"tag":      "",
+	})
+
+	// Get the authenticated user.
+	user := auth.GetUser(c)
+
+	// Either the user has campaigns:get_all permissions and can view all campaigns,
+	// or the campaigns are filtered by the lists the user has get|manage access to.
+	hasAllPerm := user.HasPerm(auth.PermCampaignsGetAll)
+	var permittedLists []int
+	if !hasAllPerm {
+		hasAllPerm, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	}
+
+	// Run the DB query.
+	pg := a.pg.NewFromURL(q)
+	res, total, err := a.core.QueryCampaigns(q.Get("query"), q["status"], q["tag"],
+		q.Get("order_by"), q.Get("order"), hasAllPerm, permittedLists, pg.Offset, pg.Limit)
+	if err != nil {
+		return nil, models.PageProps{}, err
+	}
+
+	// The list view doesn't need campaign bodies.
+	for i := range res {
+		res[i].Body = ""
+		res[i].BodySource.Valid = false
+	}
+
+	return res, models.NewPageProps(q, total, pg.Page, pg.PerPage), nil
+}
+
 // GetCampaigns handles retrieval of campaigns.
 func (a *App) GetCampaigns(c echo.Context) error {
 	// Get the authenticated user.

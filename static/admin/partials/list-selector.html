@@ -2,9 +2,10 @@
 {{- $root := .Root -}}
 {{- $model := .Model -}}
 {{- $listID := .ListID -}}
+{{- $disabled := .Disabled -}}
 <label data-field>
 	{{ $root.L.T .Label }}
-	<ot-taginput x-model="{{ $model }}">
+	<ot-taginput x-model="{{ $model }}" {{ if $disabled }}:disabled="{{ $disabled }}"{{ end -}}>
 		<input list="{{ $listID }}" placeholder="{{ $root.L.T .Placeholder }}" @input="listAutocomplete($el)" @pointerdown="listAutocomplete($el)" @focus="listAutocomplete($el)" />
 		<datalist id="{{ $listID }}"></datalist>
 	</ot-taginput>
