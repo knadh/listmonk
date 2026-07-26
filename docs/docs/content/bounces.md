@@ -53,7 +53,7 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 | `https://listmonk.yoursite.com/webhooks/service/postmark`     | Postmark webhook                       | [More info](https://postmarkapp.com/developer/webhooks/webhooks-overview)                                             |
 | `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                  | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                           |
 | `https://listmonk.yoursite.com/webhooks/service/lettermint`   | Lettermint webhook                     | [More info](https://lettermint.co/knowledge-base/guides/send-newsletter-with-listmonk)                                                |
-| `https://listmonk.yoursite.com/webhooks/service/mailgun`      | Mailgun webhook                        | [More info](https://documentation.mailgun.com/en/latest/user_manual.html#webhooks)                                    |
+| `https://listmonk.yoursite.com/webhooks/service/mailgun`      | Mailgun webhook                        | [More info](https://help.mailgun.com/hc/en-us/articles/202236504-Webhooks)                                    |
 
 ## Amazon Simple Email Service (SES)
 
