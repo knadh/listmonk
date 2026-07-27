@@ -293,7 +293,9 @@ SELECT subscribers.* FROM subscribers
         AND ($2 = '' OR subscriber_lists.status = $2::subscription_status)
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
-    AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND (CASE WHEN $3 != '' THEN
+        STRPOS(LOWER(name), LOWER($3)) > 0 OR STRPOS(LOWER(email), LOWER($3)) > 0
+        ELSE TRUE END)
     AND %query%
     ORDER BY %order% OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
 
@@ -308,7 +310,9 @@ SELECT COUNT(*) AS total FROM subscribers
         AND ($2 = '' OR subscriber_lists.status = $2::subscription_status)
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
-    AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND (CASE WHEN $3 != '' THEN
+        STRPOS(LOWER(name), LOWER($3)) > 0 OR STRPOS(LOWER(email), LOWER($3)) > 0
+        ELSE TRUE END)
     AND %query%;
 
 -- name: query-subscribers-count-all
@@ -339,7 +343,9 @@ SELECT subscribers.id,
     )
     WHERE subscriber_lists.list_id = ALL($1::INT[]) AND id > $2
     AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)
-    AND (CASE WHEN $5 != '' THEN name ~* $5 OR email ~* $5 ELSE TRUE END)
+    AND (CASE WHEN $5 != '' THEN
+        STRPOS(LOWER(name), LOWER($5)) > 0 OR STRPOS(LOWER(email), LOWER($5)) > 0
+        ELSE TRUE END)
     AND %query%
     ORDER BY subscribers.id ASC LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
 
@@ -361,7 +367,9 @@ ON (
     AND ($3 = '' OR subscriber_lists.status = $3::subscription_status)
 )
 WHERE subscriber_lists.list_id = ALL($2::INT[])
-    AND (CASE WHEN $4 != '' THEN name ~* $4 OR email ~* $4 ELSE TRUE END)
+    AND (CASE WHEN $4 != '' THEN
+        STRPOS(LOWER(name), LOWER($4)) > 0 OR STRPOS(LOWER(email), LOWER($4)) > 0
+        ELSE TRUE END)
     AND %query%
 LIMIT (CASE WHEN $1 THEN 1 END)
 
