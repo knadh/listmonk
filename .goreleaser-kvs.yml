@@ -1,0 +1,65 @@
+version: 2
+
+project_name: listmonk
+
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+  - GITHUB_ORG=kvsocial
+
+before:
+  hooks:
+    - make build-frontend
+
+builds:
+  - id: listmonk
+    binary: listmonk
+    main: ./cmd
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X "main.buildString={{ .Tag }} ({{ .ShortCommit }} {{ .Date }}, {{ .Os }}/{{ .Arch }})" -X "main.versionString={{ .Tag }}"
+    hooks:
+      post:
+        - make pack-bin BIN={{ .Path }}
+
+archives:
+  - ids:
+      - listmonk
+    formats:
+      - binary
+
+dockers_v2:
+  - id: listmonk
+    dockerfile: Dockerfile.goreleaser
+    ids:
+      - listmonk
+    images:
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}"
+    tags:
+      - "{{ .Tag }}"
+      - kvs-latest
+    extra_files:
+      - config.toml.sample
+      - docker-entrypoint.sh
+    labels:
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.description: KVSocial-maintained Listmonk
+      org.opencontainers.image.url: https://github.com/KVSocial/listmonk
+      org.opencontainers.image.source: https://github.com/KVSocial/listmonk
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.created: "{{ .Date }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.licenses: AGPL-3.0
+    platforms:
+      - linux/amd64
+      - linux/arm64
+
+release:
+  disable: true
+
+changelog:
+  disable: true
