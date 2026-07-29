@@ -2,6 +2,7 @@ package email
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/mail"
@@ -21,6 +22,9 @@ const (
 	hdrBcc        = "Bcc"
 	hdrCc         = "Cc"
 	hdrMessageID  = "Message-Id"
+
+	hdrSendGridSMTPAPI = "X-SMTPAPI"
+	sendGridSMTPHost   = "smtp.sendgrid.net"
 )
 
 // Server represents an SMTP server's credentials.
@@ -176,6 +180,16 @@ func (e *Emailer) Push(m models.Message) error {
 		em.Headers.Set(k, v[0])
 	}
 
+	// SendGrid only returns custom correlation metadata in Event Webhook
+	// payloads when it is sent through X-SMTPAPI unique_args. Add the
+	// campaign UUID automatically for messages routed through SendGrid so
+	// bounce events can be attributed to their Listmonk campaign.
+	if isSendGridHost(srv.Host) && m.Campaign != nil {
+		if err := setSendGridCampaignHeader(em.Headers, m.Campaign.UUID); err != nil {
+			return err
+		}
+	}
+
 	// Generate Message-Id based on the From address.
 	if em.Headers.Get(hdrMessageID) == "" {
 		d := "localhost"
@@ -221,6 +235,48 @@ func (e *Emailer) Push(m models.Message) error {
 	}
 
 	return srv.pool.Send(em)
+}
+
+// isSendGridHost reports whether an SMTP host is SendGrid's standard relay.
+func isSendGridHost(host string) bool {
+	return strings.EqualFold(strings.TrimSpace(host), sendGridSMTPHost)
+}
+
+// setSendGridCampaignHeader adds Listmonk's campaign UUID to SendGrid's
+// X-SMTPAPI unique_args while preserving any existing SMTPAPI fields.
+func setSendGridCampaignHeader(headers textproto.MIMEHeader, campaignUUID string) error {
+	if campaignUUID == "" {
+		return nil
+	}
+
+	payload := make(map[string]any)
+	if raw := headers.Get(hdrSendGridSMTPAPI); raw != "" {
+		if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+			return fmt.Errorf("invalid %s header: %w", hdrSendGridSMTPAPI, err)
+		}
+		if payload == nil {
+			payload = make(map[string]any)
+		}
+	}
+
+	uniqueArgs := make(map[string]any)
+	if existing, ok := payload["unique_args"]; ok && existing != nil {
+		args, ok := existing.(map[string]any)
+		if !ok {
+			return fmt.Errorf("invalid %s header: unique_args must be an object", hdrSendGridSMTPAPI)
+		}
+		uniqueArgs = args
+	}
+
+	uniqueArgs["XListmonkCampaign"] = campaignUUID
+	payload["unique_args"] = uniqueArgs
+
+	out, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("error encoding %s header: %w", hdrSendGridSMTPAPI, err)
+	}
+	headers.Set(hdrSendGridSMTPAPI, string(out))
+	return nil
 }
 
 // Flush flushes the message queue to the server.
