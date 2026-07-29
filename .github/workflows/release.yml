@@ -9,6 +9,7 @@ permissions: write-all
 
 jobs:
   goreleaser:
+    if: github.repository == 'knadh/listmonk'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
