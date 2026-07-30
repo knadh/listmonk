@@ -52,6 +52,7 @@ type Store interface {
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
 	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
+	GetMediaURLByFilename(filename string) (string, error)
 	UpdateCampaignStatus(campID int, status string) error
 	UpdateCampaignCounts(campID int, toSend int, sent int, lastSubID int) error
 	CreateLink(url string) (string, error)
@@ -764,6 +765,51 @@ func (m *Manager) applyInlineImages(body string, cache map[string]string) (strin
 	})
 
 	return out, atts
+}
+
+// ApplyArchiveImages resolves any <img ... data-embed ...> tags in the campaign
+// body and template body to public media URLs. The archive is rendered as a
+// standalone HTML page and not a MIME message, so cid: cannot resolve there.
+func (m *Manager) ApplyArchiveImages(c *models.Campaign) {
+	if c.ContentType == models.CampaignContentTypePlain {
+		return
+	}
+
+	cache := make(map[string]string)
+	c.Body = m.applyArchiveImages(c.Body, cache)
+	c.TemplateBody = m.applyArchiveImages(c.TemplateBody, cache)
+}
+
+func (m *Manager) applyArchiveImages(body string, cache map[string]string) string {
+	if !strings.Contains(body, attribInlineEmbed) {
+		return body
+	}
+
+	return reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
+		src := extractSrc(tag)
+		if src == "" || strings.HasPrefix(strings.ToLower(src), "cid:") {
+			return tag
+		}
+
+		fname := filenameFromSrc(src)
+		if fname == "" {
+			return tag
+		}
+
+		u, ok := cache[src]
+		if !ok {
+			s, err := m.store.GetMediaURLByFilename(fname)
+			if err != nil {
+				m.log.Printf("archive image %q not resolved: %v", src, err)
+			}
+			u = s
+			cache[src] = u
+		}
+		if u == "" {
+			return tag
+		}
+		return reImgSrc.ReplaceAllString(tag, `${1}src="`+u+`"`)
+	})
 }
 
 // MakeContentID returns a standard `Content-ID` value (without  the angle brackets).

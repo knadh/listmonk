@@ -174,6 +174,9 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
+	// Resolve data-embed images to media URLs as cid: cannot resolve on a web page.
+	a.manager.ApplyArchiveImages(&camp)
+
 	// Compile the template.
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
 		a.log.Printf("error compiling template: %v", err)

@@ -128,6 +128,16 @@ func (s *store) GetInlineAttachmentByFilename(filename string) (models.Attachmen
 	}, cid, nil
 }
 
+// GetMediaURLByFilename returns the public URL of a media item by filename.
+func (s *store) GetMediaURLByFilename(filename string) (string, error) {
+	m, err := s.core.GetMedia(0, "", filename, s.media)
+	if err != nil {
+		return "", err
+	}
+
+	return m.URL, nil
+}
+
 // CreateLink registers a URL with a UUID for tracking clicks and returns the UUID.
 func (s *store) CreateLink(url string) (string, error) {
 	// Create a new UUID for the URL. If the URL already exists in the DB
