@@ -18,6 +18,12 @@ Repository: <https://github.com/KVSocial/listmonk>
 - A KVSocial tag starts GitHub Actions, which publishes the corresponding GHCR
   image.
 
+## Production operations documentation
+
+Day-to-day production procedures for Listmonk are maintained in the [KVSocial team knowledge base](https://github.com/KVSocial/team-knowledge/tree/main/Listmonk).
+
+This handbook documents the fork, release, deployment, upgrade, and rollback workflow. Use the team knowledge base for production backups, monitoring, incident response, access, and server operations.
+
 ```mermaid
 flowchart LR
     U[Official Listmonk release tag] --> B[Upstream upgrade branch]
@@ -387,6 +393,112 @@ LIMIT 10;
 
 For this feature to be considered working, `source` should be `sendgrid`, `type`
 should be `hard`, and `campaign_id` must be populated.
+
+## Production SendGrid validation record
+
+The production SendGrid path was validated on 29 July 2026 using only internal
+test recipients.
+
+Verified:
+
+- production delivered through `smtp.sendgrid.net` using the KVSocial custom
+  image `ghcr.io/kvsocial/listmonk:v6.2.0-kvs.1`;
+- Gmail received the message in approximately three seconds;
+- Gmail's original-message view reported SPF, DKIM, and DMARC as passing;
+- DKIM aligned with `kvsocialmail.com`;
+- tracked links incremented Listmonk campaign click analytics;
+- individual open tracking produced subscriber-specific Listmonk pixel URLs;
+- the public unsubscribe page used `https://email.kvsocial.com` and changing
+  one list subscription to `Unsubscribed` left the subscriber enabled globally;
+- a later campaign to the same four-person list sent to `3 / 3`, confirming the
+  unsubscribed list member was excluded;
+- replying from Gmail addressed the response to `neil@kvsocialmail.com`, and
+  Zoho Desk received it as KV Social support ticket `#83708`, confirming the
+  sender identity routes replies to a monitored operational destination;
+- a controlled SendGrid hard bounce reached the signed webhook, was attributed
+  to the correct campaign, and blocklisted the subscriber;
+- the campaign email contained `List-Unsubscribe` and
+  `List-Unsubscribe-Post` headers.
+
+### Tracking URL behavior
+
+Listmonk generates subscriber-specific URLs when individual tracking is
+enabled:
+
+```text
+https://email.kvsocial.com/link/<link-uuid>/<campaign-uuid>/<subscriber-uuid>
+https://email.kvsocial.com/campaign/<campaign-uuid>/<subscriber-uuid>/px.png
+```
+
+SendGrid may then wrap the Listmonk click URL with the authenticated branded
+tracking domain:
+
+```text
+https://url8090.kvsocialmail.com/ls/click?...<encoded-listmonk-url>...
+```
+
+This double wrapping is expected: SendGrid records the outer redirect and
+Listmonk records the inner redirect. Listmonk remains the campaign reporting
+source of truth. Do not disable SendGrid tracking account-wide without first
+confirming that no other application sharing the SendGrid account depends on
+it.
+
+Open counts are not guaranteed to equal the number of messages opened. Gmail
+serves images through a proxy and can cache identical pixel URLs. Individual
+tracking must remain enabled when per-subscriber open attribution is required;
+even then, open tracking is an estimate rather than proof that a human read the
+message.
+
+### Known provider limitations
+
+- Listmonk's native SendGrid handler records supported bounce events but does
+  not import SendGrid spam-report events.
+- SendGrid `deferred` events are not recorded as Listmonk soft bounces.
+- Provider-side unsubscribe or suppression changes are not automatically
+  mirrored into Listmonk subscriptions.
+- SMTP.com validation is a separate workstream and is not implied by this
+  SendGrid result.
+
+## Local MCP connection to production
+
+KVSocial uses the unofficial community package `listmonk-mcp` as a local stdio
+process. The MCP process is not exposed as a public web service. It connects
+from the developer's machine to the normal production Listmonk API at
+`https://email.kvsocial.com`.
+
+The package's `0.1.0` dependency declaration permits incompatible `mcp 2.x`
+releases. Pin the MCP SDK below version 2 when launching it:
+
+```toml
+[mcp_servers.listmonk]
+command = "/opt/homebrew/bin/uvx"
+args = ["--with", "mcp<2", "listmonk-mcp"]
+env_vars = ["LISTMONK_MCP_PASSWORD"]
+default_tools_approval_mode = "prompt"
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+
+[mcp_servers.listmonk.env]
+LISTMONK_MCP_URL = "https://email.kvsocial.com"
+LISTMONK_MCP_USERNAME = "codex-mcp"
+```
+
+`LISTMONK_MCP_PASSWORD` is the dedicated production API user's one-time token.
+Keep it outside Git, documentation, Asana, and the static TOML file. The API
+user must not receive `campaigns:send`. A draft-only role may receive focused
+read permissions plus `campaigns:manage` for its permitted internal test list.
+Keep MCP tool approval mode set to `prompt`.
+
+Validate in this order:
+
+1. MCP health;
+2. permitted mailing-list retrieval;
+3. subscriber lookup;
+4. campaign retrieval;
+5. creation of a clearly named draft campaign on the internal test list.
+
+Do not send the draft. Confirm that sending, global management, user
+administration, settings, SQL, and unrelated-list operations are denied.
 
 ## Rolling back a deployment
 
