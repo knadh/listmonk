@@ -1,0 +1,90 @@
+{{ define "admin-template" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $t := $d.Template -}}
+{{- $isNew := $d.IsNew -}}
+{{- $base := URI "/admin/templates" -}}
+{{- $canManage := $d.Can "templates:manage" -}}
+
+<script>
+	const _tpl = {{ ToJSON $t }};
+</script>
+
+<section class="templates" x-data="templateForm(_tpl, {{ $isNew }})"
+	@keydown.ctrl.s.window.prevent="onSaveShortcut" @keydown.meta.s.window.prevent="onSaveShortcut"
+	@keydown.window.prevent.f9="onPreviewBody">
+	<header class="row page-header">
+		<div class="col-6">
+			<div class="hstack gap-1">
+				<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				<h1 class="page-title">
+					{{- if $isNew }}{{ .L.T "templates.newTemplate" }}{{ else }}{{ $t.Name }}{{ end -}}
+				</h1>
+				{{- if and (not $isNew) $t.IsDefault }}<span class="badge enum" data-variant="secondary">{{ .L.T "templates.default" }}</span>{{ end }}
+			</div>
+		</div>
+		<div class="col-6 col-end hstack justify-end">
+			<button type="button" class="outline" data-cy="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "templates.preview" }}</button>
+			{{- if $canManage }}
+				<button type="button" data-variant="primary" data-cy="btn-save" @click="onSubmit" :disabled="isLoading('templates')" :aria-busy="isLoading('templates')">{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}</button>
+			{{- end }}
+		</div>
+	</header>
+
+	<form @submit.prevent="onSubmit">
+		<div class="card page-content content">
+			<section class="dialog-body">
+				<div class="row">
+					<div class="col-9">
+						<label data-field>
+							{{ .L.T "globals.fields.name" }}
+							<input name="name" maxlength="200" autofocus required x-model="form.name" placeholder="{{ .L.T "globals.fields.name" }}" />
+						</label>
+					</div>
+					<div class="col-3">
+						<label data-field>
+							{{ .L.T "globals.fields.type" }}
+							<select name="type" x-model="form.type" {{ if not $isNew }}disabled{{ end }}>
+								<option value="campaign">{{ .L.Tc "templates.typeCampaignHTML" 1 }}</option>
+								<option value="campaign_visual">{{ .L.Tc "templates.typeCampaignVisual" 1 }}</option>
+								<option value="tx">{{ .L.Tc "templates.typeTransactional" 1 }}</option>
+							</select>
+						</label>
+					</div>
+				</div>
+
+				<template x-if="form.type === 'tx'">
+					<label data-field>
+						{{ .L.T "templates.subject" }}
+						<input name="subject" maxlength="200" x-model="form.subject" placeholder="{{ .L.T "templates.subject" }}" />
+					</label>
+				</template>
+
+				<div class="editor-body">
+					<template x-if="form.type === 'campaign_visual'">
+						<visual-editor base="{{ URI "/admin/static/email-builder" }}" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source"><textarea>{{ $t.BodySource.String }}</textarea></visual-editor>
+					</template>
+					<template x-if="form.type !== 'campaign_visual'">
+						<code-editor lang="html" @input="form.body = $event.target.value"><textarea>{{ $t.Body }}</textarea></code-editor>
+					</template>
+				</div>
+
+				<p class="text-7 text-light mt-2">
+					<template x-if="form.type === 'campaign'">
+						<span>{{ .L.Ts "templates.placeholderHelp" "placeholder" "{{ template \"content\" . }}" }}</span>
+					</template>
+					<a href="https://listmonk.app/docs/templating" target="_blank" rel="noopener noreferrer">{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}</a>
+				</p>
+			</section>
+		</div>
+	</form>
+
+	{{ template "template-preview" . }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/templates.js" }}?v={{ .AssetVersion }}" defer></script>
+<script type="module" src="{{ URI "/admin/static/js/code-editor.js" }}?v={{ .AssetVersion }}" defer></script>
+<script type="module" src="{{ URI "/admin/static/js/visual-editor.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
