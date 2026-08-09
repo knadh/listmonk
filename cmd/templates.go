@@ -31,6 +31,63 @@ var (
 	regexpTplTag = regexp.MustCompile(`{{(\s+)?template\s+?"content"(\s+)?\.(\s+)?}}`)
 )
 
+// templatesView is the admin page view for the templates list page.
+type templatesView struct {
+	adminView
+
+	Templates []models.Template
+}
+
+// templateView is the admin page view for creating/editing a single template.
+type templateView struct {
+	adminView
+
+	IsNew    bool
+	Template models.Template
+}
+
+// ViewTemplates renders the HTML list view for templates.
+func (a *App) ViewTemplates(c echo.Context) error {
+	out, err := a.core.GetTemplates("", true)
+	if err != nil {
+		return err
+	}
+
+	data := templatesView{
+		adminView: newAdminView(c, a.i18n.T("globals.terms.templates"), "", "campaigns.templates"),
+		Templates: out,
+	}
+
+	return c.Render(http.StatusOK, "admin-templates", data)
+}
+
+// ViewNewTemplate renders the new template page.
+func (a *App) ViewNewTemplate(c echo.Context) error {
+	data := templateView{
+		adminView: newAdminView(c, a.i18n.T("templates.newTemplate"), "", "campaigns.templates"),
+		IsNew:     true,
+		Template:  models.Template{Type: models.TemplateTypeCampaign},
+	}
+
+	return c.Render(http.StatusOK, "admin-template", data)
+}
+
+// ViewTemplate renders the single-page editor for an existing template.
+func (a *App) ViewTemplate(c echo.Context) error {
+	id := getID(c)
+	out, err := a.core.GetTemplate(id, false)
+	if err != nil {
+		return err
+	}
+
+	data := templateView{
+		adminView: newAdminView(c, out.Name, "", "campaigns.templates"),
+		Template:  out,
+	}
+
+	return c.Render(http.StatusOK, "admin-template", data)
+}
+
 // GetTemplate handles the retrieval of a template
 func (a *App) GetTemplate(c echo.Context) error {
 	// If no_body is true, blank out the body of the template from the response.

@@ -18,12 +18,6 @@ const routes = [
     component: () => import('../views/Dashboard.vue'),
   },
   {
-    path: '/campaigns/templates',
-    name: 'templates',
-    meta: { title: 'globals.terms.templates', group: 'campaigns' },
-    component: () => import('../views/Templates.vue'),
-  },
-  {
     path: '/campaigns/analytics',
     name: 'campaignAnalytics',
     meta: { title: 'analytics.title', group: 'campaigns' },
