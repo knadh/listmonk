@@ -223,7 +223,7 @@ func (o *Auth) GetOIDCAuthURL(state, nonce string) string {
 	return cfg.AuthCodeURL(state, oidc.Nonce(nonce))
 }
 
-// ExchangeOIDCToken takes an OIDC authorization code (recieved via redirect from the OIDC provider),
+// ExchangeOIDCToken takes an OIDC authorization code (received via redirect from the OIDC provider),
 // validates it, and returns an OIDC token for subsequent auth.
 func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, OIDCclaim, error) {
 	cfg, err := o.getOAuthConfig()
