@@ -1027,9 +1027,9 @@ section.analytics {
 
 .preview-modal {
     padding: 0;
-    position: relative;
-    min-width: 1100px;
-    max-width: 960px;
+    position: fixed;
+    width: 100%;
+    max-width: 1100px;
     max-height: calc(100vh - 40px);
 
     .dialog-body {
@@ -1147,6 +1147,26 @@ section.campaign {
         margin-block-start: var(--space-3);
         min-height: 150px;
         width: 100%;
+    }
+}
+
+/* Template editor. */
+section.templates {
+    .editor-body {
+        margin-block: var(--space-3);
+    }
+
+    visual-editor {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-small);
+        width: 100%;
+    }
+
+    visual-editor iframe {
+        border: 0;
+        width: 100%;
+        min-height: 65vh;
     }
 }
 

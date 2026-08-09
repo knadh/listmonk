@@ -1,0 +1,19 @@
+{{ define "template-preview" -}}
+<dialog class="preview-modal" x-ref="previewDialog" @close="onPreviewClose">
+	<div class="dialog-card">
+		<header class="dialog-head hstack justify-between">
+			<h4 class="dialog-title" x-text="preview.title"></h4>
+		</header>
+		<section class="dialog-body preview" :aria-busy="preview.loading">
+			<form method="post" x-ref="previewForm" :action="preview.url" target="template-preview-frame">
+				<input type="hidden" name="template_type" :value="preview.templateType" />
+				<input type="hidden" name="body" :value="preview.body" />
+			</form>
+			<iframe id="iframe" name="template-preview-frame" x-ref="previewFrame" title="{{ .L.T "templates.preview" }}" @load="preview.loading = false"></iframe>
+		</section>
+		<footer class="dialog-foot align-right">
+			<button type="button" class="outline" autofocus @click="$refs.previewDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+		</footer>
+	</div>
+</dialog>
+{{- end }}
