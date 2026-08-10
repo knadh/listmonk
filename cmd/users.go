@@ -102,6 +102,28 @@ func (a *App) ViewUser(c echo.Context) error {
 	return c.Render(http.StatusOK, "admin-user", data)
 }
 
+// profileView is the admin page view for the logged in user's profile.
+type profileView struct {
+	adminView
+
+	User auth.User
+}
+
+// ViewProfile renders the HTML view for the logged in user's profile.
+func (a *App) ViewProfile(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Blank out the password hash before sending (obviously!).
+	user.Password = null.String{}
+
+	data := profileView{
+		adminView: newAdminView(c, a.i18n.T("users.profile"), "", "users.profile"),
+		User:      user,
+	}
+
+	return c.Render(http.StatusOK, "admin-profile", data)
+}
+
 // getRoles fetches user and list roles for the user-form role selectors.
 func (a *App) getRoles() ([]auth.Role, []auth.ListRole, error) {
 	userRoles, err := a.core.GetRoles()
@@ -378,10 +400,19 @@ func (a *App) UpdateUserProfile(c echo.Context) error {
 
 // EnableTOTP enables TOTP 2FA for a user after verifying the code.
 func (a *App) EnableTOTP(c echo.Context) error {
+	u := c.Get(auth.UserHTTPCtxKey).(auth.User)
+
+	// Incoming request.
+	var req struct {
+		Secret string `json:"secret"`
+		Code   string `json:"code"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
 	var (
-		u      = c.Get(auth.UserHTTPCtxKey).(auth.User)
-		secret = strings.TrimSpace(c.FormValue("secret"))
-		code   = strings.TrimSpace(c.FormValue("code"))
+		secret = strings.TrimSpace(req.Secret)
+		code   = strings.TrimSpace(req.Code)
 	)
 
 	if secret == "" || code == "" {
@@ -414,10 +445,16 @@ func (a *App) EnableTOTP(c echo.Context) error {
 
 // DisableTOTP disables TOTP 2FA for a user after verifying the password.
 func (a *App) DisableTOTP(c echo.Context) error {
-	var (
-		u        = c.Get(auth.UserHTTPCtxKey).(auth.User)
-		password = c.FormValue("password")
-	)
+	u := c.Get(auth.UserHTTPCtxKey).(auth.User)
+
+	// Incoming request.
+	var req struct {
+		Password string `json:"password"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	password := req.Password
 
 	// TOTP isn't enabled.
 	if u.TwofaType != models.TwofaTypeTOTP {

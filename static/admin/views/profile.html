@@ -1,0 +1,129 @@
+{{ define "admin-profile" -}}
+{{ template "admin-header" . }}
+{{- $d := .Data -}}
+{{- $u := $d.User -}}
+
+<script>window._user = {{ ToJSON $u }};</script>
+<section class="user-profile" x-data="profileView()">
+	<header class="row page-header">
+		<div class="col-8">
+			<div class="hstack gap-1">
+				<h1 class="page-title">{{ .L.T "users.profile" }}</h1>
+				{{- if $u.UserRole.Name }}<span class="badge">{{ $u.UserRole.Name }}</span>{{ end }}
+			</div>
+		</div>
+	</header>
+
+	<div class="card page-content content">
+		<form method="post" @submit.prevent="onSubmit">
+			<section class="dialog-body">
+				<h4 class="mb-6">@{{ $u.Username }}</h4>
+				{{- if ne $u.Type "api" }}
+				<label data-field>
+					{{ .L.T "subscribers.email" }}
+					<input name="email" type="email" maxlength="200" required {{ if not $u.PasswordLogin }}disabled{{ end }} x-model="form.email" autofocus />
+				</label>
+				{{- end }}
+
+				<label data-field>
+					{{ .L.T "globals.fields.name" }}
+					<input name="name" maxlength="200" x-model="form.name" />
+				</label>
+
+				{{- if $u.PasswordLogin }}
+				<div class="row">
+					<label data-field class="col-6">
+						{{ .L.T "users.password" }}
+						<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" x-model="form.password" />
+					</label>
+					<label data-field class="col-6">
+						{{ .L.T "users.passwordRepeat" }}
+						<input type="password" name="password2" minlength="8" maxlength="200" autocomplete="new-password" x-model="form.password2" />
+					</label>
+				</div>
+				{{- end }}
+			</section>
+
+			<footer class="dialog-foot hstack justify-end mt-6">
+				<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('profile.save')" :aria-busy="isLoading('profile.save')">{{ .L.T "globals.buttons.save" }}</button>
+			</footer>
+		</form>
+	</div>
+
+	{{- if $u.PasswordLogin }}
+	<section class="twofa-app-section mt-6">
+		{{- if eq $u.TwofaType "totp" }}
+		<div class="card content">
+			<div class="row">
+				<div class="col-10">
+					<h3 class="hstack gap-1">{{ Icon "check-circle" }} {{ .L.T "users.twoFAEnabled" }}</h3>
+				</div>
+				<div class="col-end align-right">
+					<input type="checkbox" role="switch" aria-label="{{ .L.T "users.twoFA" }}" :checked="!showDisableTotp" @change="$event.target.checked ? cancelDisableTotp() : (showDisableTotp = true)" />
+				</div>
+			</div>
+			<p>{{ .L.Ts "users.twoFAEnabledDesc" "type" "TOTP" }}</p>
+
+			<template x-if="showDisableTotp">
+				<form class="disable-totp mt-5" @submit.prevent="confirmDisableTotp">
+					<label data-field>
+						{{ .L.T "users.password" }}
+						<input type="password" x-model="disablePassword" minlength="8" required />
+					</label>
+					<div class="hstack gap-3">
+						<button type="submit" data-variant="danger">{{ .L.T "globals.buttons.disable" }}</button>
+						<button type="button" class="outline" @click="cancelDisableTotp">{{ .L.T "globals.buttons.cancel" }}</button>
+					</div>
+				</form>
+			</template>
+		</div>
+		{{- else }}
+		<div class="card content">
+			<div class="row mb-4">
+				<div class="col-10">
+					<h3 class="mb-0">{{ .L.T "users.twoFA" }}</h3>
+				</div>
+				<div class="col-end align-right">
+					<input type="checkbox" role="switch" aria-label="{{ .L.T "users.twoFA" }}" :checked="showTotpSetup" @change="$event.target.checked ? onEnableTotp() : cancelTotp()" />
+				</div>
+			</div>
+			<p>{{ .L.T "users.twoFANotEnabled" }}</p>
+
+			<template x-if="totpQR">
+				<div class="qr-app-section totp-setup mt-5">
+					<figure class="mb-6">
+						<img class="card" :src="'data:image/png;base64,' + totpQR" alt="QR Code" />
+						<figcaption class="text-light text-8">{{ .L.T "users.totpScanQR" }}</figcaption>
+					</figure>
+
+					<fieldset>
+						<legend>{{ .L.T "users.totpSecret" }}</legend>
+						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "users.totpSecret" }}" @click="copyToClipboard(totpSecret)">
+							<span x-text="totpSecret"></span>
+						</button>
+					</fieldset>
+
+					<form class="mt-5" @submit.prevent="confirmTotp">
+						<fieldset>
+							<legend>{{ .L.T "users.totpCode" }}</legend>
+							<div data-field>
+								<input x-ref="totpCode" x-model="totpCode" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required />
+							</div>
+							<div class="hstack gap-3">
+								<button type="submit" data-variant="primary">{{ .L.T "globals.buttons.enable" }}</button>
+								<button type="button" class="outline" @click="cancelTotp">{{ .L.T "globals.buttons.cancel" }}</button>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+			</template>
+		</div>
+		{{- end }}
+	</section>
+	{{- end }}
+</section>
+
+<script type="module" src="{{ URI "/admin/static/js/views/profile.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ template "admin-footer" . -}}
+{{ end }}
