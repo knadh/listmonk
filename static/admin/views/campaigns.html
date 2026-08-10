@@ -126,8 +126,9 @@
 										{{ Icon "more-vertical" }}
 									</button>
 									<menu popover id="camp-actions-{{ .ID }}">
-										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										<button type="button" role="menuitem" class="ghost" data-cy="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "campaigns.preview" }}</button>
+										<hr />
+										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										{{- if $d.Can "campaigns:send" }}
 											{{- if $canStart }}
 												<button type="button" role="menuitem" class="ghost" data-cy="btn-start" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'running')">{{ Icon "send" }} {{ $.L.T "campaigns.start" }}</button>
@@ -145,11 +146,13 @@
 												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-cancel" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'cancelled')">{{ Icon "x-circle" }} {{ $.L.T "globals.buttons.cancel" }}</button>
 											{{- end }}
 										{{- end }}
+										{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
+											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
+										{{- end }}
 										{{- if $d.Can "campaigns:get_analytics" }}
 											<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-analytics">{{ Icon "bar-chart-2" }} {{ $.L.T "globals.terms.analytics" }}</a>
 										{{- end }}
 										{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
-											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
 											<hr />
 											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('campaigns')" @click.prevent="onDelete({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 										{{- end }}

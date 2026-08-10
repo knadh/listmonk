@@ -64,6 +64,7 @@
 									</button>
 									<menu popover id="tpl-actions-{{ .ID }}">
 										<button type="button" role="menuitem" class="ghost" data-cy="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "templates.preview" }}</button>
+										<hr />
 										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										{{- if $canManage }}
 											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>

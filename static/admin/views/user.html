@@ -19,13 +19,6 @@
 				{{- if and $d.IsEditing (eq $d.User.Status "disabled") }}<span class="badge enum" data-variant="danger">{{ $.L.T "users.status.disabled" }}</span>{{ end }}
 			</div>
 		</div>
-		{{- if $d.IsEditing }}
-			<div class="col-6 align-right">
-				<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
-					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
-				</button>
-			</div>
-		{{- end }}
 	</header>
 
 	<form method="post" @submit.prevent="onSubmit">
@@ -103,11 +96,20 @@
 				</fieldset>
 			</section>
 
-			<footer class="dialog-foot hstack gap-3 justify-end">
-				<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
-				{{- if $canSave }}
-					<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('users.save')" :aria-busy="isLoading('users.save')">{{ .L.T "globals.buttons.save" }}</button>
-				{{- end }}
+			<footer class="dialog-foot hstack justify-between mt-6">
+				<div class="hstack gap-1">
+					{{- if $d.IsEditing }}
+						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+							<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+						</button>
+					{{- end }}
+				</div>
+				<div class="hstack gap-3 justify-end">
+					<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
+					{{- if $canSave }}
+						<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('users.save')" :aria-busy="isLoading('users.save')">{{ .L.T "globals.buttons.save" }}</button>
+					{{- end }}
+				</div>
 			</footer>
 		</div>
 	</form>

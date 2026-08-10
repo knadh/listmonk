@@ -25,9 +25,6 @@
 		</div>
 		<div class="col-6 col-end hstack justify-end">
 			<button type="button" class="outline" data-cy="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "templates.preview" }}</button>
-			{{- if $canManage }}
-				<button type="button" data-variant="primary" data-cy="btn-save" @click="onSubmit" :disabled="isLoading('templates')" :aria-busy="isLoading('templates')">{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}</button>
-			{{- end }}
 		</div>
 	</header>
 
@@ -76,6 +73,20 @@
 					<a href="https://listmonk.app/docs/templating" target="_blank" rel="noopener noreferrer">{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}</a>
 				</p>
 			</section>
+			<footer class="dialog-foot hstack justify-between mt-6">
+				<div class="hstack gap-1">
+					{{- if not $isNew }}
+						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+							<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+						</button>
+					{{- end }}
+				</div>
+				<div class="hstack gap-3 justify-end">
+					{{- if $canManage }}
+						<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('templates')" :aria-busy="isLoading('templates')">{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}</button>
+					{{- end }}
+				</div>
+			</footer>
 		</div>
 	</form>
 
