@@ -6,7 +6,7 @@
 	<header class="row page-header">
 		<div class="col-8">
 			<h1 class="page-title">{{ .L.T "maintenance.title" }}</h1>
-			<p class="text-light text-7">{{ .L.T "maintenance.help" }}</p>
+			<p class="text-light">{{ .L.T "maintenance.help" }}</p>
 		</div>
 	</header>
 
@@ -124,7 +124,7 @@
 		<form class="card" @submit.prevent="onUpdateDBSettings">
 			<h4 class="text-4">{{ .L.T "maintenance.database.title" }}</h4>
 			<h5 class="text-5">Vacuum</h5>
-			<p class="text-light text-7">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
+			<p class="text-light">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
 			<div class="row">
 				<div class="col-3">
 					<label data-field>

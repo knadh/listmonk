@@ -39,7 +39,7 @@
 							<td>
 								<a href="{{ $base }}/{{ .ID }}" data-cy="btn-edit">{{ .Name }}</a>
 								{{ if .IsDefault }}<span class="badge">{{ $.L.T "templates.default" }}</span>{{ end }}
-								{{- if eq .Type "tx" }}<p class="text-light text-7">{{ .Subject }}</p>{{ end }}
+								{{- if eq .Type "tx" }}<p class="text-light">{{ .Subject }}</p>{{ end }}
 							</td>
 							<td>
 								<div class="hstack">

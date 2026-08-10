@@ -23,7 +23,7 @@
 				<span>({{ $d.Page.Total }})</span>
 				{{- if $d.CurrentList }}
 					&raquo; <a href="{{ URI "/admin/lists" }}/{{ $d.CurrentList.ID }}">{{ $d.CurrentList.Name }}</a>
-					{{- if $subStatus }}<span class="text-light text-7">({{ $subStatus }})</span>{{ end }}
+					{{- if $subStatus }}<span class="text-light">({{ $subStatus }})</span>{{ end }}
 				{{- end }}
 			</h1>
 		</div>
@@ -34,7 +34,7 @@
 					<fieldset class="group">
 						<input name="search" aria-label="Search" data-cy="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
 						<button type="button" class="outline sql-btn dot-indicator" :class="{ 'is-active': advanced }" popovertarget="sql-editor" data-cy="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "subscribers.advancedQuery" }}">SQL {}</button>
-						<button type="submit" class="" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
+						<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 					</fieldset>
 					<div popover id="sql-editor" class="sql-editor" data-cy="query-editor" @toggle="isSqlOpen = ($event.newState === 'open'); if (isSqlOpen) $nextTick(() => $refs.queryInput.focus())">
 						<div data-field>

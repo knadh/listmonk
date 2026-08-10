@@ -72,6 +72,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// their routes here. Unported /admin/* paths fall through to the 404 handler.
 		g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
 		g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
+		g.GET(uriAdmin, a.ViewDashboard)
 		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
 		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
 		g.GET(path.Join(uriAdmin, "/lists/forms"), a.ViewForms)
@@ -142,6 +143,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/api/lang/:lang", a.GetI18nLang)
 		g.GET("/api/dashboard/charts", a.GetDashboardCharts)
 		g.GET("/api/dashboard/counts", a.GetDashboardCounts)
+		g.GET("/api/dashboard/campaigns", a.GetDashboardCampaigns)
 
 		g.GET("/api/settings", pm(a.GetSettings, "settings:get"))
 		g.PUT("/api/settings", pm(a.UpdateSettings, "settings:manage"))

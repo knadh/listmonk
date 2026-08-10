@@ -1,7 +1,3 @@
-:root {
-    --text-9: calc(var(--text-9) * .8);
-}
-
 @font-face {
   font-family: 'Inter';
   font-weight: 400;
@@ -34,12 +30,10 @@
     --container-max: 1150px;
     --border: light-dark(#e5e7eb, #52525b);
     --font-sans: "Inter", system-ui, sans-serif;
-    --text-1: 1.75rem;
+    --text-1: 1.5rem;
+    --text-regular: var(--text-7);
 }
 
-html, body {
-    font-size: 15px;
-}
 body {
     background: var(--body);
     font-family: "Inter", system-ui, sans-serif;
@@ -110,13 +104,10 @@ table {
 .text-light {
     color: var(--muted-foreground);
 }
-.text-1 { font-size: var(--text-1); }
-.text-2 { font-size: var(--text-2); }
-.text-3 { font-size: var(--text-3); }
+/* Size helpers. Regular (14px) is the default and needs no class.
+   text-4/text-5 step up; text-8 steps down to the small (12px) size. */
 .text-4 { font-size: var(--text-4); }
 .text-5 { font-size: var(--text-5); }
-.text-6 { font-size: var(--text-6); }
-.text-7 { font-size: var(--text-7); }
 .text-8 { font-size: var(--text-8); }
 
 .font-normal { font-weight: var(--font-normal); }
@@ -159,6 +150,16 @@ table {
     .stat-value {
         font-size: var(--text-1);
         font-weight: var(--font-semibold);
+    }
+}
+
+section.dashboard {
+    .chart-box {
+        position: relative;
+        height: 18rem;
+    }
+    .stat-card {
+        min-height: 9.5rem;
     }
 }
 
@@ -308,7 +309,6 @@ textarea.monospace {
 nav[data-topnav] {
     background: transparent;
     border-bottom: 0;
-    font-size: var(--text-7);
     padding: var(--space-4) 0 var(--space-2);
     box-shadow: none;
 
@@ -567,6 +567,7 @@ aside[data-sidebar] {
         align-self: start;
         position: sticky;
         top: 4.5rem;
+        height: calc(100dvh - 4.5rem);
     }
 }
 
@@ -779,9 +780,6 @@ svg.icon {
             z-index: 1;
         }
 
-        menu {
-            font-size: var(--text-7);
-        }
     }
 }
 
@@ -798,13 +796,9 @@ svg.icon {
     color: color-mix(in srgb, var(--primary), white 40%);
     display: inline-block;
     font-family: var(--font-mono);
-    font-size: 0.625rem;
+    font-size: var(--text-8);
     line-height: 1.2;
     padding: 1px var(--space-2);
-}
-
-.oat-data-table {
-    font-size: var(--text-7);
 }
 
 .oat-data-table .table {
@@ -868,8 +862,6 @@ svg.icon {
 }
 
 .field-list {
-    font-size: var(--text-7);
-
     p {
         align-items: baseline;
         display: flex;
@@ -1007,7 +999,6 @@ section.campaigns {
         }
 
         td.lists ul {
-            font-size: var(--text-7);
             list-style-type: circle;
             margin: 0;
             padding-inline-start: var(--space-4);
@@ -1089,7 +1080,6 @@ section.analytics {
 
     .cm-lineNumbers .cm-gutterElement {
         color: var(--faint-foreground);
-        font-size: var(--text-7);
         padding-inline-end: var(--space-3);
     }
 
@@ -1230,7 +1220,7 @@ section.templates {
     .lines {
         border: 1px solid var(--border);
         font-family: var(--font-mono);
-        font-size: 0.9rem;
+        font-size: var(--text-7);
         height: 70vh;
         overflow-y: auto;
         padding: var(--space-4);
@@ -1317,7 +1307,6 @@ section.import {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-size: var(--text-7);
     }
 
     .actions {
@@ -1449,7 +1438,7 @@ section.import {
     border-radius: var(--radius-small);
     color: var(--success);
     display: block;
-    font-size: 1.2rem;
+    font-size: var(--text-5);
     padding: var(--space-4);
     width: 100%;
 }
@@ -1526,7 +1515,7 @@ dialog {
 
         .dialog-title {
             margin: 0;
-            font-size: var(--text-7);
+            font-size: var(--text-6);
         }
     }
 
