@@ -23,7 +23,7 @@
 		{{- else }}
 			<div class="row">
 				<div class="col-4 col-bleed">
-					<p class="text-light text-7">{{ .L.T "forms.selectHelp" }}</p>
+					<p class="text-light">{{ .L.T "forms.selectHelp" }}</p>
 
 					<ul class="no lists" data-cy="lists">
 						{{- range $i, $list := $d.PublicLists }}
@@ -35,7 +35,7 @@
 
 					<hr />
 					<h4>{{ .L.T "forms.redirectURL" }}</h4>
-					<p class="text-light text-7">{{ .L.T "forms.redirectURLHelp" }}</p>
+					<p class="text-light">{{ .L.T "forms.redirectURLHelp" }}</p>
 					{{- if $.ConfigJS.PublicSubscription.RedirectURLs }}
 						<ul class="no" data-cy="redirect-urls">
 							<li>
@@ -51,7 +51,7 @@
 				</div>
 
 				<div class="col-8 col-end" data-cy="form" aria-label="{{ .L.T "forms.formHTML" }}">
-					<p class="text-light text-7">{{ .L.T "forms.formHTMLHelp" }}</p>
+					<p class="text-light">{{ .L.T "forms.formHTMLHelp" }}</p>
 
 					<div x-show="checked.length > 0" x-cloak>
 						<div class="align-right">

@@ -61,10 +61,31 @@
 
 		<aside data-sidebar>
 			{{ template "admin-sidebar" . }}
+
+			<footer id="footer">
+				<a href="https://listmonk.app" class="unstyled text-light" target="_blank" rel="noopener noreferrer">{{ .ConfigJS.Version }}</a>
+			</footer>
 		</aside>
 
 		<main>
 			<div class="container">
+				{{- if .ConfigJS.NeedsRestart }}
+					<div role="alert" data-cy="needs-restart" class="hstack justify-between">
+						<span>{{ .L.T "settings.needsRestart" }}</span>
+						{{- if .Data.Can "settings:manage" }}
+							<button type="button" class="small" @click="restartApp">{{ Icon "refresh-cw" }} {{ .L.T "settings.restart" }}</button>
+						{{- end }}
+					</div>
+				{{- end }}
+				{{- with .ConfigJS.Update }}{{ if .Update.IsNew }}
+					<div role="status">
+						{{ $.L.Ts "settings.updateAvailable" "version" .Update.ReleaseVersion }}
+						<a href="{{ .Update.URL }}" target="_blank" rel="noopener noreferrer">{{ $.L.T "globals.buttons.view" }}</a>
+					</div>
+				{{ end }}{{- end }}
+				{{- if .ConfigJS.HasLegacyUser }}
+					<div role="alert" data-cy="legacy-user">{{ .L.T "settings.hasLegacyUser" }}</div>
+				{{- end }}
 {{ end }}
 
 {{ define "admin-footer" }}

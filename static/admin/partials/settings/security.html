@@ -14,7 +14,7 @@
 				{{ .L.T "settings.security.OIDCURL" }}
 				<input type="url" pattern="https?://.*" maxlength="300" placeholder="https://login.yoursite.com"
 					required x-model="form['security.oidc'].provider_url" />
-				<div class="hstack mt-2 text-7">
+				<div class="hstack mt-2">
 					<a href="#" @click.prevent="setOIDCProvider('google')">Google</a>
 					<a href="#" @click.prevent="setOIDCProvider('microsoft')">Microsoft</a>
 					<a href="#" @click.prevent="setOIDCProvider('apple')">Apple</a>
@@ -73,7 +73,7 @@
 				</fieldset>
 			</div>
 			<template x-if="!isURLOk">
-				<p class="text-danger text-7">
+				<p class="text-danger">
 					{{ Icon "alert-triangle" }} {{ .L.T "settings.security.OIDCRedirectWarning" }}
 				</p>
 			</template>

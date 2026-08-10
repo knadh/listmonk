@@ -14,7 +14,7 @@
 			<tbody>
 				{{- range $d.CampaignViews }}
 					<tr>
-						<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a><p class="text-light text-7">{{ .Subject }}</p></td>
+						<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a><p class="text-light">{{ .Subject }}</p></td>
 						<td>{{ .ViewCount }}</td>
 						<td>{{ NiceDate .LastViewedAt }}</td>
 					</tr>

@@ -160,9 +160,9 @@
 			{{- template "pagination" $d.Page.Pagination }}
 
 			{{- if $d.CacheSlowQueries }}
-				<p class="text-light text-7">
+				<p class="text-light">
 					*{{ .L.T "globals.messages.slowQueriesCached" }}
-					<a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferrer" class="text-light text-7">
+					<a href="https://listmonk.app/docs/maintenance/performance/" target="_blank" rel="noopener noreferrer" class="text-light">
 						{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
 					</a>
 				</p>
