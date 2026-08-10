@@ -51,16 +51,31 @@
 				<small data-hint>{{ $root.L.T "lists.archivedHelp" }}</small>
 			</label>
 		</section>
-		<footer class="dialog-foot hstack gap-3 justify-end">
 			{{- if $isDialog }}
+			<footer class="dialog-foot hstack gap-3 justify-end">
 				<button type="button" class="outline" @click="onClose">{{ $root.L.T "globals.buttons.close" }}</button>
+				{{- if $canSave }}
+					<button type="submit" data-variant="primary" data-cy="btn-save" data-spinner="small" :disabled="isLoading('lists.save')" :aria-busy="isLoading('lists.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+				{{- end }}
+			</footer>
 			{{- else }}
-				<a href="{{ URI "/admin/lists" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+			<footer class="dialog-foot hstack justify-between mt-6">
+				<div class="hstack gap-1">
+					<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+						<strong>{{ $root.L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+					</button>
+					<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+						<strong>{{ $root.L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
+					</button>
+				</div>
+				<div class="hstack gap-3 justify-end">
+					<a href="{{ URI "/admin/lists" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+					{{- if $canSave }}
+						<button type="submit" data-variant="primary" data-cy="btn-save" data-spinner="small" :disabled="isLoading('lists.save')" :aria-busy="isLoading('lists.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+					{{- end }}
+				</div>
+			</footer>
 			{{- end }}
-			{{- if $canSave }}
-				<button type="submit" data-variant="primary" data-cy="btn-save" data-spinner="small" :disabled="isLoading('lists.save')" :aria-busy="isLoading('lists.save')">{{ $root.L.T "globals.buttons.save" }}</button>
-			{{- end }}
-		</footer>
 	</div>
 </form>
 {{- end }}

@@ -100,7 +100,7 @@
 						{{- $sub := . }}
 						<tr {{ if eq .Status "blocklisted" }}class="blocklisted"{{ end }}>
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
-							<td >
+							<td  class="email">
 								<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 								{{- if ne .Status "enabled" }}<span class="badge status-{{ .Status }}">{{ $.L.T (printf "subscribers.status.%s" .Status) }}</span>{{ end }}
 								<div class="badge-list hstack gap-1">
@@ -126,6 +126,7 @@
 										<a href="{{ URI "/api/subscribers" }}/{{ .ID }}/export" role="menuitem" class="button ghost" data-cy="btn-download">{{ Icon "download-cloud" }} {{ $.L.T "subscribers.downloadData" }}</a>
 										{{- if $d.Can "subscribers:manage" }}
 											<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+											<hr />
 											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSubscriber({{ .ID }}, {{ ToJSON .Email }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 										{{- end }}
 									</menu>

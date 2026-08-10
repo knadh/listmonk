@@ -18,13 +18,6 @@
 				</h1>
 			</div>
 		</div>
-		{{- if $d.IsEditing }}
-			<div class="col-6 align-right">
-				<button class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
-					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
-				</button>
-			</div>
-		{{- end }}
 	</header>
 
 	<form method="post" @submit.prevent="onSubmit">
@@ -83,7 +76,12 @@
 
 			<footer class="dialog-foot">
 				<div class="row mt-6">
-					<div class="col-6">
+					<div class="col-6 hstack gap-3">
+						{{- if $d.IsEditing }}
+							<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+								<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+							</button>
+						{{- end }}
 						<a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer" class="text-light text-8">
 							{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
 						</a>
