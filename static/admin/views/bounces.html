@@ -14,7 +14,7 @@
 					{{ .L.T "globals.terms.bounces" }}
 					<span>({{ $d.Page.Total }})</span>
 				</h1>
-				<div class="text-7 hstack gap-1">
+				<div class="hstack gap-1">
 					{{- if $source }}<a href="{{ $base }}" class="badge">{{ $source }} &times;</a>{{ end }}
 					{{- if $type }}<a href="{{ $base }}" class="badge">{{ .L.T (printf "bounces.%s" $type) }} &times;</a>{{ end }}
 					{{- if $campaign }}<a href="{{ $base }}" class="badge">#{{ $campaign }} &times;</a>{{ end }}
@@ -99,7 +99,7 @@
 		<div class="dialog-card content">
 			<header class="dialog-head"><h4 class="dialog-title" x-text="metaTitle"></h4></header>
 			<section class="dialog-body">
-				<pre class="text-7" x-text="JSON.stringify(meta, null, 2)"></pre>
+				<pre x-text="JSON.stringify(meta, null, 2)"></pre>
 			</section>
 			<footer class="dialog-foot hstack justify-end">
 				<button type="button" class="outline" @click="$refs.metaDialog.close()">{{ .L.T "globals.buttons.close" }}</button>

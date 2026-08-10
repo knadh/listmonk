@@ -25,6 +25,30 @@ function setupAlpine() {
     isLoading,
     copyToClipboard: u.copyToClipboard,
     listAutocomplete,
+
+    // Trigger an app restart (from the "needs restart" notice), then poll the
+    // health endpoint until the app is back up and reload the page.
+    async restartApp() {
+      if (!(await u.confirm(i18n.t('settings.confirmRestart')))) {
+        return;
+      }
+
+      try {
+        await api('reload', '/admin/reload', 'POST');
+      } catch {
+        return;
+      }
+
+      u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('settings.title') }));
+      const poll = setInterval(() => {
+        fetch(`${urls.api}/health`).then((r) => {
+          if (r.ok) {
+            clearInterval(poll);
+            window.location.reload();
+          }
+        }).catch(() => { });
+      }, 500);
+    },
   }));
 }
 

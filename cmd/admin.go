@@ -109,6 +109,7 @@ var adminJSI18nKeys = []string{
 	"subscribers.status.unconfirmed",
 
 	"settings.title",
+	"settings.confirmRestart",
 	"settings.smtp.testEnterEmail",
 	"campaigns.testSent",
 	"globals.messages.passwordChangeFull",

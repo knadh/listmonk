@@ -85,7 +85,7 @@
 							<td>
 								{{- if eq .Type "optin" }}<span class="badge enum optin">{{ $.L.T "lists.optin" }}</span>{{ end }}
 								<a href="{{ $base }}/{{ .ID }}">{{ .Name }}</a>
-								<p class="text-light text-7">{{ .Subject }}</p>
+								<p class="text-light">{{ .Subject }}</p>
 								<div class="hstack gap-1">
 									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="badge outline tag">#{{ . }}</a>{{ end }}
 								</div>
