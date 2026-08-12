@@ -56,6 +56,7 @@ WITH subs AS (
                     lists.*
             ) l)
         )
+        ORDER BY subscriber_lists.created_at, subscriber_lists.list_id
     ) AS lists FROM lists
     LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
     WHERE subscriber_lists.subscriber_id = ANY($1)
