@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-const srcJS = path.join(root, 'src/js');
+const srcJS = path.join(root, 'assets/js');
 const dist = path.join(root, 'dist');
 const watch = process.argv.includes('--watch');
 
@@ -22,7 +22,7 @@ const vendor = [
 ];
 
 // TinyMCE has a lot of files to copy.
-// TINY_PLUGINS and TINY_LANGS MUST mirror src/js/richtext-editor.js.
+// TINY_PLUGINS and TINY_LANGS MUST mirror assets/js/richtext-editor.js.
 const TINY_PLUGINS = [
   'anchor', 'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen',
   'help', 'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
@@ -65,15 +65,15 @@ async function build() {
   await mkdir(dist, { recursive: true });
 
   // Verbatim static assets (fonts, icons, images), authored stylesheet, vendored libs.
-  await cp(path.join(root, 'src/static'), dist, { recursive: true });
-  await cp(path.join(root, 'src/css/style.css'), path.join(dist, 'style.css'));
+  await cp(path.join(root, 'assets/static'), dist, { recursive: true });
+  await cp(path.join(root, 'assets/css/style.css'), path.join(dist, 'style.css'));
   for (const [from, to] of vendor) {
     await cp(path.join(root, from), path.join(dist, to));
   }
   await copyTinyMCE();
 
   // Entry points = modules loaded directly by a <script> tag: the global main.js and
-  // every per-view module under src/js/views/.
+  // every per-view module under assets/js/views/.
   const views = (await readdir(path.join(srcJS, 'views')))
     .filter((f) => f.endsWith('.js'))
     .map((f) => path.join(srcJS, 'views', f));
@@ -105,9 +105,9 @@ async function build() {
 await build();
 
 if (watch) {
-  console.log('watching src/ for changes…');
+  console.log('watching assets/ for changes…');
   let timer = null;
-  fsWatch(path.join(root, 'src'), { recursive: true }, () => {
+  fsWatch(path.join(root, 'assets'), { recursive: true }, () => {
     clearTimeout(timer);
     timer = setTimeout(() => build().catch((e) => console.error(e)), 100);
   });

@@ -10,15 +10,20 @@ BUILDSTR := ${VERSION} (\#${LAST_COMMIT} $(BUILDDATE))
 GOPATH ?= $(HOME)/go
 STUFFBIN ?= $(GOPATH)/bin/stuffbin
 
-# SSR admin frontend (built from static/admin/src -> static/admin/dist).
+# SSR admin frontend (built from static/admin/assets -> static/admin/dist).
 FRONTEND = static/admin
 FRONTEND_DIST = $(FRONTEND)/dist
 FRONTEND_NODE_MODULES = $(FRONTEND)/node_modules
+
+# Feather icons SVG sprite generated from icons.txt.
+FRONTEND_ICONS_LIST = $(FRONTEND)/icons.txt
+FRONTEND_ICONS = $(FRONTEND)/assets/static/icons.svg
+
 FRONTEND_DEPS = \
 	$(FRONTEND_NODE_MODULES) \
 	$(FRONTEND)/package.json \
 	$(FRONTEND)/build.mjs \
-	$(shell find $(FRONTEND)/src -type f)
+	$(shell find $(FRONTEND)/assets -type f)
 
 BIN := listmonk
 STATIC := config.toml.sample \
@@ -54,8 +59,15 @@ $(FRONTEND_NODE_MODULES): $(FRONTEND)/package.json
 	cd $(FRONTEND) && bun install
 	touch -c $(FRONTEND_NODE_MODULES)
 
+# Generate svg icon sprite.
+$(FRONTEND_ICONS): $(FRONTEND_ICONS_LIST) scripts/build-icons.py
+	python3 scripts/build-icons.py --icons $(FRONTEND_ICONS_LIST) --out $(FRONTEND_ICONS)
+
+.PHONY: build-icons
+build-icons: $(FRONTEND_ICONS)
+
 # Build the SSR admin frontend (Bun) into static/admin/dist.
-$(FRONTEND_DIST): $(FRONTEND_DEPS)
+$(FRONTEND_DIST): $(FRONTEND_ICONS) $(FRONTEND_DEPS)
 	cd $(FRONTEND) && bun run build
 	touch -c $(FRONTEND_DIST)
 
