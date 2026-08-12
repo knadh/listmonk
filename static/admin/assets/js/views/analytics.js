@@ -1,3 +1,5 @@
+import Chart from 'chart.js/auto';
+
 import { api } from '../main.js';
 
 const chartColorRed = '#ee7d5b';
@@ -165,7 +167,7 @@ function draw(id, def, data, extraOptions) {
   }
 
   // eslint-disable-next-line no-new
-  new window.Chart(canvas, {
+  new Chart(canvas, {
     type: def.type,
     data,
     options: { ...def.options, ...(extraOptions || {}) },
@@ -228,7 +230,7 @@ function renderLinks(rows) {
 // Render all charts from the server-embedded analytics data.
 function renderCharts() {
   const d = window._analytics;
-  if (!d || !window.Chart) {
+  if (!d) {
     return;
   }
 
