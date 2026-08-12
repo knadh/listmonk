@@ -64,7 +64,7 @@ func (a *App) ViewTemplates(c echo.Context) error {
 // ViewNewTemplate renders the new template page.
 func (a *App) ViewNewTemplate(c echo.Context) error {
 	data := templateView{
-		adminView: newAdminView(c, a.i18n.T("templates.newTemplate"), "", "campaigns.templates"),
+		adminView: newAdminView(c, a.i18n.T("templates.newTemplate")+" / "+a.i18n.T("globals.terms.templates"), "", "campaigns.templates"),
 		IsNew:     true,
 		Template:  models.Template{Type: models.TemplateTypeCampaign},
 	}
@@ -81,7 +81,7 @@ func (a *App) ViewTemplate(c echo.Context) error {
 	}
 
 	data := templateView{
-		adminView: newAdminView(c, out.Name, "", "campaigns.templates"),
+		adminView: newAdminView(c, out.Name+" / "+a.i18n.T("globals.terms.templates"), "", "campaigns.templates"),
 		Template:  out,
 	}
 

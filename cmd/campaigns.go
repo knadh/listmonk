@@ -92,7 +92,7 @@ func (a *App) ViewNewCampaign(c echo.Context) error {
 	}
 
 	data := campaignView{
-		adminView:       newAdminView(c, a.i18n.T("campaigns.newCampaign"), "", "campaigns.new"),
+		adminView:       newAdminView(c, a.i18n.T("campaigns.newCampaign")+" / "+a.i18n.T("globals.terms.campaigns"), "", "campaigns.new"),
 		IsNew:           true,
 		Campaign:        models.Campaign{Type: models.CampaignTypeRegular, ContentType: models.CampaignContentTypeRichtext},
 		Templates:       tpls,
@@ -165,7 +165,7 @@ func (a *App) ViewCampaign(c echo.Context) error {
 	}
 
 	data := campaignView{
-		adminView:  newAdminView(c, camp.Name, "", "campaigns.all"),
+		adminView:  newAdminView(c, camp.Name+" / "+a.i18n.T("globals.terms.campaigns"), "", "campaigns.all"),
 		Campaign:   camp,
 		Templates:  tpls,
 		AllLists:   allLists,

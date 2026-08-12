@@ -90,6 +90,7 @@ func (a *App) ViewUser(c echo.Context) error {
 	if isEditing {
 		title = user.Name
 	}
+	title += " / " + a.i18n.T("globals.terms.users")
 
 	data := userView{
 		adminView: newAdminView(c, title, "", "users.users"),

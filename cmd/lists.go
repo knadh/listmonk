@@ -86,7 +86,7 @@ func (a *App) ViewList(c echo.Context) error {
 	}
 
 	data := listView{
-		adminView: newAdminView(c, list.Name, "", "lists.all"),
+		adminView: newAdminView(c, list.Name+" / "+a.i18n.T("globals.terms.lists"), "", "lists.all"),
 		List:      list,
 	}
 

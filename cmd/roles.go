@@ -122,6 +122,7 @@ func (a *App) ViewUserRole(c echo.Context) error {
 	if isEditing {
 		title = role.Name.String
 	}
+	title += " / " + a.i18n.T("users.userRoles")
 
 	data := roleFormView{
 		adminView:  newAdminView(c, title, "", "users.user-roles"),
@@ -174,6 +175,7 @@ func (a *App) ViewListRole(c echo.Context) error {
 	if isEditing {
 		title = role.Name.String
 	}
+	title += " / " + a.i18n.T("users.listRoles")
 
 	data := roleFormView{
 		adminView: newAdminView(c, title, "", "users.list-roles"),
