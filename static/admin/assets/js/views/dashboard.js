@@ -1,3 +1,5 @@
+import Chart from 'chart.js/auto';
+
 const PRIMARY = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0055d4';
 const FONT_FAMILY = "'Inter', sans-serif";
 
@@ -14,15 +16,15 @@ function label(iso) {
 // Draw a filled line chart of {count, date} rows on the given canvas.
 function lineChart(id, rows) {
   const canvas = document.getElementById(id);
-  if (!canvas || !window.Chart) {
+  if (!canvas) {
     return;
   }
 
   const data = rows || [];
-  window.Chart.defaults.font.family = FONT_FAMILY;
+  Chart.defaults.font.family = FONT_FAMILY;
 
   // eslint-disable-next-line no-new
-  new window.Chart(canvas, {
+  new Chart(canvas, {
     type: 'line',
     data: {
       labels: data.map((d) => label(d.date)),
