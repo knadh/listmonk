@@ -25,7 +25,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 	{{ template "admin-head-assets" . }}
 </head>
-<body x-data="adminApp">
+<body x-data="adminApp"{{ if .Data.Can "settings:get" }} data-error-events{{ end }}>
 	<div id="app" data-sidebar-layout>
 		<nav data-topnav>
 			<div class="row">
@@ -69,23 +69,7 @@
 
 		<main>
 			<div class="container">
-				{{- if .ConfigJS.NeedsRestart }}
-					<div role="alert" data-cy="needs-restart" class="hstack justify-between">
-						<span>{{ .L.T "settings.needsRestart" }}</span>
-						{{- if .Data.Can "settings:manage" }}
-							<button type="button" class="small" @click="restartApp">{{ Icon "refresh-cw" }} {{ .L.T "settings.restart" }}</button>
-						{{- end }}
-					</div>
-				{{- end }}
-				{{- with .ConfigJS.Update }}{{ if .Update.IsNew }}
-					<div role="status">
-						{{ $.L.Ts "settings.updateAvailable" "version" .Update.ReleaseVersion }}
-						<a href="{{ .Update.URL }}" target="_blank" rel="noopener noreferrer">{{ $.L.T "globals.buttons.view" }}</a>
-					</div>
-				{{ end }}{{- end }}
-				{{- if .ConfigJS.HasLegacyUser }}
-					<div role="alert" data-cy="legacy-user">{{ .L.T "settings.hasLegacyUser" }}</div>
-				{{- end }}
+				{{ template "admin-global-notices" . }}
 {{ end }}
 
 {{ define "admin-footer" }}
