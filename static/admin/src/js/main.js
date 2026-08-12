@@ -52,6 +52,43 @@ function setupAlpine() {
   }));
 }
 
+// Subscribe to the server's error event stream and toast server-side errors as
+// they happen. The stream is only advertised (data-error-events on <body>) to
+// users who have permission to read it.
+function listenErrorEvents() {
+  if (!document.body.hasAttribute('data-error-events')) {
+    return;
+  }
+
+  // Extract the message out of `file.go:123: message` log lines.
+  const reMatchLog = /(.+?)\.go:\d+:(.+?)$/im;
+  const src = new EventSource(`${urls.api}/events?type=error`, { withCredentials: true });
+
+  let numEv = 0;
+  src.onmessage = (e) => {
+    // Cap the number of toasts to not flood the UI on a burst of errors.
+    if (numEv >= 50) {
+      src.close();
+      return;
+    }
+    numEv += 1;
+
+    let d = null;
+    try {
+      d = JSON.parse(e.data);
+    } catch {
+      return;
+    }
+
+    if (!d || d.type !== 'error' || !d.message) {
+      return;
+    }
+
+    const msg = reMatchLog.exec(d.message.trim());
+    u.toast(msg ? msg[2].trim() : d.message, 'error');
+  };
+}
+
 // Return the global Alpine store.
 function getStore() {
   return window.Alpine.store(storeName);
@@ -153,4 +190,6 @@ export async function api(name, uri, method, data) {
 
   // Init global Alpine component.
   document.addEventListener('alpine:init', setupAlpine, { once: true });
+
+  listenErrorEvents();
 })();
