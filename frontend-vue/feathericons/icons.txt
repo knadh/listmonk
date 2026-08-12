@@ -19,6 +19,7 @@ eye
 file-text
 grid
 image
+info
 link-2
 list
 log-out

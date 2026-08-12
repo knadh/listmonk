@@ -1,0 +1,64 @@
+{{ define "admin-global-notices" }}
+	{{- /* Upstream update notices: a new release and/or broadcast messages. */ -}}
+	{{- $hasUpdate := false }}
+	{{- with .ConfigJS.Update }}{{ if or .Update.IsNew .Messages }}{{ $hasUpdate = true }}{{ end }}{{ end }}
+
+	{{- if or .ConfigJS.NeedsRestart .ConfigJS.HasLegacyUser $hasUpdate }}
+		<div class="global-notices vstack gap-4 mb-8">
+			{{- if .ConfigJS.NeedsRestart }}
+				<div role="alert" data-cy="needs-restart" class="hstack justify-between">
+					<span>{{ .L.T "settings.needsRestart" }}</span>
+					{{- if .Data.Can "settings:manage" }}
+						<button type="button" class="small" @click="restartApp">{{ Icon "refresh-cw" }} {{ .L.T "settings.restart" }}</button>
+					{{- end }}
+				</div>
+			{{- end }}
+
+			{{- with .ConfigJS.Update }}
+				{{- if .Update.IsNew }}
+					{{- $version := .Update.ReleaseVersion }}
+					{{- $date := toDate "2006-01-02" .Update.ReleaseDate }}
+					{{- if not $date.IsZero }}{{ $version = printf "%s (%s)" $version ($date.Format "02 Jan 2006") }}{{ end }}
+					<div role="alert" data-cy="update-available">
+						<div class="row">
+							<div class="col-10">{{ Icon "download-cloud" }} {{ $.L.Ts "settings.updateAvailable" "version" $version }}</div>
+							<div class="col-2 hstack justify-end">
+								<a href="{{ .Update.URL }}" target="_blank" rel="noopener noreferrer" class="button small" data-variant="secondary">{{ $.L.T "globals.buttons.view" }}</a>
+							</div>
+						</div>
+					</div>
+				{{- end }}
+
+				{{- range .Messages }}
+					{{ $high := (eq .Priority "high") }}
+					<div role="alert" data-cy="update-message" {{ if $high }}data-variant="danger"{{ end }}>
+						<div class="row">
+							<div class="col-10">
+								{{ if $high }}{{ Icon "alert-triangle" }}{{ else }}{{ Icon "info" }}{{ end }}
+								{{ if .Title }}<strong>{{ .Title }}</strong>{{ end }}
+								{{- if .Description }}<div>{{ .Description }}</div>{{ end }}
+							</div>
+							<div class="col-2 hstack justify-end">
+								{{- if .URL }}
+									<a href="{{ .URL }}" target="_blank" rel="noopener noreferrer" class="button small" data-variant="secondary">{{ $.L.T "globals.buttons.view" }}</a>
+								{{- end }}
+							</div>
+						</div>
+					</div>
+				{{- end }}
+			{{- end }}
+
+			{{- if .ConfigJS.HasLegacyUser }}
+				<div role="alert" data-cy="legacy-user">
+					<div class="row">
+						<div class="col-10">{{ .L.T "settings.hasLegacyUser" }}</div>
+						<div class="col-2 hstack justify-end">
+							<a href="https://listmonk.app/docs/upgrade/#upgrading-to-v4xx" target="_blank" rel="noopener noreferrer">{{ .L.T "globals.buttons.learnMore" }}</a>
+							<a href="{{ URI "/admin/users" }}" class="button small" data-variant="secondary">{{ .L.T "globals.terms.users" }}</a>
+						</div>
+					</div>
+				</div>
+			{{- end }}
+		</div>
+	{{- end }}
+{{ end }}
