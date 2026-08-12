@@ -151,7 +151,7 @@ func (a *App) ViewSubscriber(c echo.Context) error {
 	}
 
 	data := subscriberView{
-		adminView:  newAdminView(c, out.Email, "", "subscribers.all"),
+		adminView:  newAdminView(c, out.Email+" / "+a.i18n.T("globals.terms.subscribers"), "", "subscribers.all"),
 		Tab:        tab,
 		Subscriber: out,
 		AllLists:   allLists,
@@ -173,7 +173,7 @@ func (a *App) ViewSubscriberBounces(c echo.Context) error {
 	}
 
 	data := subscriberView{
-		adminView:  newAdminView(c, out.Email, "", "subscribers.all"),
+		adminView:  newAdminView(c, out.Email+" / "+a.i18n.T("globals.terms.subscribers"), "", "subscribers.all"),
 		Tab:        "bounces",
 		Subscriber: out,
 		Bounces:    bounces,
@@ -195,7 +195,7 @@ func (a *App) ViewSubscriberActivity(c echo.Context) error {
 	}
 
 	data := subscriberView{
-		adminView:  newAdminView(c, out.Email, "", "subscribers.all"),
+		adminView:  newAdminView(c, out.Email+" / "+a.i18n.T("globals.terms.subscribers"), "", "subscribers.all"),
 		Tab:        "activity",
 		Subscriber: out,
 	}
