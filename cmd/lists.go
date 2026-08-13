@@ -9,6 +9,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// listsQueryDefaults is the allow list of filter query params.
+var listsQueryDefaults = map[string]string{
+	"page":     "",
+	"minimal":  "",
+	"query":    "",
+	"order_by": "",
+	"order":    "",
+	"tag":      "",
+	"type":     "",
+	"optin":    "",
+	"status":   models.ListStatusActive,
+}
+
 // listsView is the admin page view.
 type listsView struct {
 	adminView
@@ -270,15 +283,7 @@ func (a *App) DeleteLists(c echo.Context) error {
 }
 
 func (a *App) getLists(c echo.Context) ([]models.List, models.PageProps, error) {
-	q := makeQuery(c.Request().URL.Query(), map[string]string{
-		"page":     "",
-		"minimal":  "",
-		"query":    "",
-		"order_by": "",
-		"order":    "",
-		"tag":      "",
-		"status":   models.ListStatusActive,
-	})
+	q := makeQuery(c.Request().URL.Query(), listsQueryDefaults)
 
 	// Get the authenticated user.
 	user := auth.GetUser(c)

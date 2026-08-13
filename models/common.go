@@ -261,6 +261,22 @@ func (p PageProps) FormFields(exclude ...string) template.HTML {
 	return template.HTML(out.String())
 }
 
+// FilterURL returns the base path with the given filter param keys and other existing
+// params except for "page" which is removed. Used in "clear filter X" links on admin
+// pages that render results with arbitrary query filters.
+func (p PageProps) FilterURL(base string, exclude ...string) string {
+	query := p.Encode(append([]string{"page"}, exclude...)...)
+	if query == "" {
+		return base
+	}
+
+	if strings.Contains(base, "?") {
+		return base + "&" + query
+	}
+
+	return base + "?" + query
+}
+
 // PageResults is a generic HTTP response container for paginated results of list of items.
 type PageResults struct {
 	Results any `json:"results"`

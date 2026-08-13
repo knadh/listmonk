@@ -66,12 +66,15 @@ func (a *App) ViewMediaFragment(c echo.Context) error {
 	return c.Render(http.StatusOK, "admin-media-fragment", data)
 }
 
+// mediaQueryDefaults is the allow list of filter query params.
+var mediaQueryDefaults = map[string]string{
+	"page":  "",
+	"query": "",
+}
+
 // getMedia queries paginated media items from the DB.
 func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) {
-	q := makeQuery(c.Request().URL.Query(), map[string]string{
-		"page":  "",
-		"query": "",
-	})
+	q := makeQuery(c.Request().URL.Query(), mediaQueryDefaults)
 
 	pg := a.pg.NewFromURL(q)
 	pg.Limit = 100

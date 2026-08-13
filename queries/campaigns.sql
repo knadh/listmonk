@@ -74,13 +74,14 @@ WHERE ($1 = 0 OR id = $1)
     AND (CARDINALITY($2::campaign_status[]) = 0 OR status = ANY($2))
     AND (CARDINALITY($3::VARCHAR(100)[]) = 0 OR $3 <@ tags)
     AND ($4 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ PLAINTO_TSQUERY($4) OR CONCAT(c.name, ' ', c.subject) ILIKE ('%' || $4 || '%'))
+    AND ($5 = '' OR type = $5::campaign_type)
     -- Get all campaigns or filter by list IDs.
     AND (
-        $5 OR EXISTS (
-            SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND list_id = ANY($6::INT[])
+        $6 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND list_id = ANY($7::INT[])
         )
     )
-ORDER BY %order% OFFSET $7 LIMIT (CASE WHEN $8 < 1 THEN NULL ELSE $8 END);
+ORDER BY %order% OFFSET $8 LIMIT (CASE WHEN $9 < 1 THEN NULL ELSE $9 END);
 
 -- name: get-campaign
 SELECT campaigns.*,

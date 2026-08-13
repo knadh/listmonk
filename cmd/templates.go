@@ -36,6 +36,7 @@ type templatesView struct {
 	adminView
 
 	Templates []models.Template
+	Type      string
 }
 
 // templateView is the admin page view for creating/editing a single template.
@@ -48,7 +49,9 @@ type templateView struct {
 
 // ViewTemplates renders the HTML list view for templates.
 func (a *App) ViewTemplates(c echo.Context) error {
-	out, err := a.core.GetTemplates("", true)
+	typ := c.QueryParam("type")
+
+	out, err := a.core.GetTemplates(typ, true)
 	if err != nil {
 		return err
 	}
@@ -56,6 +59,7 @@ func (a *App) ViewTemplates(c echo.Context) error {
 	data := templatesView{
 		adminView: newAdminView(c, a.i18n.T("globals.terms.templates"), "", "campaigns.templates"),
 		Templates: out,
+		Type:      typ,
 	}
 
 	return c.Render(http.StatusOK, "admin-templates", data)
