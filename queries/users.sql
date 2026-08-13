@@ -51,7 +51,7 @@ UPDATE users SET
 WITH u AS (
     SELECT COUNT(*) AS num FROM users WHERE NOT(id = ANY($1)) AND user_role_id=1 AND type='user' AND status='enabled'
 )
-DELETE FROM users WHERE id = ALL($1) AND (SELECT num FROM u) > 0;
+DELETE FROM users WHERE id = ANY($1) AND (SELECT num FROM u) > 0;
 
 -- name: get-users
 WITH ur AS (
