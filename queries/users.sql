@@ -89,6 +89,10 @@ FROM users
     LEFT JOIN ur ON users.user_role_id = ur.id
     LEFT JOIN lp ON users.list_role_id = lp.list_role_id
     LEFT JOIN lr ON lp.list_role_id = lr.id
+    WHERE ($1 = '' OR users.type = $1::user_type)
+        AND ($2 = '' OR users.status = $2::user_status)
+        AND ($3 = 0 OR users.user_role_id = $3)
+        AND ($4 = 0 OR users.list_role_id = $4)
     ORDER BY users.created_at;
 
 -- name: get-user

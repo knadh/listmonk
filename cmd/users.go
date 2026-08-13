@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
@@ -16,6 +17,14 @@ import (
 
 var (
 	reUsername = regexp.MustCompile(`^[a-zA-Z0-9_\-\.@]+$`)
+
+	// usersQueryDefaults is the allow list of filter query params.
+	usersQueryDefaults = map[string]string{
+		"type":         "",
+		"status":       "",
+		"user_role_id": "",
+		"list_role_id": "",
+	}
 )
 
 // usersView is the admin page view for the users list page.
@@ -23,6 +32,15 @@ type usersView struct {
 	adminView
 
 	Users []auth.User
+	Page  models.PageProps
+
+	// Filters.
+	Type         string
+	Status       string
+	UserRoleID   int
+	UserRoleName string
+	ListRoleID   int
+	ListRoleName string
 }
 
 // userView is the admin page view for a single user's add/edit form.
@@ -41,20 +59,44 @@ func (a *App) ViewUsers(c echo.Context) error {
 		return auth.ErrPermDenied
 	}
 
-	users, err := a.core.GetUsers()
+	// Whitelisted filter params.
+	q := makeQuery(c.Request().URL.Query(), usersQueryDefaults)
+	var (
+		fType        = q.Get("type")
+		fStatus      = q.Get("status")
+		fUserRole, _ = strconv.Atoi(q.Get("user_role_id"))
+		fListRole, _ = strconv.Atoi(q.Get("list_role_id"))
+	)
+
+	// Filtering is done in SQL.
+	users, err := a.core.GetUsers(fType, fStatus, fUserRole, fListRole)
 	if err != nil {
 		return err
 	}
 
-	// Blank out the password hashes.
-	for n := range users {
-		users[n].Password = null.String{}
+	data := usersView{
+		adminView:  newAdminView(c, a.i18n.T("globals.terms.users"), "", "users.users"),
+		Type:       fType,
+		Status:     fStatus,
+		UserRoleID: fUserRole,
+		ListRoleID: fListRole,
 	}
 
-	data := usersView{
-		adminView: newAdminView(c, a.i18n.T("globals.terms.users"), "", "users.users"),
-		Users:     users,
+	for n := range users {
+		// Empty the password hash.
+		users[n].Password = null.String{}
+
+		// Capture the role names for rendering in the filter badges on the admin UI.
+		if fUserRole > 0 {
+			data.UserRoleName = users[n].UserRole.Name
+		}
+		if fListRole > 0 && users[n].ListRole != nil {
+			data.ListRoleName = users[n].ListRole.Name
+		}
 	}
+
+	data.Users = users
+	data.Page = models.NewPageProps(q, len(users), 1, 0)
 
 	return c.Render(http.StatusOK, "admin-users", data)
 }
@@ -156,7 +198,7 @@ func (a *App) GetUser(c echo.Context) error {
 // GetUsers retrieves all users.
 func (a *App) GetUsers(c echo.Context) error {
 	// Get all users from the DB.
-	out, err := a.core.GetUsers()
+	out, err := a.core.GetUsers("", "", 0, 0)
 	if err != nil {
 		return err
 	}
@@ -484,7 +526,7 @@ func (a *App) DisableTOTP(c echo.Context) error {
 // It also returns a bool indicating whether there are any actual users in the DB at all,
 // which if there aren't, the first time user setup needs to be run.
 func cacheUsers(co *core.Core, a *auth.Auth) (bool, error) {
-	users, err := co.GetUsers()
+	users, err := co.GetUsers("", "", 0, 0)
 	if err != nil {
 		return false, err
 	}

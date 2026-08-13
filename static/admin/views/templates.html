@@ -10,6 +10,13 @@
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.templates" }}
 				<span>({{ len $d.Templates }})</span>
+				{{- if $d.Type }}
+					{{- $label := $d.Type }}{{ $class := "enum" }}
+					{{- if eq $d.Type "tx" }}{{ $label = .L.Tc "globals.terms.tx" 1 }}{{ $class = "enum tx" }}
+					{{- else if eq $d.Type "campaign_visual" }}{{ $label = .L.T "campaigns.visual" }}{{ $class = "enum campaign" }}
+					{{- else if eq $d.Type "campaign" }}{{ $label = .L.Tc "globals.terms.campaign" 1 }}{{ $class = "enum campaign" }}{{ end }}
+					{{ template "filter-badge" dict "Label" $label "Class" $class "URL" $base }}
+				{{- end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
@@ -44,13 +51,13 @@
 							<td>
 								<div class="hstack">
 									{{- if eq .Type "tx" }}
-										{{ Badge ($.L.Tc "globals.terms.tx" 1) "enum tx" }}
+										<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.Tc "globals.terms.tx" 1) "enum tx" }}</a>
 									{{- else }}
-										{{ Badge ($.L.Tc "globals.terms.campaign" 1) "enum campaign" }}
+										<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.Tc "globals.terms.campaign" 1) "enum campaign" }}</a>
 										{{- if eq .Type "campaign_visual" }}
-											{{ Badge ($.L.T "campaigns.visual") "enum" "secondary" }}
+											<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.T "campaigns.visual") "enum" "secondary" }}</a>
 										{{- else }}
-											{{ Badge "HTML" "enum" "secondary" }}
+											<a href="{{ $base }}?type={{ .Type }}">{{ Badge "HTML" "enum" "secondary" }}</a>
 										{{- end }}
 									{{- end }}
 								</div>

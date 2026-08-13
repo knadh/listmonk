@@ -133,7 +133,7 @@ func (a *App) getDashboardCampaigns(c echo.Context) (models.Campaigns, error) {
 	}
 
 	// Get scheduled campaigns to show on top of the dashboard.
-	camps, _, err := a.core.QueryCampaigns("", []string{models.CampaignStatusScheduled}, nil, "created_at", "desc", hasAllPerm, permittedLists, 0, dashboardCampaignCount)
+	camps, _, err := a.core.QueryCampaigns("", []string{models.CampaignStatusScheduled}, nil, "", "created_at", "desc", hasAllPerm, permittedLists, 0, dashboardCampaignCount)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func (a *App) getDashboardCampaigns(c echo.Context) (models.Campaigns, error) {
 			models.CampaignStatusPaused,
 			models.CampaignStatusFinished,
 			models.CampaignStatusCancelled,
-		}, nil, "created_at", "desc", hasAllPerm, permittedLists, 0, rem)
+		}, nil, "", "created_at", "desc", hasAllPerm, permittedLists, 0, rem)
 		if err != nil {
 			return nil, err
 		}

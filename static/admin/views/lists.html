@@ -1,7 +1,10 @@
 {{ define "admin-lists" -}}
 {{ template "admin-header" . }}
 {{- $d := .Data -}}
+{{- $base := URI "/admin/lists" -}}
 {{- $status := $d.Page.Param "status" -}}
+{{- $type := $d.Page.Param "type" -}}
+{{- $optin := $d.Page.Param "optin" -}}
 {{- $orderBy := $d.Page.Param "order_by" -}}
 {{- $order := $d.Page.Param "order" -}}
 {{- $tags := $d.Page.Param "tag" -}}
@@ -11,9 +14,14 @@
 		<div class="col-6">
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.lists" }}
-				{{- if eq $status "archived" }} / {{ $status }}{{ end }}
-				{{- if $tags }} <span class="text-light">#{{ $tags }}</span>{{ end }}
 				<span>({{ $d.Page.Total }})</span>
+				{{- if eq $status "archived" }} {{ template "filter-badge" dict "Label" (.L.T "lists.archived") "Class" "outline" "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+				{{- if $type }} {{ template "filter-badge" dict "Label" (.L.T (printf "lists.types.%s" $type)) "Class" (printf "enum %s" $type) "URL" ($d.Page.FilterURL $base "type") }}{{ end }}
+				{{- if $optin }}
+					{{- $optinIcon := "user-x" }}{{ if eq $optin "double" }}{{ $optinIcon = "user-check" }}{{ end }}
+					{{ template "filter-badge" dict "Label" (list (Icon $optinIcon) (.L.T (printf "lists.optins.%s" $optin))) "Class" "enum" "Variant" "secondary" "URL" ($d.Page.FilterURL $base "optin") }}
+				{{- end }}
+				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "outline tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
@@ -76,9 +84,9 @@
 							</td>
 							<td>
 								<div class="hstack">
-									{{ Badge ($.L.T (printf "lists.types.%s" .Type)) (printf "enum %s" .Type) }}
+									<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.T (printf "lists.types.%s" .Type)) (printf "enum %s" .Type) }}</a>
 									{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
-									{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" "secondary" }}
+									<a href="{{ $base }}?optin={{ .Optin }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" "secondary" }}</a>
 								</div>
 							</td>
 							<td class="subscribers">
