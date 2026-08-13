@@ -123,6 +123,9 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 		cond = queryExp
 	}
 
+	// Handle the special "none" subscription status for orphan subscribers.
+	cond, subStatus = applyOrphanFilter(cond, subStatus)
+
 	// stmt is the raw SQL query.
 	stmt := strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
 	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
@@ -245,6 +248,9 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 	if query != "" {
 		cond = query
 	}
+
+	// Handle the special "none" subscription status for orphan subscribers.
+	cond, subStatus = applyOrphanFilter(cond, subStatus)
 
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersForExport, "%query%", cond)
 
@@ -669,4 +675,15 @@ func traverseQueryPlan(node map[string]any, tables map[string]struct{}) {
 			}
 		}
 	}
+}
+
+// applyOrphanFilter handles the special subscription_status value "none", which
+// filters orphan subscribers (no list subscriptions).
+func applyOrphanFilter(cond, subStatus string) (string, string) {
+	const orphanSubCond = "NOT EXISTS (SELECT 1 FROM subscriber_lists WHERE subscriber_id = subscribers.id)"
+	if subStatus == "none" {
+		return "(" + cond + ") AND " + orphanSubCond, ""
+	}
+
+	return cond, subStatus
 }
