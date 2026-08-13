@@ -32,6 +32,7 @@ STATIC := config.toml.sample \
 	static/admin/views:/admin/views \
 	static/admin/partials:/admin/partials \
 	static/admin/dist:/admin/static \
+	static/admin/i18n.txt:/admin/i18n.txt \
 	static/email-templates \
 	i18n:/i18n
 

@@ -38,83 +38,6 @@ type serverConfig struct {
 	Version       string          `json:"version"`
 }
 
-var adminJSI18nKeys = []string{
-	"globals.buttons.back",
-	"globals.terms.bounce",
-	"globals.buttons.cancel",
-	"globals.buttons.ok",
-	"globals.messages.copied",
-	"globals.messages.confirm",
-	"globals.messages.confirmDelete",
-	"globals.messages.created",
-	"globals.messages.deleted",
-	"globals.messages.deletedCount",
-	"globals.messages.done",
-	"globals.messages.numSelected",
-	"globals.messages.selectAll",
-	"globals.messages.updated",
-	"globals.terms.list",
-	"globals.terms.user",
-	"globals.fields.name",
-	"users.passwordMismatch",
-	"globals.terms.campaign",
-	"campaigns.copyOf",
-	"campaigns.confirmDelete",
-	"campaigns.confirmSchedule",
-	"campaigns.statusChanged",
-	"campaigns.confirmSwitchFormat",
-	"campaigns.confirmOverwriteContent",
-	"globals.terms.second",
-	"globals.terms.minute",
-	"globals.terms.minute",
-	"globals.terms.hour",
-	"globals.terms.hour",
-	"globals.terms.day",
-	"globals.terms.day",
-	"globals.terms.month",
-	"globals.terms.month",
-	"globals.terms.year",
-	"globals.terms.year",
-	"globals.terms.subscribers",
-	"globals.terms.subscriptions",
-
-	"lists.confirmDelete",
-	"lists.confirmSub",
-	"lists.optinTo",
-	"lists.newList",
-	"lists.optins.single",
-	"lists.optins.double",
-
-	"import.importStarted",
-	"import.subscribeWarning",
-	"import.recordsCount",
-	"import.importDone",
-	"import.stopImport",
-
-	"public.sub",
-	"public.subName",
-	"subscribers.email",
-	"subscribers.confirmDelete",
-	"subscribers.confirmExport",
-	"subscribers.confirmBlocklist",
-	"subscribers.subscribersDeleted",
-	"subscribers.listChangeApplied",
-	"subscribers.sentOptinConfirm",
-	"subscribers.invalidJSON",
-	"subscribers.status.enabled",
-	"subscribers.status.blocklisted",
-	"subscribers.status.subscribed",
-	"subscribers.status.unsubscribed",
-	"subscribers.status.confirmed",
-	"subscribers.status.unconfirmed",
-
-	"settings.title",
-	"settings.confirmRestart",
-	"settings.smtp.testEnterEmail",
-	"campaigns.testSent",
-	"globals.messages.passwordChangeFull",
-}
-
 func (a *App) makeServerConfig() (serverConfig, error) {
 	out := serverConfig{
 		RootURL:       a.urlCfg.RootURL,
@@ -178,8 +101,8 @@ func (a *App) makeAdminJSI18n() map[string]string {
 		return map[string]string{}
 	}
 
-	out := make(map[string]string, len(adminJSI18nKeys))
-	for _, key := range adminJSI18nKeys {
+	out := make(map[string]string, len(a.cfg.AdminI18nKeys))
+	for _, key := range a.cfg.AdminI18nKeys {
 		if val, ok := lang[key]; ok {
 			out[key] = val
 		}

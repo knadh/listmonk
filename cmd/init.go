@@ -157,6 +157,9 @@ type Config struct {
 
 	PermissionsRaw json.RawMessage
 	Permissions    map[string]struct{}
+
+	// i18n keys (from i18n.txt) printed in admin HTML pages for JS to use.
+	AdminI18nKeys []string
 }
 
 // initFlags initializes the commandline flags into the Koanf instance.
@@ -225,6 +228,7 @@ func initFS(appDir, staticDir, i18nDir string) stuffbin.FileSystem {
 			"./admin/views:/admin/views",
 			"./admin/partials:/admin/partials",
 			"./admin/dist:/admin/static",
+			"./admin/i18n.txt:/admin/i18n.txt",
 			"./email-templates:static/email-templates",
 			"./public:/public",
 		}
@@ -553,6 +557,20 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 		for _, g := range group.Permissions {
 			c.Permissions[g] = struct{}{}
 		}
+	}
+
+	// Load the list of i18n keys exported to the SSR admin frontend for JS.
+	keys, err := fs.Read("/admin/i18n.txt")
+	if err != nil {
+		lo.Fatalf("error reading admin i18n keys file: %v", err)
+	}
+
+	for line := range strings.SplitSeq(string(keys), "\n") {
+		if line = strings.TrimSpace(line); line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		c.AdminI18nKeys = append(c.AdminI18nKeys, line)
 	}
 
 	return &c

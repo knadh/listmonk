@@ -1,3 +1,4 @@
+# List of feathericons to be compiled into an SVG sprite.
 activity
 alert-triangle
 arrow-down

@@ -46,9 +46,9 @@ def setup_files(vendor_dir: Path) -> Path:
 
 def read_icons(path: Path) -> list[str]:
     return [
-        line.strip()
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        line
+        for raw in path.read_text(encoding="utf-8").splitlines()
+        if (line := raw.strip()) and not line.startswith("#")
     ]
 
 
