@@ -26,8 +26,8 @@
 /* Theme */
 * {
     --body: light-dark(#f9f9f9, #171717);
-    --primary: #0055d4;
-    --ring: #0055d4;
+    --primary: light-dark(#0055d4, #4f8ce6);
+    --ring: light-dark(#0055d4, #4f8ce6);
     --muted-foreground: light-dark(#7a7a7a, #a1a1aa);
     --container-max: 1150px;
     --border: light-dark(#e5e7eb, #52525b);
@@ -35,6 +35,7 @@
     --text-1: 1.5rem;
     --text-regular: var(--text-7);
 }
+
 
 /* Global */
 html,
@@ -168,8 +169,8 @@ a:has(> .badge:only-child) {
     &.api,
     &.double,
     &.unconfirmed {
-        background: #fff1e0;
-        color: #ed7b00;
+        background: light-dark(#fff1e0, #2e261a);
+        color: light-dark(#ed7b00, #d3a065);
     }
 
     &.public,
@@ -178,30 +179,30 @@ a:has(> .badge:only-child) {
     &.campaign,
     &.user,
     &.primary {
-        background: #e6f7ff;
-        color: #3b8cff;
+        background: light-dark(#e6f7ff, #1e2733);
+        color: light-dark(#3b8cff, #8aa9cc);
     }
 
     /* Subscription/campaign statuses */
     sup.status-confirmed {
-        color: #36995b;
+        color: light-dark(#36995b, #7eab8b);
     }
     &.status-confirmed,
     &.status-finished {
-        background: #dcfce7;
-        color: #36995b;
+        background: light-dark(#dcfce7, #1f2a22);
+        color: light-dark(#36995b, #7eab8b);
     }
 
     sup.status-unsubscribed {
-        color: #ff5722;
+        color: light-dark(#ff5722, #cf9088);
     }
     &.status-unsubscribed,
     &.status-cancelled {
-        background: #fff1f0;
-        color: #ff5722;
+        background: light-dark(#fff1f0, #2e2320);
+        color: light-dark(#ff5722, #cf9088);
     }
     &.status-blocklisted {
-        background: #fff1f0;
+        background: light-dark(#fff1f0, #2e2320);
         color: var(--danger);
     }
 
@@ -213,17 +214,17 @@ a:has(> .badge:only-child) {
     &.status-draft,
     &.optin,
     &.single {
-        background: #eee;
-        color: #7a7a7a;
+        background: light-dark(#eee, #26262a);
+        color: light-dark(#7a7a7a, #9a9aa3);
     }
 
     &.status-unsubscribed sup {
-        color: #fa8c16;
+        color: light-dark(#fa8c16, #d3a065);
     }
 
     &.confirmed sup,
     &.status-confirmed sup {
-        color: #52c41a;
+        color: light-dark(#52c41a, #8bb079);
     }
 }
 
@@ -450,6 +451,20 @@ nav[data-topnav] {
             grid-column: auto;
         }
     }
+
+    .theme-switch {
+        display: flex;
+        gap: var(--space-1);
+        padding: var(--space-1) var(--space-2);
+
+        button {
+            &.is-active {
+                background: var(--accent);
+                color: var(--foreground);
+            }
+        }
+    }
+
 
     @media (max-width: 768px) {
         > .row {

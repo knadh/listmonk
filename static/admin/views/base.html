@@ -26,6 +26,16 @@
 	{{ template "admin-head-assets" . }}
 </head>
 <body x-data="adminApp"{{ if .Data.Can "settings:get" }} data-error-events{{ end }}>
+	<script>
+		// Apply the theme early to avoid white flash.
+		(function () {
+			var t = localStorage.getItem('theme');
+			if (t) {
+				document.body.style.colorScheme = t;
+			}
+		})();
+	</script>
+
 	<div id="app" data-sidebar-layout>
 		<nav data-topnav>
 			<div class="row">
@@ -50,6 +60,12 @@
 								<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
 									{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
 								</button>
+								<hr />
+								<div class="theme-switch" role="group" aria-label="Theme">
+									<button type="button" class="ghost small" title="{{ $.L.T "globals.terms.system" }}" @click="setTheme('auto')" :class="{ 'is-active': theme === 'auto' }" :aria-pressed="theme === 'auto'">{{ Icon "monitor" }}</button>
+									<button type="button" class="ghost small" title="{{ $.L.T "users.themeLight" }}" @click="setTheme('light')" :class="{ 'is-active': theme === 'light' }" :aria-pressed="theme === 'light'">{{ Icon "sun" }}</button>
+									<button type="button" class="ghost small" title="{{ $.L.T "users.themeDark" }}" @click="setTheme('dark')" :class="{ 'is-active': theme === 'dark' }" :aria-pressed="theme === 'dark'">{{ Icon "moon" }}</button>
+								</div>
 							</menu>
 						</ot-dropdown>
 					{{ end }}

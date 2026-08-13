@@ -26,6 +26,20 @@ function setupAlpine() {
     copyToClipboard: u.copyToClipboard,
     listAutocomplete,
 
+    theme: localStorage.getItem('theme') || 'auto',
+
+    setTheme(mode) {
+      this.theme = mode;
+
+      if (mode === 'auto') {
+        localStorage.removeItem('theme');
+        document.body.style.colorScheme = '';
+      } else {
+        localStorage.setItem('theme', mode);
+        document.body.style.colorScheme = mode;
+      }
+    },
+
     // Trigger an app restart (from the "needs restart" notice), then poll the
     // health endpoint until the app is back up and reload the page.
     async restartApp() {

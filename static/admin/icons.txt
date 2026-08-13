@@ -29,6 +29,8 @@ log-out
 mail
 menu
 minus
+monitor
+moon
 more-vertical
 pause
 pause-circle
@@ -39,6 +41,7 @@ search
 send
 settings
 star
+sun
 tag
 tool
 trash-2
