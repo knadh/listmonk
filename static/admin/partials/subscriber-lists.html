@@ -38,7 +38,7 @@
 						{{- if $canSave }}
 							<td class="actions align-right">
 								<ot-dropdown>
-									<button popovertarget="sub-list-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
+									<button popovertarget="sub-list-{{ .ID }}" type="button" class="ghost more icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
 									<menu popover id="sub-list-{{ .ID }}">
 										{{- if and (eq .Optin "double") (eq .SubscriptionStatus "unconfirmed") }}
 											<button type="button" role="menuitem" class="ghost" @click.prevent="onConfirmSub({{ .ID }})">{{ Icon "check-circle" }} {{ $root.L.T "email.optin.confirmSub" }}</button>
