@@ -100,7 +100,7 @@
 							<td class="actions align-right">
 								{{- if $d.Can "users:manage" }}
 									<ot-dropdown>
-										<button popovertarget="user-actions-{{ .ID }}" type="button" class="ghost small icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
+										<button popovertarget="user-actions-{{ .ID }}" type="button" class="ghost more icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
 											{{ Icon "more-vertical" }}
 										</button>
 										<menu popover id="user-actions-{{ .ID }}">
