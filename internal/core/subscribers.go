@@ -103,7 +103,7 @@ func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error
 }
 
 // QuerySubscribers queries and returns paginated subscrribers based on the given params including the total count.
-func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subStatus string, order, orderBy string, offset, limit int) (models.Subscribers, int, error) {
+func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string, order, orderBy string, offset, limit int) (models.Subscribers, int, error) {
 	// Sort params.
 	if !strSliceContains(orderBy, subQuerySortFields) {
 		orderBy = "subscribers.id"
@@ -128,7 +128,7 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	stmt = strings.ReplaceAll(stmt, "%order%", orderBy+" "+order)
 
 	// Validate the tables used in the query.
-	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, pq.Array(listIDs), subStatus, searchStr, offset, limit); err != nil {
+	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, pq.Array(listIDs), subStatus, searchStr, offset, limit, subscriberStatus); err != nil {
 		c.log.Printf("error validating query tables: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusBadRequest,
 			c.i18n.Ts("subscribers.errorPreparingQuery", "error", err.Error()))
@@ -136,7 +136,7 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	total, err := c.getSubscriberCount(searchStr, cond, subStatus, listIDs)
+	total, err := c.getSubscriberCount(searchStr, cond, subStatus, subscriberStatus, listIDs)
 	if err != nil {
 		c.log.Printf("error getting subscriber count: %v", err)
 		return nil, 0, err
@@ -155,7 +155,7 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	defer tx.Rollback()
 
 	var out models.Subscribers
-	if err := tx.Select(&out, stmt, pq.Array(listIDs), subStatus, searchStr, offset, limit); err != nil {
+	if err := tx.Select(&out, stmt, pq.Array(listIDs), subStatus, searchStr, offset, limit, subscriberStatus); err != nil {
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
@@ -258,7 +258,7 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	if _, err := c.getSubscriberCount(searchStr, cond, subStatus, listIDs); err != nil {
+	if _, err := c.getSubscriberCount(searchStr, cond, subStatus, "", listIDs); err != nil {
 		c.log.Printf("error getting subscriber count: %v", err)
 		return nil, err
 	}
@@ -566,9 +566,10 @@ func (c *Core) DeleteBlocklistedSubscribers() (int, error) {
 	return int(n), nil
 }
 
-func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus string, listIDs []int) (int, error) {
+func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus, subscriberStatus string, listIDs []int) (int, error) {
 	// If there's no condition, it's a "get all" call which can probably be optionally pulled from cache.
-	if queryExp == "" {
+	// The cached stats don't track the subscriber status, so skip the cache when there's a query filter.
+	if queryExp == "" && subscriberStatus == "" {
 		_ = c.refreshCache(matListSubStats, false)
 
 		total := 0
@@ -592,7 +593,7 @@ func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus string, listIDs
 
 	// Execute the readonly query and get the count of results.
 	total := 0
-	if err := tx.Get(&total, stmt, pq.Array(listIDs), subStatus, searchStr); err != nil {
+	if err := tx.Get(&total, stmt, pq.Array(listIDs), subStatus, searchStr, subscriberStatus); err != nil {
 		return 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
 	}
