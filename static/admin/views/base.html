@@ -3,7 +3,7 @@
 	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/custom.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<script>
-		window._LM_I18N = {{ ToJSON .I18nJS }};
+		window._LM_I18N = {{ .I18nJS }};
 		window._LM_CONFIG = {{ ToJSON .ConfigJS }};
 	</script>
 	<script src="{{ URI "/admin/static/vendor/oat.min.js" }}?v={{ .AssetVersion }}" defer></script>

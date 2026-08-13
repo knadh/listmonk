@@ -95,10 +95,10 @@ func (a *App) makeServerConfig() (serverConfig, error) {
 	return out, nil
 }
 
-func (a *App) makeAdminJSI18n() map[string]string {
+func (a *App) makeAdminJSI18n() json.RawMessage {
 	var lang map[string]string
 	if err := json.Unmarshal(a.i18n.JSON(), &lang); err != nil {
-		return map[string]string{}
+		return json.RawMessage("{}")
 	}
 
 	out := make(map[string]string, len(a.cfg.AdminI18nKeys))
@@ -107,7 +107,12 @@ func (a *App) makeAdminJSI18n() map[string]string {
 			out[key] = val
 		}
 	}
-	return out
+
+	b, err := json.Marshal(out)
+	if err != nil {
+		return json.RawMessage("{}")
+	}
+	return b
 }
 
 // GetServerConfig returns general server config.
