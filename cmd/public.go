@@ -80,7 +80,7 @@ type adminTplData struct {
 	AssetVersion string
 	Lang         string
 	ConfigJS     serverConfig
-	I18nJS       map[string]string
+	I18nJS       json.RawMessage
 	Data         any
 	L            *i18n.I18n
 }
@@ -168,7 +168,7 @@ func (t *adminTplRenderer) Render(w io.Writer, name string, data any, c echo.Con
 		AssetVersion: t.AssetVersion,
 		Lang:         t.Lang,
 		ConfigJS:     configJS,
-		I18nJS:       app.makeAdminJSI18n(),
+		I18nJS:       app.adminI18nJS,
 		Data:         data,
 		L:            app.i18n,
 	})
