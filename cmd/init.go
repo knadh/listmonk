@@ -956,6 +956,9 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			c.Set("app", app)
+
+			// Used for computing a request's finish time.
+			c.Set("start_time", time.Now())
 			return next(c)
 		}
 	})
