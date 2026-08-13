@@ -23,7 +23,8 @@
 				{{ .L.T "globals.terms.subscribers" }}
 				<span>({{ $d.Page.Total }})</span>
 				{{- if $d.CurrentList }} {{ template "filter-badge" dict "Label" $d.CurrentList.Name "Class" "outline" "URL" (URI "/admin/subscribers") }}{{ end }}
-				{{- if $subStatus }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $subStatus)) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
+				{{- if eq $subStatus "none" }} {{ template "filter-badge" dict "Label" (.L.T "dashboard.orphanSubs") "Class" "outline" "URL" ($d.Page.FilterURL $base "subscription_status") }}
+				{{- else if $subStatus }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $subStatus)) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
 				{{- if $status }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $status)) "Class" (printf "status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
 			</h1>
 		</div>
