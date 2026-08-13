@@ -16,7 +16,7 @@
 				<h1 class="page-title">
 					{{- if $d.IsEditing }}{{ $d.User.Name }}{{ else }}{{ .L.T "users.newUser" }}{{ end -}}
 				</h1>
-				{{- if and $d.IsEditing (eq $d.User.Status "disabled") }}<span class="badge enum" data-variant="danger">{{ $.L.T "users.status.disabled" }}</span>{{ end }}
+				{{- if and $d.IsEditing (eq $d.User.Status "disabled") }}{{ Badge ($.L.T "users.status.disabled") "enum" "danger" }}{{ end }}
 			</div>
 		</div>
 	</header>

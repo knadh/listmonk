@@ -102,14 +102,14 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td  class="email">
 								<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
-								{{- if ne .Status "enabled" }}<span class="badge status-{{ .Status }}">{{ $.L.T (printf "subscribers.status.%s" .Status) }}</span>{{ end }}
+								{{- if ne .Status "enabled" }}{{ Badge ($.L.T (printf "subscribers.status.%s" .Status)) (printf "status-%s" .Status) }}{{ end }}
 								<div class="badge-list hstack gap-1">
 									{{- range .ParsedLists }}
-										<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" class="badge outline">
-											{{ .Name }}
-											{{- if or (eq .Optin "double") (eq .SubscriptionStatus "unsubscribed") }}
-											<sup class="status-{{ .SubscriptionStatus }}">{{ $.L.T (printf "subscribers.status.%s" .SubscriptionStatus) }}</sup>{{ end }}
-										</a>
+										{{- $sup := "" }}
+										{{- if or (eq .Optin "double") (eq .SubscriptionStatus "unsubscribed") }}
+											{{- $sup = Safe (printf `<sup class="status-%s">%s</sup>` (html .SubscriptionStatus) (html ($.L.T (printf "subscribers.status.%s" .SubscriptionStatus)))) }}
+										{{- end }}
+										<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}">{{ Badge (list .Name $sup) "outline" }}</a>
 									{{- end }}
 								</div>
 							</td>

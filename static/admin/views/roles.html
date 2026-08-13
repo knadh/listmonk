@@ -39,7 +39,7 @@
 						<tr data-id="{{ .ID }}">
 							<td>
 								<a href="{{ $base }}/{{ .ID }}">
-									{{- if eq .ID 1 }}<span class="badge enum super">{{ Icon "star" }}{{ .Name }}</span>{{ else }}{{ .Name }}{{ end -}}
+									{{- if eq .ID 1 }}{{ Badge (list (Icon "star") .Name) "enum" }}{{ else }}{{ .Name }}{{ end -}}
 								</a>
 							</td>
 							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>

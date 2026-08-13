@@ -19,8 +19,8 @@
 					<small class="text-light">{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/lists" }}" class="unstyled">{{ FormatNumber $c.Lists.Total }}</a></div>
 					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/lists" }}?type=public" class="badge public">{{ FormatNumber $c.Lists.Public }} {{ .L.T "lists.types.public" }}</a>
-						<a href="{{ URI "/admin/lists" }}?type=private" class="badge private">{{ FormatNumber $c.Lists.Private }} {{ .L.T "lists.types.private" }}</a>
+						<a href="{{ URI "/admin/lists" }}?type=public">{{ Badge (printf "%s %s" (FormatNumber $c.Lists.Public) (.L.T "lists.types.public")) "public" }}</a>
+						<a href="{{ URI "/admin/lists" }}?type=private">{{ Badge (printf "%s %s" (FormatNumber $c.Lists.Private) (.L.T "lists.types.private")) "private" }}</a>
 					</div>
 				</article>
 			</div>
@@ -30,8 +30,8 @@
 					<small class="text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/subscribers" }}" class="unstyled">{{ FormatNumber $c.Subscribers.Total }}</a></div>
 					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/subscribers" }}" class="badge outline">{{ FormatNumber $c.Subscribers.Orphans }} {{ .L.T "dashboard.orphanSubs" }}</a>
-						<a href="{{ URI "/admin/subscribers" }}?status=blocklisted" class="badge status-blocklisted">{{ FormatNumber $c.Subscribers.Blocklisted }} {{ .L.T "subscribers.status.blocklisted" }}</a>
+						<a href="{{ URI "/admin/subscribers" }}">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Orphans) (.L.T "dashboard.orphanSubs")) "outline" }}</a>
+						<a href="{{ URI "/admin/subscribers" }}?status=blocklisted">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Blocklisted) (.L.T "subscribers.status.blocklisted")) "status-blocklisted" }}</a>
 					</div>
 				</article>
 			</div>
@@ -41,8 +41,8 @@
 					<small class="text-light">{{ Icon "send" }} {{ .L.T "globals.terms.campaigns" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/campaigns" }}" class="unstyled">{{ FormatNumber $c.Campaigns.Total }}</a></div>
 					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/campaigns" }}?status=scheduled" class="badge outline">{{ FormatNumber (index $c.Campaigns.ByStatus "scheduled") }} {{ .L.T "campaigns.status.scheduled" }}</a>
-						<a href="{{ URI "/admin/campaigns" }}?status=finished" class="badge status-finished">{{ FormatNumber (index $c.Campaigns.ByStatus "finished") }} {{ .L.T "campaigns.status.finished" }}</a>
+						<a href="{{ URI "/admin/campaigns" }}?status=scheduled">{{ Badge (printf "%s %s" (FormatNumber (index $c.Campaigns.ByStatus "scheduled")) (.L.T "campaigns.status.scheduled")) "outline" }}</a>
+						<a href="{{ URI "/admin/campaigns" }}?status=finished">{{ Badge (printf "%s %s" (FormatNumber (index $c.Campaigns.ByStatus "finished")) (.L.T "campaigns.status.finished")) "status-finished" }}</a>
 					</div>
 				</article>
 			</div>
@@ -82,7 +82,7 @@
 							<tbody>
 								{{- range $d.Campaigns }}
 									<tr>
-										<td width="20%"><span class="badge enum status-{{ .Status }}">{{ $.L.T (printf "campaigns.status.%s" .Status) }}</span></td>
+										<td width="20%">{{ Badge ($.L.T (printf "campaigns.status.%s" .Status)) (printf "enum status-%s" .Status) }}</td>
 										<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a></td>
 										<td class="text-light">
 											{{- if and (eq .Status "scheduled") .SendAt.Valid }}{{ NiceDate .SendAt }}{{ else }}{{ NiceDate .CreatedAt }}{{ end -}}
