@@ -1,0 +1,9 @@
+{{ define "empty-state" -}}
+{{- /* Optional data is a colspan, which wraps the block in a table row for use inside a <tbody>. */ -}}
+{{- if . }}<tr><td colspan="{{ . }}">{{ end -}}
+<div class="empty-state">
+	{{ Icon "inbox" }}
+	<p>{{ L.T "globals.messages.emptyState" }}</p>
+</div>
+{{- if . }}</td></tr>{{ end -}}
+{{- end }}

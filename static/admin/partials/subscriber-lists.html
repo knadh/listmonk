@@ -55,7 +55,7 @@
 						{{- end }}
 					</tr>
 				{{- else }}
-					<tr><td colspan="6" class="align-center text-light">{{ $root.L.T "globals.messages.emptyState" }}</td></tr>
+					{{ template "empty-state" 6 }}
 				{{- end }}
 			</tbody>
 		</table>

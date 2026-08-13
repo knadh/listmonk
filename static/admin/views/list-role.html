@@ -64,7 +64,7 @@
 							</tr>
 						</template>
 						<template x-if="form.lists.length === 0">
-							<tr><td colspan="3" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+							{{ template "empty-state" 3 }}
 						</template>
 					</tbody>
 				</table>

@@ -51,17 +51,16 @@
 		</form>
 
 		{{- if $d.HasData }}
-			{{- $empty := .L.T "globals.messages.emptyState" }}
-			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Empty" $empty }}
-			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Empty" $empty }}
-			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Empty" $empty }}
+			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" }}
+			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" }}
+			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" }}
 
 			<article class="card">
 				<h4>{{ .L.T "analytics.links" }}</h4>
 				{{- if $d.Data.Links }}
 					<div class="chart-box"><canvas id="chart-links"></canvas></div>
 				{{- else }}
-					<p class="text-light align-center">{{ $empty }}</p>
+					{{- template "empty-state" }}
 				{{- end }}
 			</article>
 		{{- end }}
@@ -83,7 +82,7 @@
 			<div class="col-3 donut-container"><canvas id="chart-{{ $key }}-donut"></canvas></div>
 		</div>
 	{{- else }}
-		<p class="text-light align-center">{{ .Empty }}</p>
+		{{- template "empty-state" }}
 	{{- end }}
 </article>
 {{- end }}

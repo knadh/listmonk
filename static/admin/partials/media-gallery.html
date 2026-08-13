@@ -61,7 +61,7 @@
 				{{- end }}
 			</ul>
 		{{- else }}
-			<div class="align-center text-light">{{ $root.L.T "globals.messages.emptyState" }}</div>
+			{{- template "empty-state" }}
 		{{- end }}
 
 		{{- template "pagination" $d.Page.Pagination }}
