@@ -693,6 +693,11 @@ td > .empty-state {
             top: var(--space-2);
             z-index: 1;
         }
+
+        .actions button.more {
+            padding: 0 var(--space-1);
+            border-radius: 0;
+        }
     }
 }
 
