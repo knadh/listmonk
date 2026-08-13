@@ -2,6 +2,7 @@
 {{ template "admin-header" . }}
 {{- $d := .Data -}}
 {{- $subStatus := $d.Page.Param "subscription_status" -}}
+{{- $status := $d.Page.Param "status" -}}
 {{- $base := URI "/admin/subscribers" -}}
 {{- if $d.CurrentList }}{{ $base = printf "%s/lists/%d" (URI "/admin/subscribers") $d.CurrentList.ID }}{{ end -}}
 
@@ -23,6 +24,7 @@
 				<span>({{ $d.Page.Total }})</span>
 				{{- if $d.CurrentList }} {{ template "filter-badge" dict "Label" $d.CurrentList.Name "Class" "outline" "URL" (URI "/admin/subscribers") }}{{ end }}
 				{{- if $subStatus }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $subStatus)) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
+				{{- if $status }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $status)) "Class" (printf "status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end hstack justify-end">
@@ -101,11 +103,7 @@
 							<td  class="email">
 								<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 								{{- if ne .Status "enabled" }}
-									{{- if $d.Can "subscribers:sql_query" }}
-										<a href="{{ $base }}?query={{ printf "subscribers.status = '%s'" .Status | urlquery }}">{{ Badge ($.L.T (printf "subscribers.status.%s" .Status)) (printf "status-%s" .Status) }}</a>
-									{{- else }}
-										{{ Badge ($.L.T (printf "subscribers.status.%s" .Status)) (printf "status-%s" .Status) }}
-									{{- end }}
+									<a href="{{ $base }}?status={{ .Status }}">{{ Badge ($.L.T (printf "subscribers.status.%s" .Status)) (printf "status-%s" .Status) }}</a>
 								{{- end }}
 								<div class="badge-list hstack gap-1">
 									{{- range .ParsedLists }}

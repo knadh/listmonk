@@ -32,6 +32,7 @@ var subscribersQueryDefaults = map[string]string{
 	"order_by":            "",
 	"order":               "",
 	"subscription_status": "",
+	"status":              "",
 }
 
 // subQueryReq is a "catch all" struct for reading various
@@ -290,6 +291,7 @@ func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, m
 		query,
 		listIDs,
 		q.Get("subscription_status"),
+		q.Get("status"),
 		q.Get("order"),
 		q.Get("order_by"),
 		pg.Offset,
@@ -366,15 +368,16 @@ func (a *App) QuerySubscribers(c echo.Context) error {
 	}
 
 	var (
-		searchStr = strings.TrimSpace(c.FormValue("search"))
-		subStatus = c.FormValue("subscription_status")
-		order     = c.FormValue("order")
-		orderBy   = c.FormValue("order_by")
-		pg        = a.pg.NewFromURL(c.Request().URL.Query())
+		searchStr        = strings.TrimSpace(c.FormValue("search"))
+		subStatus        = c.FormValue("subscription_status")
+		subscriberStatus = c.FormValue("status")
+		order            = c.FormValue("order")
+		orderBy          = c.FormValue("order_by")
+		pg               = a.pg.NewFromURL(c.Request().URL.Query())
 	)
 
 	// Query subscribers from the DB.
-	res, total, err := a.core.QuerySubscribers(searchStr, query, listIDs, subStatus, order, orderBy, pg.Offset, pg.Limit)
+	res, total, err := a.core.QuerySubscribers(searchStr, query, listIDs, subStatus, subscriberStatus, order, orderBy, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

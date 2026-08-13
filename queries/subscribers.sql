@@ -295,6 +295,7 @@ SELECT subscribers.* FROM subscribers
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
     AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND ($6 = '' OR subscribers.status = $6::subscriber_status)
     AND %query%
     ORDER BY %order% OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
 
@@ -310,6 +311,7 @@ SELECT COUNT(*) AS total FROM subscribers
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
     AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND ($4 = '' OR subscribers.status = $4::subscriber_status)
     AND %query%;
 
 -- name: query-subscribers-count-all
