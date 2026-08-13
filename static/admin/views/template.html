@@ -20,7 +20,7 @@
 				<h1 class="page-title">
 					{{- if $isNew }}{{ .L.T "templates.newTemplate" }}{{ else }}{{ $t.Name }}{{ end -}}
 				</h1>
-				{{- if and (not $isNew) $t.IsDefault }}<span class="badge enum" data-variant="secondary">{{ .L.T "templates.default" }}</span>{{ end }}
+				{{- if and (not $isNew) $t.IsDefault }}{{ Badge (.L.T "templates.default") "enum" "secondary" }}{{ end }}
 			</div>
 		</div>
 		<div class="col-6 col-end hstack justify-end">

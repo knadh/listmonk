@@ -15,9 +15,9 @@
 					<span>({{ $d.Page.Total }})</span>
 				</h1>
 				<div class="hstack gap-1">
-					{{- if $source }}<a href="{{ $base }}" class="badge">{{ $source }} &times;</a>{{ end }}
-					{{- if $type }}<a href="{{ $base }}" class="badge">{{ .L.T (printf "bounces.%s" $type) }} &times;</a>{{ end }}
-					{{- if $campaign }}<a href="{{ $base }}" class="badge">#{{ $campaign }} &times;</a>{{ end }}
+					{{- if $source }}<a href="{{ $base }}">{{ Badge (printf "%s ×" $source) }}</a>{{ end }}
+					{{- if $type }}<a href="{{ $base }}">{{ Badge (printf "%s ×" (.L.T (printf "bounces.%s" $type))) }}</a>{{ end }}
+					{{- if $campaign }}<a href="{{ $base }}">{{ Badge (printf "#%s ×" $campaign) }}</a>{{ end }}
 				</div>
 			</div>
 		</div>
@@ -63,13 +63,13 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}" data-subscriber-id="{{ .SubscriberID }}"></td>
 							<td>
 								<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" {{ if eq .SubscriberStatus "blocklisted" }}class="blocklisted"{{ end }}>{{ .Email }}</a>
-								{{ if ne .SubscriberStatus "enabled" }}<span class="badge status-{{ .SubscriberStatus }}" data-cy="blocklisted">{{ $.L.T (printf "subscribers.status.%s" .SubscriberStatus) }}</span>{{ end }}
+								{{ if ne .SubscriberStatus "enabled" }}{{ Badge ($.L.T (printf "subscribers.status.%s" .SubscriberStatus)) (printf "status-%s" .SubscriberStatus) }}{{ end }}
 							</td>
 							<td>
 								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}">{{ .Name }}</a>{{ else }}-{{ end }}
 							</td>
 							<td><a href="{{ $base }}?source={{ .Source }}">{{ .Source }}</a></td>
-							<td><a href="{{ $base }}?type={{ .Type }}"><span class="badge enum {{ .Type }}" data-cy="type-{{ .Type }}" data-variant="secondary">{{ $.L.T (printf "bounces.%s" .Type) }}</span></a></td>
+							<td><a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.T (printf "bounces.%s" .Type)) "enum" "secondary" }}</a></td>
 							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>
 							<td class="actions align-right">
 								<ot-dropdown>

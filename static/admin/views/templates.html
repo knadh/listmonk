@@ -38,19 +38,19 @@
 						<tr data-id="{{ .ID }}">
 							<td>
 								<a href="{{ $base }}/{{ .ID }}" data-cy="btn-edit">{{ .Name }}</a>
-								{{ if .IsDefault }}<span class="badge">{{ $.L.T "templates.default" }}</span>{{ end }}
+								{{ if .IsDefault }}{{ Badge ($.L.T "templates.default") }}{{ end }}
 								{{- if eq .Type "tx" }}<p class="text-light">{{ .Subject }}</p>{{ end }}
 							</td>
 							<td>
 								<div class="hstack">
 									{{- if eq .Type "tx" }}
-										<span class="badge enum tx" data-cy="type-tx">{{ $.L.Tc "globals.terms.tx" 1 }}</span>
+										{{ Badge ($.L.Tc "globals.terms.tx" 1) "enum tx" }}
 									{{- else }}
-										<span class="badge enum campaign" data-cy="type-campaign">{{ $.L.Tc "globals.terms.campaign" 1 }}</span>
+										{{ Badge ($.L.Tc "globals.terms.campaign" 1) "enum campaign" }}
 										{{- if eq .Type "campaign_visual" }}
-											<span class="badge enum" data-variant="secondary" data-cy="type-campaign_visual">{{ $.L.T "campaigns.visual" }}</span>
+											{{ Badge ($.L.T "campaigns.visual") "enum" "secondary" }}
 										{{- else }}
-											<span class="badge enum" data-variant="secondary" data-cy="format-html">HTML</span>
+											{{ Badge "HTML" "enum" "secondary" }}
 										{{- end }}
 									{{- end }}
 								</div>

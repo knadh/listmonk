@@ -64,19 +64,19 @@
 								{{- else }}
 									<span class="{{ if eq .Status "disabled" }}text-danger{{ end }}">{{ .Username }}</span>
 								{{- end }}
-								{{- if eq .Type "api" }}<span class="badge outline tag">{{ Icon "code" }} {{ $.L.T "users.type.api" }}</span>{{ end }}
-								{{- if eq .Status "disabled" }}<span class="badge enum" data-variant="danger">{{ $.L.T "users.status.disabled" }}</span>{{ end }}
+								{{- if eq .Type "api" }}{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "outline tag" }}{{ end }}
+								{{- if eq .Status "disabled" }}{{ Badge ($.L.T "users.status.disabled") "enum" "danger" }}{{ end }}
 								{{- if .Name }}<div class="text-light text-8">{{ .Name }}</div>{{ end }}
 							</td>
 							<td>
 								<div class="hstack gap-1">
 									{{- if eq .UserRole.ID 1 }}
-										<a href="{{ URI "/admin/users/roles" }}/{{ .UserRole.ID }}" class="badge">{{ Icon "star" }} {{ .UserRole.Name }}</a>
+										<a href="{{ URI "/admin/users/roles" }}/{{ .UserRole.ID }}">{{ Badge (list (Icon "star") .UserRole.Name) }}</a>
 									{{- else }}
-										<a href="{{ URI "/admin/users/roles" }}/{{ .UserRole.ID }}" class="badge" data-variant="secondary">{{ Icon "user" }} {{ .UserRole.Name }}</a>
+										<a href="{{ URI "/admin/users/roles" }}/{{ .UserRole.ID }}">{{ Badge (list (Icon "user") .UserRole.Name) "" "secondary" }}</a>
 									{{- end }}
 									{{- with .ListRole }}
-										<a href="{{ URI "/admin/users/roles/lists" }}/{{ .ID }}" class="badge outline">{{ Icon "list" }} {{ .Name }}</a>
+										<a href="{{ URI "/admin/users/roles/lists" }}/{{ .ID }}">{{ Badge (list (Icon "list") .Name) "outline" }}</a>
 									{{- end }}
 								</div>
 							</td>

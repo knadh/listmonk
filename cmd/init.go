@@ -1151,6 +1151,26 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			name = template.HTMLEscapeString(name)
 			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/icons.svg#icon-%s"></use></svg>`, u.RootPath, name))
 		},
+		// First param = content
+		// Second param = optional classes separated by string, eg: "outline status-finished".
+		// Third param = optional data-variant, eg: "success".
+		"Badge": func(content any, opts ...string) template.HTML {
+			class := "badge"
+			if len(opts) > 0 {
+				if s := strings.TrimSpace(opts[0]); s != "" {
+					class += " " + s
+				}
+			}
+
+			attrs := fmt.Sprintf(`class="%s"`, template.HTMLEscapeString(class))
+			if len(opts) > 1 {
+				if v := strings.TrimSpace(opts[1]); v != "" {
+					attrs += fmt.Sprintf(` data-variant="%s"`, template.HTMLEscapeString(v))
+				}
+			}
+
+			return template.HTML(fmt.Sprintf(`<span %s>%s</span>`, attrs, badgeContent(content)))
+		},
 		"IsNav": func(current, id string) template.HTMLAttr {
 			if current == id {
 				return template.HTMLAttr(` aria-current="page"`)
@@ -1285,4 +1305,23 @@ func joinFSPaths(root string, paths []string) []string {
 	}
 
 	return out
+}
+
+// badgeContent renders the content of a badge. Pre-rendered markup (eg: Icon())
+// goes in as-is and everything else is escaped.
+func badgeContent(content any) template.HTML {
+	switch v := content.(type) {
+	case template.HTML:
+		return v
+	case []any:
+		out := make([]string, 0, len(v))
+		for _, c := range v {
+			if s := string(badgeContent(c)); s != "" {
+				out = append(out, s)
+			}
+		}
+		return template.HTML(strings.Join(out, " "))
+	}
+
+	return template.HTML(template.HTMLEscapeString(fmt.Sprint(content)))
 }

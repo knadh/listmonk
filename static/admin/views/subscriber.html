@@ -15,7 +15,7 @@
 				<a href="{{ URI "/admin/subscribers" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
 				<h1 class="page-title">
 					{{ $sub.Email }}
-					{{ if ne $sub.Status "enabled" }}<span class="badge status-{{ $sub.Status }}">{{ .L.T (printf "subscribers.status.%s" $sub.Status) }}</span>{{ end }}
+					{{ if ne $sub.Status "enabled" }}{{ Badge (.L.T (printf "subscribers.status.%s" $sub.Status)) (printf "status-%s" $sub.Status) }}{{ end }}
 				</h1>
 			</div>
 		</div>

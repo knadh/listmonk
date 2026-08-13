@@ -71,16 +71,14 @@
 							<td>
 								<a href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
 								<div class="hstack gap-1">
-									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="badge outline tag">#{{ . }}</a>{{ end }}
+									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">{{ Badge (printf "#%s" .) "outline tag" }}</a>{{ end }}
 								</div>
 							</td>
 							<td>
 								<div class="hstack">
-									<span class="badge enum {{ .Type }}" data-cy="type-{{ .Type }}">{{ $.L.T (printf "lists.types.%s" .Type) }}</span>
-									<span class="badge enum" data-variant="secondary" data-cy="optin-{{ .Optin }}">
-										{{ if eq .Optin "double" }}{{ Icon "user-check" }}{{ else }}{{ Icon "user-x" }}{{ end }}
-										{{ $.L.T (printf "lists.optins.%s" .Optin) }}
-									</span>
+									{{ Badge ($.L.T (printf "lists.types.%s" .Type)) (printf "enum %s" .Type) }}
+									{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
+									{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" "secondary" }}
 								</div>
 							</td>
 							<td class="subscribers">

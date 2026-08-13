@@ -27,8 +27,8 @@
 					{{- else }}{{ $c.Name }}{{ end }}
 				</h1>
 				{{- if not $isNew }}
-					<span class="badge enum status-{{ $c.Status }}">{{ .L.T (printf "campaigns.status.%s" $c.Status) }}</span>
-					{{- if eq $c.Type "optin" }}<span class="badge enum optin">{{ .L.T "lists.optin" }}</span>{{ end }}
+					{{ Badge (.L.T (printf "campaigns.status.%s" $c.Status)) (printf "enum status-%s" $c.Status) }}
+					{{- if eq $c.Type "optin" }}{{ Badge (.L.T "lists.optin") "enum optin" }}{{ end }}
 				{{- end }}
 			</div>
 		</div>

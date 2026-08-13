@@ -9,7 +9,7 @@
 		<div class="col-8">
 			<div class="hstack gap-1">
 				<h1 class="page-title">{{ .L.T "users.profile" }}</h1>
-				{{- if $u.UserRole.Name }}<span class="badge">{{ $u.UserRole.Name }}</span>{{ end }}
+				{{- if $u.UserRole.Name }}{{ Badge $u.UserRole.Name }}{{ end }}
 			</div>
 		</div>
 	</header>
