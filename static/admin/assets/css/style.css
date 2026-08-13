@@ -150,6 +150,11 @@ dialog {
 }
 
 /* Badges */
+a:has(> .badge:only-child) {
+    display: inline-flex;
+    border-radius: var(--radius-full);
+}
+
 .badge {
     padding: calc(var(--space-1) * 0.75) var(--space-4);
 
@@ -906,7 +911,7 @@ section.lists {
 /* Subscribers */
 .subscribers {
     .blocklisted {
-        td > a:not(.badge) {
+        td > a {
             color: var(--danger);
         }
     }
@@ -1286,7 +1291,8 @@ section.users {
         overflow-x: auto;
     }
 
-    td .badge:not(:last-child) {
+    td .badge:not(:last-child),
+    td a:not(:last-child) > .badge {
         margin-inline-end: 0;
     }
 

@@ -23,17 +23,14 @@
 							{{- end }}
 						</td>
 						<td>
-							<span class="badge enum" data-variant="secondary" data-cy="optin-{{ .Optin }}">
-								{{ if eq .Optin "double" }}{{ Icon "user-check" }}{{ else }}{{ Icon "user-x" }}{{ end }}
-								{{ $root.L.T (printf "lists.optins.%s" .Optin) }} 
-							</span>
-
-						</span></td>
+							{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
+							{{ Badge (list (Icon $icon) ($root.L.T (printf "lists.optins.%s" .Optin))) "enum" "secondary" }}
+						</td>
 						<td>
 							{{- if and (eq .Optin "single") (eq .SubscriptionStatus "unconfirmed") -}}
 								<span class="text-light">&ndash;</span>
 							{{- else -}}
-								<span class="badge enum status-{{ .SubscriptionStatus }}" data-variant="secondary">{{ $root.L.T (printf "subscribers.status.%s" .SubscriptionStatus) }}</span>
+								{{ Badge ($root.L.T (printf "subscribers.status.%s" .SubscriptionStatus)) (printf "enum status-%s" .SubscriptionStatus) "secondary" }}
 							{{- end -}}
 						</td>
 						<td>{{ NiceDate .SubscriptionCreatedAt }}</td>

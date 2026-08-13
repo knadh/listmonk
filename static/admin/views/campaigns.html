@@ -75,19 +75,19 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="status">
 								<a href="{{ $base }}/{{ .ID }}">
-									<span class="badge enum status-{{ .Status }}" data-cy="status-{{ .Status }}">{{ $.L.T (printf "campaigns.status.%s" .Status) }}</span>
+									{{ Badge ($.L.T (printf "campaigns.status.%s" .Status)) (printf "enum status-%s" .Status) }}
 									{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
 								</a>
 								{{- if or (eq .Status "scheduled") .SendAt.Valid }}
-									<div class="text-8 text-light">{{ Icon "clock" }} {{ NiceDate .SendAt }}</div>
+									<div class="text-8 text-light mt-2">{{ Icon "clock" }} {{ NiceDate .SendAt }}</div>
 								{{- end }}
 							</td>
 							<td>
-								{{- if eq .Type "optin" }}<span class="badge enum optin">{{ $.L.T "lists.optin" }}</span>{{ end }}
 								<a href="{{ $base }}/{{ .ID }}">{{ .Name }}</a>
 								<p class="text-light">{{ .Subject }}</p>
 								<div class="hstack gap-1">
-									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="badge outline tag">#{{ . }}</a>{{ end }}
+									{{- if eq .Type "optin" }}{{ Badge ($.L.T "lists.optin") "enum optin" }}{{ end }}
+									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">{{ Badge (printf "#%s" .) "outline tag" }}</a>{{ end }}
 								</div>
 							</td>
 							<td class="lists">

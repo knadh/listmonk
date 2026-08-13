@@ -101,6 +101,7 @@
 					<div class="row">
 						<header class="col-8">
 							<small class="text-light hstack">
+								<!-- Not the Badge template func as Alpine binds the variant and the content here. -->
 								<span class="badge" :data-variant="statusVariant" x-text="progress + '%'"></span>
 								<span x-show="isRunning" aria-busy="true" data-spinner="small"></span>
 							</small>
