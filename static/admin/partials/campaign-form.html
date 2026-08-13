@@ -47,16 +47,26 @@
 		</label>
 
 		<fieldset>
-			<label data-field>
-				<input type="checkbox" role="switch" x-model="form.sendLater" :disabled="!canEdit" data-cy="btn-send-later" /> {{ $root.L.T "campaigns.sendLater" }}
-			</label>
+			<div class="row">
+				<div class="col-6">
+					<label data-field>
+						<input type="checkbox" role="switch" x-model="form.sendLater" @change="onToggleSendLater" :disabled="!canEdit" data-cy="btn-send-later" /> {{ $root.L.T "campaigns.sendLater" }}
+					</label>
 
-			<template x-if="form.sendLater">
-				<label data-field>
-					{{ $root.L.T "campaigns.dateAndTime" }}
-					<input type="datetime-local" name="send_at" x-model="form.sendAtLocal" :disabled="!canEdit" />
-				</label>
-			</template>
+					<template x-if="form.sendLater">
+						<label data-field>
+							{{ $root.L.T "campaigns.dateAndTime" }}
+							<input type="datetime-local" name="send_at" x-model="form.sendAtLocal" :disabled="!canEdit" />
+						</label>
+					</template>
+				</div>
+				{{- if and (not $isNew) $canSend }}
+					<div class="col-6 col-end hstack justify-end">
+						<button type="button" class="outline" data-variant="primary" data-cy="btn-schedule" x-cloak x-show="canSchedule" @click="onStart">{{ Icon "clock" }} {{ $root.L.T "campaigns.schedule" }}</button>
+						<button type="button" class="outline" data-variant="danger" data-cy="btn-unschedule" x-cloak x-show="canUnSchedule" @click="onUnschedule">{{ Icon "clock" }} {{ $root.L.T "campaigns.unSchedule" }}</button>
+					</div>
+				{{- end }}
+			</div>
 		</fieldset>
 
 		<fieldset>

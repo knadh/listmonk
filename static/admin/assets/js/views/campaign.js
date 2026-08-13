@@ -1,12 +1,12 @@
+import { convert, htmlToText } from '../content.js';
 import {
   api,
-  urls,
   config,
   i18n,
   ListTag,
+  urls,
 } from '../main.js';
 import * as u from '../utils.js';
-import { convert, htmlToText } from '../content.js';
 
 // Media tag for <ot-taginput> attachments.
 class MediaTag {
@@ -145,6 +145,16 @@ function component(camp, sel) {
 
     templatesFor(type) {
       return (window._templates || []).filter((t) => t.type === type);
+    },
+
+    onToggleSendLater() {
+      // Prefill a +7 day schedule if there's no existing value.
+      if (this.form.sendLater && !this.form.sendAtLocal) {
+        const d = new Date();
+        d.setDate(d.getDate() + 7);
+        d.setHours(0, 0, 0, 0);
+        this.form.sendAtLocal = toLocalInput(d.toISOString());
+      }
     },
 
     // ===============

@@ -15,7 +15,7 @@
 
 <section class="campaign" x-data="campaignView(_camp, _sel)" @keydown.ctrl.s.window.prevent="onSaveShortcut" @keydown.meta.s.window.prevent="onSaveShortcut">
 	{{- $showTest := $canManage -}}
-	{{- $showActions := and (not $isNew) (or $canManage $canSend) -}}
+	{{- $showActions := and (not $isNew) $canManage -}}
 	{{- $showPreview := not $isNew -}}
 	{{- $showRight := or $showTest $showActions $showPreview -}}
 	<header class="row page-header">
@@ -52,13 +52,7 @@
 					</ot-dropdown>
 				{{- end }}
 				{{- if $showActions }}
-					{{- if $canManage }}
-						<button type="button" data-variant="primary" data-cy="btn-save" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
-					{{- end }}
-					{{- if $canSend }}
-						<button type="button" data-variant="primary" data-cy="btn-schedule" x-cloak x-show="canSchedule" @click="onStart">{{ Icon "clock" }} {{ .L.T "campaigns.schedule" }}</button>
-						<button type="button" class="outline" data-cy="btn-unschedule" x-cloak x-show="canUnSchedule" @click="onUnschedule">{{ Icon "clock" }} {{ .L.T "campaigns.unSchedule" }}</button>
-					{{- end }}
+					<button type="button" data-variant="primary" data-cy="btn-save" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
 				{{- end }}
 			</div>
 		{{- end }}
