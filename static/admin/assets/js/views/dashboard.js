@@ -1,6 +1,5 @@
 import Chart from 'chart.js/auto';
 
-const PRIMARY = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0055d4';
 const FONT_FAMILY = "'Inter', sans-serif";
 
 // Format an ISO date ('2024-06-01') to a short 'DD Mon' label.
@@ -20,6 +19,13 @@ function lineChart(id, rows) {
     return;
   }
 
+  // Get the primary colour.
+  const el = document.createElement('div');
+  el.style.color = 'var(--primary)';
+  document.documentElement.appendChild(el);
+  const color = getComputedStyle(el).color || '#0055d4';
+  el.remove();
+
   const data = rows || [];
   Chart.defaults.font.family = FONT_FAMILY;
 
@@ -30,8 +36,8 @@ function lineChart(id, rows) {
       labels: data.map((d) => label(d.date)),
       datasets: [{
         data: data.map((d) => d.count),
-        borderColor: PRIMARY,
-        backgroundColor: `${PRIMARY}08`,
+        borderColor: color,
+        backgroundColor: `${color.replace('rgb(', 'rgba(').replace(')', ', 0.0314)')}`,
         borderWidth: 2,
         fill: true,
         tension: 0.35,
