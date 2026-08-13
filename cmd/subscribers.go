@@ -24,6 +24,16 @@ const (
 	dummyUUID = "00000000-0000-0000-0000-000000000000"
 )
 
+// subscribersQueryDefaults is the allow list of filter query params.
+var subscribersQueryDefaults = map[string]string{
+	"page":                "",
+	"search":              "",
+	"query":               "",
+	"order_by":            "",
+	"order":               "",
+	"subscription_status": "",
+}
+
 // subQueryReq is a "catch all" struct for reading various
 // subscriber related requests.
 type subQueryReq struct {
@@ -249,14 +259,7 @@ func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, m
 		return nil, models.PageProps{}, err
 	}
 
-	q := makeQuery(params, map[string]string{
-		"page":                "",
-		"search":              "",
-		"query":               "",
-		"order_by":            "",
-		"order":               "",
-		"subscription_status": "",
-	})
+	q := makeQuery(params, subscribersQueryDefaults)
 
 	// Get the authenticated user.
 	user := auth.GetUser(c)

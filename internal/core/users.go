@@ -13,9 +13,10 @@ import (
 	"gopkg.in/volatiletech/null.v6"
 )
 
-func (c *Core) GetUsers() ([]auth.User, error) {
+// GetUsers retrieves users.
+func (c *Core) GetUsers(typ, status string, userRoleID, listRoleID int) ([]auth.User, error) {
 	out := []auth.User{}
-	if err := c.q.GetUsers.Select(&out); err != nil {
+	if err := c.q.GetUsers.Select(&out, typ, status, userRoleID, listRoleID); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}

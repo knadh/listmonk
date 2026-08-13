@@ -49,6 +49,17 @@ type campContentReq struct {
 var (
 	reFromAddress = regexp.MustCompile(`((.+?)\s)?<(.+?)@(.+?)>`)
 	reSlug        = regexp.MustCompile(`[^\p{L}\p{M}\p{N}]`)
+
+	// campaignsQueryDefaults is the allow list of filter query params.
+	campaignsQueryDefaults = map[string]string{
+		"page":     "",
+		"query":    "",
+		"order_by": "",
+		"order":    "",
+		"status":   "",
+		"type":     "",
+		"tag":      "",
+	}
 )
 
 // campaignsView is the admin page view for the campaigns list page.
@@ -193,14 +204,7 @@ func (a *App) ViewCampaigns(c echo.Context) error {
 
 // getViewCampaigns queries paginated campaigns for the HTML list view.
 func (a *App) getViewCampaigns(c echo.Context) ([]models.Campaign, models.PageProps, error) {
-	q := makeQuery(c.Request().URL.Query(), map[string]string{
-		"page":     "",
-		"query":    "",
-		"order_by": "",
-		"order":    "",
-		"status":   "",
-		"tag":      "",
-	})
+	q := makeQuery(c.Request().URL.Query(), campaignsQueryDefaults)
 
 	// Get the authenticated user.
 	user := auth.GetUser(c)
@@ -215,7 +219,7 @@ func (a *App) getViewCampaigns(c echo.Context) ([]models.Campaign, models.PagePr
 
 	// Run the DB query.
 	pg := a.pg.NewFromURL(q)
-	res, total, err := a.core.QueryCampaigns(q.Get("query"), q["status"], q["tag"],
+	res, total, err := a.core.QueryCampaigns(q.Get("query"), q["status"], q["tag"], q.Get("type"),
 		q.Get("order_by"), q.Get("order"), hasAllPerm, permittedLists, pg.Offset, pg.Limit)
 	if err != nil {
 		return nil, models.PageProps{}, err
@@ -251,6 +255,7 @@ func (a *App) GetCampaigns(c echo.Context) error {
 
 		status    = c.QueryParams()["status"]
 		tags      = c.QueryParams()["tag"]
+		typ       = c.QueryParam("type")
 		query     = strings.TrimSpace(c.FormValue("query"))
 		orderBy   = c.FormValue("order_by")
 		order     = c.FormValue("order")
@@ -258,7 +263,7 @@ func (a *App) GetCampaigns(c echo.Context) error {
 	)
 
 	// Query and retrieve campaigns from the DB.
-	res, total, err := a.core.QueryCampaigns(query, status, tags, orderBy, order, hasAllPerm, permittedLists, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryCampaigns(query, status, tags, typ, orderBy, order, hasAllPerm, permittedLists, pg.Offset, pg.Limit)
 	if err != nil {
 		return err
 	}

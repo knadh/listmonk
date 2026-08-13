@@ -2,6 +2,8 @@
 {{ template "admin-header" . }}
 {{- $d := .Data -}}
 {{- $base := URI "/admin/campaigns" -}}
+{{- $status := $d.Page.Param "status" -}}
+{{- $type := $d.Page.Param "type" -}}
 {{- $tags := $d.Page.Param "tag" -}}
 
 <section class="campaigns" x-data="campaignsView">
@@ -9,8 +11,10 @@
 		<div class="col-6">
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.campaigns" }}
-				{{- if $tags }} <span class="text-light">#{{ $tags }}</span>{{ end }}
 				<span>({{ $d.Page.Total }})</span>
+				{{- if $status }} {{ template "filter-badge" dict "Label" (.L.T (printf "campaigns.status.%s" $status)) "Class" (printf "enum status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+				{{- if $type }} {{ template "filter-badge" dict "Label" (.L.T "lists.optin") "Class" "enum optin" "URL" ($d.Page.FilterURL $base "type") }}{{ end }}
+				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "outline tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
@@ -74,7 +78,7 @@
 						<tr data-campaign-id="{{ .ID }}" {{ if eq .Status "running" }}class="running"{{ end }}>
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="status">
-								<a href="{{ $base }}/{{ .ID }}">
+								<a href="{{ $base }}?status={{ .Status }}">
 									{{ Badge ($.L.T (printf "campaigns.status.%s" .Status)) (printf "enum status-%s" .Status) }}
 									{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
 								</a>
@@ -86,7 +90,7 @@
 								<a href="{{ $base }}/{{ .ID }}">{{ .Name }}</a>
 								<p class="text-light">{{ .Subject }}</p>
 								<div class="hstack gap-1">
-									{{- if eq .Type "optin" }}{{ Badge ($.L.T "lists.optin") "enum optin" }}{{ end }}
+									{{- if eq .Type "optin" }}<a href="{{ $base }}?type=optin">{{ Badge ($.L.T "lists.optin") "enum optin" }}</a>{{ end }}
 									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">{{ Badge (printf "#%s" .) "outline tag" }}</a>{{ end }}
 								</div>
 							</td>

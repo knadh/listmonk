@@ -1,6 +1,7 @@
 {{ define "admin-users" -}}
 {{ template "admin-header" . }}
 {{- $d := .Data -}}
+{{- $base := URI "/admin/users" -}}
 
 <section class="users" x-data="usersView()">
 	<header class="row page-header">
@@ -9,6 +10,19 @@
 				<h1 class="page-title">
 					{{ .L.T "globals.terms.users" }}
 					<span>({{ len $d.Users }})</span>
+					{{- if $d.Type }}
+						{{- if eq $d.Type "api" }}
+							{{ template "filter-badge" dict "Label" (list (Icon "code") (.L.T "users.type.api")) "Class" "outline tag" "URL" ($d.Page.FilterURL $base "type") }}
+						{{- else }}
+							{{ template "filter-badge" dict "Label" $d.Type "Class" "outline" "URL" ($d.Page.FilterURL $base "type") }}
+						{{- end }}
+					{{- end }}
+					{{- if $d.Status }} {{ template "filter-badge" dict "Label" (.L.T (printf "users.status.%s" $d.Status)) "Class" "enum" "Variant" "danger" "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+					{{- if $d.UserRoleID }}
+						{{- $roleIcon := "user" }}{{ if eq $d.UserRoleID 1 }}{{ $roleIcon = "star" }}{{ end }}
+						{{ template "filter-badge" dict "Label" (list (Icon $roleIcon) $d.UserRoleName) "Variant" (ternary "" "secondary" (eq $d.UserRoleID 1)) "URL" ($d.Page.FilterURL $base "user_role_id") }}
+					{{- end }}
+					{{- if $d.ListRoleID }} {{ template "filter-badge" dict "Label" (list (Icon "list") $d.ListRoleName) "Class" "outline" "URL" ($d.Page.FilterURL $base "list_role_id") }}{{ end }}
 				</h1>
 			</div>
 		</div>
@@ -64,19 +78,19 @@
 								{{- else }}
 									<span class="{{ if eq .Status "disabled" }}text-danger{{ end }}">{{ .Username }}</span>
 								{{- end }}
-								{{- if eq .Type "api" }}{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "outline tag" }}{{ end }}
-								{{- if eq .Status "disabled" }}{{ Badge ($.L.T "users.status.disabled") "enum" "danger" }}{{ end }}
+								{{- if eq .Type "api" }}<a href="{{ $base }}?type=api">{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "outline tag" }}</a>{{ end }}
+								{{- if eq .Status "disabled" }}<a href="{{ $base }}?status=disabled">{{ Badge ($.L.T "users.status.disabled") "enum" "danger" }}</a>{{ end }}
 								{{- if .Name }}<div class="text-light text-8">{{ .Name }}</div>{{ end }}
 							</td>
 							<td>
 								<div class="hstack gap-1">
 									{{- if eq .UserRole.ID 1 }}
-										<a href="{{ URI "/admin/users/roles" }}/{{ .UserRole.ID }}">{{ Badge (list (Icon "star") .UserRole.Name) }}</a>
+										<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}">{{ Badge (list (Icon "star") .UserRole.Name) }}</a>
 									{{- else }}
-										<a href="{{ URI "/admin/users/roles" }}/{{ .UserRole.ID }}">{{ Badge (list (Icon "user") .UserRole.Name) "" "secondary" }}</a>
+										<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}">{{ Badge (list (Icon "user") .UserRole.Name) "" "secondary" }}</a>
 									{{- end }}
 									{{- with .ListRole }}
-										<a href="{{ URI "/admin/users/roles/lists" }}/{{ .ID }}">{{ Badge (list (Icon "list") .Name) "outline" }}</a>
+										<a href="{{ $base }}?list_role_id={{ .ID }}">{{ Badge (list (Icon "list") .Name) "outline" }}</a>
 									{{- end }}
 								</div>
 							</td>

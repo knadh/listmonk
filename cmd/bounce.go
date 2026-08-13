@@ -12,6 +12,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// bouncesQueryDefaults is the allowlist of filter query params.
+var bouncesQueryDefaults = map[string]string{
+	"page":        "",
+	"order_by":    "",
+	"order":       "",
+	"source":      "",
+	"type":        "",
+	"campaign_id": "",
+}
+
 // bouncesView is the admin page view for the bounces list page.
 type bouncesView struct {
 	adminView
@@ -22,14 +32,7 @@ type bouncesView struct {
 
 // ViewBounces renders the HTML view for bounces.
 func (a *App) ViewBounces(c echo.Context) error {
-	q := makeQuery(c.Request().URL.Query(), map[string]string{
-		"page":        "",
-		"order_by":    "",
-		"order":       "",
-		"source":      "",
-		"type":        "",
-		"campaign_id": "",
-	})
+	q := makeQuery(c.Request().URL.Query(), bouncesQueryDefaults)
 
 	campID, _ := strconv.Atoi(q.Get("campaign_id"))
 

@@ -10,9 +10,9 @@ import (
 )
 
 // GetTemplates retrieves all templates.
-func (c *Core) GetTemplates(status string, noBody bool) ([]models.Template, error) {
+func (c *Core) GetTemplates(typ string, noBody bool) ([]models.Template, error) {
 	out := []models.Template{}
-	if err := c.q.GetTemplates.Select(&out, 0, noBody, status); err != nil {
+	if err := c.q.GetTemplates.Select(&out, 0, noBody, typ); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.templates}", "error", pqErrMsg(err)))
 	}

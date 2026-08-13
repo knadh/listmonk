@@ -65,18 +65,6 @@ table {
         border-bottom: 1px solid var(--border);
     }
 
-    td {
-        .tag {
-            border-radius: var(--radius-small);
-            color: var(--muted-foreground);
-            padding: calc(var(--space-1) / 4) var(--space-2);
-
-            &:hover {
-                color: var(--foreground);
-            }
-        }
-    }
-
     .view {
         color: var(--faint-foreground);
         font-size: var(--text-8);
@@ -236,6 +224,37 @@ a:has(> .badge:only-child) {
     &.confirmed sup,
     &.status-confirmed sup {
         color: #52c41a;
+    }
+}
+
+.tag {
+    border-radius: var(--radius-small);
+    color: var(--muted-foreground);
+    padding: calc(var(--space-1) / 4) var(--space-2);
+
+    &:hover {
+        color: var(--foreground);
+    }
+}
+
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    vertical-align: middle;
+
+    a {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .icon {
+        font-size: var(--text-8);
+        margin: 0;
+    }
+
+    &:hover .icon {
+        opacity: 1;
     }
 }
 
