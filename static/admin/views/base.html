@@ -37,8 +37,6 @@
 					<a href="{{ URI "/admin" }}" class="logo"><img src="{{ URI "/admin/static/logo.svg" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
 				</div>
 				<div class="col-8 justify-end hstack">
-					<button type="button" class="ghost small" data-cy="btn-refresh" title="{{ .L.T "globals.buttons.refresh" }}"
-						onclick="document.location.reload()">{{ Icon "refresh-cw" }}</button>
 					{{ with .Data.Profile }}
 						<ot-dropdown>
 							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
@@ -63,7 +61,7 @@
 			{{ template "admin-sidebar" . }}
 
 			<footer id="footer">
-				<a href="https://listmonk.app" class="unstyled text-light" target="_blank" rel="noopener noreferrer">{{ .ConfigJS.Version }}</a>
+				<span class="text-light text-8" title="Page render time">{{ .ReqDuration }}</span>
 			</footer>
 		</aside>
 
