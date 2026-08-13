@@ -569,6 +569,32 @@ main {
     }
 }
 
+/* Placeholder for empty tables, lists and cards ({{ template "empty-state" }}). */
+.empty-state {
+    align-items: center;
+    color: var(--muted-foreground);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block: var(--space-10);
+    text-align: center;
+
+    svg.icon {
+        color: var(--faint-foreground);
+        font-size: var(--text-2);
+        margin: 0;
+        stroke-width: 1.5;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+td > .empty-state {
+    padding-block: var(--space-8);
+}
+
 .page-content {
     margin-block-end: var(--space-6);
 

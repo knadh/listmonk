@@ -8,6 +8,7 @@ bar-chart-2
 calendar
 check-circle
 check-square
+chevron-down
 chevron-left
 chevron-right
 clock
@@ -19,13 +20,16 @@ eye
 file-text
 grid
 image
+inbox
 info
 link-2
 list
 log-out
 mail
+menu
 minus
 more-vertical
+pause
 pause-circle
 plus
 refresh-cw

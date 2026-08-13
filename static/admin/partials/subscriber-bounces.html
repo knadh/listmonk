@@ -26,7 +26,7 @@
 			</tbody>
 		</table>
 	{{- else }}
-		<p class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</p>
+		{{- template "empty-state" }}
 	{{- end }}
 </div>
 {{- end }}
