@@ -30,7 +30,7 @@
 					<small class="text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/subscribers" }}" class="unstyled">{{ FormatNumber $c.Subscribers.Total }}</a></div>
 					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/subscribers" }}">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Orphans) (.L.T "dashboard.orphanSubs")) "outline" }}</a>
+						<a href="{{ URI "/admin/subscribers" }}?subscription_status=none">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Orphans) (.L.T "dashboard.orphanSubs")) "outline" }}</a>
 						<a href="{{ URI "/admin/subscribers" }}?status=blocklisted">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Blocklisted) (.L.T "subscribers.status.blocklisted")) "status-blocklisted" }}</a>
 					</div>
 				</article>
