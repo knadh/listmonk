@@ -62,7 +62,7 @@
 							</td>
 						</tr>
 					{{- else }}
-						<tr><td colspan="4" class="align-center text-light">{{ .L.T "globals.messages.emptyState" }}</td></tr>
+						{{ template "empty-state" 4 }}
 					{{- end }}
 				</tbody>
 			</table>

@@ -11,7 +11,7 @@
 		</template>
 	</ul>
 	<template x-if="form.media.length === 0">
-		<div class="align-center text-light">{{ $root.L.T "globals.messages.emptyState" }}</div>
+		{{- template "empty-state" }}
 	</template>
 
 	<footer class="hstack mt-6">
