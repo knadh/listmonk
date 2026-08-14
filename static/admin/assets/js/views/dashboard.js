@@ -1,6 +1,6 @@
 import Chart from 'chart.js/auto';
 
-const FONT_FAMILY = "'Inter', sans-serif";
+const FONT_FAMILY = "'Geist', sans-serif";
 
 // Format an ISO date ('2024-06-01') to a short 'DD Mon' label.
 function label(iso) {

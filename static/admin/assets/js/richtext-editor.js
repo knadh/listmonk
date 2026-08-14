@@ -136,7 +136,7 @@ class RichtextEditor extends HTMLElement {
         fontsize_formats: '10px 11px 12px 14px 15px 16px 18px 24px 36px',
         content_css: false,
         content_style: `
-          body { font-family: 'Inter', sans-serif; font-size: 15px; }
+          body { font-family: 'Geist', sans-serif; font-size: 15px; }
           img { max-width: 100%; }
           img.img-float-left { float: left; margin: 0 1em 1em 0; }
           img.img-float-right { float: right; margin: 0 0 1em 1em; }

@@ -1,4 +1,7 @@
 {{ define "admin-head-assets" }}
+	{{/* No ?v= cache-busting unlike other assets here. This is to match the same path in style.css to avoid double loading. */}}
+	<link rel="preload" href="{{ URI "/admin/static/fonts/Geist-Variable.woff2" }}" as="font" type="font/woff2" crossorigin />
+
 	<link href="{{ URI "/admin/static/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/custom.css" }}?v={{ .CustomAssetVersion }}" rel="stylesheet" type="text/css" />

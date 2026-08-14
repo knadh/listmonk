@@ -58,9 +58,10 @@ async function build() {
   await rm(dist, { recursive: true, force: true });
   await mkdir(dist, { recursive: true });
 
-  // Verbatim static assets (fonts, icons, images) and stylesheets.
+  // Verbatim static assets (icons, images) and stylesheets.
   await cp(path.join(root, 'assets/static'), dist, { recursive: true });
   await cp(path.join(root, 'assets/css/style.css'), path.join(dist, 'style.css'));
+
   // Oat CSS is loaded in <head> as is.
   await cp(path.join(root, 'node_modules/@knadh/oat/oat.min.css'), path.join(dist, 'oat.min.css'));
   await copyTinyMCE();
