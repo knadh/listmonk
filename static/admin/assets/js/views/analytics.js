@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import Chart from 'chart.js/auto';
 
 import { api } from '../main.js';
@@ -242,7 +243,7 @@ function renderCharts() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('analyticsForm', analyticsForm);
+  Alpine.data('analyticsForm', analyticsForm);
 }, { once: true });
 
 renderCharts();

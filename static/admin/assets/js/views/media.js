@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   urls,
   api,
@@ -61,5 +62,5 @@ function component(mode) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('mediaView', (mode) => component(mode));
+  Alpine.data('mediaView', (mode) => component(mode));
 }, { once: true });

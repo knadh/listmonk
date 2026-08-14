@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   urls,
   i18n,
@@ -199,5 +200,5 @@ function component() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('importView', component);
+  Alpine.data('importView', component);
 }, { once: true });

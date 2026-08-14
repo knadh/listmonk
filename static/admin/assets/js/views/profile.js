@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   i18n,
@@ -96,5 +97,5 @@ function profileView() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('profileView', profileView);
+  Alpine.data('profileView', profileView);
 }, { once: true });
