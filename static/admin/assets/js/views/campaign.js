@@ -330,7 +330,7 @@ function component(camp, sel) {
         return;
       }
 
-      await api('campaigns', `/campaigns/${this.form.id}/test`, 'POST', {
+      await api('campaigns.test', `/campaigns/${this.form.id}/test`, 'POST', {
         ...p,
         id: this.form.id,
         subscribers: this.form.testEmails,
