@@ -1,3 +1,5 @@
+import Alpine from 'alpinejs';
+import '@knadh/oat';
 import { I18n } from './i18n.js';
 import { register as registerTable } from './table.js';
 import * as u from './utils.js';
@@ -11,17 +13,17 @@ const storeName = 'admin';
 // Private functions.
 function setupAlpine() {
   // Register global store.
-  if (!window.Alpine.store(storeName)) {
-    window.Alpine.store(storeName, {
+  if (!Alpine.store(storeName)) {
+    Alpine.store(storeName, {
       loading: {},
     });
   }
 
   // Register reusable components.
-  registerTable(window.Alpine, i18n);
+  registerTable(i18n);
 
   // Register a global Alpine admin app bound to <body> for template helpers.
-  window.Alpine.data('adminApp', () => ({
+  Alpine.data('adminApp', () => ({
     isLoading,
     copyToClipboard: u.copyToClipboard,
     listAutocomplete,
@@ -105,7 +107,7 @@ function listenErrorEvents() {
 
 // Return the global Alpine store.
 function getStore() {
-  return window.Alpine.store(storeName);
+  return Alpine.store(storeName);
 }
 
 
@@ -202,8 +204,14 @@ export async function api(name, uri, method, data) {
     sessionStorage.removeItem('reload-toast');
   }
 
-  // Init global Alpine component.
+  // Initialize Alpine after everything else is loaded.
+  window.Alpine = Alpine;
   document.addEventListener('alpine:init', setupAlpine, { once: true });
+  if (document.readyState === 'complete') {
+    Alpine.start();
+  } else {
+    document.addEventListener('DOMContentLoaded', () => Alpine.start(), { once: true });
+  }
 
   listenErrorEvents();
 })();

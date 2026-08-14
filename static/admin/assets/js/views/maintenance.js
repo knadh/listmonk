@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   isLoading,
@@ -111,5 +112,5 @@ function component() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('maintenanceView', component);
+  Alpine.data('maintenanceView', component);
 }, { once: true });

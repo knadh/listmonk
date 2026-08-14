@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   urls,
@@ -159,6 +160,6 @@ function roleForm({ type = 'user', isEditing = false, canManage = false } = {}) 
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('rolesView', rolesView);
-  window.Alpine.data('roleForm', roleForm);
+  Alpine.data('rolesView', rolesView);
+  Alpine.data('roleForm', roleForm);
 }, { once: true });

@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   urls,
@@ -143,6 +144,6 @@ function userForm({ isEditing = false, canSave = false } = {}) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('usersView', usersView);
-  window.Alpine.data('userForm', userForm);
+  Alpine.data('usersView', usersView);
+  Alpine.data('userForm', userForm);
 }, { once: true });

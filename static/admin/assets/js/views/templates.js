@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   urls,
@@ -130,6 +131,6 @@ function templateForm(tpl, isNew) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('templatesView', templatesView);
-  window.Alpine.data('templateForm', templateForm);
+  Alpine.data('templatesView', templatesView);
+  Alpine.data('templateForm', templateForm);
 }, { once: true });

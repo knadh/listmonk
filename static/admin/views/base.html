@@ -1,12 +1,11 @@
 {{ define "admin-head-assets" }}
-	<link href="{{ URI "/admin/static/vendor/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin/static/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/custom.css" }}?v={{ .CustomAssetVersion }}" rel="stylesheet" type="text/css" />
 	<script>
 		window._LM_I18N = {{ .I18nJS }};
 		window._LM_CONFIG = {{ ToJSON .ConfigJS }};
 	</script>
-	<script src="{{ URI "/admin/static/vendor/oat.min.js" }}?v={{ .AssetVersion }}" defer></script>
 	<script src="{{ URI "/admin/custom.js" }}?v={{ .CustomAssetVersion }}" defer></script>
 
 	{{ if ne .FaviconURL "" }}
@@ -107,7 +106,6 @@
 	</template>
 
 	<script type="module" src="{{ URI "/admin/static/js/main.js" }}?v={{ .AssetVersion }}" defer></script>
-	<script src="{{ URI "/admin/static/vendor/alpinejs.min.js" }}?v={{ .AssetVersion }}" defer></script>
 </body>
 </html>
 {{ end }}

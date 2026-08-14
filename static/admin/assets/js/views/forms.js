@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   config,
   i18n,
@@ -97,5 +98,5 @@ function component(lists = []) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('formsView', component);
+  Alpine.data('formsView', component);
 }, { once: true });

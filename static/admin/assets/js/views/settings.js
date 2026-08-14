@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   config,
@@ -441,5 +442,5 @@ function component(settings, userRoles, listRoles) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('settingsView', component);
+  Alpine.data('settingsView', component);
 }, { once: true });

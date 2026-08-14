@@ -12,14 +12,6 @@ const srcJS = path.join(root, 'assets/js');
 const dist = path.join(root, 'dist');
 const watch = process.argv.includes('--watch');
 
-// Third-party runtime libs copied from node_modules into dist/vendor/. These are loaded
-// as global <script>/<link> tags in base.html not bundled.
-const vendor = [
-  ['node_modules/alpinejs/dist/cdn.min.js', 'vendor/alpinejs.min.js'],
-  ['node_modules/@knadh/oat/oat.min.js', 'vendor/oat.min.js'],
-  ['node_modules/@knadh/oat/oat.min.css', 'vendor/oat.min.css'],
-];
-
 // TinyMCE has a lot of files to copy.
 // TINY_PLUGINS and TINY_LANGS MUST mirror assets/js/richtext-editor.js.
 const TINY_PLUGINS = [
@@ -66,12 +58,11 @@ async function build() {
   await rm(dist, { recursive: true, force: true });
   await mkdir(dist, { recursive: true });
 
-  // Verbatim static assets (fonts, icons, images), authored stylesheet, vendored libs.
+  // Verbatim static assets (fonts, icons, images) and stylesheets.
   await cp(path.join(root, 'assets/static'), dist, { recursive: true });
   await cp(path.join(root, 'assets/css/style.css'), path.join(dist, 'style.css'));
-  for (const [from, to] of vendor) {
-    await cp(path.join(root, from), path.join(dist, to));
-  }
+  // Oat CSS is loaded in <head> as is.
+  await cp(path.join(root, 'node_modules/@knadh/oat/oat.min.css'), path.join(dist, 'oat.min.css'));
   await copyTinyMCE();
 
   // Entry points = modules loaded directly by a <script> tag: the global main.js and

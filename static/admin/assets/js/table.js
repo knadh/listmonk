@@ -1,3 +1,5 @@
+import Alpine from 'alpinejs';
+
 function Table({
   query = '',
   filters = {},
@@ -122,6 +124,6 @@ function Table({
   };
 }
 
-export function register(Alpine, i18n) {
+export function register(i18n) {
   Alpine.data('table', (options = {}) => Table({ ...options, i18n }));
 }
