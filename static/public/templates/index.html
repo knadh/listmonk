@@ -13,8 +13,8 @@
 	{{ end }}
 
 	<link href="/public/static/style.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
-	<link href="/public/custom.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css">
-	<script src="/public/custom.js?v={{ .AssetVersion }}" async defer></script>
+	<link href="/public/custom.css?v={{ .CustomAssetVersion }}" rel="stylesheet" type="text/css">
+	<script src="/public/custom.js?v={{ .CustomAssetVersion }}" async defer></script>
 
 	{{ if ne .FaviconURL "" }}
 		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />

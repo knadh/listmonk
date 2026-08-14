@@ -2,7 +2,7 @@
 // Output (dist/) is stuffed into the Go binary and served at /admin/static/*.
 // Run: `bun run build` (one-shot) or `bun run watch` (rebuild on change).
 
-import { readdir, rm, mkdir, cp } from 'node:fs/promises';
+import { readdir, rm, mkdir, cp, readFile, writeFile, unlink } from 'node:fs/promises';
 import { watch as fsWatch } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +28,9 @@ const TINY_PLUGINS = [
   'table', 'visualblocks', 'visualchars', 'wordcount',
 ];
 const TINY_LANGS = ['cs', 'de', 'es_MX', 'fr_FR', 'it_IT', 'pl', 'pt_PT', 'pt_BR', 'ro', 'tr'];
+
+// Types to always compress and bundle as .gz.
+const COMPRESS_EXT = ['.js', '.css', '.svg'];
 
 async function copyTinyMCE() {
   const from = (p) => path.join(root, 'node_modules/tinymce', p);
@@ -99,6 +102,24 @@ async function build() {
     throw new AggregateError(result.logs, 'admin build failed');
   }
   console.log(`built ${result.outputs.length} files -> dist/js`);
+
+  await compressAssets();
+}
+
+async function compressAssets() {
+  const entries = await readdir(dist, { recursive: true, withFileTypes: true });
+  let n = 0;
+
+  for (const e of entries) {
+    if (!e.isFile() || !COMPRESS_EXT.includes(path.extname(e.name))) continue;
+
+    const abs = path.join(e.parentPath ?? e.path, e.name);
+    await writeFile(`${abs}.gz`, Bun.gzipSync(await readFile(abs), { level: 9 }));
+    await unlink(abs);
+    n++;
+  }
+
+  console.log(`compressed ${n} assets -> .gz`);
 }
 
 await build();

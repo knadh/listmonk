@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/md5"
 	"database/sql"
 	"encoding/json"
@@ -12,6 +13,7 @@ import (
 	"log"
 	"log/slog"
 	"maps"
+	"mime"
 	"net/http"
 	"net/url"
 	"os"
@@ -140,7 +142,9 @@ type Config struct {
 	}
 
 	HasLegacyUser bool
-	AssetVersion  string
+
+	AssetVersion       string
+	CustomAssetVersion string
 
 	MediaUpload struct {
 		Provider   string
@@ -534,8 +538,13 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 	c.BounceLettermintEnabled = ko.Bool("bounce.lettermint.enabled")
 	c.HasLegacyUser = ko.Exists("app.admin_username") || ko.Exists("app.admin_password")
 
-	b := md5.Sum([]byte(time.Now().String()))
-	c.AssetVersion = fmt.Sprintf("%x", b)[0:10]
+	// Fixed during build time so that it doesn't change across restarts.
+	av := md5.Sum([]byte(buildString))
+	c.AssetVersion = fmt.Sprintf("%x", av)[0:10]
+
+	// Changes on every restart (specifically for admin-controlled custom.js|css endpoints).
+	cv := md5.Sum([]byte(time.Now().String()))
+	c.CustomAssetVersion = fmt.Sprintf("%x", cv)[0:10]
 
 	pm, err := fs.Read("/permissions.json")
 	if err != nil {
@@ -992,23 +1001,25 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 			LogoURL:             urlCfg.LogoURL,
 			FaviconURL:          urlCfg.FaviconURL,
 			AssetVersion:        cfg.AssetVersion,
+			CustomAssetVersion:  cfg.CustomAssetVersion,
 			EnablePublicSubPage: cfg.EnablePublicSubPage,
 			EnablePublicArchive: cfg.EnablePublicArchive,
 			IndividualTracking:  cfg.Privacy.IndividualTracking,
 		},
 		AdminRenderer: &adminTplRenderer{
-			templates:    adminTpl,
-			SiteName:     cfg.SiteName,
-			RootURL:      urlCfg.RootURL,
-			LogoURL:      urlCfg.LogoURL,
-			FaviconURL:   urlCfg.FaviconURL,
-			AssetVersion: cfg.AssetVersion,
-			Lang:         cfg.Lang,
+			templates:          adminTpl,
+			SiteName:           cfg.SiteName,
+			RootURL:            urlCfg.RootURL,
+			LogoURL:            urlCfg.LogoURL,
+			FaviconURL:         urlCfg.FaviconURL,
+			AssetVersion:       cfg.AssetVersion,
+			CustomAssetVersion: cfg.CustomAssetVersion,
+			Lang:               cfg.Lang,
 		},
 	}
 
 	// Initialize the static file server.
-	fSrv := fs.FileServer()
+	fSrv := staticServer(fs)
 
 	// Public (subscriber) facing static files.
 	srv.GET("/public/static/*", echo.WrapHandler(fSrv))
@@ -1044,6 +1055,67 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 	}()
 
 	return srv
+}
+
+// staticServer returns an http.Handler that serves static files from the stuffbin
+// FS, preferring precompressed .gz variants.
+func staticServer(fs stuffbin.FileSystem) http.Handler {
+	fSrv := fs.FileServer()
+
+	// Set long cache headers. New dists have `?v=.AssetVersion` param that changes,
+	// so that'll bust cache.
+	const cacheControl = "public, max-age=31536000, immutable"
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", cacheControl)
+
+		// Is there a .gz version?
+		f, err := fs.Get(r.URL.Path + ".gz")
+		if err != nil {
+			// No, server the file as-is.
+			fSrv.ServeHTTP(w, r)
+			return
+		}
+
+		// Yep, there is.
+		info, err := f.Stat()
+		if err != nil {
+			fSrv.ServeHTTP(w, r)
+			return
+		}
+
+		// Strip .gz and get the content type.
+		hdr := w.Header()
+		if ctype := mime.TypeByExtension(path.Ext(r.URL.Path)); ctype != "" {
+			hdr.Set("Content-Type", ctype)
+		}
+		hdr.Set("Vary", "Accept-Encoding")
+
+		// Client accepts gzip. Serve bytes as is.
+		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			hdr.Set("Content-Encoding", "gzip")
+			http.ServeContent(w, r, r.URL.Path, info.ModTime(), f)
+			return
+		}
+
+		// Client doesn't accept gzip, decompress on the fly and serve the result.
+		// This isn't ideal for performance, but rarely will a modern client not
+		// support gzip.
+		gz, err := gzip.NewReader(f)
+		if err != nil {
+			http.Error(w, "error reading static asset", http.StatusInternalServerError)
+			return
+		}
+		defer gz.Close()
+
+		b, err := io.ReadAll(gz)
+		if err != nil {
+			http.Error(w, "error decompressing static asset", http.StatusInternalServerError)
+			return
+		}
+
+		http.ServeContent(w, r, r.URL.Path, info.ModTime(), bytes.NewReader(b))
+	})
 }
 
 // initCaptcha initializes the captcha service.
