@@ -1,19 +1,19 @@
 {{ define "settings-media" -}}
 <div class="settings-items">
-	<fieldset data-keywords="upload file extensions media attachments allowed types images">
+	<fieldset class="card" data-keywords="upload file extensions media attachments allowed types images">
 		<legend>{{ .L.T "settings.media.upload.extensions" }}</legend>
 		<ot-taginput x-model="form['upload.extensions']"><input placeholder="jpg, png, gif .." /></ot-taginput>
 	</fieldset>
 
-	<div data-field data-keywords="media upload provider storage filesystem s3">
-		<label for="upload-provider">{{ .L.T "settings.media.provider" }}</label>
+	<fieldset class="card" data-field data-keywords="media upload provider storage filesystem s3">
+		<legend>{{ .L.T "settings.media.provider" }}</legend>
 		<select id="upload-provider" x-model="form['upload.provider']">
 			<option value="filesystem">filesystem</option>
 			<option value="s3">s3</option>
 		</select>
-	</div>
+	</fieldset>
 
-	<fieldset x-show="form['upload.provider'] === 'filesystem'" data-keywords="filesystem local upload path uri directory disk">
+	<fieldset class="card" x-show="form['upload.provider'] === 'filesystem'" data-keywords="filesystem local upload path uri directory disk">
 		<legend style="text-transform: capitalize" x-text="form['upload.provider']"></legend>
 		<label data-field>
 			{{ .L.T "settings.media.upload.path" }}
@@ -27,7 +27,7 @@
 		</label>
 	</fieldset>
 
-	<fieldset x-show="form['upload.provider'] === 's3'" x-cloak data-keywords="s3 aws bucket region access key secret cloud object storage endpoint">
+	<fieldset class="card" x-show="form['upload.provider'] === 's3'" x-cloak data-keywords="s3 aws bucket region access key secret cloud object storage endpoint">
 		<legend style="text-transform: capitalize" x-text="form['upload.provider']"></legend>
 		<label data-field>
 			{{ .L.T "settings.media.s3.region" }}

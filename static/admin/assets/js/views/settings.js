@@ -93,6 +93,8 @@ function component(settings, userRoles, listRoles) {
     testEmail: '',
     errMsg: '',
 
+    isRestarting: false,
+
     init() {
       this.$nextTick(() => this.buildSearchIndex());
     },
@@ -419,24 +421,28 @@ function component(settings, userRoles, listRoles) {
       // Strip display-only fields.
       form.smtp.forEach((s) => { delete s.strEmailHeaders; delete s.showHeaders; });
 
-      await api('settings', '/settings', 'PUT', form);
-      await this._awaitRestart();
+      try {
+        await api('settings', '/settings', 'PUT', form);
+      } catch {
+        return;
+      }
+
+      this._awaitRestart();
     },
 
-    // Poll the health endpoint until the app is back up after a settings-triggered
-    // restart, then reload the page.
+    // The settings save request returns instantly, and the the backend thjen restarts.
+    // Poll the health endpoint  until its back.
     _awaitRestart() {
-      u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('settings.title') }));
-      return new Promise((resolve) => {
-        const poll = setInterval(() => {
-          fetch(`${urls.api}/health`).then((r) => {
-            if (r.ok) {
-              clearInterval(poll);
-              resolve();
-            }
-          }).catch(() => { });
-        }, 500);
-      });
+      this.isRestarting = true;
+      const poll = setInterval(() => {
+        fetch(`${urls.api}/health`).then((r) => {
+          if (r.ok) {
+            clearInterval(poll);
+            this.isRestarting = false;
+            u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('settings.title') }), 'success');
+          }
+        }).catch(() => { });
+      }, 500);
     },
   };
 }
