@@ -1,26 +1,18 @@
 /* Fonts */
 @font-face {
-  font-family: 'Inter';
-  font-weight: 400;
+  font-family: 'Geist';
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-  src: url('./fonts/Inter-Regular.woff2') format('woff2');
+  src: url('./fonts/Geist-Variable.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Inter';
-  font-weight: 500;
-  font-style: normal;
+  font-family: 'Geist';
+  font-weight: 100 900;
+  font-style: italic;
   font-display: swap;
-  src: url('./fonts/Inter-Medium.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-  src: url('./fonts/Inter-SemiBold.woff2') format('woff2');
+  src: url('./fonts/Geist-Italic-Variable.woff2') format('woff2');
 }
 
 /* Theme */
@@ -31,7 +23,7 @@
     --muted-foreground: light-dark(#7a7a7a, #a1a1aa);
     --container-max: 1150px;
     --border: light-dark(#e5e7eb, #52525b);
-    --font-sans: "Inter", system-ui, sans-serif;
+    --font-sans: "Geist", system-ui, sans-serif;
     --text-1: 1.5rem;
     --text-regular: var(--text-7);
 }
@@ -45,7 +37,7 @@ body {
 
 body {
     background: var(--body);
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: var(--font-sans);
 }
 
 a {

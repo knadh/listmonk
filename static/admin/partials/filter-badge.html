@@ -1,0 +1,5 @@
+{{ define "filter-badge" -}}
+<span class="filter-tag">
+       {{ Badge .Label (default "" .Class) (default "" .Variant) }} <a href="{{ .URL }}" title="{{ L.T "globals.buttons.remove" }}">{{ Icon "x" }}</a>
+</span>
+{{- end }}
