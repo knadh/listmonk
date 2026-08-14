@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   i18n,
@@ -75,5 +76,5 @@ function component() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('bouncesView', component);
+  Alpine.data('bouncesView', component);
 }, { once: true });

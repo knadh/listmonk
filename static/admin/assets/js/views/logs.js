@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import { urls } from '../main.js';
 
 // Regexp for splitting a log line into [timestamp] [file] [message].
@@ -52,5 +53,5 @@ function component() {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('logsView', component);
+  Alpine.data('logsView', component);
 }, { once: true });

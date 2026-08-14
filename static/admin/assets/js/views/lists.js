@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import {
   api,
   config,
@@ -137,5 +138,5 @@ function component(list = null) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('listsView', component);
+  Alpine.data('listsView', component);
 }, { once: true });

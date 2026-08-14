@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import { convert, htmlToText } from '../content.js';
 import {
   api,
@@ -476,5 +477,5 @@ function component(camp, sel) {
 }
 
 document.addEventListener('alpine:init', () => {
-  window.Alpine.data('campaignView', component);
+  Alpine.data('campaignView', component);
 }, { once: true });
