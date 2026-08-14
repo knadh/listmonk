@@ -35,6 +35,7 @@ type pubTplRenderer struct {
 	LogoURL             string
 	FaviconURL          string
 	AssetVersion        string
+	CustomAssetVersion  string
 	EnablePublicSubPage bool
 	EnablePublicArchive bool
 	IndividualTracking  bool
@@ -42,13 +43,14 @@ type pubTplRenderer struct {
 
 // adminTplRenderer wraps admin templates for echo.
 type adminTplRenderer struct {
-	templates    *template.Template
-	SiteName     string
-	RootURL      string
-	LogoURL      string
-	FaviconURL   string
-	AssetVersion string
-	Lang         string
+	templates          *template.Template
+	SiteName           string
+	RootURL            string
+	LogoURL            string
+	FaviconURL         string
+	AssetVersion       string
+	CustomAssetVersion string
+	Lang               string
 }
 
 // appTplRenderer dispatches c.Render() calls to the appropriate template set.
@@ -65,6 +67,7 @@ type tplData struct {
 	LogoURL             string
 	FaviconURL          string
 	AssetVersion        string
+	CustomAssetVersion  string
 	EnablePublicSubPage bool
 	EnablePublicArchive bool
 	IndividualTracking  bool
@@ -74,17 +77,18 @@ type tplData struct {
 
 // adminTplData is the data container injected into admin templates.
 type adminTplData struct {
-	SiteName     string
-	RootURL      string
-	LogoURL      string
-	FaviconURL   string
-	AssetVersion string
-	Lang         string
-	ConfigJS     serverConfig
-	I18nJS       json.RawMessage
-	ReqDuration  string
-	Data         any
-	L            *i18n.I18n
+	SiteName           string
+	RootURL            string
+	LogoURL            string
+	FaviconURL         string
+	AssetVersion       string
+	CustomAssetVersion string
+	Lang               string
+	ConfigJS           serverConfig
+	I18nJS             json.RawMessage
+	ReqDuration        string
+	Data               any
+	L                  *i18n.I18n
 }
 
 type publicTpl struct {
@@ -146,6 +150,7 @@ func (t *pubTplRenderer) Render(w io.Writer, name string, data any, c echo.Conte
 		LogoURL:             t.LogoURL,
 		FaviconURL:          t.FaviconURL,
 		AssetVersion:        t.AssetVersion,
+		CustomAssetVersion:  t.CustomAssetVersion,
 		EnablePublicSubPage: t.EnablePublicSubPage,
 		EnablePublicArchive: t.EnablePublicArchive,
 		IndividualTracking:  t.IndividualTracking,
@@ -169,17 +174,18 @@ func (t *adminTplRenderer) Render(w io.Writer, name string, data any, c echo.Con
 	}
 
 	return t.templates.ExecuteTemplate(w, name, adminTplData{
-		SiteName:     t.SiteName,
-		RootURL:      t.RootURL,
-		LogoURL:      t.LogoURL,
-		FaviconURL:   t.FaviconURL,
-		AssetVersion: t.AssetVersion,
-		Lang:         t.Lang,
-		ConfigJS:     configJS,
-		I18nJS:       app.adminI18nJS,
-		ReqDuration:  reqDuration,
-		Data:         data,
-		L:            app.i18n,
+		SiteName:           t.SiteName,
+		RootURL:            t.RootURL,
+		LogoURL:            t.LogoURL,
+		FaviconURL:         t.FaviconURL,
+		AssetVersion:       t.AssetVersion,
+		CustomAssetVersion: t.CustomAssetVersion,
+		Lang:               t.Lang,
+		ConfigJS:           configJS,
+		I18nJS:             app.adminI18nJS,
+		ReqDuration:        reqDuration,
+		Data:               data,
+		L:                  app.i18n,
 	})
 }
 

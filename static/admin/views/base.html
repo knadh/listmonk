@@ -1,13 +1,13 @@
 {{ define "admin-head-assets" }}
 	<link href="{{ URI "/admin/static/vendor/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
-	<link href="{{ URI "/admin/custom.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin/custom.css" }}?v={{ .CustomAssetVersion }}" rel="stylesheet" type="text/css" />
 	<script>
 		window._LM_I18N = {{ .I18nJS }};
 		window._LM_CONFIG = {{ ToJSON .ConfigJS }};
 	</script>
 	<script src="{{ URI "/admin/static/vendor/oat.min.js" }}?v={{ .AssetVersion }}" defer></script>
-	<script src="{{ URI "/admin/custom.js" }}?v={{ .AssetVersion }}" defer></script>
+	<script src="{{ URI "/admin/custom.js" }}?v={{ .CustomAssetVersion }}" defer></script>
 
 	{{ if ne .FaviconURL "" }}
 		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />
