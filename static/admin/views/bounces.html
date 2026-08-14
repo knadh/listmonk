@@ -18,6 +18,7 @@
 					{{- if $source }}<a href="{{ $base }}">{{ Badge (printf "%s ×" $source) }}</a>{{ end }}
 					{{- if $type }}<a href="{{ $base }}">{{ Badge (printf "%s ×" (.L.T (printf "bounces.%s" $type))) }}</a>{{ end }}
 					{{- if $campaign }}<a href="{{ $base }}">{{ Badge (printf "#%s ×" $campaign) }}</a>{{ end }}
+						{{- if gt $d.Page.Page 1 }}<a href="{{ $d.Page.FilterURL $base }}">{{ Badge (printf "%s ×" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page))) }}</a>{{ end }}
 				</div>
 			</div>
 		</div>

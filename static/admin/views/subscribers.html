@@ -26,6 +26,7 @@
 				{{- if eq $subStatus "none" }} {{ template "filter-badge" dict "Label" (.L.T "dashboard.orphanSubs") "Class" "outline" "URL" ($d.Page.FilterURL $base "subscription_status") }}
 				{{- else if $subStatus }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $subStatus)) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
 				{{- if $status }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $status)) "Class" (printf "status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "Class" "outline" "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end hstack justify-end">

@@ -15,6 +15,7 @@
 				{{- if $status }} {{ template "filter-badge" dict "Label" (.L.T (printf "campaigns.status.%s" $status)) "Class" (printf "enum status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
 				{{- if $type }} {{ template "filter-badge" dict "Label" (.L.T "lists.optin") "Class" "enum optin" "URL" ($d.Page.FilterURL $base "type") }}{{ end }}
 				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "outline tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
+				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "Class" "outline" "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">

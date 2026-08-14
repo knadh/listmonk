@@ -22,6 +22,7 @@
 					{{ template "filter-badge" dict "Label" (list (Icon $optinIcon) (.L.T (printf "lists.optins.%s" $optin))) "Class" "enum" "Variant" "secondary" "URL" ($d.Page.FilterURL $base "optin") }}
 				{{- end }}
 				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "outline tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
+				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "Class" "outline" "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">

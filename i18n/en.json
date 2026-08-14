@@ -244,6 +244,7 @@
     "globals.terms.minute": "Minute | Minutes",
     "globals.terms.month": "Month | Months",
     "globals.terms.none": "None",
+    "globals.terms.page": "Page {n}",
     "globals.terms.new": "New",
     "globals.terms.recent": "Recent {name}",
     "globals.terms.second": "Second | Seconds",
