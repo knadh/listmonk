@@ -26,16 +26,16 @@
 				</div>
 				{{- if $d.Can "settings:manage" }}
 					<button type="submit" data-variant="primary" data-cy="btn-save" data-spinner="small"
-						:aria-busy="isLoading('settings')" :disabled="isLoading('settings')">
+						:aria-busy="isLoading('settings') || isRestarting" :disabled="isLoading('settings') || isRestarting">
 						{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}
 					</button>
 				{{- end }}
 			</div>
 		</header>
 
-		<div class="card page-content">
+		<div class="page-content">
 			<ot-tabs class="settings-tabs" x-ref="tabs" data-anchor="tab">
-				<div class="settings-sidebar" role="tablist" aria-orientation="vertical" @click="onTabClick($event)" @keydown="onTabKeydown($event)">
+				<div class="settings-sidebar card" role="tablist" aria-orientation="vertical" @click="onTabClick($event)" @keydown="onTabKeydown($event)">
 					<button type="button" role="tab" id="general">{{ .L.T "settings.general.name" }}</button>
 					<button type="button" role="tab" id="performance">{{ .L.T "settings.performance.name" }}</button>
 					<button type="button" role="tab" id="privacy">{{ .L.T "settings.privacy.name" }}</button>

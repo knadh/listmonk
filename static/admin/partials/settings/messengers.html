@@ -25,57 +25,60 @@
 			</summary>
 
 			<div class="accordion-body">
-			<div :aria-disabled="!item.enabled">
-				<label data-field>
-					{{ .L.T "globals.fields.name" }}
-					<input maxlength="200" placeholder="mymessenger" x-model="item.name" />
-					<small data-hint>{{ .L.T "settings.messengers.nameHelp" }}</small>
-				</label>
+				<div :aria-disabled="!item.enabled">
+					<fieldset class="card">
+						<legend>{{ .L.T "globals.terms.messenger" }}</legend>
 
-				<label data-field>
-					{{ .L.T "settings.messengers.url" }}
-					<input type="url" pattern="https?://.*" maxlength="200" placeholder="https://postback.messenger.net/path" x-model="item.root_url" />
-					<small data-hint>{{ .L.T "settings.messengers.urlHelp" }}</small>
-				</label>
+						<label data-field>
+							{{ .L.T "globals.fields.name" }}
+							<input maxlength="200" placeholder="mymessenger" x-model="item.name" />
+							<small data-hint>{{ .L.T "settings.messengers.nameHelp" }}</small>
+						</label>
 
-				<label data-field>
-					{{ .L.T "settings.messengers.username" }}
-					<input maxlength="200" x-model="item.username" />
-				</label>
+						<label data-field>
+							{{ .L.T "settings.messengers.url" }}
+							<input type="url" pattern="https?://.*" maxlength="200" placeholder="https://postback.messenger.net/path" x-model="item.root_url" />
+							<small data-hint>{{ .L.T "settings.messengers.urlHelp" }}</small>
+						</label>
 
-				<label data-field>
-					{{ .L.T "settings.messengers.password" }}
-					<input type="password" maxlength="200" placeholder="{{ .L.T "globals.messages.passwordChange" }}" x-model="item.password" />
-					<small data-hint>{{ .L.T "globals.messages.passwordChange" }}</small>
-				</label>
+						<label data-field>
+							{{ .L.T "settings.messengers.username" }}
+							<input maxlength="200" x-model="item.username" />
+						</label>
 
-				<fieldset>
-					<legend>{{ .L.T "settings.connection" }}</legend>
-					<div class="row">
-						<div class="col-4">
-							<label data-field>
-								{{ .L.T "settings.messengers.maxConns" }}
-								<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.max_conns" />
-								<small data-hint>{{ .L.T "settings.messengers.maxConnsHelp" }}</small>
-							</label>
+						<label data-field>
+							{{ .L.T "settings.messengers.password" }}
+							<input type="password" maxlength="200" placeholder="{{ .L.T "globals.messages.passwordChange" }}" x-model="item.password" />
+							<small data-hint>{{ .L.T "globals.messages.passwordChange" }}</small>
+						</label>
+					</fieldset>
+					<fieldset class="card">
+						<legend>{{ .L.T "settings.connection" }}</legend>
+						<div class="row">
+							<div class="col-4">
+								<label data-field>
+									{{ .L.T "settings.messengers.maxConns" }}
+									<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.max_conns" />
+									<small data-hint>{{ .L.T "settings.messengers.maxConnsHelp" }}</small>
+								</label>
+							</div>
+							<div class="col-4">
+								<label data-field>
+									{{ .L.T "settings.messengers.retries" }}
+									<input type="number" min="1" max="1000" placeholder="2" x-model.number="item.max_msg_retries" />
+									<small data-hint>{{ .L.T "settings.messengers.retriesHelp" }}</small>
+								</label>
+							</div>
+							<div class="col-4">
+								<label data-field>
+									{{ .L.T "settings.messengers.timeout" }}
+									<input maxlength="10" placeholder="5s" x-model="item.timeout" />
+									<small data-hint>{{ .L.T "settings.messengers.timeoutHelp" }}</small>
+								</label>
+							</div>
 						</div>
-						<div class="col-4">
-							<label data-field>
-								{{ .L.T "settings.messengers.retries" }}
-								<input type="number" min="1" max="1000" placeholder="2" x-model.number="item.max_msg_retries" />
-								<small data-hint>{{ .L.T "settings.messengers.retriesHelp" }}</small>
-							</label>
-						</div>
-						<div class="col-4">
-							<label data-field>
-								{{ .L.T "settings.messengers.timeout" }}
-								<input maxlength="10" placeholder="5s" x-model="item.timeout" />
-								<small data-hint>{{ .L.T "settings.messengers.timeoutHelp" }}</small>
-							</label>
-						</div>
-					</div>
-				</fieldset>
-			</div>
+					</fieldset>
+				</div>
 			</div>
 		</details>
 	</template>

@@ -89,8 +89,17 @@ svg.icon {
     display: none !important;
 }
 
-/* Oat overrides */
-fieldset > [data-field]:last-of-type {
+ot-tabs:not(:defined) {
+    > [role="tabpanel"] {
+        display: none;
+    }
+
+    > [role="tablist"] + [role="tabpanel"] {
+        display: block;
+    }
+}
+
+fieldset > [data-field]:last-child {
     margin-block-end: 0;
 }
 
@@ -1170,30 +1179,20 @@ section.import {
         min-width: 0;
 
         .settings-sidebar {
+            display: flex;
             flex: 0 0 auto;
             flex-direction: column;
             align-items: stretch;
-            gap: 0;
+            gap: var(--space-1);
             width: 200px;
-            margin: calc(-1 * var(--space-6)) 0 calc(-1 * var(--space-6)) calc(-1 * var(--space-6));
-            padding: 0;
-            background: none;
-            border-radius: 0;
-            border-right: 1px solid var(--border);
+            padding: var(--space-2);
+            align-self: flex-start;
+            position: sticky;
+            top: var(--space-4);
 
             [role="tab"] {
                 justify-content: flex-start;
-                text-align: left;
-                padding: var(--space-3) var(--space-4);
-                border-radius: 0;
-                border-bottom: 1px solid var(--border);
-
-                &[aria-selected="true"] {
-                    background-color: var(--faint);
-                    color: var(--primary);
-                    font-weight: var(--font-normal);
-                    box-shadow: inset -3px 0 0 0 var(--primary);
-                }
+                border-radius: var(--radius-medium);
             }
         }
 
@@ -1204,29 +1203,23 @@ section.import {
         }
     }
 
+    [role="tabpanel"] > hr,
+    .settings-items > hr {
+        display: none;
+    }
+
     .code-editor {
         height: 20vh;
         min-height: 350px;
     }
 
     .repeat-block {
-        margin-bottom: var(--space-8);
-        padding-bottom: var(--space-8);
-        border-bottom: 1px solid var(--border);
-    }
+        margin-block: 0 var(--space-6);
+        padding: 0;
+        border-radius: var(--radius-medium);
 
-    details {
-        border: 0;
-    }
-
-    details.repeat-block {
-        margin-bottom: var(--space-6);
-        padding-bottom: 0;
-        border-bottom: 0;
-
-        >summary {
-            border: 1px solid var(--border);
-            border-radius: var(--radius-medium);
+        summary {
+            background: var(--card);
         }
     }
 
@@ -1235,7 +1228,7 @@ section.import {
             display: grid;
             grid-template-columns: 200px 1fr;
             grid-template-rows: repeat(20, auto);
-            column-gap: 0;
+            column-gap: var(--space-6);
             row-gap: 0;
         }
 
@@ -1265,6 +1258,9 @@ section.import {
         .search-hide {
             display: none !important;
         }
+    }
+    fieldset.card {
+        padding-block-start: var(--space-4);
     }
 }
 
@@ -1364,7 +1360,8 @@ section.users {
     }
 
     .settings .settings-tabs>[role="tablist"] {
+        width: auto;
         margin: 0 0 var(--space-4);
-        border-right: none;
+        position: static;
     }
 }

@@ -29,7 +29,7 @@
 
 			<div class="accordion-body">
 				<template x-if="smtpTestItem === n">
-					<fieldset class="mb-8 mt-8">
+					<fieldset class="card mb-8 mt-8">
 						<p><strong>{{ .L.T "settings.general.fromEmail" }}</strong>: <span x-text="form['app.from_email']"></span></p>
 						<fieldset class="group">
 							<legend>{{ .L.T "settings.smtp.toEmail" }}</legend>
@@ -47,7 +47,7 @@
 				</template>
 
 				<div :aria-disabled="!item.enabled">
-					<fieldset :disabled="!item.enabled">
+					<fieldset class="card" :disabled="!item.enabled">
 						<legend>{{ .L.T "settings.mailserver.host" }}</legend>
 						<div class="row">
 							<div class="col-9">
@@ -78,7 +78,7 @@
 						</div>
 					</fieldset>
 
-					<fieldset :disabled="!item.enabled">
+					<fieldset class="card" :disabled="!item.enabled">
 						<legend>{{ .L.T "settings.mailserver.authProtocol" }}</legend>
 						<div data-field>
 							<label>{{ .L.T "settings.mailserver.authProtocol" }}</label>
@@ -100,7 +100,7 @@
 						</label>
 					</fieldset>
 
-					<fieldset :disabled="!item.enabled">
+					<fieldset class="card" :disabled="!item.enabled">
 						<legend>{{ .L.T "settings.mailserver.tls" }}</legend>
 						<label data-field>
 							{{ .L.T "settings.smtp.heloHost" }}
@@ -129,7 +129,7 @@
 						</div>
 					</fieldset>
 
-					<fieldset :disabled="!item.enabled">
+					<fieldset class="card" :disabled="!item.enabled">
 						<legend>{{ .L.T "settings.connection" }}</legend>
 						<label data-field>
 							{{ .L.T "settings.mailserver.maxConns" }}
@@ -146,7 +146,7 @@
 							<input maxlength="10" placeholder="5s" x-model="item.wait_timeout" />
 							<small data-hint>{{ .L.T "settings.mailserver.waitTimeoutHelp" }}</small>
 						</label>
-						<div class="row">
+						<div class="row" data-field>
 							<div class="col-6">
 								<label data-field>
 									{{ .L.T "settings.smtp.retries" }}
@@ -164,7 +164,7 @@
 						</div>
 					</fieldset>
 
-					<fieldset :disabled="!item.enabled">
+					<fieldset class="card" :disabled="!item.enabled">
 						<legend>{{ .L.T "globals.fields.name" }}</legend>
 						<label data-field>
 							{{ .L.T "globals.fields.name" }}
