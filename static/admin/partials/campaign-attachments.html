@@ -14,7 +14,7 @@
 		{{- template "empty-state" }}
 	</template>
 
-	<footer class="hstack mt-6">
+	<footer class="hstack justify-center">
 		<button type="button" data-variant="primary" @click="onOpenMedia('attach')" :disabled="!canEdit" data-cy="btn-attach">{{ Icon "plus" }} {{ $root.L.T "campaigns.addAttachments" }}</button>
 	</footer>
 </div>
