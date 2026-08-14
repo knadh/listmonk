@@ -1,6 +1,6 @@
 {{ define "settings-general" -}}
 <div class="settings-items">
-	<fieldset data-keywords="site name root url logo favicon language locale branding domain title">
+	<fieldset class="card" data-keywords="site name root url logo favicon language locale branding domain title">
 		<legend>{{ .L.T "settings.general.name" }}</legend>
 		<label data-field>
 			{{ .L.T "settings.general.siteName" }}
@@ -40,7 +40,7 @@
 		</div>
 	</fieldset>
 
-	<fieldset data-keywords="from email address admin notification emails sender">
+	<fieldset class="card" data-keywords="from email address admin notification emails sender">
 		<legend>{{ .L.T "subscribers.email" }}</legend>
 		<label data-field>
 			{{ .L.T "settings.general.fromEmail" }}
@@ -56,7 +56,7 @@
 		</label>
 	</fieldset>
 
-	<fieldset data-keywords="subscription public page opt-in optin confirmation double signup">
+	<fieldset class="card" data-keywords="subscription public page opt-in optin confirmation double signup">
 		<legend>{{ .L.T "globals.terms.subscriptions" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['app.enable_public_subscription_page']" />
@@ -75,7 +75,7 @@
 		</label>
 	</fieldset>
 
-	<fieldset data-keywords="public archive rss feed campaigns">
+	<fieldset class="card" data-keywords="public archive rss feed campaigns">
 		<legend>{{ .L.T "campaigns.archive" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['app.enable_public_archive']" />
@@ -89,12 +89,12 @@
 		</label>
 	</fieldset>
 
-	<hr />
-
-	<label data-field data-keywords="check updates version announcements notifications">
-		<input type="checkbox" role="switch" x-model="form['app.check_updates']" />
-		{{ .L.T "settings.general.checkUpdates" }}
-		<small data-hint>{{ .L.T "settings.general.checkUpdatesHelp" }}</small>
-	</label>
+	<fieldset class="card" data-keywords="check updates version announcements notifications">
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['app.check_updates']" />
+			{{ .L.T "settings.general.checkUpdates" }}
+			<small data-hint>{{ .L.T "settings.general.checkUpdatesHelp" }}</small>
+		</label>
+	</fieldset>
 </div>
 {{- end }}
