@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 // listmonk root address (see ../config.toml).
 const BASE_URL = process.env.LISTMONK_URL || 'http://localhost:9000';
+const MAILHOG_URL = process.env.MAILHOG_URL || 'http://localhost:8025';
 
 export default defineConfig({
   testDir: './specs',
@@ -11,14 +12,25 @@ export default defineConfig({
   // Log in once and save the session before any tests run.
   globalSetup: './global-setup.js',
 
-  // Create a fresh listmonk DB instance for every test run.
-  webServer: {
-    command: './listmonk --install --yes && ./listmonk --static-dir static',
-    cwd: '..',
-    url: `${BASE_URL}/health`,
-    reuseExistingServer: false,
-    env: { LISTMONK_ADMIN_USER: 'admin', LISTMONK_ADMIN_PASSWORD: 'listmonk' },
-  },
+  // Kill the listmonk instance resetDB().
+  globalTeardown: './global-teardown.js',
+
+  webServer: [
+    // Run mailhog local SMTP test server.
+    {
+      command: 'pkill -9 mailhog; mailhog',
+      url: MAILHOG_URL,
+      reuseExistingServer: false,
+    },
+    // Create a fresh listmonk DB instance for every test run.
+    {
+      command: 'pkill -9 listmonk; ./listmonk --install --yes && ./listmonk --static-dir static',
+      cwd: '..',
+      url: `${BASE_URL}/health`,
+      reuseExistingServer: false,
+      env: { LISTMONK_ADMIN_USER: 'admin', LISTMONK_ADMIN_PASSWORD: 'listmonk' },
+    },
+  ],
 
   use: {
     baseURL: BASE_URL,
