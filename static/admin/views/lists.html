@@ -29,12 +29,12 @@
 			<form method="get" action="{{ URI "/admin/lists" }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
-					<input name="query" aria-label="Search" data-cy="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+					<input name="query" aria-label="Search" data-testid="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline" data-testid="btn-query" aria-label="Search">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $d.Can "lists:manage_all" }}
-				<button type="button" data-variant="primary" class="btn-new" data-cy="btn-new" @click="onOpenNew">
+				<button type="button" data-variant="primary" class="btn-new" data-testid="btn-new" @click="onOpenNew">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
 				</button>
 			{{- end }}
@@ -45,16 +45,16 @@
 		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('lists')" @change="onChange($event)">
 			<template x-if="numSelected > 0">
 				<ot-dropdown class="bulk-actions">
-					<button popovertarget="bulk-actions" type="button" class="small" data-cy="btn-bulk-actions">
+					<button popovertarget="bulk-actions" type="button" class="small" data-testid="btn-bulk-actions">
 						<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
 					</button>
 					<menu popover id="bulk-actions">
 						{{- if gt $d.Page.Total $d.Page.PerPage }}
-							<button type="button" role="menuitem" class="ghost" data-cy="select-all-lists" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
+							<button type="button" role="menuitem" class="ghost" data-testid="select-all-lists" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
 								{{ Icon "list" }} <span x-text="selectAllLabel"></span>
 							</button>
 						{{- end }}
-						<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete-lists" :disabled="isLoading('lists')" @click.prevent="onDeleteSelected(numSelected, selectedQueryParams().toString())">
+						<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete-lists" :disabled="isLoading('lists')" @click.prevent="onDeleteSelected(numSelected, selectedQueryParams().toString())">
 							{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span>
 						</button>
 					</menu>
@@ -65,17 +65,17 @@
 				<thead>
 					<tr>
 						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
-						<th width="20%" class="cy-name">{{ $d.Page.SortLink (URI "/admin/lists") "name" (.L.T "globals.fields.name") }}</th>
-						<th class="cy-type">{{ $d.Page.SortLink (URI "/admin/lists") "type" (.L.T "globals.fields.type") }}</th>
-						<th class="subscribers cy-subscribers">{{ $d.Page.SortLink (URI "/admin/lists") "subscriber_count" (.L.T "globals.terms.subscribers") }}</th>
+						<th width="20%">{{ $d.Page.SortLink (URI "/admin/lists") "name" (.L.T "globals.fields.name") }}</th>
+						<th>{{ $d.Page.SortLink (URI "/admin/lists") "type" (.L.T "globals.fields.type") }}</th>
+						<th class="subscribers">{{ $d.Page.SortLink (URI "/admin/lists") "subscriber_count" (.L.T "globals.terms.subscribers") }}</th>
 						<th></th>
-						<th class="cy-created_at">{{ $d.Page.SortLink (URI "/admin/lists") "created_at" (.L.T "globals.fields.createdAt") }}</th>
+						<th>{{ $d.Page.SortLink (URI "/admin/lists") "created_at" (.L.T "globals.fields.createdAt") }}</th>
 						<th class="align-right"></th>
 					</tr>
 				</thead>
 				<tbody>
 					{{- range $d.Lists }}
-						<tr class="list-main-row">
+						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
 								<a href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
@@ -136,20 +136,20 @@
 										</button>
 										<menu popover id="list-actions-{{ .ID }}">
 											{{- if $d.CanManageList .ID }}
-												<a href="{{ URI "/admin/lists" }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+												<a href="{{ URI "/admin/lists" }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 											{{- end }}
 											{{- if $d.Can "subscribers:import" }}
-												<a href="{{ URI "/admin/import" }}?list_id={{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-import">{{ Icon "upload" }} {{ $.L.T "globals.terms.import" }}</a>
+												<a href="{{ URI "/admin/import" }}?list_id={{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-import">{{ Icon "upload" }} {{ $.L.T "globals.terms.import" }}</a>
 											{{- end }}
 											{{- if $d.CanManageList .ID }}
-												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('lists')" @click.prevent="onDeleteList({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete" :disabled="isLoading('lists')" @click.prevent="onDeleteList({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 											{{- end }}
 											<hr />
 											{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
-												<a href="{{ URI "/admin/campaigns/new" }}?list_id={{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-campaign">{{ Icon "send" }} {{ $.L.T "campaigns.newCampaign" }}</a>
+												<a href="{{ URI "/admin/campaigns/new" }}?list_id={{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-campaign">{{ Icon "send" }} {{ $.L.T "campaigns.newCampaign" }}</a>
 											{{- end }}
 											{{- if and (eq .Optin "double") ($d.Can "campaigns:manage" "campaigns:manage_all") }}
-												<button type="button" role="menuitem" class="ghost send-optin" data-cy="btn-send-optin-campaign" :disabled="isLoading('lists')" @click.prevent="onCreateOptinCampaign({{ .ID }}, {{ ToJSON .Name }})">
+												<button type="button" role="menuitem" class="ghost send-optin" data-testid="btn-send-optin-campaign" :disabled="isLoading('lists')" @click.prevent="onCreateOptinCampaign({{ .ID }}, {{ ToJSON .Name }})">
 													{{ Icon "send" }} {{ $.L.T "lists.sendOptinCampaign" }}
 												</button>
 											{{- end }}

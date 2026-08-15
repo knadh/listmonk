@@ -1,0 +1,13 @@
+{
+  "name": "listmonk-tests",
+  "private": true,
+  "type": "module",
+  "description": "Playwright end-to-end tests for the listmonk SSR admin.",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
