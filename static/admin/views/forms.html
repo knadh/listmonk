@@ -10,7 +10,7 @@
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
 			{{- if $.ConfigJS.PublicSubscription.Enabled }}
-				<a href="{{ $.ConfigJS.RootURL }}/subscription/form" target="_blank" rel="noopener noreferrer" class="button outline small" data-cy="url" title="{{ $.ConfigJS.RootURL }}/subscription/form">
+				<a href="{{ $.ConfigJS.RootURL }}/subscription/form" target="_blank" rel="noopener noreferrer" class="button outline small" data-testid="url" title="{{ $.ConfigJS.RootURL }}/subscription/form">
 					{{ Icon "arrow-up-right" }} {{ .L.T "forms.publicSubPage" }}
 				</a>
 			{{- end }}
@@ -25,7 +25,7 @@
 				<div class="col-4 col-bleed">
 					<p class="text-light">{{ .L.T "forms.selectHelp" }}</p>
 
-					<ul class="no lists" data-cy="lists">
+					<ul class="no lists" data-testid="lists">
 						{{- range $i, $list := $d.PublicLists }}
 							<li>
 								<label><input type="checkbox" value="{{ $list.UUID }}" x-model="checked" {{- if eq $i 0 }} autofocus{{- end }} /> {{ $list.Name }}</label>
@@ -37,7 +37,7 @@
 					<h4>{{ .L.T "forms.redirectURL" }}</h4>
 					<p class="text-light">{{ .L.T "forms.redirectURLHelp" }}</p>
 					{{- if $.ConfigJS.PublicSubscription.RedirectURLs }}
-						<ul class="no" data-cy="redirect-urls">
+						<ul class="no" data-testid="redirect-urls">
 							<li>
 								<label><input type="radio" name="redirect-url" value="" x-model="redirectURL" /> {{ .L.T "globals.terms.none" }}</label>
 							</li>
@@ -50,7 +50,7 @@
 					{{- end }}
 				</div>
 
-				<div class="col-8 col-end" data-cy="form" aria-label="{{ .L.T "forms.formHTML" }}">
+				<div class="col-8 col-end" data-testid="form" aria-label="{{ .L.T "forms.formHTML" }}">
 					<p class="text-light">{{ .L.T "forms.formHTMLHelp" }}</p>
 
 					<div x-show="checked.length > 0" x-cloak>

@@ -2,7 +2,7 @@
   "name": "listmonk-tests",
   "private": true,
   "type": "module",
-  "description": "Playwright end-to-end tests for the listmonk SSR admin.",
+  "description": "E2E tests for listmonk admin.",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui"

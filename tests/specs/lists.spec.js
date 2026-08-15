@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { openMenu, confirm } from '../helpers.js';
+import { openMenu, confirm, resetDB } from '../helpers.js';
 
 const LISTS = '/admin/lists';
 
@@ -39,6 +39,10 @@ async function withListAPI(page, method, action) {
 test.describe.configure({ mode: 'serial' });
 
 test.describe('Lists', () => {
+  test.beforeAll(async ({ browser }) => {
+    await resetDB(browser);
+  });
+
   test('shows the default lists and their subscriber counts', async ({ page }) => {
     await page.goto(LISTS);
 
