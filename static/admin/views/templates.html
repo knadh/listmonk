@@ -21,7 +21,7 @@
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
 			{{- if $canManage }}
-				<a href="{{ $base }}/new" class="button" data-variant="primary" data-cy="btn-new">
+				<a href="{{ $base }}/new" class="button" data-variant="primary" data-testid="btn-new">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
 				</a>
 			{{- end }}
@@ -33,18 +33,18 @@
 			<table>
 				<thead>
 					<tr>
-						<th class="cy-name">{{ .L.T "globals.fields.name" }}</th>
-						<th class="cy-type">{{ .L.T "globals.fields.type" }}</th>
-						<th class="cy-id">{{ .L.T "globals.fields.id" }}</th>
-						<th class="cy-created_at">{{ .L.T "globals.fields.createdAt" }}</th>
+						<th>{{ .L.T "globals.fields.name" }}</th>
+						<th>{{ .L.T "globals.fields.type" }}</th>
+						<th>{{ .L.T "globals.fields.id" }}</th>
+						<th>{{ .L.T "globals.fields.createdAt" }}</th>
 						<th class="actions align-right"></th>
 					</tr>
 				</thead>
 				<tbody>
 					{{- range $d.Templates }}
-						<tr data-id="{{ .ID }}">
+						<tr data-testid="template-row" data-id="{{ .ID }}">
 							<td>
-								<a href="{{ $base }}/{{ .ID }}" data-cy="btn-edit">{{ .Name }}</a>
+								<a href="{{ $base }}/{{ .ID }}" data-testid="btn-edit">{{ .Name }}</a>
 								{{ if .IsDefault }}{{ Badge ($.L.T "templates.default") }}{{ end }}
 								{{- if eq .Type "tx" }}<p class="text-light">{{ .Subject }}</p>{{ end }}
 							</td>
@@ -70,17 +70,17 @@
 										{{ Icon "more-vertical" }}
 									</button>
 									<menu popover id="tpl-actions-{{ .ID }}">
-										<button type="button" role="menuitem" class="ghost" data-cy="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "templates.preview" }}</button>
+										<button type="button" role="menuitem" class="ghost" data-testid="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "templates.preview" }}</button>
 										<hr />
-										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										{{- if $canManage }}
-											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
+											<button type="button" role="menuitem" class="ghost" data-testid="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
 											{{- if and (not .IsDefault) (eq .Type "campaign") }}
-												<button type="button" role="menuitem" class="ghost" data-cy="btn-set-default" :disabled="isLoading('templates')" @click.prevent="onSetDefault({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "check-circle" }} {{ $.L.T "templates.makeDefault" }}</button>
+												<button type="button" role="menuitem" class="ghost" data-testid="btn-set-default" :disabled="isLoading('templates')" @click.prevent="onSetDefault({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "check-circle" }} {{ $.L.T "templates.makeDefault" }}</button>
 											{{- end }}
 											{{- if not .IsDefault }}
 												<hr />
-												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('templates')" @click.prevent="onDelete({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete" :disabled="isLoading('templates')" @click.prevent="onDelete({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 											{{- end }}
 										{{- end }}
 									</menu>
