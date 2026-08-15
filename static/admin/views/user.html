@@ -62,7 +62,7 @@
 				<fieldset :disabled="form.type === 'api'">
 					<legend>{{ .L.T "users.password" }}</legend>
 					<label data-field>
-						<input type="checkbox" x-model="form.password_login" /> {{ .L.T "users.passwordEnable" }}
+						<input type="checkbox" x-model="form.password_login" data-testid="password-login" /> {{ .L.T "users.passwordEnable" }}
 					</label>
 					<label data-field>
 						{{ .L.T "users.password" }}
@@ -107,7 +107,7 @@
 				<div class="hstack gap-3 justify-end">
 					<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
 					{{- if $canSave }}
-						<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('users.save')" :aria-busy="isLoading('users.save')">{{ .L.T "globals.buttons.save" }}</button>
+						<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('users.save')" :aria-busy="isLoading('users.save')">{{ .L.T "globals.buttons.save" }}</button>
 					{{- end }}
 				</div>
 			</footer>

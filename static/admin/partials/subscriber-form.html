@@ -15,7 +15,7 @@
 				{{ template "subscriber-fields" $root }}
 				{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
 				<label data-field :aria-disabled="!hasOptinList">
-					<input type="checkbox" x-model="form.preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
+					<input type="checkbox" x-model="form.preconfirm" data-testid="preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
 					<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
 				</label>
 				{{ template "subscriber-attribs" $root }}
@@ -23,7 +23,7 @@
 			<footer class="dialog-foot hstack gap-3 justify-end">
 				<button type="button" class="outline" @click="onClose">{{ $root.L.T "globals.buttons.close" }}</button>
 				{{- if $canSave }}
-					<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+					<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
 				{{- end }}
 			</footer>
 		{{- else }}
@@ -41,7 +41,7 @@
 				<div class="hstack gap-3 justify-end">
 					<a href="{{ URI "/admin/subscribers" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
 					{{- if $canSave }}
-						<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+						<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
 					{{- end }}
 				</div>
 			</footer>

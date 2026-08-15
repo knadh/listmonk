@@ -16,7 +16,7 @@
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
 			{{- if $d.Can "roles:manage" }}
-				<a href="{{ $base }}/new" class="button" data-variant="primary" data-cy="btn-new">
+				<a href="{{ $base }}/new" class="button" data-variant="primary" data-testid="btn-new">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
 				</a>
 			{{- end }}
@@ -28,15 +28,15 @@
 			<table>
 				<thead>
 					<tr>
-						<th class="cy-name">{{ .L.Tc "users.role" 1 }}</th>
-						<th class="cy-created_at">{{ .L.T "globals.fields.createdAt" }}</th>
-						<th class="cy-updated_at">{{ .L.T "globals.fields.updatedAt" }}</th>
+						<th>{{ .L.Tc "users.role" 1 }}</th>
+						<th>{{ .L.T "globals.fields.createdAt" }}</th>
+						<th>{{ .L.T "globals.fields.updatedAt" }}</th>
 						<th class="actions align-right"></th>
 					</tr>
 				</thead>
 				<tbody>
 					{{- range $d.Roles }}
-						<tr data-id="{{ .ID }}">
+						<tr data-testid="role-row" data-id="{{ .ID }}">
 							<td>
 								<a href="{{ $base }}/{{ .ID }}">
 									{{- if eq .ID 1 }}{{ Badge (list (Icon "star") .Name) "enum" }}{{ else }}{{ .Name }}{{ end -}}
@@ -51,10 +51,10 @@
 											{{ Icon "more-vertical" }}
 										</button>
 										<menu popover id="role-actions-{{ .ID }}">
-											<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
-											<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" :disabled="isLoading('roles')" @click.prevent="onCloneRole({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
+											<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+											<button type="button" role="menuitem" class="ghost" data-testid="btn-clone" :disabled="isLoading('roles')" @click.prevent="onCloneRole({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
 											{{- if ne .ID 1 }}
-												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('roles')" @click.prevent="onDeleteRole({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete" :disabled="isLoading('roles')" @click.prevent="onDeleteRole({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 											{{- end }}
 										</menu>
 									</ot-dropdown>

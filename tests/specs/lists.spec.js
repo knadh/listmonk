@@ -129,6 +129,12 @@ test.describe('Lists', () => {
       await expect(row).toContainText('#test');
       await expect(row).toContainText(`#tag${n}`);
     }
+
+    // The description isn't on the listing; reopen each edit view to confirm it saved.
+    for (const [n, id] of ids.entries()) {
+      await page.goto(`${LISTS}/${id}`);
+      await expect(page.locator('textarea[name="description"]')).toHaveValue(`desc${n}`);
+    }
   });
 
   test('deletes all lists', async ({ page }) => {

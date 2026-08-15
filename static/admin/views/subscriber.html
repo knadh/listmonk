@@ -22,9 +22,9 @@
 		<div class="col-6 col-end align-right hstack justify-end">
 			{{- if and (eq $d.Tab "lists") ($d.Can "subscribers:manage") }}
 				{{ if ne $sub.Status "blocklisted" }}
-				<button type="button" class="outline" @click.prevent="onSendOptin" :disabled="!hasOptinSub">{{ Icon "mail" }} {{ .L.T "subscribers.sendOptinConfirm" }}</button>
+				<button type="button" class="outline" data-testid="btn-send-optin" @click.prevent="onSendOptin" :disabled="!hasOptinSub">{{ Icon "mail" }} {{ .L.T "subscribers.sendOptinConfirm" }}</button>
 				{{ end }}
-				<button type="button" data-variant="primary" @click.prevent="onOpenManage">{{ Icon "list" }} {{ .L.T "globals.buttons.manage" }}</button>
+				<button type="button" data-variant="primary" data-testid="btn-manage" @click.prevent="onOpenManage">{{ Icon "list" }} {{ .L.T "globals.buttons.manage" }}</button>
 			{{- end }}
 			{{- if and (eq $d.Tab "bounces") $d.Bounces }}
 				<button type="button" class="outline" data-variant="danger" @click.prevent="onDeleteBounces">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.clear" }}</button>
