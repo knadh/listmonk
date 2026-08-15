@@ -25,11 +25,11 @@
 						<fieldset class="vstack gap-6">
 							<legend>{{ .L.T "import.mode" }}</legend>
 							<div class="hstack">
-								<label><input type="radio" name="mode" value="subscribe" x-model="form.mode" data-cy="check-subscribe" /> {{ .L.T "import.subscribe" }}</label>
-								<label><input type="radio" name="mode" value="blocklist" x-model="form.mode" data-cy="check-blocklist" /> {{ .L.T "import.blocklist" }}</label>
+								<label><input type="radio" name="mode" value="subscribe" x-model="form.mode" data-testid="check-subscribe" /> {{ .L.T "import.subscribe" }}</label>
+								<label><input type="radio" name="mode" value="blocklist" x-model="form.mode" data-testid="check-blocklist" /> {{ .L.T "import.blocklist" }}</label>
 							</div>
 							<label data-field>
-								<input type="checkbox" role="switch" x-model="form.overwriteUserInfo" data-cy="overwrite-user-info" /> {{ .L.T "import.overwriteUserInfo" }}
+								<input type="checkbox" role="switch" x-model="form.overwriteUserInfo" data-testid="overwrite-user-info" /> {{ .L.T "import.overwriteUserInfo" }}
 								<small data-hint>{{ .L.T "import.overwriteUserInfoHelp" }}</small>
 							</label>
 						</fieldset>
@@ -39,16 +39,16 @@
 							<legend>{{ .L.T "globals.fields.status" }}</legend>
 							<template x-if="form.mode === 'subscribe'">
 								<div class="hstack">
-									<label><input type="radio" name="subStatus" value="unconfirmed" x-model="form.subStatus" data-cy="check-unconfirmed" /> {{ .L.T "subscribers.status.unconfirmed" }}</label>
-									<label><input type="radio" name="subStatus" value="confirmed" x-model="form.subStatus" data-cy="check-confirmed" /> {{ .L.T "subscribers.status.confirmed" }}</label>
+									<label><input type="radio" name="subStatus" value="unconfirmed" x-model="form.subStatus" data-testid="check-unconfirmed" /> {{ .L.T "subscribers.status.unconfirmed" }}</label>
+									<label><input type="radio" name="subStatus" value="confirmed" x-model="form.subStatus" data-testid="check-confirmed" /> {{ .L.T "subscribers.status.confirmed" }}</label>
 								</div>
 							</template>
 							<template x-if="form.mode === 'blocklist'">
-								<label><input type="radio" name="subStatus" value="unsubscribed" x-model="form.subStatus" data-cy="check-unsubscribed" /> {{ .L.T "subscribers.status.unsubscribed" }}</label>
+								<label><input type="radio" name="subStatus" value="unsubscribed" x-model="form.subStatus" data-testid="check-unsubscribed" /> {{ .L.T "subscribers.status.unsubscribed" }}</label>
 							</template>
 							<template x-if="form.mode === 'subscribe'">
 								<label data-field>
-									<input type="checkbox" role="switch" x-model="form.overwriteSubStatus" data-cy="overwrite-sub-status" /> {{ .L.T "import.overwriteSubStatus" }}
+									<input type="checkbox" role="switch" x-model="form.overwriteSubStatus" data-testid="overwrite-sub-status" /> {{ .L.T "import.overwriteSubStatus" }}
 									<small data-hint>{{ .L.T "import.overwriteSubStatusHelp" }}</small>
 								</label>
 							</template>
@@ -87,7 +87,7 @@
 				</div>
 
 				<div class="hstack">
-					<button type="submit" data-variant="primary" data-cy="btn-upload" :disabled="!canUpload || isProcessing" :aria-busy="isProcessing">
+					<button type="submit" data-variant="primary" data-testid="btn-upload" :disabled="!canUpload || isProcessing" :aria-busy="isProcessing">
 						{{ Icon "upload" }} {{ .L.T "import.upload" }}
 					</button>
 				</div>
@@ -108,8 +108,8 @@
 							<div class="stat-value capitalize" :class="{ 'text-danger': status.status === 'failed' || status.status === 'stopped' }" x-text="status.status">{{ $d.Status.Status }}</div>
 						</header>
 						<div class="col-4 hstack justify-end items-center">
-							<button type="button" data-variant="danger" data-cy="btn-stop" x-show="!isDone" @click="stopImport" :disabled="isProcessing || status.status === 'stopping'" :aria-busy="isProcessing">{{ .L.T "import.stopImport" }}</button>
-							<button type="button" data-variant="primary" data-cy="btn-done" x-show="isDone" @click="stopImport" :disabled="isProcessing" :aria-busy="isProcessing">{{ .L.T "import.importDone" }}</button>
+							<button type="button" data-variant="danger" data-testid="btn-stop" x-show="!isDone" @click="stopImport" :disabled="isProcessing || status.status === 'stopping'" :aria-busy="isProcessing">{{ .L.T "import.stopImport" }}</button>
+							<button type="button" data-variant="primary" data-testid="btn-done" x-show="isDone" @click="stopImport" :disabled="isProcessing" :aria-busy="isProcessing">{{ .L.T "import.importDone" }}</button>
 						</div>
 					</div>
 					<footer>
