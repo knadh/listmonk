@@ -34,27 +34,27 @@
 				{{- $d.Page.FormFields "search" "query" "page" -}}
 				<ot-dropdown>
 					<fieldset class="group">
-						<input name="search" aria-label="Search" data-cy="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
-						<button type="button" class="outline sql-btn dot-indicator" :class="{ 'is-active': advanced }" popovertarget="sql-editor" data-cy="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "subscribers.advancedQuery" }}">SQL {}</button>
-						<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
+						<input name="search" aria-label="Search" data-testid="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
+						<button type="button" class="outline sql-btn dot-indicator" :class="{ 'is-active': advanced }" popovertarget="sql-editor" data-testid="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "subscribers.advancedQuery" }}">SQL {}</button>
+						<button type="submit" data-testid="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 					</fieldset>
-					<div popover id="sql-editor" class="sql-editor" data-cy="query-editor" @toggle="isSqlOpen = ($event.newState === 'open'); if (isSqlOpen) $nextTick(() => $refs.queryInput.focus())">
+					<div popover id="sql-editor" class="sql-editor" data-testid="query-editor" @toggle="isSqlOpen = ($event.newState === 'open'); if (isSqlOpen) $nextTick(() => $refs.queryInput.focus())">
 						<div data-field>
-							<textarea x-ref="queryInput" name="query" data-cy="query" rows="6" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'" x-model="query" :disabled="!isSqlOpen && !advanced"></textarea>
+							<textarea x-ref="queryInput" name="query" data-testid="query" rows="6" placeholder="subscribers.name LIKE '%user%' or subscribers.status='blocklisted'" x-model="query" :disabled="!isSqlOpen && !advanced"></textarea>
 							<small data-hint>
 								{{ .L.T "subscribers.advancedQueryHelp" }}.
 								<a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank" rel="noopener noreferrer">{{ .L.T "globals.buttons.learnMore" }}.</a>
 							</small>
 						</div>
 						<div class="hstack justify-end">
-							<button type="button" class="outline" data-cy="btn-query-reset" @click="query = ''" :disabled="query.trim() === ''">{{ .L.T "subscribers.reset" }}</button>
-							<button type="submit" data-variant="primary" data-cy="btn-query">{{ .L.T "subscribers.query" }}</button>
+							<button type="button" class="outline" data-testid="btn-query-reset" @click="query = ''" :disabled="query.trim() === ''">{{ .L.T "subscribers.reset" }}</button>
+							<button type="submit" data-variant="primary" data-testid="btn-query">{{ .L.T "subscribers.query" }}</button>
 						</div>
 					</div>
 				</ot-dropdown>
 			</form>
 			{{- if $d.Can "subscribers:manage" }}
-				<button type="button" data-variant="primary" class="btn-new" data-cy="btn-new" @click="onOpenNew">
+				<button type="button" data-variant="primary" class="btn-new" data-testid="btn-new" @click="onOpenNew">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
 				</button>
 			{{- end }}
@@ -65,21 +65,21 @@
 		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('subscribers')" @change="onChange($event)">
 			<template x-if="numSelected > 0">
 				<ot-dropdown class="bulk-actions">
-					<button popovertarget="sub-bulk-actions" type="button" class="small" data-cy="btn-bulk-actions">
+					<button popovertarget="sub-bulk-actions" type="button" class="small" data-testid="btn-bulk-actions">
 						<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
 					</button>
 					<menu popover id="sub-bulk-actions">
 						{{- if gt $d.Page.Total $d.Page.PerPage }}
-							<button type="button" role="menuitem" class="ghost" data-cy="select-all-subscribers" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
+							<button type="button" role="menuitem" class="ghost" data-testid="select-all-subscribers" x-cloak x-show="!allSelected" @click.prevent="onSelectAllQuery()">
 								{{ Icon "check-square" }} <span x-text="selectAllLabel"></span>
 							</button>
 						{{- end }}
-						<button type="button" role="menuitem" class="ghost" data-cy="btn-export-subscribers" @click.prevent="onExport(allSelected, selected, total)">{{ Icon "download-cloud" }} {{ .L.T "subscribers.export" }}</button>
+						<button type="button" role="menuitem" class="ghost" data-testid="btn-export-subscribers" @click.prevent="onExport(allSelected, selected, total)">{{ Icon "download-cloud" }} {{ .L.T "subscribers.export" }}</button>
 						{{- if $d.Can "subscribers:manage" }}
-							<button type="button" role="menuitem" class="ghost" data-cy="btn-manage-lists" @click.prevent="onOpenManageLists(allSelected, selected)">{{ Icon "list" }} {{ .L.T "subscribers.manageLists" }}</button>
-							<button type="button" role="menuitem" class="ghost" data-cy="btn-manage-blocklist" @click.prevent="onBlocklistSelected(allSelected, selected, total)">{{ Icon "user-x" }} {{ .L.T "import.blocklist" }}</button>
+							<button type="button" role="menuitem" class="ghost" data-testid="btn-manage-lists" @click.prevent="onOpenManageLists(allSelected, selected)">{{ Icon "list" }} {{ .L.T "subscribers.manageLists" }}</button>
+							<button type="button" role="menuitem" class="ghost" data-testid="btn-manage-blocklist" @click.prevent="onBlocklistSelected(allSelected, selected, total)">{{ Icon "user-x" }} {{ .L.T "import.blocklist" }}</button>
 							<hr />
-							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete-subscribers" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSelected(allSelected, selected, total)">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span></button>
+							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete-subscribers" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSelected(allSelected, selected, total)">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span></button>
 						{{- end }}
 					</menu>
 				</ot-dropdown>
@@ -89,18 +89,18 @@
 				<thead>
 					<tr>
 						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
-						<th class="cy-email">{{ $d.Page.SortLink $base "email" (.L.T "subscribers.email") }}</th>
-						<th class="cy-name">{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
-						<th class="align-center cy-lists">{{ .L.T "globals.terms.lists" }}</th>
-						<th class="cy-created_at">{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
-						<th class="cy-updated_at">{{ $d.Page.SortLink $base "updated_at" (.L.T "globals.fields.updatedAt") }}</th>
+						<th>{{ $d.Page.SortLink $base "email" (.L.T "subscribers.email") }}</th>
+						<th>{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
+						<th class="align-center">{{ .L.T "globals.terms.lists" }}</th>
+						<th>{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
+						<th>{{ $d.Page.SortLink $base "updated_at" (.L.T "globals.fields.updatedAt") }}</th>
 						<th class="align-right"></th>
 					</tr>
 				</thead>
 				<tbody>
 					{{- range $d.Subscribers }}
 						{{- $sub := . }}
-						<tr {{ if eq .Status "blocklisted" }}class="blocklisted"{{ end }}>
+						<tr data-testid="sub-row" data-id="{{ .ID }}" {{ if eq .Status "blocklisted" }}class="blocklisted"{{ end }}>
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td  class="email">
 								<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
@@ -127,11 +127,11 @@
 										{{ Icon "more-vertical" }}
 									</button>
 									<menu popover id="sub-actions-{{ .ID }}">
-										<a href="{{ URI "/api/subscribers" }}/{{ .ID }}/export" role="menuitem" class="button ghost" data-cy="btn-download">{{ Icon "download-cloud" }} {{ $.L.T "subscribers.downloadData" }}</a>
+										<a href="{{ URI "/api/subscribers" }}/{{ .ID }}/export" role="menuitem" class="button ghost" data-testid="btn-download">{{ Icon "download-cloud" }} {{ $.L.T "subscribers.downloadData" }}</a>
 										{{- if $d.Can "subscribers:manage" }}
-											<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+											<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 											<hr />
-											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSubscriber({{ .ID }}, {{ ToJSON .Email }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
+											<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete" :disabled="isLoading('subscribers')" @click.prevent="onDeleteSubscriber({{ .ID }}, {{ ToJSON .Email }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 										{{- end }}
 									</menu>
 								</ot-dropdown>

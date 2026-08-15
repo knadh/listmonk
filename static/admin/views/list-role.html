@@ -36,7 +36,7 @@
 								<option :value="l.id" x-text="l.name"></option>
 							</template>
 						</select>
-						<button type="button" data-variant="primary" @click="onAddListPerm" :disabled="disabled || !form.curList">{{ .L.T "globals.buttons.add" }}</button>
+						<button type="button" data-variant="primary" data-testid="btn-add-list" @click="onAddListPerm" :disabled="disabled || !form.curList">{{ .L.T "globals.buttons.add" }}</button>
 					</fieldset>
 				</div>
 
@@ -84,7 +84,7 @@
 					</div>
 					<div class="col-6 hstack justify-end">
 						<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
-						<button type="submit" data-variant="primary" data-cy="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
+						<button type="submit" data-variant="primary" data-testid="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
 					</div>
 				</div>
 			</footer>

@@ -24,7 +24,7 @@
 			</div>
 		</div>
 		<div class="col-6 col-end hstack justify-end">
-			<button type="button" class="outline" data-cy="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "templates.preview" }}</button>
+			<button type="button" class="outline" data-testid="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "templates.preview" }}</button>
 		</div>
 	</header>
 
@@ -83,7 +83,7 @@
 				</div>
 				<div class="hstack gap-3 justify-end">
 					{{- if $canManage }}
-						<button type="submit" data-variant="primary" data-cy="btn-save" :disabled="isLoading('templates')" :aria-busy="isLoading('templates')">{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}</button>
+						<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('templates')" :aria-busy="isLoading('templates')">{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}</button>
 					{{- end }}
 				</div>
 			</footer>
