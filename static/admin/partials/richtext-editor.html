@@ -1,0 +1,277 @@
+{{ define "richtext-editor" -}}
+{{- $root := .Root -}}
+{{- $L := $root.L -}}
+{{- $f := "richtext-icons.svg" -}}
+<richtext-editor {{ if .Disabled }}disabled{{ end }} @input="form.body = $event.target.value">
+	<textarea data-rte-source hidden>{{ .Body }}</textarea>
+
+	<div class="rte-toolbar" role="toolbar" aria-label="{{ $L.T "campaigns.editor.toolbar" }}">
+		{{- /* History */}}
+		<div class="rte-group">
+			<button type="button" class="ghost" data-cmd="undo" title="{{ $L.T "campaigns.editor.undo" }}" aria-label="{{ $L.T "campaigns.editor.undo" }}">{{ Icon "rotate-ccw" $f }}</button>
+			<button type="button" class="ghost" data-cmd="redo" title="{{ $L.T "campaigns.editor.redo" }}" aria-label="{{ $L.T "campaigns.editor.redo" }}">{{ Icon "rotate-cw" $f }}</button>
+		</div>
+
+		{{- /* Block format + font size */}}
+		<div class="rte-group">
+			<ot-dropdown class="rte-blockformat">
+				<button type="button" class="ghost rte-select" popovertarget="rte-blockformat" title="{{ $L.T "campaigns.editor.blockFormat" }}"><span data-rte-blocklabel>{{ $L.T "campaigns.editor.paragraph" }}</span> {{ Icon "chevron-down" $f }}</button>
+				<menu popover id="rte-blockformat" class="rte-menu">
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="P">{{ $L.T "campaigns.editor.paragraph" }}</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="H1"><h1>{{ $L.T "campaigns.editor.heading" }} 1</h1></button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="H2"><h2>{{ $L.T "campaigns.editor.heading" }} 2</h2></button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="H3"><h3>{{ $L.T "campaigns.editor.heading" }} 3</h3></button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="H4"><h4>{{ $L.T "campaigns.editor.heading" }} 4</h4></button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="H5"><h5>{{ $L.T "campaigns.editor.heading" }} 5</h5></button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="H6"><h6>{{ $L.T "campaigns.editor.heading" }} 6</h6></button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="BLOCKQUOTE">{{ $L.T "campaigns.editor.blockquote" }}</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="block" data-value="PRE">{{ $L.T "campaigns.editor.code" }}</button>
+				</menu>
+			</ot-dropdown>
+
+			<ot-dropdown>
+				<button type="button" class="ghost rte-select" popovertarget="rte-fontsize" title="{{ $L.T "campaigns.editor.fontSize" }}">{{ Icon "type" $f }} {{ Icon "chevron-down" $f }}</button>
+				<menu popover id="rte-fontsize" class="rte-menu">
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="10px">10</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="11px">11</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="12px">12</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="14px">14</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="15px">15</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="16px">16</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="18px">18</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="24px">24</button>
+					<button type="button" role="menuitem" class="ghost" data-cmd="fontsize" data-value="36px">36</button>
+				</menu>
+			</ot-dropdown>
+		</div>
+
+		{{- /* Inline formatting */}}
+		<div class="rte-group">
+			<button type="button" class="ghost" data-cmd="bold" data-format="B" title="{{ $L.T "campaigns.editor.bold" }}" aria-label="{{ $L.T "campaigns.editor.bold" }}">{{ Icon "bold" $f }}</button>
+			<button type="button" class="ghost" data-cmd="italic" data-format="I" title="{{ $L.T "campaigns.editor.italic" }}" aria-label="{{ $L.T "campaigns.editor.italic" }}">{{ Icon "italic" $f }}</button>
+			<button type="button" class="ghost" data-cmd="underline" data-format="U" title="{{ $L.T "campaigns.editor.underline" }}" aria-label="{{ $L.T "campaigns.editor.underline" }}">{{ Icon "underline" $f }}</button>
+			<button type="button" class="ghost" data-cmd="strikethrough" data-format="S" title="{{ $L.T "campaigns.editor.strikethrough" }}" aria-label="{{ $L.T "campaigns.editor.strikethrough" }}">{{ Icon "strikethrough" $f }}</button>
+
+			<ot-dropdown>
+				<button type="button" class="ghost" popovertarget="rte-forecolor" title="{{ $L.T "campaigns.editor.textColor" }}" aria-label="{{ $L.T "campaigns.editor.textColor" }}">{{ Icon "text-color" $f }}</button>
+				<menu popover id="rte-forecolor" class="rte-colors">
+					<div class="rte-swatches" data-rte-palette="forecolor"></div>
+					<fieldset class="group rte-color-custom" data-rte-colorinput="forecolor">
+						<input type="color" name="picker" value="#000000" title="{{ $L.T "campaigns.editor.textColor" }}" aria-label="{{ $L.T "campaigns.editor.textColor" }}" />
+						<input type="text" name="hex" size="8" placeholder="#000000" spellcheck="false" autocapitalize="off" autocomplete="off" />
+						<button type="button" class="outline small" data-rte-act="applycolor">{{ $L.T "globals.buttons.apply" }}</button>
+					</fieldset>
+				</menu>
+			</ot-dropdown>
+			<ot-dropdown>
+				<button type="button" class="ghost" popovertarget="rte-backcolor" title="{{ $L.T "campaigns.editor.highlightColor" }}" aria-label="{{ $L.T "campaigns.editor.highlightColor" }}">{{ Icon "highlight" $f }}</button>
+				<menu popover id="rte-backcolor" class="rte-colors">
+					<div class="rte-swatches" data-rte-palette="backcolor"></div>
+					<fieldset class="group rte-color-custom" data-rte-colorinput="backcolor">
+						<input type="color" name="picker" value="#ffff00" title="{{ $L.T "campaigns.editor.highlightColor" }}" aria-label="{{ $L.T "campaigns.editor.highlightColor" }}" />
+						<input type="text" name="hex" size="8" placeholder="#ffff00" spellcheck="false" autocapitalize="off" autocomplete="off" />
+						<button type="button" class="outline small" data-rte-act="applycolor">{{ $L.T "globals.buttons.apply" }}</button>
+					</fieldset>
+				</menu>
+			</ot-dropdown>
+		</div>
+
+		{{- /* Alignment */}}
+		<div class="rte-group">
+			<button type="button" class="ghost" data-cmd="align" data-value="left" title="{{ $L.T "campaigns.editor.alignLeft" }}" aria-label="{{ $L.T "campaigns.editor.alignLeft" }}">{{ Icon "align-left" $f }}</button>
+			<button type="button" class="ghost" data-cmd="align" data-value="center" title="{{ $L.T "campaigns.editor.alignCenter" }}" aria-label="{{ $L.T "campaigns.editor.alignCenter" }}">{{ Icon "align-center" $f }}</button>
+			<button type="button" class="ghost" data-cmd="align" data-value="right" title="{{ $L.T "campaigns.editor.alignRight" }}" aria-label="{{ $L.T "campaigns.editor.alignRight" }}">{{ Icon "align-right" $f }}</button>
+			<button type="button" class="ghost" data-cmd="align" data-value="justify" title="{{ $L.T "campaigns.editor.alignJustify" }}" aria-label="{{ $L.T "campaigns.editor.alignJustify" }}">{{ Icon "align-justify" $f }}</button>
+		</div>
+
+		{{- /* Lists + indentation */}}
+		<div class="rte-group">
+			<button type="button" class="ghost" data-cmd="ul" data-format="UL" title="{{ $L.T "campaigns.editor.bulletList" }}" aria-label="{{ $L.T "campaigns.editor.bulletList" }}">{{ Icon "list" $f }}</button>
+			<button type="button" class="ghost" data-cmd="ol" data-format="OL" title="{{ $L.T "campaigns.editor.numberList" }}" aria-label="{{ $L.T "campaigns.editor.numberList" }}">{{ Icon "list-ordered" $f }}</button>
+			<button type="button" class="ghost" data-cmd="outdent" title="{{ $L.T "campaigns.editor.outdent" }}" aria-label="{{ $L.T "campaigns.editor.outdent" }}">{{ Icon "outdent" $f }}</button>
+			<button type="button" class="ghost" data-cmd="indent" title="{{ $L.T "campaigns.editor.indent" }}" aria-label="{{ $L.T "campaigns.editor.indent" }}">{{ Icon "indent" $f }}</button>
+		</div>
+
+		<div class="rte-group">
+			<button type="button" class="ghost" data-cmd="image" title="{{ $L.T "campaigns.editor.image" }}" aria-label="{{ $L.T "campaigns.editor.image" }}">{{ Icon "image" $f }}</button>
+			<button type="button" class="ghost" data-cmd="link" title="{{ $L.T "campaigns.editor.link" }}" aria-label="{{ $L.T "campaigns.editor.link" }}">{{ Icon "link" $f }}</button>
+			<ot-dropdown>
+				<button type="button" class="ghost" popovertarget="rte-tablegrid" title="{{ $L.T "campaigns.editor.table" }}" aria-label="{{ $L.T "campaigns.editor.table" }}">{{ Icon "table" $f }}</button>
+				<div popover id="rte-tablegrid" class="rte-menu rte-tablegrid">
+					<div class="rte-tablegrid-cells" data-rte-tablegrid></div>
+					<div class="rte-tablegrid-label" data-rte-tablegrid-label></div>
+				</div>
+			</ot-dropdown>
+			<button type="button" class="ghost" data-cmd="removeformat" title="{{ $L.T "campaigns.editor.removeFormat" }}" aria-label="{{ $L.T "campaigns.editor.removeFormat" }}">{{ Icon "remove-format" $f }}</button>
+		</div>
+
+		{{- /* Insert */}}
+		<div class="rte-group">
+			<button type="button" class="ghost" data-cmd="anchor" title="{{ $L.T "campaigns.editor.anchor" }}" aria-label="{{ $L.T "campaigns.editor.anchor" }}">{{ Icon "anchor" $f }}</button>
+			<button type="button" class="ghost" data-cmd="subscript" data-format="SUB" title="{{ $L.T "campaigns.editor.subscript" }}" aria-label="{{ $L.T "campaigns.editor.subscript" }}">{{ Icon "subscript" $f }}</button>
+			<button type="button" class="ghost" data-cmd="superscript" data-format="SUP" title="{{ $L.T "campaigns.editor.superscript" }}" aria-label="{{ $L.T "campaigns.editor.superscript" }}">{{ Icon "superscript" $f }}</button>
+
+			<button type="button" class="ghost" data-cmd="hr" title="{{ $L.T "campaigns.editor.hr" }}" aria-label="{{ $L.T "campaigns.editor.hr" }}">{{ Icon "minus" $f }}</button>
+
+			{{- /* Special characters popover. */}}
+			<ot-dropdown>
+				<button type="button" class="ghost" popovertarget="rte-charmap" title="{{ $L.T "campaigns.editor.specialChar" }}" aria-label="{{ $L.T "campaigns.editor.specialChar" }}"><span aria-hidden="true">Ω</span></button>
+				<div popover id="rte-charmap" class="rte-menu rte-glyphpop"><div class="rte-grid" data-rte-charmap></div></div>
+			</ot-dropdown>
+
+			{{- /* Emoji popover. */}}
+			<ot-dropdown>
+				<button type="button" class="ghost" popovertarget="rte-emoji" title="{{ $L.T "campaigns.editor.emoji" }}" aria-label="{{ $L.T "campaigns.editor.emoji" }}">{{ Icon "smile" $f }}</button>
+				<div popover id="rte-emoji" class="rte-menu rte-glyphpop"><div class="rte-grid" data-rte-emoji></div></div>
+			</ot-dropdown>
+
+			<button type="button" class="ghost" data-cmd="insert-html" title="{{ $L.T "campaigns.editor.insertHTML" }}" aria-label="{{ $L.T "campaigns.editor.insertHTML" }}">{{ Icon "plus-square" $f }}</button>
+		</div>
+
+		{{- /* Tools */}}
+		<div class="rte-group">
+			{{- /* Find & replace popover. */}}
+			<ot-dropdown>
+				<button type="button" class="ghost" popovertarget="rte-find" title="{{ $L.T "campaigns.editor.findReplace" }}" aria-label="{{ $L.T "campaigns.editor.findReplace" }}">{{ Icon "search" $f }}</button>
+				<div popover id="rte-find" class="rte-menu rte-find" data-rte-find>
+					<div data-field><input type="text" name="find" placeholder="{{ $L.T "campaigns.editor.find" }}" /></div>
+					<div data-field><input type="text" name="replace" placeholder="{{ $L.T "campaigns.editor.replaceWith" }}" /></div>
+					<label class="rte-find-opt"><input type="checkbox" name="matchcase" /> {{ $L.T "campaigns.editor.matchCase" }}</label>
+					<div class="rte-find-foot">
+						<small data-hint><span data-rte-findcount></span></small>
+						<div class="hstack gap-1">
+							<button type="button" class="outline small" data-rte-act="replace">{{ $L.T "campaigns.editor.replace" }}</button>
+							<button type="button" class="outline small" data-rte-act="replaceAll">{{ $L.T "campaigns.editor.replaceAll" }}</button>
+							<button type="button" class="small" data-variant="primary" data-rte-act="next">{{ $L.T "campaigns.editor.findNext" }}</button>
+						</div>
+					</div>
+				</div>
+			</ot-dropdown>
+
+			<button type="button" class="ghost" data-cmd="source" title="{{ $L.T "campaigns.editor.sourceCode" }}" aria-label="{{ $L.T "campaigns.editor.sourceCode" }}">{{ Icon "code" $f }}</button>
+			<button type="button" class="ghost" data-cmd="fullscreen" title="{{ $L.T "campaigns.editor.fullscreen" }}" aria-label="{{ $L.T "campaigns.editor.fullscreen" }}">{{ Icon "maximize" $f }}</button>
+			<button type="button" class="ghost" data-cmd="help" title="{{ $L.T "campaigns.editor.help" }}" aria-label="{{ $L.T "campaigns.editor.help" }}">{{ Icon "help-circle" $f }}</button>
+		</div>
+
+		{{- /* Overflow: toolbar groups that don't fit on one line are relocated
+		   here by richtext-editor.js. Hidden until it has something to hold. */}}
+		<ot-dropdown class="rte-overflow" hidden>
+			<button type="button" class="ghost" popovertarget="rte-overflow-menu" title="{{ $L.T "campaigns.editor.more" }}" aria-label="{{ $L.T "campaigns.editor.more" }}">{{ Icon "more-vertical" $f }}</button>
+			<menu popover id="rte-overflow-menu" class="rte-overflow-menu"></menu>
+		</ot-dropdown>
+	</div>
+
+	<div class="rte-content" data-rte-content></div>
+
+	<div class="rte-statusbar">
+		<span data-rte-path class="rte-path"></span>
+		<span data-rte-wordcount class="rte-wordcount"></span>
+	</div>
+
+	{{- /* ===== Dialogs ===== */}}
+
+	{{- /* Link */}}
+	<dialog class="rte-dialog" data-rte-dialog="link">
+		<form method="dialog" class="dialog-card">
+			<header class="dialog-head"><h4 class="dialog-title">{{ $L.T "campaigns.editor.link" }}</h4></header>
+			<section class="dialog-body">
+				<div data-field><label>{{ $L.T "campaigns.editor.url" }}</label><input type="text" name="url" autofocus /></div>
+				<div data-field><label>{{ $L.T "campaigns.editor.text" }}</label><input type="text" name="text" /></div>
+				<div data-field><label>{{ $L.T "campaigns.editor.title" }}</label><input type="text" name="title" /></div>
+				<label data-field><input type="checkbox" name="newwindow" /> {{ $L.T "campaigns.editor.openNewWindow" }}</label>
+				<label data-field><input type="checkbox" name="track" /> {{ $L.T "campaigns.editor.trackLink" }}</label>
+			</section>
+			<footer class="dialog-foot align-right">
+				<button type="button" class="outline" data-rte-act="unlink">{{ $L.T "campaigns.editor.removeLink" }}</button>
+				<button type="button" class="outline" data-rte-act="cancel">{{ $L.T "globals.buttons.close" }}</button>
+				<button type="button" data-variant="primary" data-rte-act="submit">{{ $L.T "globals.buttons.insert" }}</button>
+			</footer>
+		</form>
+	</dialog>
+
+	{{- /* Image */}}
+	<dialog class="rte-dialog" data-rte-dialog="image">
+		<form method="dialog" class="dialog-card">
+			<header class="dialog-head"><h4 class="dialog-title">{{ $L.T "campaigns.editor.image" }}</h4></header>
+			<section class="dialog-body">
+				<div data-field>
+					<label>{{ $L.T "campaigns.editor.source" }}</label>
+					<div class="hstack gap-2">
+						<input type="text" name="src" style="flex:1" autofocus />
+						<button type="button" class="outline" data-rte-act="browse">{{ Icon "image" $f }} {{ $L.T "media.title" }}</button>
+					</div>
+				</div>
+				<div data-field><label>{{ $L.T "campaigns.editor.altText" }}</label><input type="text" name="alt" /></div>
+				<div class="hstack gap-2">
+					<div class="rte-img-dims">
+						<div data-field><label>{{ $L.T "campaigns.editor.width" }}</label><input type="text" name="width" inputmode="numeric" /></div>
+						<button type="button" class="ghost rte-img-lock is-active" data-rte-act="lock" aria-pressed="true" title="{{ $L.T "campaigns.editor.constrain" }}" aria-label="{{ $L.T "campaigns.editor.constrain" }}">{{ Icon "lock" $f }}</button>
+						<div data-field><label>{{ $L.T "campaigns.editor.height" }}</label><input type="text" name="height" inputmode="numeric" /></div>
+					</div>
+					<div data-field>
+						<label>{{ $L.T "campaigns.editor.float" }}</label>
+						<select name="float">
+							<option value="">{{ $L.T "globals.terms.none" }}</option>
+							<option value="img-float-left">{{ $L.T "campaigns.editor.floatLeft" }}</option>
+							<option value="img-float-right">{{ $L.T "campaigns.editor.floatRight" }}</option>
+						</select>
+					</div>
+				</div>
+				<label data-field><input type="checkbox" name="embed" /> {{ $L.T "campaigns.editor.embed" }}</label>
+			</section>
+			<footer class="dialog-foot align-right">
+				<button type="button" class="outline" data-rte-act="cancel">{{ $L.T "globals.buttons.close" }}</button>
+				<button type="button" data-variant="primary" data-rte-act="submit">{{ $L.T "globals.buttons.insert" }}</button>
+			</footer>
+		</form>
+	</dialog>
+
+	{{- /* Source code */}}
+	<dialog class="rte-dialog rte-dialog-code" data-rte-dialog="source">
+		<div class="dialog-card">
+			<header class="dialog-head"><h4 class="dialog-title">{{ $L.T "campaigns.editor.sourceCode" }}</h4></header>
+			<section class="dialog-body" data-rte-code></section>
+			<footer class="dialog-foot align-right">
+				<button type="button" class="outline" data-rte-act="format">{{ $L.T "campaigns.formatHTML" }}</button>
+				<button type="button" class="outline" data-rte-act="cancel">{{ $L.T "globals.buttons.close" }}</button>
+				<button type="button" data-variant="primary" data-rte-act="submit">{{ $L.T "globals.buttons.save" }}</button>
+			</footer>
+		</div>
+	</dialog>
+
+	{{- /* Insert HTML */}}
+	<dialog class="rte-dialog rte-dialog-code" data-rte-dialog="insert-html">
+		<div class="dialog-card">
+			<header class="dialog-head"><h4 class="dialog-title">{{ $L.T "campaigns.editor.insertHTML" }}</h4></header>
+			<section class="dialog-body" data-rte-code></section>
+			<footer class="dialog-foot align-right">
+				<button type="button" class="outline" data-rte-act="format">{{ $L.T "campaigns.formatHTML" }}</button>
+				<button type="button" class="outline" data-rte-act="cancel">{{ $L.T "globals.buttons.close" }}</button>
+				<button type="button" data-variant="primary" data-rte-act="submit">{{ $L.T "globals.buttons.insert" }}</button>
+			</footer>
+		</div>
+	</dialog>
+
+	{{- /* Help */}}
+	<dialog class="rte-dialog" data-rte-dialog="help">
+		<div class="dialog-card">
+			<header class="dialog-head"><h4 class="dialog-title">{{ $L.T "campaigns.editor.shortcuts" }}</h4></header>
+			<section class="dialog-body">
+				<table class="rte-shortcuts">
+					<tr><td>Ctrl / ⌘ + B</td><td>{{ $L.T "campaigns.editor.bold" }}</td></tr>
+					<tr><td>Ctrl / ⌘ + I</td><td>{{ $L.T "campaigns.editor.italic" }}</td></tr>
+					<tr><td>Ctrl / ⌘ + U</td><td>{{ $L.T "campaigns.editor.underline" }}</td></tr>
+					<tr><td>Ctrl / ⌘ + Z</td><td>{{ $L.T "campaigns.editor.undo" }}</td></tr>
+					<tr><td>Ctrl / ⌘ + Shift + Z</td><td>{{ $L.T "campaigns.editor.redo" }}</td></tr>
+					<tr><td>Ctrl / ⌘ + K</td><td>{{ $L.T "campaigns.editor.link" }}</td></tr>
+					<tr><td>Ctrl / ⌘ + S</td><td>{{ $L.T "globals.buttons.save" }}</td></tr>
+					<tr><td>F9</td><td>{{ $L.T "campaigns.preview" }}</td></tr>
+				</table>
+			</section>
+			<footer class="dialog-foot align-right">
+				<button type="button" class="outline" data-rte-act="cancel">{{ $L.T "globals.buttons.close" }}</button>
+			</footer>
+		</div>
+	</dialog>
+</richtext-editor>
+{{- end }}

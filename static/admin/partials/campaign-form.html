@@ -33,11 +33,11 @@
 		<label data-field for="content_type">
 			{{ $root.L.T "campaigns.format" }}
 			<select id="content_type" name="content_type" x-model="form.content_type" {{ if not $isNew }}disabled{{ else }}:disabled="!canEdit"{{ end }}>
-				<option value="richtext">{{ $root.L.T "campaigns.richText" }}</option>
-				<option value="html">{{ $root.L.T "campaigns.rawHTML" }}</option>
-				<option value="markdown">{{ $root.L.T "campaigns.markdown" }}</option>
-				<option value="plain">{{ $root.L.T "campaigns.plainText" }}</option>
-				<option value="visual">{{ $root.L.T "campaigns.visual" }}</option>
+				<option value="richtext">{{ $root.L.T "campaigns.contentType.richtext" }}</option>
+				<option value="html">{{ $root.L.T "campaigns.contentType.html" }}</option>
+				<option value="markdown">{{ $root.L.T "campaigns.contentType.markdown" }}</option>
+				<option value="plain">{{ $root.L.T "campaigns.contentType.plain" }}</option>
+				<option value="visual">{{ $root.L.T "campaigns.contentType.visual" }}</option>
 			</select>
 		</label>
 

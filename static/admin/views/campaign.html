@@ -14,10 +14,9 @@
 </script>
 
 <section class="campaign" x-data="campaignView(_camp, _sel)" @keydown.ctrl.s.window.prevent="onSaveShortcut" @keydown.meta.s.window.prevent="onSaveShortcut">
-	{{- $showTest := $canManage -}}
 	{{- $showActions := and (not $isNew) $canManage -}}
 	{{- $showPreview := not $isNew -}}
-	{{- $showRight := or $showTest $showActions $showPreview -}}
+	{{- $showRight := or $showActions $showPreview -}}
 	<header class="row page-header">
 		<div class="{{ if $showRight }}col-6{{ else }}col-12{{ end }}">
 			<div class="hstack">
@@ -37,20 +36,6 @@
 				{{- if $showPreview }}
 					<button type="button" class="outline" data-cy="btn-preview" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "campaigns.preview" }}</button>
 				{{- end }}
-				{{- if $showTest }}
-					<ot-dropdown>
-						<button type="button" class="outline campaign-test-btn dot-indicator" :class="{ 'is-active': form.testEmails.length > 0 }" popovertarget="campaign-test" :disabled="isNew" data-cy="btn-test">{{ Icon "mail" }} {{ .L.T "campaigns.sendTest" }}</button>
-						<div popover id="campaign-test" class="campaign-test">
-							<label data-field>
-								<ot-taginput x-model="form.testEmails"><input type="email" placeholder="{{ .L.T "campaigns.testEmails" }}" :disabled="isNew" @blur="$el.value !== '' && $el.closest('ot-taginput').add($el.value)" autofocus /></ot-taginput>
-								<small data-hint>{{ .L.T "campaigns.sendTestHelp" }}</small>
-							</label>
-							<div class="hstack justify-end">
-								<button type="button" data-variant="primary" @click="onTest" :disabled="isNew || isLoading('campaigns.test')" :aria-busy="isLoading('campaigns.test')" data-spinner="small">{{ Icon "mail" }} {{ .L.T "campaigns.send" }}</button>
-							</div>
-						</div>
-					</ot-dropdown>
-				{{- end }}
 				{{- if $showActions }}
 					<button type="button" data-variant="primary" data-cy="btn-save" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
 				{{- end }}
@@ -60,23 +45,67 @@
 
 	{{- if $isNew }}
 		<div role="tablist">
-			<a role="tab" aria-selected="true">{{ .L.Tc "globals.terms.campaign" 1 }}</a>
-			<a role="tab" aria-disabled="true">{{ .L.T "campaigns.content" }}</a>
-			<a role="tab" aria-disabled="true">{{ .L.T "globals.terms.attribs" }}</a>
-			<a role="tab" aria-disabled="true">{{ .L.T "campaigns.attachments" }}</a>
-			<a role="tab" aria-disabled="true">{{ .L.T "campaigns.archive" }}</a>
+			<a role="tab" aria-selected="true">{{ Icon "mail" }} {{ .L.Tc "globals.terms.campaign" 1 }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "file-text" }} {{ .L.T "campaigns.content" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "paperclip" }} {{ .L.T "campaigns.attachments" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "archive" }} {{ .L.T "campaigns.archive" }}</a>
 		</div>
 
 		{{ template "campaign-form" dict "Root" . "IsNew" $isNew "CanManage" $canManage "CanSend" $canSend }}
 	{{- else }}
 		<ot-tabs data-anchor="tab">
 			<div role="tablist">
-				<button type="button" role="tab" id="campaign">{{ .L.Tc "globals.terms.campaign" 1 }}</button>
-				<button type="button" role="tab" id="content">{{ .L.T "campaigns.content" }}</button>
-				<button type="button" role="tab" id="attribs">{{ .L.T "globals.terms.attribs" }} <span x-cloak x-show="form.attribsStr.trim() !== '' && form.attribsStr.trim() !== '{}'">{{ Icon "check-circle" }}</span></button>
-				<button type="button" role="tab" id="attachments">{{ .L.T "campaigns.attachments" }} <span x-cloak x-show="form.media.length" x-text="`(${form.media.length})`"></span></button>
-				<button type="button" role="tab" id="archive">{{ .L.T "campaigns.archive" }} <span x-cloak x-show="form.archive">{{ Icon "check-circle" }}</span></button>
+				<button type="button" role="tab" id="campaign">{{ Icon "send" }} {{ .L.Tc "globals.terms.campaign" 1 }}</button>
+				<button type="button" role="tab" id="content">{{ Icon "align-left" }} {{ .L.T "campaigns.content" }}</button>
+				<button type="button" role="tab" id="attribs">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }} <span x-cloak x-show="form.attribsStr.trim() !== '' && form.attribsStr.trim() !== '{}'">{{ Icon "check-circle" }}</span></button>
+				<button type="button" role="tab" id="attachments">{{ Icon "paperclip" }} {{ .L.T "campaigns.attachments" }} <span x-cloak x-show="form.media.length" x-text="`(${form.media.length})`"></span></button>
+				<button type="button" role="tab" id="archive">{{ Icon "archive" }} {{ .L.T "campaigns.archive" }} <span x-cloak x-show="form.archive">{{ Icon "check-circle" }}</span></button>
 			</div>
+
+			<ot-dropdown class="content-settings" x-cloak x-show="activeTab === 'content'">
+				<button type="button" class="outline small" popovertarget="content-settings" :title="contentSettingsLabel">{{ Icon "settings" }} <span class="content-settings-label" x-text="contentSettingsLabel"></span></button>
+				<div popover id="content-settings" class="content-settings-menu">
+					<div data-field>
+						<label>{{ .L.T "campaigns.format" }}</label>
+						<select :value="form.content_type" @change="onContentTypeChange($event)" :disabled="!canEdit" name="content_type">
+							<option value="richtext">{{ .L.T "campaigns.contentType.richtext" }}</option>
+							<option value="html">{{ .L.T "campaigns.contentType.html" }}</option>
+							<option value="markdown">{{ .L.T "campaigns.contentType.markdown" }}</option>
+							<option value="plain">{{ .L.T "campaigns.contentType.plain" }}</option>
+							<option value="visual">{{ .L.T "campaigns.contentType.visual" }}</option>
+						</select>
+					</div>
+
+					<template x-if="form.content_type !== 'visual'">
+						<div data-field>
+							<label>{{ .L.Tc "globals.terms.template" 1 }}</label>
+							<select x-model.number="form.template_id" :disabled="!canEdit" name="template">
+								<template x-for="t in templatesFor('campaign')" :key="t.id">
+									<option :value="t.id" x-text="t.name"></option>
+								</template>
+							</select>
+						</div>
+					</template>
+
+					<template x-if="form.content_type === 'visual'">
+						<div data-field>
+							<label>{{ .L.Tc "globals.terms.template" 1 }}</label>
+							<fieldset class="group">
+								<select x-model.number="visualTemplateId" :disabled="!canEdit" name="template">
+									<option value="">{{ .L.T "globals.terms.none" }}</option>
+									<template x-for="t in templatesFor('campaign_visual')" :key="t.id">
+										<option :value="t.id" x-text="t.name"></option>
+									</template>
+								</select>
+								<button type="button" data-variant="primary" data-cy="btn-save-visual-tpl" @click="onImportVisualTpl" :disabled="!canEdit || !visualTemplateId">{{ .L.T "globals.terms.import" }}</button>
+							</fieldset>
+						</div>
+					</template>
+
+					<a class="text-light text-7" href="https://listmonk.app/docs/templating/#template-expressions" target="_blank" rel="noopener noreferrer">{{ Icon "code" }} {{ .L.T "campaigns.templatingRef" }}</a>
+				</div>
+			</ot-dropdown>
 
 			<div role="tabpanel">{{ template "campaign-form" dict "Root" . "IsNew" $isNew "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-content" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
@@ -92,6 +121,7 @@
 
 <script type="module" src="{{ URI "/admin/static/js/views/campaign.js" }}?v={{ .AssetVersion }}" defer></script>
 {{- if not $isNew }}
+	<link href="{{ URI "/admin/static/richtext.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
 	<script type="module" src="{{ URI "/admin/static/js/code-editor.js" }}?v={{ .AssetVersion }}" defer></script>
 	<script type="module" src="{{ URI "/admin/static/js/richtext-editor.js" }}?v={{ .AssetVersion }}" defer></script>
 	<script type="module" src="{{ URI "/admin/static/js/visual-editor.js" }}?v={{ .AssetVersion }}" defer></script>
