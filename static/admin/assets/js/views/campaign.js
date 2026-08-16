@@ -44,6 +44,7 @@ function component(camp, sel) {
   return {
     isNew,
     isHeadersVisible: Array.isArray(c.headers) && c.headers.length > 0,
+    activeTab: 'campaign',
     contentReady: false,
     editorReady: false,
     visualTemplateId: null,
@@ -97,10 +98,14 @@ function component(camp, sel) {
       // Mount content editor plugins only when the 'content' tab is active.
       try {
         if (new URLSearchParams(window.location.hash.slice(1)).get('tab') === 'content') {
+          this.activeTab = 'content';
           this.contentReady = true;
         }
       } catch (e) { }
       this.$root.addEventListener('ot-tab-change', (e) => {
+        if (e.detail?.tab?.id) {
+          this.activeTab = e.detail.tab.id;
+        }
         if (e.detail?.tab?.id === 'content') {
           this.contentReady = true;
         }
@@ -141,11 +146,27 @@ function component(camp, sel) {
     },
 
     get showEditorSpinner() {
-      return this.contentReady && this.form.content_type !== 'plain' && !this.editorReady;
+      // Read both flags unconditionally so Alpine tracks them as dependencies even
+      // on the first evaluation (when contentReady is still false). A short-circuit
+      // here would drop editorReady from the dependency set, so a later editor-ready
+      // event wouldn't clear the spinner.
+      const { contentReady, editorReady } = this;
+      return contentReady && this.form.content_type !== 'plain' && !editorReady;
     },
 
     templatesFor(type) {
       return (window._templates || []).filter((t) => t.type === type);
+    },
+
+    // Generate for the content-settings dropdown.
+    get contentSettingsLabel() {
+      const type = i18n.t(`campaigns.contentType.${this.form.content_type}`);
+
+      const isVisual = this.form.content_type === 'visual';
+      const tplId = isVisual ? this.visualTemplateId : this.form.template_id;
+      const tpl = this.templatesFor(isVisual ? 'campaign_visual' : 'campaign').find((t) => t.id === tplId);
+
+      return tpl ? `${type} / ${tpl.name}` : type;
     },
 
     onToggleSendLater() {

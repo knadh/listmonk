@@ -36,7 +36,7 @@
 								<option :value="l.id" x-text="l.name"></option>
 							</template>
 						</select>
-						<button type="button" data-variant="primary" data-testid="btn-add-list" @click="onAddListPerm" :disabled="disabled || !form.curList">{{ .L.T "globals.buttons.add" }}</button>
+						<button type="button" class="outline" data-testid="btn-add-list" @click="onAddListPerm" :disabled="disabled || !form.curList">{{ .L.T "globals.buttons.add" }}</button>
 					</fieldset>
 				</div>
 

@@ -22,7 +22,6 @@
     "@lezer/highlight": "^1.2.3",
     "alpinejs": "^3.15.12",
     "chart.js": "^4.4.1",
-    "tinymce": "5.10.9",
-    "tinymce-i18n": "^26.7.13"
+    "squire-rte": "2.4.8"
   }
 }
