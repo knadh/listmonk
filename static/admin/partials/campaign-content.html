@@ -4,50 +4,9 @@
 {{- $canManage := .CanManage -}}
 {{- $canSend := .CanSend -}}
 <div class="card page-content content editor">
-	<div class="row">
-		<div class="col-12 hstack gap-3">
-			<fieldset class="group">
-				<legend class="mb-0">{{ $root.L.T "campaigns.format" }}</legend>
-				<select :value="form.content_type" @change="onContentTypeChange($event)" :disabled="!canEdit" name="content_type">
-					<option value="richtext">{{ $root.L.T "campaigns.richText" }}</option>
-					<option value="html">{{ $root.L.T "campaigns.rawHTML" }}</option>
-					<option value="markdown">{{ $root.L.T "campaigns.markdown" }}</option>
-					<option value="plain">{{ $root.L.T "campaigns.plainText" }}</option>
-					<option value="visual">{{ $root.L.T "campaigns.visual" }}</option>
-				</select>
-			</fieldset>
-			<template x-if="form.content_type !== 'visual'">
-				<fieldset class="group">
-					<legend class="mb-0">{{ $root.L.Tc "globals.terms.template" 1 }}</legend>
-					<select x-model.number="form.template_id" :disabled="!canEdit" name="template">
-						<template x-for="t in templatesFor('campaign')" :key="t.id">
-							<option :value="t.id" x-text="t.name"></option>
-						</template>
-					</select>
-				</fieldset>
-			</template>
-
-			<template x-if="form.content_type === 'visual'">
-				<fieldset class="group">
-					<legend>{{ $root.L.Tc "globals.terms.template" 1 }}</legend>
-					<select x-model.number="visualTemplateId" :disabled="!canEdit" name="template">
-						<option value="">{{ $root.L.T "globals.terms.none" }}</option>
-						<template x-for="t in templatesFor('campaign_visual')" :key="t.id">
-							<option :value="t.id" x-text="t.name"></option>
-						</template>
-					</select>
-					<button type="button" data-variant="primary" data-cy="btn-save-visual-tpl" @click="onImportVisualTpl" :disabled="!canEdit || !visualTemplateId">{{ $root.L.T "globals.terms.import" }}</button>
-				</fieldset>
-			</template>
-
-			<a class="text-light" style="margin-inline-start: auto;" href="https://listmonk.app/docs/templating/#template-expressions" target="_blank" rel="noopener noreferrer">{{ Icon "code" }} {{ $root.L.T "campaigns.templatingRef" }}</a>
-		</div>
-	</div>
-
 	<div class="editor-body" :class="{ 'is-loading': showEditorSpinner }" @editor-ready="editorReady = true" @campaign-save.window="onSave" @campaign-preview.window="onPreviewContent" @richtext-media="onEditorMedia($event)" @visual-media="onEditorMedia($event)" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source">
-		{{- /* contentReady gates the heavy editors so they mount (and TinyMCE/visual-editor init) only once the Content tab is first shown. */}}
 		<template x-if="contentReady && form.content_type === 'richtext'">
-			<richtext-editor base="{{ URI "/admin/static/tinymce" }}" {{ if not (or (eq $c.Status "draft") (eq $c.Status "scheduled") (eq $c.Status "paused")) }}disabled{{ end }} @input="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></richtext-editor>
+			{{ template "richtext-editor" dict "Root" $root "Body" $c.Body "Disabled" (not (or (eq $c.Status "draft") (eq $c.Status "scheduled") (eq $c.Status "paused"))) }}
 		</template>
 		<template x-if="contentReady && form.content_type === 'html'">
 			<code-editor lang="html" @input="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></code-editor>
@@ -56,7 +15,7 @@
 			<code-editor lang="markdown" @input="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></code-editor>
 		</template>
 		<template x-if="contentReady && form.content_type === 'plain'">
-			<textarea class="plain-editor" name="content" x-model="form.body" :disabled="!canEdit"></textarea>
+			<textarea class="plain-editor m-0" name="content" x-model="form.body" :disabled="!canEdit"></textarea>
 		</template>
 		<template x-if="contentReady && form.content_type === 'visual'">
 			<visual-editor base="{{ URI "/admin/static/email-builder" }}" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source"><textarea>{{ $c.BodySource.String }}</textarea></visual-editor>
@@ -64,8 +23,8 @@
 	</div>
 
 	<template x-if="canEdit && form.content_type !== 'plain'">
-		<fieldset>
-			<label data-field>
+		<fieldset class="m-0">
+			<label>
 				<input type="checkbox" role="switch" :checked="form.altbody !== null" @change="$event.target.checked ? onAddAltBody() : onRemoveAltBody()" :disabled="!canEdit" /> {{ $root.L.T "campaigns.addAltText" }}
 			</label>
 

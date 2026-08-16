@@ -1240,9 +1240,15 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
 		},
-		"Icon": func(name string) template.HTML {
+		"Icon": func(name string, file ...string) template.HTML {
+			f := "icons.svg"
+			if len(file) > 0 && file[0] != "" {
+				// Optional filename.
+				f = file[0]
+			}
+
 			name = template.HTMLEscapeString(name)
-			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/icons.svg#icon-%s"></use></svg>`, u.RootPath, name))
+			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/%s#icon-%s"></use></svg>`, u.RootPath, f, name))
 		},
 		// First param = content
 		// Second param = optional classes separated by string, eg: "outline status-finished".

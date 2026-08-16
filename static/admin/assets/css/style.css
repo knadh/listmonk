@@ -99,8 +99,10 @@ ot-tabs:not(:defined) {
     }
 }
 
-fieldset > [data-field]:last-child {
-    margin-block-end: 0;
+fieldset {
+    > [data-field]:last-child {
+        margin-block-end: 0;
+    }
 }
 
 dialog {
@@ -291,6 +293,9 @@ td.stats {
 .search-form {
     button.outline {
         border-color: var(--input);
+    }
+    fieldset {
+        margin-block-end: 0;
     }
 }
 
@@ -810,11 +815,10 @@ td > .empty-state {
 .plain-editor,
 .plain-editor textarea,
 .code-editor {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-small);
     min-height: 250px;
     position: relative;
     width: 100%;
+    border: 0;
 }
 
 .code-editor {
@@ -851,30 +855,8 @@ visual-editor {
     margin-block-end: var(--space-8);
 }
 
-.richtext-editor {
-    .tox-tinymce {
-        border: 1px solid var(--border);
-        border-radius: var(--radius-medium);
-        box-shadow: var(--shadow-small);
-        height: 100%;
-    }
-
-    .tox-statusbar__branding {
-        display: none;
-    }
-
-    .tox .tox-statusbar {
-        border: 0;
-    }
-}
-
-.tox.tox-silver-sink {
-    z-index: 850;
-
-    .tox-dialog-wrap {
-        z-index: 900;
-    }
-}
+/* The Squire rich text editor styles live in richtext.css, loaded only on pages
+   that render the richtext-editor partial (see views/campaign.html). */
 
 /* Popover editors (SQL query, campaign test, media upload) */
 .sql-btn {
@@ -931,8 +913,8 @@ visual-editor {
     .campaign-test.campaign-test {
         position-anchor: --campaign-test-anchor;
         inset: auto !important;
-        top: calc(anchor(bottom) + var(--space-1)) !important;
-        right: anchor(right) !important;
+        bottom: calc(anchor(top) + var(--space-1)) !important;
+        left: anchor(left) !important;
     }
 
     .media-upload-btn {
@@ -1031,8 +1013,43 @@ section.campaigns {
 
 /* Campaign editor */
 section.campaign {
+    .page-content.card.editor {
+        padding: 0;
+    }
+
+    ot-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3);
+
+        > [role="tabpanel"] {
+            flex-basis: 100%;
+        }
+    }
+
+    .content-settings {
+        margin-inline-start: auto;
+    }
+
+    .content-settings-label {
+        display: block;
+        max-width: 12rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .content-settings-menu.content-settings-menu:popover-open {
+        padding: var(--space-3);
+        width: min(90vw, 20rem);
+
+        fieldset.group {
+            margin-block-end: 0;
+        }
+    }
+
     .editor .editor-body {
-        margin-block: var(--space-3);
         position: relative;
         min-height: 65vh;
     }

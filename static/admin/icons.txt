@@ -1,9 +1,11 @@
 # List of feathericons to be compiled into an SVG sprite.
 activity
+align-left
 alert-triangle
 arrow-down
 arrow-up
 arrow-up-right
+archive
 at-sign
 bar-chart-2
 calendar
@@ -32,6 +34,7 @@ minus
 monitor
 moon
 more-vertical
+paperclip
 pause
 pause-circle
 plus

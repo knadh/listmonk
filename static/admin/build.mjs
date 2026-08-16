@@ -12,46 +12,8 @@ const srcJS = path.join(root, 'assets/js');
 const dist = path.join(root, 'dist');
 const watch = process.argv.includes('--watch');
 
-// TinyMCE has a lot of files to copy.
-// TINY_PLUGINS and TINY_LANGS MUST mirror assets/js/richtext-editor.js.
-const TINY_PLUGINS = [
-  'anchor', 'autoresize', 'autolink', 'charmap', 'emoticons', 'fullscreen',
-  'help', 'hr', 'image', 'imagetools', 'link', 'lists', 'paste', 'searchreplace',
-  'table', 'visualblocks', 'visualchars', 'wordcount',
-];
-const TINY_LANGS = ['cs', 'de', 'es_MX', 'fr_FR', 'it_IT', 'pl', 'pt_PT', 'pt_BR', 'ro', 'tr'];
-
 // Types to always compress and bundle as .gz.
 const COMPRESS_EXT = ['.js', '.css', '.svg'];
-
-async function copyTinyMCE() {
-  const from = (p) => path.join(root, 'node_modules/tinymce', p);
-  const copy = async (src, destRel) => {
-    const dest = path.join(dist, 'tinymce', destRel);
-    await mkdir(path.dirname(dest), { recursive: true });
-    await cp(src, dest, { recursive: true });
-  };
-
-  // Core, theme, icons.
-  await copy(from('tinymce.min.js'), 'tinymce.min.js');
-  await copy(from('themes/silver/theme.min.js'), 'themes/silver/theme.min.js');
-  await copy(from('icons/default/icons.min.js'), 'icons/default/icons.min.js');
-
-  // Skins and UI.
-  await copy(from('skins/ui/oxide'), 'skins/ui/oxide');
-  await copy(from('skins/content/default/content.min.css'), 'skins/content/default/content.min.css');
-
-  // Plugins.
-  for (const p of TINY_PLUGINS) {
-    await copy(from(`plugins/${p}/plugin.min.js`), `plugins/${p}/plugin.min.js`);
-  }
-  await copy(from('plugins/emoticons/js/emojis.min.js'), 'plugins/emoticons/js/emojis.min.js');
-
-  // Language packs.
-  for (const l of TINY_LANGS) {
-    await copy(path.join(root, 'node_modules/tinymce-i18n/langs5', `${l}.js`), `lang/${l}.js`);
-  }
-}
 
 async function build() {
   // Fresh /dist dir.
@@ -61,10 +23,11 @@ async function build() {
   // Verbatim static assets (icons, images) and stylesheets.
   await cp(path.join(root, 'assets/static'), dist, { recursive: true });
   await cp(path.join(root, 'assets/css/style.css'), path.join(dist, 'style.css'));
+  // Rich text editor styles, loaded only on pages that render the editor partial.
+  await cp(path.join(root, 'assets/css/richtext.css'), path.join(dist, 'richtext.css'));
 
   // Oat CSS is loaded in <head> as is.
   await cp(path.join(root, 'node_modules/@knadh/oat/oat.min.css'), path.join(dist, 'oat.min.css'));
-  await copyTinyMCE();
 
   // Entry points = modules loaded directly by a <script> tag: the global main.js and
   // every per-view module under assets/js/views/.
