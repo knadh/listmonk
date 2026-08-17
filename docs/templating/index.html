@@ -1813,6 +1813,10 @@
 <td>Unsubscription and Manage preferences URL. Ideal for use in the template footer.</td>
 </tr>
 <tr>
+<td><code>{{ UnsubscribeURL }}?manage=true</code></td>
+<td>Direct URL to Manage Preferences page.</td>
+</tr>
+<tr>
 <td><code>{{ MessageURL }}</code></td>
 <td>URL to view the hosted version of an e-mail message.</td>
 </tr>
@@ -1854,16 +1858,16 @@
 <span class="w">    </span><span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
   <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
   <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">section</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;container&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">section</span> <span class="na">class</span><span class="o">=</span><span class="s">"container"</span><span class="p">&gt;</span>
       <span class="p">&lt;</span><span class="nt">header</span><span class="p">&gt;</span>
         <span class="cm">&lt;!-- This will appear in the header of all e-mails.</span>
-<span class="cm">             The subscriber&#39;s name will be automatically inserted here. //--&gt;</span>
+<span class="cm">             The subscriber's name will be automatically inserted here. //--&gt;</span>
         Hi {{ .Subscriber.FirstName }}!
       <span class="p">&lt;/</span><span class="nt">header</span><span class="p">&gt;</span>
 
       <span class="cm">&lt;!-- This is where the e-mail body will be inserted //--&gt;</span>
-      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content&quot;</span><span class="p">&gt;</span>
-        {{ template &quot;content&quot; . }}
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">"content"</span><span class="p">&gt;</span>
+        {{ template "content" . }}
       <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 
       <span class="p">&lt;</span><span class="nt">footer</span><span class="p">&gt;</span>
@@ -1888,7 +1892,7 @@ Your last name is {{.Subscriber.LastName }}.
 You have done {{ .Subscriber.Attribs.projects }} projects.
 
 
-{{ if eq .Subscriber.Attribs.city &quot;Bengaluru&quot; }}
+{{ if eq .Subscriber.Attribs.city "Bengaluru" }}
   You live in Bangalore!
 {{ else }}
   Where do you live?
@@ -1896,7 +1900,7 @@ You have done {{ .Subscriber.Attribs.projects }} projects.
 
 
 Here is a link for you to click that will be tracked.
-&lt;a href=&quot;{{ TrackLink &quot;https://google.com&quot; }}&quot;&gt;Google&lt;/a&gt;
+&lt;a href="{{ TrackLink "https://google.com" }}"&gt;Google&lt;/a&gt;
 </code></pre></div>
 <p>The above example uses an <code>if</code> condition to show one of two messages depending on the value of a subscriber attribute. Many such dynamic expressions are possible with Go templating expressions.</p>
 <h2 id="system-templates">System templates<a class="headerlink" href="#system-templates" title="Permanent link">&para;</a></h2>

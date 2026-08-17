@@ -2004,34 +2004,34 @@
 <p>And under <code>https://listmonk.mysite.com/admin/settings</code> you put <code>/listmonk/uploads</code>. </p>
 <h4 id="using-volumes">Using volumes<a class="headerlink" href="#using-volumes" title="Permanent link">&para;</a></h4>
 <p>Using <code>docker volumes</code>, you can specify the name of volume and destination for the files to be uploaded inside the container.</p>
-<div class="highlight"><pre><span></span><code>app:
-    volumes:
-      - type: volume
-        source: listmonk-uploads
-        target: /listmonk/uploads
+<div class="highlight"><pre><span></span><code><span class="nt">app</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volume</span>
+<span class="w">        </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">listmonk-uploads</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/listmonk/uploads</span>
 
-volumes:
-  listmonk-uploads:
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">listmonk-uploads</span><span class="p">:</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This volume is managed by <code>docker</code> itself, and you can see find the host path with <code>docker volume inspect listmonk_listmonk-uploads</code>.</p>
 </div>
 <h4 id="using-bind-mounts">Using bind mounts<a class="headerlink" href="#using-bind-mounts" title="Permanent link">&para;</a></h4>
-<p><div class="highlight"><pre><span></span><code>  app:
-    volumes:
-      - ./path/on/your/host/:/path/inside/container
+<p><div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">app</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./path/on/your/host/:/path/inside/container</span>
 </code></pre></div>
 Eg:
-<div class="highlight"><pre><span></span><code>  app:
-    volumes:
-      - ./data/uploads:/listmonk/uploads
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">app</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./data/uploads:/listmonk/uploads</span>
 </code></pre></div>
 The files will be available inside <code>/data/uploads</code> directory on the host machine.</p>
 <p>To use the default <code>uploads</code> folder:
-<div class="highlight"><pre><span></span><code>  app:
-    volumes:
-      - ./uploads:/listmonk/uploads
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">app</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./uploads:/listmonk/uploads</span>
 </code></pre></div></p>
 <h2 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h2>
 <h3 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h3>

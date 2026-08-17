@@ -1815,19 +1815,19 @@
 <h4 id="get-apimedia">GET /api/media<a class="headerlink" href="#get-apimedia" title="Permanent link">&para;</a></h4>
 <p>Get an uploaded media file.</p>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media&#39;</span><span class="w"> </span><span class="se">\</span>
---header<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data; boundary=--------------------------093715978792575906250298&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">"api_user:token"</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">'http://localhost:9000/api/media'</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">'Content-Type: multipart/form-data; boundary=--------------------------093715978792575906250298'</span>
 </code></pre></div>
 <h5 id="example-response">Example Response<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ec7b45ce-1408-4e5c-924e-965326a20287&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Media file&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-04-08T22:43:45.080058+01:00&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;thumb_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/uploads/image_thumb.jpg&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/uploads/image.jpg&quot;</span>
+<span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ec7b45ce-1408-4e5c-924e-965326a20287"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"filename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Media file"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-04-08T22:43:45.080058+01:00"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"thumb_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/uploads/image_thumb.jpg"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/uploads/image.jpg"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="p">}</span>
@@ -1855,21 +1855,21 @@
 </tbody>
 </table>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media/7&#39;</span><span class="w"> </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/media/7'</span><span class="w"> </span>
 </code></pre></div>
 <h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;62e32e97-d6ca-4441-923f-b62607000dd1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ResumeB.pdf&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-08-06T11:28:53.888257+05:30&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;thumb_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;filesystem&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">        </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/uploads/ResumeB.pdf&quot;</span>
+<span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"62e32e97-d6ca-4441-923f-b62607000dd1"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"filename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ResumeB.pdf"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"content_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"application/pdf"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-06T11:28:53.888257+05:30"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"thumb_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"filesystem"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:9000/uploads/ResumeB.pdf"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1896,19 +1896,19 @@
 </tbody>
 </table>
 <h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media&#39;</span><span class="w"> </span><span class="se">\</span>
---header<span class="w"> </span><span class="s1">&#39;Content-Type: multipart/form-data; boundary=--------------------------183679989870526937212428&#39;</span><span class="w"> </span><span class="se">\</span>
---form<span class="w"> </span><span class="s1">&#39;file=@/path/to/image.jpg&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">"api_user:token"</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">'http://localhost:9000/api/media'</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">'Content-Type: multipart/form-data; boundary=--------------------------183679989870526937212428'</span><span class="w"> </span><span class="se">\</span>
+--form<span class="w"> </span><span class="s1">'file=@/path/to/image.jpg'</span>
 </code></pre></div>
 <h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ec7b45ce-1408-4e5c-924e-965326a20287&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Media file&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-04-08T22:43:45.080058+01:00&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;thumb_uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/uploads/image_thumb.jpg&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/uploads/image.jpg&quot;</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ec7b45ce-1408-4e5c-924e-965326a20287"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"filename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Media file"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-04-08T22:43:45.080058+01:00"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"thumb_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/uploads/image_thumb.jpg"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/uploads/image.jpg"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1935,11 +1935,11 @@
 </tbody>
 </table>
 <h5 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/media/1&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">"api_user:token"</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">'http://localhost:9000/api/media/1'</span>
 </code></pre></div>
 <h5 id="example-response_3">Example Response<a class="headerlink" href="#example-response_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 

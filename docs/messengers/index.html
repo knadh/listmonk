@@ -1430,24 +1430,24 @@
 <p>When a campaign starts, listmonk POSTs messages in the following format to the selected messenger's endpoint. The endpoint should return a <code>200 OK</code> response in case of a successful request.</p>
 <p>The address required to broadcast the message, for instance, a phone number or an FCM ID, is expected to be stored and relayed as <a href="../concepts/#attributes">subscriber attributes</a>. </p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Welcome to listmonk&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The message body&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;plain&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;recipients&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;e44b4135-1e1d-40c5-8a30-0f9a886c2884&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anon@example.com&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Anon Doe&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;phone&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123123123&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;fcm_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2e7e4b512e7e4b512e7e4b51&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span>
+<span class="w">    </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Welcome to listmonk"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The message body"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"content_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plain"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"recipients"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e44b4135-1e1d-40c5-8a30-0f9a886c2884"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"anon@example.com"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Anon Doe"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123123123"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"fcm_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2e7e4b512e7e4b512e7e4b51"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bengaluru"</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span>
+<span class="w">        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span>
 <span class="w">    </span><span class="p">}],</span>
-<span class="w">    </span><span class="nt">&quot;campaign&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2e7e4b51-f31b-418a-a120-e41800cb689f&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Test campaign&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;test-campaign&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"campaign"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2e7e4b51-f31b-418a-a120-e41800cb689f"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test campaign"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"test-campaign"</span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>

@@ -1654,10 +1654,10 @@
 <h2 id="auth">Auth<a class="headerlink" href="#auth" title="Permanent link">&para;</a></h2>
 <p>HTTP API requests support BasicAuth and a Authorization <code>token</code> headers. API users and tokens with the required permissions can be created and managed on the admin UI (Admin -&gt; Users).</p>
 <h5 id="basicauth-example">BasicAuth example<a class="headerlink" href="#basicauth-example" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">&quot;api_user:token&quot;</span><span class="w"> </span>http://localhost:9000/api/lists
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s2">"api_user:token"</span><span class="w"> </span>http://localhost:9000/api/lists
 </code></pre></div>
 <h5 id="authorization-token-example">Authorization token example<a class="headerlink" href="#authorization-token-example" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: token api_user:token&quot;</span><span class="w"> </span>http://localhost:9000/api/lists
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authorization: token api_user:token"</span><span class="w"> </span>http://localhost:9000/api/lists
 </code></pre></div>
 <h2 id="permissions">Permissions<a class="headerlink" href="#permissions" title="Permanent link">&para;</a></h2>
 <p><strong>User role</strong>: Permissions allowed for a user are defined as a <em>User role</em> (Admin -&gt; User roles) and then attached to a user. </p>
@@ -1671,7 +1671,7 @@
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>All responses from the API server are JSON with the content-type application/json unless explicitly stated otherwise. A successful 200 OK response always has a JSON response body with a status key with the value success. The data key contains the full response payload.</p>
@@ -1680,7 +1680,7 @@
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error message&quot;</span>
+<span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error message"</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>A failure response is preceded by the corresponding 40x or 50x HTTP header. There may be an optional <code>data</code> key with additional payload.</p>

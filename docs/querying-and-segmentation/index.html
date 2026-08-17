@@ -1656,14 +1656,14 @@
 <h2 id="sample-attributes">Sample attributes<a class="headerlink" href="#sample-attributes" title="Permanent link">&para;</a></h2>
 <p>Here's a sample JSON map of attributes assigned to an imaginary subscriber.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;likes_tea&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;spoken_languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;English&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Malayalam&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;projects&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;stack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;frameworks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;go&quot;</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;go&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;preferred_language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;go&quot;</span>
+<span class="w">  </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bengaluru"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"likes_tea"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"spoken_languages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"English"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Malayalam"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"stack"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"frameworks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"echo"</span><span class="p">,</span><span class="w"> </span><span class="s2">"go"</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">"languages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"go"</span><span class="p">,</span><span class="w"> </span><span class="s2">"python"</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">"preferred_language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"go"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1672,18 +1672,18 @@
 <p><img alt="listmonk" src="../images/query-subscribers.png" /></p>
 <h4 id="find-a-subscriber-by-e-mail">Find a subscriber by e-mail<a class="headerlink" href="#find-a-subscriber-by-e-mail" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Exact match</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;some@domain.com&#39;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'some@domain.com'</span>
 
 <span class="c1">-- Partial match to find e-mails that end in @domain.com.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%@domain.com&#39;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%@domain.com'</span>
 </code></pre></div>
 <h4 id="find-a-subscriber-by-name">Find a subscriber by name<a class="headerlink" href="#find-a-subscriber-by-name" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers whose name start with John.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'John%'</span>
 </code></pre></div>
 <h4 id="multiple-conditions">Multiple conditions<a class="headerlink" href="#multiple-conditions" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all Johns who have been blocklisted.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;John%&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">email</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'John%'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'blocklisted'</span>
 </code></pre></div>
 <h4 id="querying-subscribers-who-viewed-the-campaign-email">Querying subscribers who viewed the campaign email<a class="headerlink" href="#querying-subscribers-who-viewed-the-campaign-email" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all subscribers who viewed the campaign email.</span>
@@ -1692,21 +1692,21 @@
 <h4 id="querying-attributes">Querying attributes<a class="headerlink" href="#querying-attributes" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- The -&gt;&gt; operator returns the value as text. Find all subscribers</span>
 <span class="c1">-- who live in Bengaluru and have done more than 3 projects.</span>
-<span class="c1">-- Here &#39;projects&#39; is cast into an integer so that we can apply the</span>
+<span class="c1">-- Here 'projects' is cast into an integer so that we can apply the</span>
 <span class="c1">-- numerical operator &gt;</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;city&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Bengaluru&#39;</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;projects&#39;</span><span class="p">)::</span><span class="nb">INT</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">'city'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Bengaluru'</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">'projects'</span><span class="p">)::</span><span class="nb">INT</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span>
 </code></pre></div>
 <h4 id="querying-nested-attributes">Querying nested attributes<a class="headerlink" href="#querying-nested-attributes" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="c1">-- Find all blocklisted subscribers who like to drink tea, can code Python</span>
 <span class="c1">-- and prefer coding Go.</span>
 <span class="c1">--</span>
-<span class="c1">-- The -&gt; operator returns the value as a structure. Here, the &quot;languages&quot; field</span>
+<span class="c1">-- The -&gt; operator returns the value as a structure. Here, the "languages" field</span>
 <span class="c1">-- The ? operator checks for the existence of a value in a list.</span>
-<span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocklisted&#39;</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;likes_tea&#39;</span><span class="p">)::</span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">&#39;stack&#39;</span><span class="o">-&gt;</span><span class="s1">&#39;languages&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;python&#39;</span><span class="w"> </span><span class="k">AND</span>
-<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">&#39;stack&#39;</span><span class="o">-&gt;&gt;</span><span class="s1">&#39;preferred_language&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;go&#39;</span>
+<span class="n">subscribers</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'blocklisted'</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="p">(</span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;&gt;</span><span class="s1">'likes_tea'</span><span class="p">)::</span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">'stack'</span><span class="o">-&gt;</span><span class="s1">'languages'</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'python'</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">subscribers</span><span class="p">.</span><span class="n">attribs</span><span class="o">-&gt;</span><span class="s1">'stack'</span><span class="o">-&gt;&gt;</span><span class="s1">'preferred_language'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'go'</span>
 </code></pre></div>
 <p>To learn how to write SQL expressions to do advancd querying on JSON attributes, refer to the Postgres <a href="https://www.postgresql.org/docs/11/functions-json.html">JSONB documentation</a>.</p>
 

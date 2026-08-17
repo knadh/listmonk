@@ -1572,7 +1572,7 @@
 <h2 id="pop3-bounce-mailbox">POP3 bounce mailbox<a class="headerlink" href="#pop3-bounce-mailbox" title="Permanent link">&para;</a></h2>
 <p>Configure the bounce mailbox in Settings -&gt; Bounces. Either the "From" e-mail that is set on a campaign (or in settings) should have a POP3 mailbox behind it to receive bounce e-mails, or you should configure a dedicated POP3 mailbox and add that address as the <code>Return-Path</code> (envelope sender) header in Settings -&gt; SMTP -&gt; Custom headers box. For example:</p>
 <div class="highlight"><pre><span></span><code>[
-    {&quot;Return-Path&quot;: &quot;your-bounce-inbox@site.com&quot;}
+    {"Return-Path": "your-bounce-inbox@site.com"}
 ]
 </code></pre></div>
 <p>Some mail servers may also return the bounce to the <code>Reply-To</code> address, which can also be added to the header settings.</p>
@@ -1644,9 +1644,9 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/webhooks/bounce&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;: &quot;user1@mail.com&quot;, &quot;campaign_uuid&quot;: &quot;9f86b50d-5711-41c8-ab03-bc91c43d711b&quot;, &quot;source&quot;: &quot;api&quot;, &quot;type&quot;: &quot;hard&quot;, &quot;meta&quot;: &quot;{\&quot;additional\&quot;: \&quot;info\&quot;}}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">'http://localhost:9000/webhooks/bounce'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data<span class="w"> </span><span class="s1">'{"email": "user1@mail.com", "campaign_uuid": "9f86b50d-5711-41c8-ab03-bc91c43d711b", "source": "api", "type": "hard", "meta": "{\"additional\": \"info\"}}'</span>
 </code></pre></div>
 <h2 id="external-webhooks">External webhooks<a class="headerlink" href="#external-webhooks" title="Permanent link">&para;</a></h2>
 <p>listmonk supports receiving bounce webhook events from the following SMTP providers.</p>
@@ -1771,7 +1771,7 @@
 </ol>
 <h2 id="exporting-bounces">Exporting bounces<a class="headerlink" href="#exporting-bounces" title="Permanent link">&para;</a></h2>
 <p>Bounces can be exported via the JSON API:
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;username:passsword&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/bounces&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'username:passsword'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/bounces'</span>
 </code></pre></div></p>
 <p>Or by querying the database directly:
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">bounces</span><span class="p">.</span><span class="n">created_at</span><span class="p">,</span>

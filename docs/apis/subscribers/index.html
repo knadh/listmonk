@@ -3340,87 +3340,87 @@
 </tbody>
 </table>
 <h5 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers?page=1&amp;per_page=100&#39;</span><span class="w"> </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers?page=1&amp;per_page=100'</span><span class="w"> </span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers?list_id=1&amp;list_id=2&amp;page=1&amp;per_page=100&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers?list_id=1&amp;list_id=2&amp;page=1&amp;per_page=100'</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--url-query<span class="w"> </span><span class="s1">&#39;page=1&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--url-query<span class="w"> </span><span class="s1">&#39;per_page=100&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--url-query<span class="w"> </span><span class="s2">&quot;query=subscribers.name LIKE &#39;Test%&#39; AND subscribers.attribs-&gt;&gt;&#39;city&#39; = &#39;Bengaluru&#39;&quot;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--url-query<span class="w"> </span><span class="s1">'page=1'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--url-query<span class="w"> </span><span class="s1">'per_page=100'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--url-query<span class="w"> </span><span class="s2">"query=subscribers.name LIKE 'Test%' AND subscribers.attribs-&gt;&gt;'city' = 'Bengaluru'"</span>
 </code></pre></div>
 <h5 id="example-response">Example Response<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.199433+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.199433+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ea06b2e7-4b08-4697-bcfc-2a5c6dde8f1c&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john@example.com&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="nt">&quot;good&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;known&quot;</span>
+<span class="w">                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.199433+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.199433+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ea06b2e7-4b08-4697-bcfc-2a5c6dde8f1c"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Doe"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bengaluru"</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">"good"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"known"</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;lists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"lists"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;subscription_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unconfirmed&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ce13e971-c2ed-4069-bd0c-240e9a9f56f9&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default list&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                            </span><span class="s2">&quot;test&quot;</span>
+<span class="w">                        </span><span class="nt">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unconfirmed"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ce13e971-c2ed-4069-bd0c-240e9a9f56f9"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default list"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                            </span><span class="s2">"test"</span>
 <span class="w">                        </span><span class="p">],</span>
-<span class="w">                        </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.194843+01:00&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.194843+01:00&quot;</span>
+<span class="w">                        </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.194843+01:00"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.194843+01:00"</span>
 <span class="w">                    </span><span class="p">}</span>
 <span class="w">                </span><span class="p">]</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-18T21:10:17.218979+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-18T21:10:17.218979+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ccf66172-f87f-4509-b7af-e8716f739860&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;quadri@example.com&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;quadri&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;lists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-18T21:10:17.218979+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-18T21:10:17.218979+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ccf66172-f87f-4509-b7af-e8716f739860"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"quadri@example.com"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"quadri"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"lists"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;subscription_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unconfirmed&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ce13e971-c2ed-4069-bd0c-240e9a9f56f9&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default list&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                            </span><span class="s2">&quot;test&quot;</span>
+<span class="w">                        </span><span class="nt">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unconfirmed"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ce13e971-c2ed-4069-bd0c-240e9a9f56f9"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default list"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                            </span><span class="s2">"test"</span>
 <span class="w">                        </span><span class="p">],</span>
-<span class="w">                        </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.194843+01:00&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.194843+01:00&quot;</span>
+<span class="w">                        </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.194843+01:00"</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.194843+01:00"</span>
 <span class="w">                    </span><span class="p">}</span>
 <span class="w">                </span><span class="p">]</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-19T19:10:49.36636+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-19T19:10:49.36636+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5d940585-3cc8-4add-b9c5-76efba3c6edd&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sugar@example.com&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sugar&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;lists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-19T19:10:49.36636+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-19T19:10:49.36636+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5d940585-3cc8-4add-b9c5-76efba3c6edd"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sugar@example.com"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sugar"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"lists"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;per_page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"per_page"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -3447,35 +3447,35 @@
 </tbody>
 </table>
 <h5 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/1&#39;</span><span class="w"> </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/1'</span><span class="w"> </span>
 </code></pre></div>
 <h5 id="example-response_1">Example Response<a class="headerlink" href="#example-response_1" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.199433+01:00&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.199433+01:00&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ea06b2e7-4b08-4697-bcfc-2a5c6dde8f1c&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john@example.com&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;good&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;known&quot;</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.199433+01:00"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.199433+01:00"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ea06b2e7-4b08-4697-bcfc-2a5c6dde8f1c"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Doe"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bengaluru"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"good"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"known"</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;lists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"lists"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;subscription_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unconfirmed&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ce13e971-c2ed-4069-bd0c-240e9a9f56f9&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default list&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                    </span><span class="s2">&quot;test&quot;</span>
+<span class="w">                </span><span class="nt">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unconfirmed"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ce13e971-c2ed-4069-bd0c-240e9a9f56f9"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default list"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">"test"</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.194843+01:00&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.194843+01:00&quot;</span>
+<span class="w">                </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.194843+01:00"</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.194843+01:00"</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
@@ -3504,36 +3504,36 @@
 </tbody>
 </table>
 <h5 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/1/export&#39;</span><span class="w"> </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/1/export'</span><span class="w"> </span>
 </code></pre></div>
 <h5 id="example-response_2">Example Response<a class="headerlink" href="#example-response_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"profile"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c2cc0b31-b485-4d72-8ce8-b47081beadec&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john@example.com&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;good&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;known&quot;</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c2cc0b31-b485-4d72-8ce8-b47081beadec"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Doe"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bengaluru"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"good"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"known"</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-07-29T11:01:31.478677+05:30&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-07-29T11:01:31.478677+05:30&quot;</span>
+<span class="w">      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-07-29T11:01:31.478677+05:30"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-07-29T11:01:31.478677+05:30"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;subscriptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"subscriptions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;subscription_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unconfirmed&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Private list&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;private&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-07-29T11:01:31.478677+05:30&quot;</span>
+<span class="w">      </span><span class="nt">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unconfirmed"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Private list"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"private"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-07-29T11:01:31.478677+05:30"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;campaign_views&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">  </span><span class="nt">&quot;link_clicks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="nt">"campaign_views"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">"link_clicks"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -3559,41 +3559,41 @@
 </tbody>
 </table>
 <h5 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/1/bounces&#39;</span><span class="w"> </span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/1/bounces'</span><span class="w"> </span>
 </code></pre></div>
 <h5 id="example-response_3">Example Response<a class="headerlink" href="#example-response_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">841706</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hard&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;demo&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;some&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;parameter&quot;</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">841706</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hard"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"demo"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"some"</span><span class="p">:</span><span class="w"> </span><span class="s2">"parameter"</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-08-22T09:05:12.862877Z&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;thomas.hobbes@example.com&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;subscriber_uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;137c0d83-8de6-44e2-a55f-d4238ab21969&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;subscriber_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;campaign&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Welcome to listmonk&quot;</span>
+<span class="w">      </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-22T09:05:12.862877Z"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"thomas.hobbes@example.com"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"subscriber_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"137c0d83-8de6-44e2-a55f-d4238ab21969"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"subscriber_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"campaign"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Welcome to listmonk"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">841680</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hard&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;demo&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;some&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;parameter&quot;</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">841680</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hard"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"demo"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"some"</span><span class="p">:</span><span class="w"> </span><span class="s2">"parameter"</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-08-19T14:07:53.141917Z&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;thomas.hobbes@example.com&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;subscriber_uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;137c0d83-8de6-44e2-a55f-d4238ab21969&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;subscriber_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;campaign&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Test campaign&quot;</span>
+<span class="w">      </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-08-19T14:07:53.141917Z"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"thomas.hobbes@example.com"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"subscriber_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"137c0d83-8de6-44e2-a55f-d4238ab21969"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"subscriber_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"campaign"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test campaign"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
@@ -3652,25 +3652,25 @@
 </tbody>
 </table>
 <h5 id="example-request_4">Example Request<a class="headerlink" href="#example-request_4" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;subscriber@domain.com&quot;,&quot;name&quot;:&quot;The Subscriber&quot;,&quot;status&quot;:&quot;enabled&quot;,&quot;lists&quot;:[1],&quot;attribs&quot;:{&quot;city&quot;:&quot;Bengaluru&quot;,&quot;projects&quot;:3,&quot;stack&quot;:{&quot;languages&quot;:[&quot;go&quot;,&quot;python&quot;]}}}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers'</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data<span class="w"> </span><span class="s1">'{"email":"subscriber@domain.com","name":"The Subscriber","status":"enabled","lists":[1],"attribs":{"city":"Bengaluru","projects":3,"stack":{"languages":["go","python"]}}}'</span>
 </code></pre></div>
 <h5 id="example-response_4">Example Response<a class="headerlink" href="#example-response_4" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2019-07-03T12:17:29.735507+05:30&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2019-07-03T12:17:29.735507+05:30&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eb420c55-4cfb-4972-92ba-c93c34ba475d&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscriber@domain.com&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Subscriber&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bengaluru&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;projects&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;stack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;go&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-07-03T12:17:29.735507+05:30"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-07-03T12:17:29.735507+05:30"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eb420c55-4cfb-4972-92ba-c93c34ba475d"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subscriber@domain.com"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The Subscriber"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bengaluru"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"stack"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"languages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"go"</span><span class="p">,</span><span class="w"> </span><span class="s2">"python"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"lists"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -3678,12 +3678,12 @@
 <h4 id="post-apisubscriberssubscribers_idoptin">POST /api/subscribers/{subscribers_id}/optin<a class="headerlink" href="#post-apisubscriberssubscribers_idoptin" title="Permanent link">&para;</a></h4>
 <p>Sends opt-in confirmation email to subscribers.</p>
 <h5 id="example-request_5">Example Request<a class="headerlink" href="#example-request_5" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/11/optin&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/11/optin'</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
 --data<span class="w"> </span><span class="o">{}</span>
 </code></pre></div>
 <h5 id="example-response_5">Example Response<a class="headerlink" href="#example-response_5" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span><span class="w"> </span>
 </code></pre></div>
 <hr />
@@ -3721,17 +3721,17 @@
 </tbody>
 </table>
 <h5 id="example-json-request">Example JSON Request<a class="headerlink" href="#example-json-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/public/subscription&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;subscriber@domain.com&quot;,&quot;name&quot;:&quot;The Subscriber&quot;,&quot;list_uuids&quot;: [&quot;eb420c55-4cfb-4972-92ba-c93c34ba475d&quot;, &quot;0c554cfb-eb42-4972-92ba-c93c34ba475d&quot;]}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s1">'http://localhost:9000/api/public/subscription'</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data<span class="w"> </span><span class="s1">'{"email":"subscriber@domain.com","name":"The Subscriber","list_uuids": ["eb420c55-4cfb-4972-92ba-c93c34ba475d", "0c554cfb-eb42-4972-92ba-c93c34ba475d"]}'</span>
 </code></pre></div>
 <h5 id="example-form-request">Example Form Request<a class="headerlink" href="#example-form-request" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/public/subscription&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;email=subscriber@domain.com&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;name=The Subscriber&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;l=eb420c55-4cfb-4972-92ba-c93c34ba475d&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;l=0c554cfb-eb42-4972-92ba-c93c34ba475d&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'http://localhost:9000/api/public/subscription'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">'email=subscriber@domain.com'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'name=The Subscriber'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'l=eb420c55-4cfb-4972-92ba-c93c34ba475d'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'l=0c554cfb-eb42-4972-92ba-c93c34ba475d'</span>
 </code></pre></div>
 <p>Note: For form request, use <code>l</code> for multiple lists instead of <code>lists</code>.</p>
 <h5 id="example-response_6">Example Response<a class="headerlink" href="#example-response_6" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -3775,13 +3775,13 @@
 </tbody>
 </table>
 <h5 id="example-request_6">Example Request<a class="headerlink" href="#example-request_6" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/lists&#39;</span><span class="w"> </span><span class="se">\</span>
--H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
---data-raw<span class="w"> </span><span class="s1">&#39;{&quot;ids&quot;: [1, 2, 3], &quot;action&quot;: &quot;add&quot;, &quot;target_list_ids&quot;: [4, 5, 6], &quot;status&quot;: &quot;confirmed&quot;}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/lists'</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+--data-raw<span class="w"> </span><span class="s1">'{"ids": [1, 2, 3], "action": "add", "target_list_ids": [4, 5, 6], "status": "confirmed"}'</span>
 </code></pre></div>
 <h5 id="example-response_7">Example Response<a class="headerlink" href="#example-response_7" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span><span class="w"> </span>
 </code></pre></div>
 <hr />
@@ -3844,27 +3844,27 @@
 </table>
 <h5 id="example-requests">Example Requests<a class="headerlink" href="#example-requests" title="Permanent link">&para;</a></h5>
 <h6 id="subscribing-query-matches-to-a-list">Subscribing Query Matches to a List<a class="headerlink" href="#subscribing-query-matches-to-a-list" title="Permanent link">&para;</a></h6>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/lists&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data-raw<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">      &quot;query&quot;: &quot;subscribers.email LIKE &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;%@domain.com&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;,</span>
-<span class="s1">      &quot;action&quot;: &quot;add&quot;,</span>
-<span class="s1">      &quot;target_list_ids&quot;: [3],</span>
-<span class="s1">      &quot;status&quot;: &quot;confirmed&quot;</span>
-<span class="s1">}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/query/lists'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-raw<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">      "query": "subscribers.email LIKE '</span><span class="se">\'</span><span class="s1">'%@domain.com'</span><span class="se">\'</span><span class="s1">'",</span>
+<span class="s1">      "action": "add",</span>
+<span class="s1">      "target_list_ids": [3],</span>
+<span class="s1">      "status": "confirmed"</span>
+<span class="s1">}'</span>
 </code></pre></div>
 <h6 id="removing-disqualified-subscribers-from-a-list">Removing Disqualified Subscribers from a List<a class="headerlink" href="#removing-disqualified-subscribers-from-a-list" title="Permanent link">&para;</a></h6>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/lists&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data-raw<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">      &quot;query&quot;: &quot;NOT subscribers.email LIKE &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;%@domain.com&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;,</span>
-<span class="s1">      &quot;action&quot;: &quot;remove&quot;,</span>
-<span class="s1">      &quot;target_list_ids&quot;: [3]</span>
-<span class="s1">}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/query/lists'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-raw<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">      "query": "NOT subscribers.email LIKE '</span><span class="se">\'</span><span class="s1">'%@domain.com'</span><span class="se">\'</span><span class="s1">'",</span>
+<span class="s1">      "action": "remove",</span>
+<span class="s1">      "target_list_ids": [3]</span>
+<span class="s1">}'</span>
 </code></pre></div>
 <h5 id="example-response_8">Example Response<a class="headerlink" href="#example-response_8" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -3926,28 +3926,28 @@
 </tbody>
 </table>
 <h5 id="example-request_7">Example Request<a class="headerlink" href="#example-request_7" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PATCH<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/1&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;Updated Name&quot;}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>PATCH<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/1'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data<span class="w"> </span><span class="s1">'{"name":"Updated Name"}'</span>
 </code></pre></div>
 <h5 id="example-response_9">Example Response<a class="headerlink" href="#example-response_9" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-02-10T23:07:16.199433+01:00&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-03-10T16:37:17.228327+01:00&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ea06b2e7-4b08-4571-b436-5c5cf31c5cd4&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscriber@domain.com&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Updated Name&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;attribs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">      </span><span class="nt">&quot;subscription_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unconfirmed&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ce13e971-c2ed-4069-bd0c-240e9a9f56f9&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default list&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;optin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;single&quot;</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-02-10T23:07:16.199433+01:00"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-03-10T16:37:17.228327+01:00"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ea06b2e7-4b08-4571-b436-5c5cf31c5cd4"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subscriber@domain.com"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Updated Name"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"attribs"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"lists"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">      </span><span class="nt">"subscription_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unconfirmed"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ce13e971-c2ed-4069-bd0c-240e9a9f56f9"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default list"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"optin"</span><span class="p">:</span><span class="w"> </span><span class="s2">"single"</span>
 <span class="w">    </span><span class="p">}]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -3975,11 +3975,11 @@
 </tbody>
 </table>
 <h5 id="example-request_8">Example Request<a class="headerlink" href="#example-request_8" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/9/blocklist&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/9/blocklist'</span>
 </code></pre></div>
 <h5 id="example-response_10">Example Response<a class="headerlink" href="#example-response_10" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span><span class="w"> </span>
 </code></pre></div>
 <hr />
@@ -4005,11 +4005,11 @@
 </tbody>
 </table>
 <h5 id="example-request_9">Example Request<a class="headerlink" href="#example-request_9" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">&#39;http://localhost:8080/api/subscribers/blocklist&#39;</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span>--data-raw<span class="w"> </span><span class="s1">&#39;{&quot;ids&quot;:[2,1]}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s1">'http://localhost:8080/api/subscribers/blocklist'</span><span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span>--data-raw<span class="w"> </span><span class="s1">'{"ids":[2,1]}'</span>
 </code></pre></div>
 <h5 id="example-response_11">Example Response<a class="headerlink" href="#example-response_11" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span><span class="w"> </span>
 </code></pre></div>
 <hr />
@@ -4044,13 +4044,13 @@
 </tbody>
 </table>
 <h5 id="example-request_10">Example Request<a class="headerlink" href="#example-request_10" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/blocklist&#39;</span><span class="w"> </span><span class="se">\</span>
--H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
---data-raw<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;:&quot;subscribers.name LIKE \&#39;</span>John<span class="w"> </span>Doe<span class="se">\&#39;</span><span class="w"> </span>AND<span class="w"> </span>subscribers.attribs-&gt;&gt;<span class="s1">&#39;\&#39;&#39;city&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; = &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;Bengaluru&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/query/blocklist'</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+--data-raw<span class="w"> </span><span class="s1">'{"query":"subscribers.name LIKE \'</span>John<span class="w"> </span>Doe<span class="se">\'</span><span class="w"> </span>AND<span class="w"> </span>subscribers.attribs-&gt;&gt;<span class="s1">'\''city'</span><span class="se">\'</span><span class="s1">' = '</span><span class="se">\'</span><span class="s1">'Bengaluru'</span><span class="se">\'</span><span class="s1">'"}'</span>
 </code></pre></div>
 <h5 id="example-response_12">Example Response<a class="headerlink" href="#example-response_12" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -4076,11 +4076,11 @@
 </tbody>
 </table>
 <h5 id="example-request_11">Example Request<a class="headerlink" href="#example-request_11" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/9&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/9'</span>
 </code></pre></div>
 <h5 id="example-response_13">Example Response<a class="headerlink" href="#example-response_13" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -4106,11 +4106,11 @@
 </tbody>
 </table>
 <h5 id="example-request_12">Example Request<a class="headerlink" href="#example-request_12" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/9/bounces&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/9/bounces'</span>
 </code></pre></div>
 <h5 id="example-response_14">Example Response<a class="headerlink" href="#example-response_14" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -4136,11 +4136,11 @@
 </tbody>
 </table>
 <h5 id="example-request_13">Example Request<a class="headerlink" href="#example-request_13" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers?id=10&amp;id=11&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers?id=10&amp;id=11'</span>
 </code></pre></div>
 <h5 id="example-response_15">Example Response<a class="headerlink" href="#example-response_15" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -4178,13 +4178,13 @@
 </tbody>
 </table>
 <h5 id="example-request_14">Example Request<a class="headerlink" href="#example-request_14" title="Permanent link">&para;</a></h5>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;api_username:access_token&#39;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">&#39;http://localhost:9000/api/subscribers/query/delete&#39;</span><span class="w"> </span><span class="se">\</span>
--H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
---data-raw<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;:&quot;subscribers.name LIKE \&#39;</span>John<span class="w"> </span>Doe<span class="se">\&#39;</span><span class="w"> </span>AND<span class="w"> </span>subscribers.attribs-&gt;&gt;<span class="s1">&#39;\&#39;&#39;city&#39;</span><span class="se">\&#39;</span><span class="s1">&#39; = &#39;</span><span class="se">\&#39;</span><span class="s1">&#39;Bengaluru&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;&quot;}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/query/delete'</span><span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+--data-raw<span class="w"> </span><span class="s1">'{"query":"subscribers.name LIKE \'</span>John<span class="w"> </span>Doe<span class="se">\'</span><span class="w"> </span>AND<span class="w"> </span>subscribers.attribs-&gt;&gt;<span class="s1">'\''city'</span><span class="se">\'</span><span class="s1">' = '</span><span class="se">\'</span><span class="s1">'Bengaluru'</span><span class="se">\'</span><span class="s1">'"}'</span>
 </code></pre></div>
 <h5 id="example-response_16">Example Response<a class="headerlink" href="#example-response_16" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 

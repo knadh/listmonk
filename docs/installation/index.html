@@ -1701,19 +1701,19 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 If you would like to remove those and mount a config.toml instead:</p>
 <h4 id="1-save-the-configtoml-file-on-the-host">1. Save the config.toml file on the host<a class="headerlink" href="#1-save-the-configtoml-file-on-the-host" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">[app]</span>
-<span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.0.0.0:9000&quot;</span>
+<span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.0.0.0:9000"</span>
 
 <span class="c1"># Database.</span>
 <span class="k">[db]</span>
-<span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;listmonk_db&quot;</span><span class="w"> </span><span class="c1"># Postgres container name in the compose file.</span>
+<span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"listmonk_db"</span><span class="w"> </span><span class="c1"># Postgres container name in the compose file.</span>
 <span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5432</span>
-<span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;listmonk&quot;</span>
-<span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;listmonk&quot;</span>
-<span class="n">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;listmonk&quot;</span>
-<span class="n">ssl_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;disable&quot;</span>
+<span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"listmonk"</span>
+<span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"listmonk"</span>
+<span class="n">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"listmonk"</span>
+<span class="n">ssl_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"disable"</span>
 <span class="n">max_open</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span>
 <span class="n">max_idle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span>
-<span class="n">max_lifetime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;300s&quot;</span>
+<span class="n">max_lifetime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"300s"</span>
 </code></pre></div>
 <h4 id="2-mount-the-config-file-in-docker-composeyml">2. Mount the config file in docker-compose.yml<a class="headerlink" href="#2-mount-the-config-file-in-docker-composeyml" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">app</span><span class="p">:</span>
@@ -1722,7 +1722,7 @@ If you would like to remove those and mount a config.toml instead:</p>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/on/your/host/config.toml:/listmonk/config.toml</span>
 </code></pre></div>
 <h4 id="3-change-the-config-flags-in-the-command-section-to-point-to-the-path">3. Change the <code>--config ''</code> flags in the <code>command:</code> section to point to the path<a class="headerlink" href="#3-change-the-config-flags-in-the-command-section-to-point-to-the-path" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">sh</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-c</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;./listmonk</span><span class="nv"> </span><span class="s">--install</span><span class="nv"> </span><span class="s">--idempotent</span><span class="nv"> </span><span class="s">--yes</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">./listmonk</span><span class="nv"> </span><span class="s">--upgrade</span><span class="nv"> </span><span class="s">--yes</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">./listmonk</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml&quot;</span><span class="p p-Indicator">]</span>
+<div class="highlight"><pre><span></span><code><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">sh</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-c</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"./listmonk</span><span class="nv"> </span><span class="s">--install</span><span class="nv"> </span><span class="s">--idempotent</span><span class="nv"> </span><span class="s">--yes</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">./listmonk</span><span class="nv"> </span><span class="s">--upgrade</span><span class="nv"> </span><span class="s">--yes</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">./listmonk</span><span class="nv"> </span><span class="s">--config</span><span class="nv"> </span><span class="s">/listmonk/config.toml"</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <hr />
 <h2 id="nightly">Nightly<a class="headerlink" href="#nightly" title="Permanent link">&para;</a></h2>
