@@ -16,6 +16,7 @@ chevron-left
 chevron-right
 clock
 code
+corner-right-down
 copy
 download-cloud
 edit-2
