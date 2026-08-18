@@ -33,11 +33,11 @@
 	</header>
 
 	<div role="tablist">
-		<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "profile" }}aria-selected="true"{{ end }}>{{ .L.Tc "globals.terms.subscriber" 1 }}</a>
-		<a role="tab" href="{{ $base }}/lists" {{ if eq $d.Tab "lists" }}aria-selected="true"{{ end }}>{{ .L.Tc "globals.terms.lists" 2 }} ({{ len $sub.ParsedLists }})</a>
-		<a role="tab" href="{{ $base }}/activity" {{ if eq $d.Tab "activity" }}aria-selected="true"{{ end }}>{{ .L.T "subscribers.activity" }}</a>
+		<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "profile" }}aria-selected="true"{{ end }}>{{ Icon "user" }} {{ .L.Tc "globals.terms.subscriber" 1 }}</a>
+		<a role="tab" href="{{ $base }}/lists" {{ if eq $d.Tab "lists" }}aria-selected="true"{{ end }}>{{ Icon "list" }} {{ .L.Tc "globals.terms.lists" 2 }} ({{ len $sub.ParsedLists }})</a>
+		<a role="tab" href="{{ $base }}/activity" {{ if eq $d.Tab "activity" }}aria-selected="true"{{ end }}>{{ Icon "activity" }} {{ .L.T "subscribers.activity" }}</a>
 		{{- if $d.Can "bounces:get" }}
-			<a role="tab" href="{{ $base }}/bounces" {{ if eq $d.Tab "bounces" }}aria-selected="true"{{ end }}>{{ .L.T "globals.terms.bounces" }}</a>
+			<a role="tab" href="{{ $base }}/bounces" {{ if eq $d.Tab "bounces" }}aria-selected="true"{{ end }}>{{ Icon "corner-right-down" }} {{ .L.T "globals.terms.bounces" }}</a>
 		{{- end }}
 	</div>
 
