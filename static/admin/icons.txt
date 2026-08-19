@@ -23,6 +23,7 @@ edit-2
 eye
 file-text
 grid
+help-circle
 image
 inbox
 info
@@ -32,6 +33,7 @@ log-out
 mail
 menu
 minus
+minus-circle
 monitor
 moon
 more-vertical

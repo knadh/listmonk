@@ -78,9 +78,9 @@
 						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
-								<a href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
-								<div class="hstack gap-1">
-									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">{{ Badge (printf "#%s" .) "outline tag" }}</a>{{ end }}
+								<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+								<div class="hstack gap-2 text-8">
+									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">#{{ . }}</a>{{ end }}
 								</div>
 							</td>
 							<td>

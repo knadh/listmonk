@@ -42,6 +42,10 @@ body {
 
 a {
     text-decoration: none;
+
+    &.unstyled.text-light:hover {
+        color: var(--primary);
+    }
 }
 
 textarea.monospace {
@@ -65,10 +69,6 @@ table {
         &:hover {
             color: var(--primary);
         }
-    }
-
-    .badge-list {
-        margin-top: var(--space-1);
     }
 }
 
@@ -150,13 +150,6 @@ a:has(> .badge:only-child) {
 .badge {
     padding: calc(var(--space-1) * 0.75) var(--space-4);
 
-    sup {
-        margin-top: -5px;
-        font-size: calc(var(--text-8) / 1.3);
-        font-weight: 600;
-        letter-spacing: 0.03em;
-    }
-
     &.outline {
         color: var(--muted-foreground);
     }
@@ -187,18 +180,12 @@ a:has(> .badge:only-child) {
     }
 
     /* Subscription/campaign statuses */
-    sup.status-confirmed {
-        color: light-dark(#36995b, #7eab8b);
-    }
     &.status-confirmed,
     &.status-finished {
         background: light-dark(#dcfce7, #1f2a22);
         color: light-dark(#36995b, #7eab8b);
     }
 
-    sup.status-unsubscribed {
-        color: light-dark(#ff5722, #cf9088);
-    }
     &.status-unsubscribed,
     &.status-cancelled {
         background: light-dark(#fff1f0, #2e2320);
@@ -209,10 +196,6 @@ a:has(> .badge:only-child) {
         color: var(--danger);
     }
 
-    sup.status-unconfirmed {
-        color: var(--muted-foreground);
-    }
-
     &.disabled,
     &.status-draft,
     &.optin,
@@ -220,24 +203,24 @@ a:has(> .badge:only-child) {
         background: light-dark(#eee, #26262a);
         color: light-dark(#7a7a7a, #9a9aa3);
     }
-
-    &.status-unsubscribed sup {
-        color: light-dark(#fa8c16, #d3a065);
-    }
-
-    &.confirmed sup,
-    &.status-confirmed sup {
-        color: light-dark(#52c41a, #8bb079);
-    }
 }
 
-.tag {
-    border-radius: var(--radius-small);
-    color: var(--muted-foreground);
-    padding: calc(var(--space-1) / 4) var(--space-2);
+/* Subscription status icons. */
+.status-icon {
+    &.status-confirmed {
+        color: light-dark(#36995b, #7eab8b);
+    }
 
-    &:hover {
-        color: var(--foreground);
+    &.status-unsubscribed {
+        color: light-dark(#ff5722, #cf9088);
+    }
+
+    &.status-blocklisted {
+        color: var(--danger);
+    }
+
+    &.status-unconfirmed {
+        color: var(--muted-foreground);
     }
 }
 
@@ -320,6 +303,7 @@ td.stats {
 }
 .text-4 { font-size: var(--text-4); }
 .text-5 { font-size: var(--text-5); }
+.text-7 { font-size: var(--text-7); }
 .text-8 { font-size: var(--text-8); }
 
 .text-danger { color: var(--danger); }
@@ -938,7 +922,17 @@ section.dashboard {
         height: 18rem;
     }
     .stat-card {
+        display: flex;
+        flex-direction: column;
         min-height: 9.5rem;
+    }
+
+    .stat-meta {
+        margin-block: auto calc(-1 * var(--space-6));
+        margin-inline: calc(-1 * var(--space-6));
+        padding: var(--space-3) var(--space-6);
+        border-block-start: 1px solid var(--border);
+        font-size: var(--text-7);
     }
 }
 
@@ -1200,16 +1194,26 @@ section.import {
             flex: 0 0 auto;
             flex-direction: column;
             align-items: stretch;
-            gap: var(--space-1);
-            width: 200px;
-            padding: var(--space-2);
+            gap: calc(var(--space-1) * 2);
+            width: 12rem;
+            padding: 0;
+            background: transparent;
             align-self: flex-start;
             position: sticky;
             top: var(--space-4);
 
             [role="tab"] {
                 justify-content: flex-start;
-                border-radius: var(--radius-medium);
+                font-weight: normal;
+                padding: var(--space-1) var(--space-2);
+                color: var(--muted-foreground);
+                border-radius: var(--radius-small);
+                box-shadow: none;
+            }
+
+            [role="tab"]:is(:hover, [aria-selected="true"]) {
+                background: light-dark(rgb(0 85 212 / 0.08), rgb(255 255 255 / 0.08));
+                color: var(--foreground);
             }
         }
 
@@ -1243,7 +1247,7 @@ section.import {
     &.is-searching {
         .settings-tabs {
             display: grid;
-            grid-template-columns: 200px 1fr;
+            grid-template-columns: 12rem 1fr;
             grid-template-rows: repeat(20, auto);
             column-gap: var(--space-6);
             row-gap: 0;
