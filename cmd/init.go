@@ -1296,20 +1296,10 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			return p.Sprintf("%d", n)
 		},
 		"NiceDate": func(t any) string {
-			switch v := t.(type) {
-			case time.Time:
-				if v.IsZero() {
-					return ""
-				}
-				return v.Format("Mon, 02 Jan 2006")
-			case null.Time:
-				if !v.Valid {
-					return ""
-				}
-				return v.Time.Format("Mon, 02 Jan 2006")
-			default:
-				return ""
-			}
+			return niceDate(t, "Mon, 02 Jan 2006")
+		},
+		"NiceDateTime": func(t any) string {
+			return niceDate(t, "Mon, 02 Jan 2006, 15:04")
 		},
 	}
 
@@ -1442,6 +1432,24 @@ func parseTextTemplatesGlob(f txttpl.FuncMap, fs stuffbin.FileSystem, pattern st
 	}
 
 	return tpl, nil
+}
+
+// niceDate formats the given date for template rendering.
+func niceDate(t any, layout string) string {
+	switch v := t.(type) {
+	case time.Time:
+		if v.IsZero() {
+			return ""
+		}
+		return v.Format(layout)
+	case null.Time:
+		if !v.Valid {
+			return ""
+		}
+		return v.Time.Format(layout)
+	}
+
+	return ""
 }
 
 // badgeContent renders the content of a badge. Pre-rendered markup (eg: Icon())
