@@ -125,8 +125,18 @@ views AS (
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
+unique_views AS (
+    SELECT campaign_id, COUNT(DISTINCT subscriber_id) as num FROM campaign_views
+    WHERE campaign_id = ANY($1)
+    GROUP BY campaign_id
+),
 clicks AS (
     SELECT campaign_id, COUNT(campaign_id) as num FROM link_clicks
+    WHERE campaign_id = ANY($1)
+    GROUP BY campaign_id
+),
+unique_clicks AS (
+    SELECT campaign_id, COUNT(DISTINCT subscriber_id) as num FROM link_clicks
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
 ),
@@ -134,20 +144,71 @@ bounces AS (
     SELECT campaign_id, COUNT(campaign_id) as num FROM bounces
     WHERE campaign_id = ANY($1)
     GROUP BY campaign_id
+),
+deliveries AS (
+    SELECT campaign_id, COUNT(*) as num FROM campaign_delivery_events
+    WHERE campaign_id = ANY($1) AND event_type = 'delivered'
+    GROUP BY campaign_id
+),
+tracking AS (
+    SELECT COALESCE(
+        (SELECT (value #>> '{}')::TIMESTAMP WITH TIME ZONE
+         FROM settings WHERE key = 'delivery.sendgrid_tracking_started_at'),
+        '-infinity'::TIMESTAMP WITH TIME ZONE
+    ) AS started_at
 )
-SELECT id as campaign_id,
+SELECT x.id as campaign_id,
     COALESCE(v.num, 0) AS views,
     COALESCE(c.num, 0) AS clicks,
+    COALESCE(uv.num, 0) AS unique_views,
+    COALESCE(uc.num, 0) AS unique_clicks,
+    CASE
+        WHEN ca.started_at IS NOT NULL AND ca.started_at < tracking.started_at
+        THEN GREATEST(ca.sent - COALESCE(b.num, 0), 0)
+        ELSE COALESCE(d.num, 0)
+    END AS delivered,
+    (ca.started_at IS NOT NULL AND ca.started_at < tracking.started_at) AS delivery_estimated,
     COALESCE(b.num, 0) AS bounces,
     COALESCE(l.lists, '[]') AS lists,
     COALESCE(m.media, '[]') AS media
 FROM (SELECT id FROM UNNEST($1) AS id) x
-LEFT JOIN lists AS l ON (l.campaign_id = id)
-LEFT JOIN media AS m ON (m.campaign_id = id)
-LEFT JOIN views AS v ON (v.campaign_id = id)
-LEFT JOIN clicks AS c ON (c.campaign_id = id)
-LEFT JOIN bounces AS b ON (b.campaign_id = id)
-ORDER BY ARRAY_POSITION($1, id);
+JOIN campaigns AS ca ON (ca.id = x.id)
+CROSS JOIN tracking
+LEFT JOIN lists AS l ON (l.campaign_id = x.id)
+LEFT JOIN media AS m ON (m.campaign_id = x.id)
+LEFT JOIN views AS v ON (v.campaign_id = x.id)
+LEFT JOIN unique_views AS uv ON (uv.campaign_id = x.id)
+LEFT JOIN clicks AS c ON (c.campaign_id = x.id)
+LEFT JOIN unique_clicks AS uc ON (uc.campaign_id = x.id)
+LEFT JOIN bounces AS b ON (b.campaign_id = x.id)
+LEFT JOIN deliveries AS d ON (d.campaign_id = x.id)
+ORDER BY ARRAY_POSITION($1, x.id);
+
+-- name: record-campaign-delivery-event
+WITH camp AS (
+    SELECT id FROM campaigns WHERE uuid::TEXT = $1
+),
+sub AS (
+    SELECT id FROM subscribers
+    WHERE uuid::TEXT = $2 OR LOWER(email) = LOWER($3)
+    ORDER BY (uuid::TEXT = $2) DESC
+    LIMIT 1
+),
+ins AS (
+    INSERT INTO campaign_delivery_events (
+        campaign_id, subscriber_id, provider, provider_event_id,
+        provider_message_id, event_type, meta, occurred_at
+    )
+    SELECT (SELECT id FROM camp), (SELECT id FROM sub), $4, $5, $6, $7, $8, $9
+    WHERE $5 != ''
+    ON CONFLICT (provider, provider_event_id) DO NOTHING
+    RETURNING id
+)
+SELECT
+    EXISTS (SELECT 1 FROM camp) AS campaign_found,
+    COALESCE((SELECT id FROM ins), 0) AS event_id,
+    COALESCE((SELECT id FROM sub), 0) AS subscriber_id,
+    COALESCE((SELECT uuid::TEXT FROM subscribers WHERE id = (SELECT id FROM sub)), '') AS subscriber_uuid;
 
 -- name: get-campaign-for-preview
 SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
@@ -163,7 +224,68 @@ LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_i
 WHERE campaigns.id = $1;
 
 -- name: get-campaign-status
-SELECT id, status, to_send, sent, started_at, updated_at FROM campaigns WHERE status=$1;
+WITH running AS (
+    SELECT id, status, to_send, sent, started_at, updated_at
+    FROM campaigns WHERE status = $1
+),
+views AS (
+    SELECT campaign_id, COUNT(*) AS num
+    FROM campaign_views WHERE campaign_id = ANY(SELECT id FROM running)
+    GROUP BY campaign_id
+),
+unique_views AS (
+    SELECT campaign_id, COUNT(DISTINCT subscriber_id) AS num
+    FROM campaign_views WHERE campaign_id = ANY(SELECT id FROM running)
+    GROUP BY campaign_id
+),
+clicks AS (
+    SELECT campaign_id, COUNT(*) AS num
+    FROM link_clicks WHERE campaign_id = ANY(SELECT id FROM running)
+    GROUP BY campaign_id
+),
+unique_clicks AS (
+    SELECT campaign_id, COUNT(DISTINCT subscriber_id) AS num
+    FROM link_clicks WHERE campaign_id = ANY(SELECT id FROM running)
+    GROUP BY campaign_id
+),
+bounces AS (
+    SELECT campaign_id, COUNT(*) AS num
+    FROM bounces WHERE campaign_id = ANY(SELECT id FROM running)
+    GROUP BY campaign_id
+),
+deliveries AS (
+    SELECT campaign_id, COUNT(*) AS num
+    FROM campaign_delivery_events
+    WHERE campaign_id = ANY(SELECT id FROM running) AND event_type = 'delivered'
+    GROUP BY campaign_id
+),
+tracking AS (
+    SELECT COALESCE(
+        (SELECT (value #>> '{}')::TIMESTAMP WITH TIME ZONE
+         FROM settings WHERE key = 'delivery.sendgrid_tracking_started_at'),
+        '-infinity'::TIMESTAMP WITH TIME ZONE
+    ) AS started_at
+)
+SELECT r.id, r.status, r.to_send, r.sent, r.started_at, r.updated_at,
+    COALESCE(v.num, 0) AS views,
+    COALESCE(c.num, 0) AS clicks,
+    COALESCE(uv.num, 0) AS unique_views,
+    COALESCE(uc.num, 0) AS unique_clicks,
+    CASE
+        WHEN r.started_at IS NOT NULL AND r.started_at < tracking.started_at
+        THEN GREATEST(r.sent - COALESCE(b.num, 0), 0)
+        ELSE COALESCE(d.num, 0)
+    END AS delivered,
+    (r.started_at IS NOT NULL AND r.started_at < tracking.started_at) AS delivery_estimated,
+    COALESCE(b.num, 0) AS bounces
+FROM running AS r
+CROSS JOIN tracking
+LEFT JOIN views AS v ON (v.campaign_id = r.id)
+LEFT JOIN unique_views AS uv ON (uv.campaign_id = r.id)
+LEFT JOIN clicks AS c ON (c.campaign_id = r.id)
+LEFT JOIN unique_clicks AS uc ON (uc.campaign_id = r.id)
+LEFT JOIN bounces AS b ON (b.campaign_id = r.id)
+LEFT JOIN deliveries AS d ON (d.campaign_id = r.id);
 
 -- name: campaign-has-lists
 -- Returns TRUE if the campaign $1 has any of the lists given in $2.
@@ -486,4 +608,3 @@ WITH view AS (
 )
 INSERT INTO campaign_views (campaign_id, subscriber_id)
     VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));
-

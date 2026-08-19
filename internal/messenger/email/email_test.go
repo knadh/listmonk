@@ -25,8 +25,9 @@ func TestIsSendGridHost(t *testing.T) {
 	}
 }
 
-func TestSetSendGridCampaignHeader(t *testing.T) {
+func TestSetSendGridMetadataHeader(t *testing.T) {
 	const campaignUUID = "d6da0074-1084-4aa1-9c62-65fde375d33c"
+	const subscriberUUID = "07f04382-c46a-4f36-839c-9a8cb907ff22"
 
 	tests := []struct {
 		name     string
@@ -37,7 +38,8 @@ func TestSetSendGridCampaignHeader(t *testing.T) {
 			name: "adds campaign metadata",
 			want: map[string]any{
 				"unique_args": map[string]any{
-					"XListmonkCampaign": campaignUUID,
+					"XListmonkCampaign":   campaignUUID,
+					"XListmonkSubscriber": subscriberUUID,
 				},
 			},
 		},
@@ -47,17 +49,19 @@ func TestSetSendGridCampaignHeader(t *testing.T) {
 			want: map[string]any{
 				"category": []any{"newsletter"},
 				"unique_args": map[string]any{
-					"tenant":            "kvsocial",
-					"XListmonkCampaign": campaignUUID,
+					"tenant":              "kvsocial",
+					"XListmonkCampaign":   campaignUUID,
+					"XListmonkSubscriber": subscriberUUID,
 				},
 			},
 		},
 		{
 			name:     "overrides stale campaign metadata",
-			existing: `{"unique_args":{"XListmonkCampaign":"old-value"}}`,
+			existing: `{"unique_args":{"XListmonkCampaign":"old-value","XListmonkSubscriber":"old-subscriber"}}`,
 			want: map[string]any{
 				"unique_args": map[string]any{
-					"XListmonkCampaign": campaignUUID,
+					"XListmonkCampaign":   campaignUUID,
+					"XListmonkSubscriber": subscriberUUID,
 				},
 			},
 		},
@@ -70,8 +74,8 @@ func TestSetSendGridCampaignHeader(t *testing.T) {
 				headers.Set(hdrSendGridSMTPAPI, tt.existing)
 			}
 
-			if err := setSendGridCampaignHeader(headers, campaignUUID); err != nil {
-				t.Fatalf("setSendGridCampaignHeader() error = %v", err)
+			if err := setSendGridMetadataHeader(headers, campaignUUID, subscriberUUID); err != nil {
+				t.Fatalf("setSendGridMetadataHeader() error = %v", err)
 			}
 
 			var got map[string]any
@@ -85,7 +89,7 @@ func TestSetSendGridCampaignHeader(t *testing.T) {
 	}
 }
 
-func TestSetSendGridCampaignHeaderRejectsInvalidPayloads(t *testing.T) {
+func TestSetSendGridMetadataHeaderRejectsInvalidPayloads(t *testing.T) {
 	tests := []string{
 		`not-json`,
 		`{"unique_args":"not-an-object"}`,
@@ -95,16 +99,16 @@ func TestSetSendGridCampaignHeaderRejectsInvalidPayloads(t *testing.T) {
 		headers := textproto.MIMEHeader{}
 		headers.Set(hdrSendGridSMTPAPI, existing)
 
-		if err := setSendGridCampaignHeader(headers, "campaign-uuid"); err == nil {
-			t.Errorf("setSendGridCampaignHeader(%q) expected an error", existing)
+		if err := setSendGridMetadataHeader(headers, "campaign-uuid", "subscriber-uuid"); err == nil {
+			t.Errorf("setSendGridMetadataHeader(%q) expected an error", existing)
 		}
 	}
 }
 
-func TestSetSendGridCampaignHeaderIgnoresEmptyCampaignUUID(t *testing.T) {
+func TestSetSendGridMetadataHeaderIgnoresEmptyCampaignUUID(t *testing.T) {
 	headers := textproto.MIMEHeader{}
-	if err := setSendGridCampaignHeader(headers, ""); err != nil {
-		t.Fatalf("setSendGridCampaignHeader() error = %v", err)
+	if err := setSendGridMetadataHeader(headers, "", "subscriber-uuid"); err != nil {
+		t.Fatalf("setSendGridMetadataHeader() error = %v", err)
 	}
 	if got := headers.Get(hdrSendGridSMTPAPI); got != "" {
 		t.Errorf("unexpected header for empty campaign UUID: %q", got)

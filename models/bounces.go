@@ -9,7 +9,35 @@ const (
 	BounceTypeHard      = "hard"
 	BounceTypeSoft      = "soft"
 	BounceTypeComplaint = "complaint"
+
+	DeliveryEventProcessed = "processed"
+	DeliveryEventDeferred  = "deferred"
+	DeliveryEventDelivered = "delivered"
+	DeliveryEventBounce    = "bounce"
+	DeliveryEventDropped   = "dropped"
 )
+
+// CampaignDeliveryEvent represents a provider delivery lifecycle event with
+// optional Listmonk campaign and subscriber correlation metadata.
+type CampaignDeliveryEvent struct {
+	Provider          string
+	ProviderEventID   string
+	ProviderMessageID string
+	EventType         string
+	CampaignUUID      string
+	SubscriberUUID    string
+	Email             string
+	BounceType        string
+	Meta              json.RawMessage
+	OccurredAt        time.Time
+}
+
+// CampaignDeliveryEventResult summarizes persistence for one signed provider batch.
+type CampaignDeliveryEventResult struct {
+	Inserted     int
+	Duplicates   int
+	Unattributed int
+}
 
 // Bounce represents a single bounce event.
 type Bounce struct {

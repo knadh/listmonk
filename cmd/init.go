@@ -402,24 +402,38 @@ func readQueries(dir string, fs stuffbin.FileSystem) goyesql.Queries {
 // prepareQueries queries prepares a query map and returns a *Queries
 func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
 	var (
-		countQuery = "get-campaign-analytics-counts"
-		linkSel    = "*"
+		defaultCountQuery = "get-campaign-analytics-counts"
+		defaultLinkSel    = "*"
 	)
 	if ko.Bool("privacy.individual_tracking") {
-		countQuery = "get-campaign-analytics-unique-counts"
-		linkSel = "DISTINCT subscriber_id"
+		defaultCountQuery = "get-campaign-analytics-unique-counts"
+		defaultLinkSel = "DISTINCT subscriber_id"
 	}
 
-	// These don't exist in the SQL file but are in the queries struct to be prepared.
-	qMap["get-campaign-view-counts"] = &goyesql.Query{
-		Query: fmt.Sprintf(qMap[countQuery].Query, "campaign_views"),
-		Tags:  map[string]string{"name": "get-campaign-view-counts"},
+	// These are generated from the analytics query templates at startup.
+	addCountQuery := func(name, source, table string) {
+		qMap[name] = &goyesql.Query{
+			Query: fmt.Sprintf(qMap[source].Query, table),
+			Tags:  map[string]string{"name": name},
+		}
 	}
-	qMap["get-campaign-click-counts"] = &goyesql.Query{
-		Query: fmt.Sprintf(qMap[countQuery].Query, "link_clicks"),
-		Tags:  map[string]string{"name": "get-campaign-click-counts"},
+	addCountQuery("get-campaign-view-counts", defaultCountQuery, "campaign_views")
+	addCountQuery("get-campaign-click-counts", defaultCountQuery, "link_clicks")
+	addCountQuery("get-campaign-view-counts-unique", "get-campaign-analytics-unique-counts", "campaign_views")
+	addCountQuery("get-campaign-view-counts-total", "get-campaign-analytics-counts", "campaign_views")
+	addCountQuery("get-campaign-click-counts-unique", "get-campaign-analytics-unique-counts", "link_clicks")
+	addCountQuery("get-campaign-click-counts-total", "get-campaign-analytics-counts", "link_clicks")
+
+	linkQuery := qMap["get-campaign-link-counts"].Query
+	addLinkQuery := func(name, selector string) {
+		qMap[name] = &goyesql.Query{
+			Query: fmt.Sprintf(linkQuery, selector),
+			Tags:  map[string]string{"name": name},
+		}
 	}
-	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)
+	addLinkQuery("get-campaign-link-counts-unique", "DISTINCT subscriber_id")
+	addLinkQuery("get-campaign-link-counts-total", "*")
+	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(linkQuery, defaultLinkSel)
 
 	// Scan and prepare all queries.
 	var q models.Queries

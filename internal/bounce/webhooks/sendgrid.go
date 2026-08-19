@@ -21,10 +21,17 @@ type sendgridNotif struct {
 	Timestamp            int64  `json:"timestamp"`
 	Event                string `json:"event"`
 	BounceClassification string `json:"bounce_classification"`
+	EventID              string `json:"sg_event_id"`
+	MessageID            string `json:"sg_message_id"`
+	Response             string `json:"response"`
+	Reason               string `json:"reason"`
+	Status               string `json:"status"`
+	Attempt              any    `json:"attempt"`
 
 	// SendGrid flattens all X-headers and adds them to the bounce
 	// event notification.
-	CampaignUUID string `json:"XListmonkCampaign"`
+	CampaignUUID   string `json:"XListmonkCampaign"`
+	SubscriberUUID string `json:"XListmonkSubscriber"`
 }
 
 // Sendgrid handles Sendgrid/SNS webhook notifications including confirming SNS topic subscription
@@ -49,41 +56,66 @@ func NewSendgrid(key string) (*Sendgrid, error) {
 	return &Sendgrid{pubKey: pubKey.(*ecdsa.PublicKey)}, nil
 }
 
-// ProcessBounce processes Sendgrid bounce notifications and returns one or more Bounce objects.
-func (s *Sendgrid) ProcessBounce(sig, timestamp string, b []byte) ([]models.Bounce, error) {
+// ProcessEvents verifies and normalizes SendGrid delivery lifecycle events.
+func (s *Sendgrid) ProcessEvents(sig, timestamp string, b []byte) ([]models.CampaignDeliveryEvent, int, error) {
 	if err := s.verifyNotif(sig, timestamp, b); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var notifs []sendgridNotif
 	if err := json.Unmarshal(b, &notifs); err != nil {
-		return nil, fmt.Errorf("error unmarshalling Sendgrid notification: %v", err)
+		return nil, 0, fmt.Errorf("error unmarshalling Sendgrid notification: %v", err)
 	}
 
-	out := make([]models.Bounce, 0, len(notifs))
+	out := make([]models.CampaignDeliveryEvent, 0, len(notifs))
+	unsupported := 0
 	for _, n := range notifs {
-		if n.Event != "bounce" {
+		eventType := strings.ToLower(n.Event)
+		switch eventType {
+		case models.DeliveryEventProcessed,
+			models.DeliveryEventDeferred,
+			models.DeliveryEventDelivered,
+			models.DeliveryEventBounce,
+			models.DeliveryEventDropped:
+		default:
+			unsupported++
 			continue
 		}
 
-		typ := models.BounceTypeHard
-		if n.BounceClassification == "technical" || n.BounceClassification == "content" {
-			typ = models.BounceTypeSoft
+		bounceType := ""
+		if eventType == models.DeliveryEventBounce {
+			bounceType = models.BounceTypeHard
+			if n.BounceClassification == "technical" || n.BounceClassification == "content" {
+				bounceType = models.BounceTypeSoft
+			}
 		}
 
-		tstamp := time.Unix(n.Timestamp, 0)
-		bn := models.Bounce{
-			CampaignUUID: n.CampaignUUID,
-			Email:        strings.ToLower(n.Email),
-			Type:         typ,
-			Meta:         json.RawMessage(b),
-			Source:       "sendgrid",
-			CreatedAt:    tstamp,
+		meta, err := json.Marshal(map[string]any{
+			"attempt":               n.Attempt,
+			"bounce_classification": n.BounceClassification,
+			"reason":                n.Reason,
+			"response":              n.Response,
+			"status":                n.Status,
+		})
+		if err != nil {
+			return nil, 0, fmt.Errorf("error encoding Sendgrid event metadata: %v", err)
 		}
-		out = append(out, bn)
+
+		out = append(out, models.CampaignDeliveryEvent{
+			Provider:          "sendgrid",
+			ProviderEventID:   n.EventID,
+			ProviderMessageID: n.MessageID,
+			EventType:         eventType,
+			CampaignUUID:      n.CampaignUUID,
+			SubscriberUUID:    n.SubscriberUUID,
+			Email:             strings.ToLower(strings.TrimSpace(n.Email)),
+			BounceType:        bounceType,
+			Meta:              meta,
+			OccurredAt:        time.Unix(n.Timestamp, 0),
+		})
 	}
 
-	return out, nil
+	return out, unsupported, nil
 }
 
 // verifyNotif verifies the signature on a notification payload.

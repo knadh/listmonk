@@ -49,13 +49,29 @@
       </div><!-- columns -->
     </form>
 
+    <b-field v-if="!serverConfig.privacy.disable_tracking" grouped group-multiline class="analytics-mode mt-4">
+      <p class="control">
+        <b-button :type="analyticsMode === 'unique' ? 'is-primary' : 'is-light'"
+          :disabled="!serverConfig.privacy.individual_tracking" data-cy="analytics-mode-unique"
+          @click="setAnalyticsMode('unique')">
+          {{ $t('analytics.modeUnique') }}
+        </b-button>
+      </p>
+      <p class="control">
+        <b-button :type="analyticsMode === 'total' ? 'is-primary' : 'is-light'"
+          data-cy="analytics-mode-total" @click="setAnalyticsMode('total')">
+          {{ $t('analytics.modeTotal') }}
+        </b-button>
+      </p>
+    </b-field>
+
     <section class="charts mt-5">
       <div class="chart" v-for="(v, k) in charts" :key="k">
         <div class="columns">
           <div class="column is-9">
             <b-loading v-if="v.loading" :active="v.loading" :is-full-page="false" />
             <h4>
-              {{ v.name }}
+              {{ chartTitle(k, v) }}
               <span v-if="v.type !== 'bar'" class="has-text-grey-light">({{ $utils.niceNumber(counts[k]) }})</span>
             </h4>
             <chart :type="v.type" v-if="!v.loading" :data="v.data" :on-click="v.onClick" />
@@ -96,6 +112,7 @@ export default Vue.extend({
   data() {
     return {
       isSearchLoading: false,
+      analyticsMode: 'unique',
       queriedCampaigns: [],
 
       // Data for each view.
@@ -114,6 +131,7 @@ export default Vue.extend({
           fn: this.$api.getCampaignViewCounts,
           chartFn: this.makeCharts,
           loading: false,
+          requestID: 0,
         },
 
         clicks: {
@@ -123,6 +141,7 @@ export default Vue.extend({
           fn: this.$api.getCampaignClickCounts,
           chartFn: this.makeCharts,
           loading: false,
+          requestID: 0,
         },
 
         bounces: {
@@ -133,6 +152,7 @@ export default Vue.extend({
           chartFn: this.makeCharts,
           donutColor: chartColorRed,
           loading: false,
+          requestID: 0,
         },
 
         links: {
@@ -143,6 +163,7 @@ export default Vue.extend({
           fn: this.$api.getCampaignLinkCounts,
           chartFn: this.makeLinksChart,
           onClick: this.onLinkClick,
+          requestID: 0,
         },
       },
 
@@ -155,6 +176,27 @@ export default Vue.extend({
   },
 
   methods: {
+    chartTitle(key, chart) {
+      if (key === 'bounces') {
+        return chart.name;
+      }
+      const mode = this.analyticsMode === 'unique'
+        ? this.$t('analytics.modeUnique')
+        : this.$t('analytics.modeTotal');
+      return `${mode} ${chart.name}`;
+    },
+
+    setAnalyticsMode(mode) {
+      if (mode === this.analyticsMode || (mode === 'unique' && !this.serverConfig.privacy.individual_tracking)) {
+        return;
+      }
+      this.analyticsMode = mode;
+      if (this.form.campaigns.length === 0) {
+        return;
+      }
+      ['views', 'clicks', 'links'].forEach((key) => this.getData(key, this.form.campaigns));
+    },
+
     onFromDateChange() {
       if (this.form.from > this.form.to) {
         this.form.to = dayjs(this.form.from).add(7, 'day').toDate();
@@ -176,9 +218,9 @@ export default Vue.extend({
     },
 
     makeLinksChart(typ, camps, data) {
+      this.urls = data.map((l) => l.url);
       const labels = data.map((l) => {
         try {
-          this.urls.push(l.url);
           const u = new URL(l.url);
           if (l.url.length > 80) {
             return `${u.hostname}${u.pathname.substr(0, 50)}..`;
@@ -265,20 +307,37 @@ export default Vue.extend({
     },
 
     getData(typ, camps) {
-      this.charts[typ].loading = true;
-      // Call the HTTP API.
-      this.charts[typ].fn({
+      const chart = this.charts[typ];
+      const requestID = chart.requestID + 1;
+      chart.requestID = requestID;
+      chart.loading = true;
+      const params = {
         id: camps.map((c) => c.id),
         from: this.form.from,
         to: this.form.to,
-      }).then((data) => {
+      };
+      if (typ !== 'bounces') {
+        params.mode = this.analyticsMode;
+      }
+      // Call the HTTP API.
+      chart.fn(params).then((data) => {
+        // A newer mode, date range, or campaign selection has already
+        // requested this chart. Do not let this older response overwrite it.
+        if (requestID !== chart.requestID) {
+          return;
+        }
+
         // Set the total count.
         this.counts[typ] = data.reduce((sum, d) => sum + d.count, 0);
 
-        const { points, donut } = this.charts[typ].chartFn(typ, camps, data);
-        this.charts[typ].data = points;
-        this.charts[typ].donutData = donut;
-        this.charts[typ].loading = false;
+        const { points, donut } = chart.chartFn(typ, camps, data);
+        chart.data = points;
+        chart.donutData = donut;
+      }).finally(() => {
+        // An older request must not hide the loading indicator for the latest one.
+        if (requestID === chart.requestID) {
+          chart.loading = false;
+        }
       });
     },
 
@@ -304,6 +363,10 @@ export default Vue.extend({
   },
 
   mounted() {
+    if (!this.serverConfig.privacy.individual_tracking) {
+      this.analyticsMode = 'total';
+    }
+
     // Fetch one or more campaigns if there are ?id params, wait for the fetches
     // to finish, add them to the campaign selector and submit the form.
     const ids = this.$utils.parseQueryIDs(this.$route.query.id);

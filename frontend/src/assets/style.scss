@@ -231,8 +231,8 @@ section {
     display: none;
   }
   .full {
-    max-height: 17px;
-    margin-top: 15px;
+    max-height: 24px;
+    margin-top: 12px;
   }
   .favicon {
     margin-top: 12px;
@@ -448,6 +448,11 @@ body.is-noscroll {
       }
       span {
         display: inline-block;
+      }
+      .stat-percentage {
+        color: $grey;
+        font-size: 0.9em;
+        margin-left: 0.25rem;
       }
       [class*=" mdi-"]::before {
         margin-left: 0;

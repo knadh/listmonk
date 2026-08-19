@@ -182,10 +182,10 @@ func (e *Emailer) Push(m models.Message) error {
 
 	// SendGrid only returns custom correlation metadata in Event Webhook
 	// payloads when it is sent through X-SMTPAPI unique_args. Add the
-	// campaign UUID automatically for messages routed through SendGrid so
-	// bounce events can be attributed to their Listmonk campaign.
+	// campaign and subscriber UUIDs automatically for messages routed through
+	// SendGrid so lifecycle events can be attributed to Listmonk records.
 	if isSendGridHost(srv.Host) && m.Campaign != nil {
-		if err := setSendGridCampaignHeader(em.Headers, m.Campaign.UUID); err != nil {
+		if err := setSendGridMetadataHeader(em.Headers, m.Campaign.UUID, m.Subscriber.UUID); err != nil {
 			return err
 		}
 	}
@@ -242,9 +242,9 @@ func isSendGridHost(host string) bool {
 	return strings.EqualFold(strings.TrimSpace(host), sendGridSMTPHost)
 }
 
-// setSendGridCampaignHeader adds Listmonk's campaign UUID to SendGrid's
+// setSendGridMetadataHeader adds Listmonk correlation UUIDs to SendGrid's
 // X-SMTPAPI unique_args while preserving any existing SMTPAPI fields.
-func setSendGridCampaignHeader(headers textproto.MIMEHeader, campaignUUID string) error {
+func setSendGridMetadataHeader(headers textproto.MIMEHeader, campaignUUID, subscriberUUID string) error {
 	if campaignUUID == "" {
 		return nil
 	}
@@ -269,6 +269,9 @@ func setSendGridCampaignHeader(headers textproto.MIMEHeader, campaignUUID string
 	}
 
 	uniqueArgs["XListmonkCampaign"] = campaignUUID
+	if subscriberUUID != "" {
+		uniqueArgs["XListmonkSubscriber"] = subscriberUUID
+	}
 	payload["unique_args"] = uniqueArgs
 
 	out, err := json.Marshal(payload)

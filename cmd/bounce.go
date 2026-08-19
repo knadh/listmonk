@@ -221,13 +221,26 @@ func (a *App) BounceWebhook(c echo.Context) error {
 			ts  = c.Request().Header.Get("X-Twilio-Email-Event-Webhook-Timestamp")
 		)
 
-		// Sendgrid sends multiple bounces.
-		bs, err := a.bounce.Sendgrid.ProcessBounce(sig, ts, rawReq)
+		// SendGrid sends mixed delivery lifecycle events in signed batches.
+		events, unsupported, err := a.bounce.Sendgrid.ProcessEvents(sig, ts, rawReq)
 		if err != nil {
 			a.log.Printf("error processing sendgrid notification: %v", err)
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 		}
-		bounces = append(bounces, bs...)
+
+		result, err := a.core.RecordCampaignDeliveryEvents(events)
+		if err != nil {
+			a.log.Printf("error recording sendgrid delivery events: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.Ts("globals.messages.internalError"))
+		}
+		if result.Unattributed > 0 {
+			a.log.Printf("ignored %d unattributed sendgrid delivery event(s)", result.Unattributed)
+		}
+		if unsupported > 0 {
+			a.log.Printf("ignored %d unsupported sendgrid event(s)", unsupported)
+		}
+
+		return c.JSON(http.StatusOK, okResp{true})
 
 	// Postmark.
 	case service == "postmark" && a.bounce.Postmark != nil:

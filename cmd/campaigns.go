@@ -627,16 +627,26 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 
 	var (
 		typ  = c.Param("type")
+		mode = c.QueryParam("mode")
 		from = c.QueryParams().Get("from")
 		to   = c.QueryParams().Get("to")
 	)
+	if mode != "" && mode != "unique" && mode != "total" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidValue"))
+	}
+	if mode == "unique" && !a.cfg.Privacy.IndividualTracking {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.nonIndividualTracking"))
+	}
+	if typ == "bounces" && mode != "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidValue"))
+	}
 	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
 	}
 
 	// Campaign link stats.
 	if typ == "links" {
-		out, err := a.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
+		out, err := a.core.GetCampaignAnalyticsLinks(ids, typ, mode, from, to)
 		if err != nil {
 			return err
 		}
@@ -645,7 +655,7 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	// Get the analytics numbers from the DB for the campaigns.
-	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, mode, from, to)
 	if err != nil {
 		return err
 	}

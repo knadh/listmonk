@@ -13,6 +13,22 @@ jobs:
   release:
     if: github.repository == 'KVSocial/listmonk'
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: listmonk_test
+          POSTGRES_PASSWORD: listmonk_test
+          POSTGRES_DB: listmonk_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U listmonk_test -d listmonk_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      LISTMONK_TEST_DB_DSN: "host=127.0.0.1 port=5432 user=listmonk_test password=listmonk_test dbname=listmonk_test sslmode=disable"
     steps:
       - name: Checkout
         uses: actions/checkout@v6

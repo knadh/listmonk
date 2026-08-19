@@ -84,10 +84,14 @@ type Campaign struct {
 
 // CampaignMeta contains fields tracking a campaign's progress.
 type CampaignMeta struct {
-	CampaignID int `db:"campaign_id" json:"-"`
-	Views      int `db:"views" json:"views"`
-	Clicks     int `db:"clicks" json:"clicks"`
-	Bounces    int `db:"bounces" json:"bounces"`
+	CampaignID        int  `db:"campaign_id" json:"-"`
+	Views             int  `db:"views" json:"views"`
+	Clicks            int  `db:"clicks" json:"clicks"`
+	UniqueViews       int  `db:"unique_views" json:"unique_views"`
+	UniqueClicks      int  `db:"unique_clicks" json:"unique_clicks"`
+	Delivered         int  `db:"delivered" json:"delivered"`
+	DeliveryEstimated bool `db:"delivery_estimated" json:"delivery_estimated"`
+	Bounces           int  `db:"bounces" json:"bounces"`
 
 	// This is a list of {list_id, name} pairs unlike Subscriber.Lists[]
 	// because lists can be deleted after a campaign is finished, resulting
@@ -128,6 +132,10 @@ func (camps Campaigns) LoadStats(stmt *sqlx.Stmt) error {
 			camps[i].Lists = c.Lists
 			camps[i].Views = c.Views
 			camps[i].Clicks = c.Clicks
+			camps[i].UniqueViews = c.UniqueViews
+			camps[i].UniqueClicks = c.UniqueClicks
+			camps[i].Delivered = c.Delivered
+			camps[i].DeliveryEstimated = c.DeliveryEstimated
 			camps[i].Bounces = c.Bounces
 			camps[i].Media = c.Media
 		}

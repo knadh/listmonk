@@ -4,8 +4,8 @@
       <template #brand>
         <div class="logo">
           <router-link :to="{ name: 'dashboard' }">
-            <img class="full" src="@/assets/logo.svg" alt="" />
-            <img class="favicon" src="@/assets/favicon.png" alt="" />
+            <img class="full" src="@/assets/kvsocial-favicon.png" alt="KV Social" />
+            <img class="favicon" src="@/assets/kvsocial-favicon.png" alt="KV Social" />
           </router-link>
         </div>
       </template>

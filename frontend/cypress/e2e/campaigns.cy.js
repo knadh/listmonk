@@ -11,6 +11,21 @@ describe('Campaigns', () => {
     cy.get('tbody td[data-label=Status]').should('have.length', 1);
   });
 
+  it('Shows delivery stats and analytics count modes', () => {
+    cy.get('tbody td[data-label=Stats]').first().within(() => {
+      cy.contains('Delivered');
+    });
+
+    cy.visit('/admin/campaigns/analytics?id=1');
+    cy.get('[data-cy=analytics-mode-total]').should('be.visible');
+    cy.get('[data-cy=analytics-mode-unique]').should('be.disabled');
+
+    // The default test database has individual tracking disabled, so Total is
+    // the available mode. Production exercises the enabled Unique mode.
+    cy.get('[data-cy=analytics-mode-total]').click();
+    cy.visit('/admin/campaigns');
+  });
+
   it('Creates campaign', () => {
     cy.get('a[data-cy=btn-new]').click();
 

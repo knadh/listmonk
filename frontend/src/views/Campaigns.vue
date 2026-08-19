@@ -136,24 +136,43 @@
         <div class="fields stats" :set="stats = getCampaignStats(props.row)">
           <p>
             <label for="#">{{ $t('campaigns.views') }}</label>
-            <span>{{ $utils.formatNumber(props.row.views) }}</span>
+            <span>
+              {{ $utils.formatNumber(getViewCount(stats)) }}
+              <small class="stat-percentage">({{ formatStatPercentage(getViewCount(stats), stats.delivered) }})</small>
+            </span>
           </p>
           <p>
             <label for="#">{{ $t('campaigns.clicks') }}</label>
-            <span>{{ $utils.formatNumber(props.row.clicks) }}</span>
+            <span>
+              {{ $utils.formatNumber(getClickCount(stats)) }}
+              <small class="stat-percentage">({{ formatStatPercentage(getClickCount(stats), stats.delivered) }})</small>
+            </span>
+          </p>
+          <p>
+            <label for="#">{{ $t('campaigns.delivered') }}</label>
+            <span>
+              <b-tooltip v-if="stats.deliveryEstimated" :label="$t('campaigns.deliveryEstimatedHelp')"
+                type="is-dark" position="is-left">
+                ~{{ $utils.formatNumber(stats.delivered) }}
+              </b-tooltip>
+              <template v-else>{{ $utils.formatNumber(stats.delivered) }}</template>
+              <small class="stat-percentage">({{ formatStatPercentage(stats.delivered, stats.sent) }})</small>
+            </span>
           </p>
           <p>
             <label for="#">{{ $t('campaigns.sent') }}</label>
             <span>
               {{ $utils.formatNumber(stats.sent) }} /
               {{ $utils.formatNumber(stats.toSend) }}
+              <small class="stat-percentage">({{ formatStatPercentage(stats.sent, stats.toSend) }})</small>
             </span>
           </p>
           <p>
             <label for="#">{{ $t('globals.terms.bounces') }}</label>
             <span>
               <router-link :to="{ name: 'bounces', query: { campaign_id: props.row.id } }">
-                {{ $utils.formatNumber(props.row.bounces) }}
+                {{ $utils.formatNumber(stats.bounces) }}
+                <small class="stat-percentage">({{ formatStatPercentage(stats.bounces, stats.sent) }})</small>
               </router-link>
             </span>
           </p>
@@ -283,6 +302,8 @@ import CampaignPreview from '../components/CampaignPreview.vue';
 import CopyText from '../components/CopyText.vue';
 import EmptyPlaceholder from '../components/EmptyPlaceholder.vue';
 
+const CAMPAIGNS_REFRESH_INTERVAL = 30000;
+
 export default Vue.extend({
   components: {
     CampaignPreview,
@@ -300,6 +321,11 @@ export default Vue.extend({
         order: 'desc',
       },
       pollID: null,
+      finalRefreshID: null,
+      campaignsPollID: null,
+      campaignsRequest: null,
+      campaignsRequestID: 0,
+      campaignsRefreshPending: false,
       campaignStatsData: {},
 
       // Table bulk row selection states.
@@ -368,14 +394,82 @@ export default Vue.extend({
       this.previewItem = null;
     },
 
+    isPageVisible() {
+      return !document.hidden;
+    },
+
+    startCampaignsPolling() {
+      this.stopCampaignsPolling();
+      if (!this.isPageVisible()) {
+        return;
+      }
+
+      this.campaignsPollID = setInterval(() => {
+        if (this.isPageVisible()) {
+          this.requestCampaignRefresh();
+        }
+      }, CAMPAIGNS_REFRESH_INTERVAL);
+    },
+
+    stopCampaignsPolling() {
+      clearInterval(this.campaignsPollID);
+      this.campaignsPollID = null;
+    },
+
+    onVisibilityChange() {
+      if (!this.isPageVisible()) {
+        this.stopCampaignsPolling();
+        return;
+      }
+
+      this.requestCampaignRefresh();
+      this.startCampaignsPolling();
+    },
+
+    requestCampaignRefresh() {
+      return this.getCampaigns();
+    },
+
+    finishCampaignsRequest(requestID) {
+      if (this.campaignsRequestID !== requestID) {
+        return;
+      }
+
+      this.campaignsRequest = null;
+      const shouldRefresh = this.campaignsRefreshPending && this.isPageVisible();
+      this.campaignsRefreshPending = false;
+      if (shouldRefresh) {
+        this.getCampaigns();
+      }
+    },
+
     getCampaigns() {
-      this.$api.getCampaigns({
+      // The API interceptor commits campaign responses directly to Vuex. Keep
+      // one list request in flight so an older response cannot overwrite a
+      // newer refresh. Queue the latest state when search, sort, pagination,
+      // or a timer requests another refresh in the meantime.
+      if (this.campaignsRequest) {
+        this.campaignsRefreshPending = true;
+        return this.campaignsRequest;
+      }
+
+      const requestID = this.campaignsRequestID + 1;
+      this.campaignsRequestID = requestID;
+      this.campaignsRequest = this.$api.getCampaigns({
         page: this.queryParams.page,
         query: this.queryParams.query.replace(/[^\p{L}\p{N}\s]/gu, ' '),
         order_by: this.queryParams.orderBy,
         order: this.queryParams.order,
         no_body: true,
+      }).then((data) => {
+        this.finishCampaignsRequest(requestID);
+        return data;
+      }, (error) => {
+        this.finishCampaignsRequest(requestID);
+        return Promise.reject(error);
       });
+
+      return this.campaignsRequest;
     },
 
     // Stats returns the campaign object with stats (sent, toSend etc.)
@@ -389,9 +483,29 @@ export default Vue.extend({
       return c;
     },
 
+    getViewCount(campaign) {
+      return this.serverConfig.privacy.individual_tracking ? campaign.uniqueViews : campaign.views;
+    },
+
+    getClickCount(campaign) {
+      return this.serverConfig.privacy.individual_tracking ? campaign.uniqueClicks : campaign.clicks;
+    },
+
+    formatStatPercentage(value, total) {
+      const numerator = Number(value);
+      const denominator = Number(total);
+      if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
+        return '—';
+      }
+
+      return `${((numerator / denominator) * 100).toFixed(1)}%`;
+    },
+
     pollStats() {
       // Clear any running status polls.
       clearInterval(this.pollID);
+      clearTimeout(this.finalRefreshID);
+      this.finalRefreshID = null;
 
       // Poll for the status as long as the import is running.
       this.pollID = setInterval(() => {
@@ -401,10 +515,15 @@ export default Vue.extend({
             clearInterval(this.pollID);
 
             // There were running campaigns and stats earlier. Clear them
-            // and refetch the campaigns list with up-to-date fields.
+            // and refetch the campaigns list with up-to-date fields. Repeat
+            // once after a short grace period for late provider webhooks.
             if (Object.keys(this.campaignStatsData).length > 0) {
               this.getCampaigns();
               this.campaignStatsData = {};
+              this.finalRefreshID = setTimeout(() => {
+                this.getCampaigns();
+                this.finalRefreshID = null;
+              }, 5000);
             }
           } else {
             // Turn the list of campaigns [{id: 1, ...}, {id: 2, ...}] into
@@ -525,7 +644,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['campaigns', 'loading']),
+    ...mapState(['campaigns', 'loading', 'serverConfig']),
 
     numSelectedCampaigns() {
       return this.bulk.all ? this.campaigns.total : this.bulk.checked.length;
@@ -537,13 +656,19 @@ export default Vue.extend({
   },
 
   mounted() {
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
     this.getCampaigns();
+    this.startCampaignsPolling();
     this.pollStats();
   },
 
   destroyed() {
     this.$root.$off('page.refresh', this.getCampaigns);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.stopCampaignsPolling();
+    this.campaignsRefreshPending = false;
     clearInterval(this.pollID);
+    clearTimeout(this.finalRefreshID);
   },
 });
 </script>

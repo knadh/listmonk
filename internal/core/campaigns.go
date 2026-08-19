@@ -381,14 +381,28 @@ func (c *Core) GetRunningCampaignStats() ([]models.CampaignStats, error) {
 	return out, nil
 }
 
-func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsCount, error) {
+func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, mode, fromDate, toDate string) ([]models.CampaignAnalyticsCount, error) {
 	// Pick campaign view counts or click counts.
 	var stmt *sqlx.Stmt
 	switch typ {
 	case "views":
-		stmt = c.q.GetCampaignViewCounts
+		switch mode {
+		case "unique":
+			stmt = c.q.GetCampaignViewCountsUnique
+		case "total":
+			stmt = c.q.GetCampaignViewCountsTotal
+		default:
+			stmt = c.q.GetCampaignViewCounts
+		}
 	case "clicks":
-		stmt = c.q.GetCampaignClickCounts
+		switch mode {
+		case "unique":
+			stmt = c.q.GetCampaignClickCountsUnique
+		case "total":
+			stmt = c.q.GetCampaignClickCountsTotal
+		default:
+			stmt = c.q.GetCampaignClickCounts
+		}
 	case "bounces":
 		stmt = c.q.GetCampaignBounceCounts
 	default:
@@ -410,9 +424,17 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 }
 
 // GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.
-func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
+func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, mode, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
+	stmt := c.q.GetCampaignLinkCounts
+	switch mode {
+	case "unique":
+		stmt = c.q.GetCampaignLinkCountsUnique
+	case "total":
+		stmt = c.q.GetCampaignLinkCountsTotal
+	}
+
 	out := []models.CampaignAnalyticsLink{}
-	if err := c.q.GetCampaignLinkCounts.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
+	if err := stmt.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
 		c.log.Printf("error fetching campaign %s: %v", typ, err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))

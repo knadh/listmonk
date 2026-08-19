@@ -289,6 +289,7 @@ INSERT INTO settings (key, value) VALUES
     ('bounce.azure', '{"enabled": false, "shared_secret": "", "shared_secret_header": ""}'),
     ('bounce.sendgrid_enabled', 'false'),
     ('bounce.sendgrid_key', '""'),
+    ('delivery.sendgrid_tracking_started_at', TO_JSONB(NOW())),
     ('bounce.postmark', '{"enabled": false, "username": "", "password": ""}'),
     ('bounce.forwardemail', '{"enabled": false, "key": ""}'),
     ('bounce.lettermint', '{"enabled": false, "key": ""}'),
@@ -315,6 +316,26 @@ DROP INDEX IF EXISTS idx_bounces_sub_id; CREATE INDEX idx_bounces_sub_id ON boun
 DROP INDEX IF EXISTS idx_bounces_camp_id; CREATE INDEX idx_bounces_camp_id ON bounces(campaign_id);
 DROP INDEX IF EXISTS idx_bounces_source; CREATE INDEX idx_bounces_source ON bounces(source);
 DROP INDEX IF EXISTS idx_bounces_date; CREATE INDEX idx_bounces_date ON bounces(created_at);
+
+-- Provider delivery lifecycle events, with campaign correlation when available.
+DROP TABLE IF EXISTS campaign_delivery_events CASCADE;
+CREATE TABLE campaign_delivery_events (
+    id                    BIGSERIAL PRIMARY KEY,
+    campaign_id           INTEGER NULL REFERENCES campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    subscriber_id         INTEGER NULL REFERENCES subscribers(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    provider              TEXT NOT NULL,
+    provider_event_id     TEXT NOT NULL,
+    provider_message_id   TEXT NOT NULL DEFAULT '',
+    event_type            TEXT NOT NULL,
+    meta                  JSONB NOT NULL DEFAULT '{}',
+    occurred_at           TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at            TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+
+    UNIQUE(provider, provider_event_id)
+);
+DROP INDEX IF EXISTS idx_delivery_events_camp_type; CREATE INDEX idx_delivery_events_camp_type ON campaign_delivery_events(campaign_id, event_type);
+DROP INDEX IF EXISTS idx_delivery_events_sub_id; CREATE INDEX idx_delivery_events_sub_id ON campaign_delivery_events(subscriber_id);
+DROP INDEX IF EXISTS idx_delivery_events_date; CREATE INDEX idx_delivery_events_date ON campaign_delivery_events(occurred_at);
 
 -- roles
 DROP TABLE IF EXISTS roles CASCADE;
