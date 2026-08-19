@@ -18,10 +18,10 @@
 				<article class="card stat-card" data-cy="lists">
 					<small class="text-light">{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/lists" }}" class="unstyled">{{ FormatNumber $c.Lists.Total }}</a></div>
-					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/lists" }}?type=public">{{ Badge (printf "%s %s" (FormatNumber $c.Lists.Public) (.L.T "lists.types.public")) "public" }}</a>
-						<a href="{{ URI "/admin/lists" }}?type=private">{{ Badge (printf "%s %s" (FormatNumber $c.Lists.Private) (.L.T "lists.types.private")) "private" }}</a>
-					</div>
+					<dl class="stat-meta hstack justify-between">
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=public" class="unstyled"><strong>{{ FormatNumber $c.Lists.Public }}</strong></a></dt><dd class="text-light">{{ .L.T "lists.types.public" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=private" class="unstyled"><strong>{{ FormatNumber $c.Lists.Private }}</strong></a></dt><dd class="text-light">{{ .L.T "lists.types.private" }}</dd></div>
+					</dl>
 				</article>
 			</div>
 
@@ -29,10 +29,10 @@
 				<article class="card stat-card" data-cy="subscribers">
 					<small class="text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/subscribers" }}" class="unstyled">{{ FormatNumber $c.Subscribers.Total }}</a></div>
-					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/subscribers" }}?subscription_status=none">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Orphans) (.L.T "dashboard.orphanSubs")) "outline" }}</a>
-						<a href="{{ URI "/admin/subscribers" }}?status=blocklisted">{{ Badge (printf "%s %s" (FormatNumber $c.Subscribers.Blocklisted) (.L.T "subscribers.status.blocklisted")) "status-blocklisted" }}</a>
-					</div>
+					<dl class="stat-meta hstack justify-between">
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?subscription_status=none" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Orphans }}</strong></a></dt><dd class="text-light">{{ .L.T "dashboard.orphanSubs" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?status=blocklisted" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Blocklisted }}</strong></a></dt><dd class="text-light">{{ .L.T "subscribers.status.blocklisted" }}</dd></div>
+					</dl>
 				</article>
 			</div>
 
@@ -40,10 +40,10 @@
 				<article class="card stat-card" data-cy="campaigns">
 					<small class="text-light">{{ Icon "send" }} {{ .L.T "globals.terms.campaigns" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/campaigns" }}" class="unstyled">{{ FormatNumber $c.Campaigns.Total }}</a></div>
-					<div class="mt-2 hstack gap-2">
-						<a href="{{ URI "/admin/campaigns" }}?status=scheduled">{{ Badge (printf "%s %s" (FormatNumber (index $c.Campaigns.ByStatus "scheduled")) (.L.T "campaigns.status.scheduled")) "outline" }}</a>
-						<a href="{{ URI "/admin/campaigns" }}?status=finished">{{ Badge (printf "%s %s" (FormatNumber (index $c.Campaigns.ByStatus "finished")) (.L.T "campaigns.status.finished")) "status-finished" }}</a>
-					</div>
+					<dl class="stat-meta hstack justify-between">
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=scheduled" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "scheduled") }}</strong></a></dt><dd class="text-light">{{ .L.T "campaigns.status.scheduled" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=finished" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "finished") }}</strong></a></dt><dd class="text-light">{{ .L.T "campaigns.status.finished" }}</dd></div>
+					</dl>
 				</article>
 			</div>
 
