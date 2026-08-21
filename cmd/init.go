@@ -1290,20 +1290,10 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			return p.Sprintf("%d", n)
 		},
 		"NiceDate": func(t any) string {
-			switch v := t.(type) {
-			case time.Time:
-				if v.IsZero() {
-					return ""
-				}
-				return v.Format("Mon, 02 Jan 2006")
-			case null.Time:
-				if !v.Valid {
-					return ""
-				}
-				return v.Time.Format("Mon, 02 Jan 2006")
-			default:
-				return ""
-			}
+			return niceDate(t, "Mon, 02 Jan 2006")
+		},
+		"NiceDateTime": func(t any) string {
+			return niceDate(t, "Mon, 02 Jan 2006, 15:04")
 		},
 	}
 
@@ -1406,8 +1396,24 @@ func joinFSPaths(root string, paths []string) []string {
 	return out
 }
 
-// badgeContent renders the content of a badge. Pre-rendered markup (eg: Icon())
-// goes in as-is and everything else is escaped.
+// niceDate formats the given for template rendering.
+func niceDate(t any, layout string) string {
+	switch v := t.(type) {
+	case time.Time:
+		if v.IsZero() {
+			return ""
+		}
+		return v.Format(layout)
+	case null.Time:
+		if !v.Valid {
+			return ""
+		}
+		return v.Time.Format(layout)
+	}
+
+	return ""
+}
+
 func badgeContent(content any) template.HTML {
 	switch v := content.(type) {
 	case template.HTML:

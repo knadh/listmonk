@@ -5,6 +5,7 @@
 {{- $isNew := $d.IsNew -}}
 {{- $canManage := $d.Can "campaigns:manage" "campaigns:manage_all" -}}
 {{- $canSend := $d.Can "campaigns:send" -}}
+{{- $statusIcons := dict "draft" "file-text" "scheduled" "clock" "running" "send" "paused" "pause" "cancelled" "x-circle" "finished" "check-circle" -}}
 
 <script>
 	window._lists = {{ ToJSON $d.AllLists }};
@@ -26,7 +27,7 @@
 					{{- else }}{{ $c.Name }}{{ end }}
 				</h1>
 				{{- if not $isNew }}
-					{{ Badge (.L.T (printf "campaigns.status.%s" $c.Status)) (printf "enum status-%s" $c.Status) }}
+					{{ Badge (list (Icon (index $statusIcons $c.Status)) (.L.T (printf "campaigns.status.%s" $c.Status))) (printf "enum status-%s" $c.Status) }}
 					{{- if eq $c.Type "optin" }}{{ Badge (.L.T "lists.optin") "enum optin" }}{{ end }}
 				{{- end }}
 			</div>

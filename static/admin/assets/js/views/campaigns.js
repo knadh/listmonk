@@ -144,13 +144,13 @@ function component() {
     },
 
     _updateStats(c) {
-      const row = document.querySelector(`tr[data-campaign-id="${c.id}"]`);
-      if (!row) {
+      const card = document.querySelector(`[data-campaign-id="${c.id}"]`);
+      if (!card) {
         return;
       }
 
       const set = (name, val) => {
-        const el = row.querySelector(`[data-stat="${name}"]`);
+        const el = card.querySelector(`[data-stat="${name}"]`);
         if (el) {
           el.textContent = val;
         }
@@ -159,7 +159,7 @@ function component() {
       set('to_send', u.formatNumber(c.to_send));
       set('rate', Math.round(c.rate || 0));
 
-      const prog = row.querySelector('[data-stat="progress"]');
+      const prog = card.querySelector('[data-stat="progress"]');
       if (prog) {
         prog.value = c.sent;
         prog.max = c.to_send;

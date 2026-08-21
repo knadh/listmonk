@@ -11,6 +11,7 @@ bar-chart-2
 calendar
 check-circle
 check-square
+check
 chevron-down
 chevron-left
 chevron-right
@@ -20,6 +21,7 @@ corner-right-down
 copy
 download-cloud
 edit-2
+edit-3
 eye
 file-text
 grid

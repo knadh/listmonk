@@ -78,9 +78,9 @@
 						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
-								<a href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
-								<div class="hstack gap-1">
-									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">{{ Badge (printf "#%s" .) "outline tag" }}</a>{{ end }}
+								<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+								<div class="hstack gap-2 text-8">
+									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">#{{ . }}</a>{{ end }}
 								</div>
 							</td>
 							<td>
@@ -104,22 +104,22 @@
 									{{- $unsubscribed := index $counts "unsubscribed" -}}
 									{{- $blocklisted := index $counts "blocklisted" }}
 									{{- if gt $subscribed 0 }}
-										<dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled">{{ FormatNumber $subscribed }}</a></dd>
+										<div><dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled">{{ FormatNumber $subscribed }}</a></dd></div>
 									{{- end }}
 									{{- if gt $unsubscribed 0 }}
-										<dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled">{{ FormatNumber $unsubscribed }}</a></dd>
+										<div><dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled">{{ FormatNumber $unsubscribed }}</a></dd></div>
 									{{- end }}
 									{{- if gt $blocklisted 0 }}
-										<dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted">{{ FormatNumber $blocklisted }}</a></dd>
+										<div><dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted">{{ FormatNumber $blocklisted }}</a></dd></div>
 									{{- end }}
 									{{- if eq .Optin "double" }}
 										{{- $confirmed := index $counts "confirmed" -}}
 										{{- $unconfirmed := index $counts "unconfirmed" }}
 										{{- if gt $confirmed 0 }}
-											<dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed">{{ FormatNumber $confirmed }}</a></dd>
+											<div><dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed">{{ FormatNumber $confirmed }}</a></dd></div>
 										{{- end }}
 										{{- if gt $unconfirmed 0 }}
-											<dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed">{{ FormatNumber $unconfirmed }}</a></dd>
+											<div><dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed">{{ FormatNumber $unconfirmed }}</a></dd></div>
 										{{- end }}
 									{{- end }}
 								</dl>

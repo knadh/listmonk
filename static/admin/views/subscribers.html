@@ -90,8 +90,8 @@
 				<thead>
 					<tr>
 						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
-						<th>{{ $d.Page.SortLink $base "email" (.L.T "subscribers.email") }}</th>
-						<th>{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
+						<th width="28%">{{ $d.Page.SortLink $base "email" (.L.T "subscribers.email") }}</th>
+						<th width="28%">{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
 						<th>{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
 						<th>{{ $d.Page.SortLink $base "updated_at" (.L.T "globals.fields.updatedAt") }}</th>
 						<th class="align-right"></th>
@@ -123,7 +123,7 @@
 											{{- end }}
 										{{- end }}
 										{{- if gt (len .ParsedLists) 2 }}
-											<a href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists">+{{ sub (len .ParsedLists) 2 }} {{ lower ($.L.T "globals.terms.lists") }}</a>
+											<a href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ range $i, $l := slice .ParsedLists 2 }}{{ if $i }}, {{ end }}{{ $l.Name }}{{ end }}">+{{ sub (len .ParsedLists) 2 }} {{ lower ($.L.T "globals.terms.lists") }}</a>
 										{{- end }}
 									</div>
 								{{- end }}
