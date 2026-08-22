@@ -196,7 +196,7 @@ func (p PageProps) Encode(exclude ...string) string {
 }
 
 // SortLink returns a sorting link for field.
-func (p PageProps) SortLink(path, field, label string) template.HTML {
+func (p PageProps) SortLink(path, field, label string, sortLabel ...string) template.HTML {
 	params := make(url.Values, len(p.QueryParams))
 	for key, vals := range p.QueryParams {
 		if key == "page" {
@@ -228,6 +228,9 @@ func (p PageProps) SortLink(path, field, label string) template.HTML {
 	}
 
 	attrs := fmt.Sprintf(`href="%s" data-sort-field="%s"`, template.HTMLEscapeString(href), template.HTMLEscapeString(field))
+	if len(sortLabel) > 0 && sortLabel[0] != "" {
+		attrs += fmt.Sprintf(` title="%s"`, template.HTMLEscapeString(fmt.Sprintf("%s (%s)", sortLabel[0], label)))
+	}
 	if curField == field && (curOrd == OrderAsc || curOrd == OrderDesc) {
 		attrs += fmt.Sprintf(` data-sorted="%s"`, template.HTMLEscapeString(curOrd))
 	}

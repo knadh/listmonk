@@ -940,20 +940,6 @@ section.dashboard {
     }
 }
 
-/* Lists */
-section.lists {
-    th, td {
-        &.subscribers {
-            text-align: center;
-        }
-    }
-
-    .date-stack small {
-        display: block;
-        margin-block-start: var(--space-1);
-    }
-}
-
 /* Subscribers */
 .subscribers {
     .blocklisted {
@@ -976,8 +962,8 @@ section.lists {
     }
 }
 
-/* Campaigns */
-section.campaigns {
+/* Item cards (campaigns, lists) */
+.item-cards {
     .list-toolbar {
         min-height: var(--space-8);
         margin-block-end: var(--space-3);
@@ -997,7 +983,7 @@ section.campaigns {
         }
     }
 
-    .campaign {
+    .item-card {
         padding: 0;
         margin-block-end: var(--space-6);
 
@@ -1026,7 +1012,8 @@ section.campaigns {
         }
 
         .stats {
-            gap: var(--space-12);
+            flex-wrap: wrap;
+            gap: var(--space-2) var(--space-12);
             > div {
                 display: flex;
                 flex-direction: row-reverse;

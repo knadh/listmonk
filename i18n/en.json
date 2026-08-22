@@ -326,6 +326,7 @@
     "globals.terms.recent": "Recent {name}",
     "globals.terms.second": "Second | Seconds",
     "globals.terms.settings": "Settings",
+    "globals.terms.sort": "Sort",
     "globals.terms.subscriber": "Subscriber | Subscribers",
     "globals.terms.subscribers": "Subscribers",
     "globals.terms.subscriptions": "Subscription | Subscriptions",

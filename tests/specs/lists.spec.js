@@ -130,7 +130,7 @@ test.describe('Lists', () => {
       await expect(row).toContainText(`#tag${n}`);
     }
 
-    // The description isn't on the listing; reopen each edit view to confirm it saved.
+    // Reopen each edit view to confirm the description saved.
     for (const [n, id] of ids.entries()) {
       await page.goto(`${LISTS}/${id}`);
       await expect(page.locator('textarea[name="description"]')).toHaveValue(`desc${n}`);
@@ -290,7 +290,7 @@ test.describe('Lists', () => {
 
     // Delete every list across all pages via the "select all" query option.
     await page.goto(LISTS);
-    await page.locator('thead input[type="checkbox"]').check();
+    await page.locator('[data-select-all]').check();
     await page.getByTestId('btn-bulk-actions').click();
 
     const selectAll = page.getByTestId('select-all-lists');
@@ -309,7 +309,7 @@ test.describe('Lists', () => {
     }
 
     await page.goto(LISTS);
-    await page.locator('thead input[type="checkbox"]').check();
+    await page.locator('[data-select-all]').check();
     await page.getByTestId('btn-bulk-actions').click();
     await withListAPI(page, 'DELETE', async () => {
       await page.getByTestId('btn-delete-lists').click();
