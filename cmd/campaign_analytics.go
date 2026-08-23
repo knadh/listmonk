@@ -92,17 +92,17 @@ func (a *App) ViewCampaignAnalytics(c echo.Context) error {
 			ids[i] = camp.ID
 		}
 
-		views, err := a.core.GetCampaignAnalyticsCounts(ids, "views", fromStr, toStr)
+		views, err := a.core.GetCampaignAnalyticsCounts(ids, "views", fromStr, toStr, "")
 		if err != nil {
 			return err
 		}
 
-		clicks, err := a.core.GetCampaignAnalyticsCounts(ids, "clicks", fromStr, toStr)
+		clicks, err := a.core.GetCampaignAnalyticsCounts(ids, "clicks", fromStr, toStr, "")
 		if err != nil {
 			return err
 		}
 
-		bounces, err := a.core.GetCampaignAnalyticsCounts(ids, "bounces", fromStr, toStr)
+		bounces, err := a.core.GetCampaignAnalyticsCounts(ids, "bounces", fromStr, toStr, "")
 		if err != nil {
 			return err
 		}
@@ -162,7 +162,7 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	// Get the analytics numbers from the DB for the campaigns.
-	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to, c.QueryParam("granularity"))
 	if err != nil {
 		return err
 	}
