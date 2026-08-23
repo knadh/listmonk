@@ -207,13 +207,20 @@ Retrieve stats of specified campaigns.
 | id   | number\[\] | Yes      | Campaign IDs to get stats for.                |
 | type | string     | Yes      | Analytics type: views, links, clicks, bounces |
 | from | string     | Yes      | Start value of date range.                    |
-| to   | string     | Yes      | End value of date range.                      |
+| to          | string     | Yes      | End value of date range.                                      |
+| granularity | string     |          | Optional time bucket: hour, day, week, or month.             |
 
 
 ##### Example Request
 
 ```shell
 curl -u "api_user:token" -X GET 'http://localhost:9000/api/campaigns/analytics/views?id=1&from=2024-08-04&to=2024-08-12'
+```
+
+Use the optional `granularity` query parameter to override the automatic time bucket. Supported values are `hour`, `day`, `week`, and `month`. When omitted, intervals shorter than seven days remain hourly and longer intervals remain daily.
+
+```shell
+curl -u "api_user:token" -X GET 'http://localhost:9000/api/campaigns/analytics/views?id=1&from=2024-08-04&to=2024-08-12&granularity=week'
 ```
 
 ##### Example Response
