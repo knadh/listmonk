@@ -233,8 +233,8 @@ SELECT camps.*, campMedia.media_id FROM camps LEFT JOIN campMedia ON (campMedia.
 
 -- name: get-campaign-analytics-unique-counts
 WITH intval AS (
-    -- For intervals < a week, aggregate counts hourly, otherwise daily.
-    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+    -- Use an explicit granularity when provided; otherwise preserve the automatic interval.
+    SELECT COALESCE(NULLIF($4, ''), CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END)
 ),
 uniqIDs AS (
     SELECT DISTINCT ON(subscriber_id, campaign_id) subscriber_id, campaign_id, DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
@@ -248,8 +248,8 @@ SELECT COUNT(*) AS "count", campaign_id, "timestamp"
 -- name: get-campaign-analytics-counts
 -- raw: true
 WITH intval AS (
-    -- For intervals < a week, aggregate counts hourly, otherwise daily.
-    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+    -- Use an explicit granularity when provided; otherwise preserve the automatic interval.
+    SELECT COALESCE(NULLIF($4, ''), CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END)
 )
 SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
     FROM %s
@@ -258,8 +258,8 @@ SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), crea
 
 -- name: get-campaign-bounce-counts
 WITH intval AS (
-    -- For intervals < a week, aggregate counts hourly, otherwise daily.
-    SELECT CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END
+    -- Use an explicit granularity when provided; otherwise preserve the automatic interval.
+    SELECT COALESCE(NULLIF($4, ''), CASE WHEN (EXTRACT (EPOCH FROM ($3::TIMESTAMP - $2::TIMESTAMP)) / 86400) >= 7 THEN 'day' ELSE 'hour' END)
 )
 SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC((SELECT * FROM intval), created_at) AS "timestamp"
     FROM bounces
