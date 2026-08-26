@@ -126,6 +126,8 @@ $ helm upgrade \
 <a href="https://zeabur.com/templates/5EDMN6"><img src="https://zeabur.com/button.svg" alt="Deploy on Zeabur" style="max-width: 150px;"/></a>
 <br />
 <a href="https://www.cloudron.io/store/app.listmonk.cloudronapp.html"><img src="https://cloudron.io/img/button.svg" alt="Install on Cloudron" style="max-width: 150px;"/></a>
+<br />
+<a href="https://console.hostim.dev/dashboard?preview=1&modal=1&template=listmonk"><img src="https://hostim.dev/img/deploy-button.svg" alt="Deploy on Hostim" style="max-width: 150px;"/></a>
 
 ## Tutorials
 * [Listmonk with Forward Email for Secure Newsletter Delivery](https://forwardemail.net/en/guides/newsletter-with-listmonk)
