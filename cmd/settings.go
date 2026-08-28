@@ -98,6 +98,16 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	// `upload.provider` is a required enum. A partial update that omits it
+	// zeroes it out to an empty string, which is silently accepted here but
+	// crashes the process with a fatal error the next time it starts up
+	// (initMediaStore() only recognizes "s3" and "filesystem" and calls
+	// lo.Fatalf() for anything else), leaving the instance unbootable.
+	if set.UploadProvider != "s3" && set.UploadProvider != "filesystem" {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.invalidFields", "name", "upload.provider"))
+	}
+
 	// Validate and sanitize postback Messenger names along with SMTP names
 	// (where each SMTP is also considered as a standalone messenger).
 	// Duplicates are disallowed and "email" is a reserved name.
