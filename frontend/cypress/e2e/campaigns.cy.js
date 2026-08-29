@@ -324,7 +324,7 @@ describe('Campaigns', () => {
       });
     });
 
-    // Fetch the campaigns API and verfiy the values that couldn't be verified on the table UI.
+    // Fetch the campaigns API and verify the values that couldn't be verified on the table UI.
     cy.request(`${apiUrl}/api/campaigns?order=asc&order_by=created_at`).should((response) => {
       const { data } = response.body;
       expect(data.total).to.equal(lists.length * cTypes.length);
