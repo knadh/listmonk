@@ -82,9 +82,15 @@
 							<tbody>
 								{{- range $d.Campaigns }}
 									<tr>
-										<td width="20%">{{ Badge ($.L.T (printf "campaigns.status.%s" .Status)) (printf "enum status-%s" .Status) }}</td>
-										<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a></td>
-										<td class="text-light">
+										<td width="55%">
+											{{- $seed := "" }}{{ range .ParsedLists }}{{ $seed = printf "%s%d," $seed .ID }}{{ end }}
+											<div class="name-stack">
+												{{ template "avatar" dict "Seed" $seed "Name" .Name }}
+												<div><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
+											</div>
+										</td>
+										<td width="20%">{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}</td>
+										<td width="20%"class="text-light">
 											{{- if and (eq .Status "scheduled") .SendAt.Valid }}{{ NiceDate .SendAt }}{{ else }}{{ NiceDate .CreatedAt }}{{ end -}}
 										</td>
 										<td class="align-right">

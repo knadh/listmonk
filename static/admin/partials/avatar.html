@@ -1,0 +1,4 @@
+{{ define "avatar" -}}
+{{- $a := Avatar .Seed .Name -}}
+<span class="avatar">{{ if .URL }}<img src="{{ .URL }}" alt="" width="28" height="28" loading="lazy" />{{ else }}<span style="{{ $a.Style }}" aria-hidden="true">{{ $a.Text }}</span>{{ end }}</span>
+{{- end }}

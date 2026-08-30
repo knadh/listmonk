@@ -5,7 +5,6 @@
 {{- $isNew := $d.IsNew -}}
 {{- $canManage := $d.Can "campaigns:manage" "campaigns:manage_all" -}}
 {{- $canSend := $d.Can "campaigns:send" -}}
-{{- $statusIcons := dict "draft" "file-text" "scheduled" "clock" "running" "send" "paused" "pause" "cancelled" "x-circle" "finished" "check-circle" -}}
 
 <script>
 	window._lists = {{ ToJSON $d.AllLists }};
@@ -22,12 +21,16 @@
 		<div class="{{ if $showRight }}col-6{{ else }}col-12{{ end }}">
 			<div class="hstack">
 				<a href="{{ URI "/admin/campaigns" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				{{- if not $isNew }}
+					{{- $seed := "" }}{{ range $c.ParsedLists }}{{ $seed = printf "%s%d," $seed .ID }}{{ end }}
+					{{ template "avatar" dict "Seed" $seed "Name" $c.Name }}
+				{{- end }}
 				<h1 class="page-title">
 					{{- if $isNew }}{{ .L.T "campaigns.newCampaign" }}
 					{{- else }}{{ $c.Name }}{{ end }}
 				</h1>
 				{{- if not $isNew }}
-					{{ Badge (list (Icon (index $statusIcons $c.Status)) (.L.T (printf "campaigns.status.%s" $c.Status))) (printf "enum status-%s" $c.Status) }}
+					{{ Badge (list (Dot) (.L.T (printf "campaigns.status.%s" $c.Status))) (printf "enum status-%s" $c.Status) }}
 					{{- if eq $c.Type "optin" }}{{ Badge (.L.T "lists.optin") "enum optin" }}{{ end }}
 				{{- end }}
 			</div>

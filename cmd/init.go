@@ -1250,6 +1250,12 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			name = template.HTMLEscapeString(name)
 			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/%s#icon-%s"></use></svg>`, u.RootPath, f, name))
 		},
+		// Auto-generated colour gradient CSS avatar.
+		"Avatar": makeAvatar,
+		// '●' that is printed inside some badges.
+		"Dot": func() template.HTML {
+			return template.HTML(`<span class="dot">&#9679;</span>`)
+		},
 		// First param = content
 		// Second param = optional classes separated by string, eg: "outline status-finished".
 		// Third param = optional data-variant, eg: "success".
@@ -1289,11 +1295,30 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			p := message.NewPrinter(language.English)
 			return p.Sprintf("%d", n)
 		},
-		"NiceDate": func(t any) string {
-			return niceDate(t, "Mon, 02 Jan 2006")
+		"NiceDate": func(t any, withTime ...bool) string {
+			layout := "Mon, 02 Jan 2006"
+			if len(withTime) > 0 && withTime[0] {
+				layout += ", 15:04"
+			}
+
+			return niceDate(t, layout)
 		},
-		"NiceDateTime": func(t any) string {
-			return niceDate(t, "Mon, 02 Jan 2006, 15:04")
+		"Duration": func(from, to any) string {
+			f, ok := toTime(from)
+			if !ok {
+				return ""
+			}
+			t, ok := toTime(to)
+			if !ok {
+				return ""
+			}
+
+			d := t.Sub(f)
+			if d <= 0 {
+				return ""
+			}
+
+			return niceDuration(d)
 		},
 	}
 
@@ -1397,6 +1422,18 @@ func joinFSPaths(root string, paths []string) []string {
 }
 
 // niceDate formats the given date for template rendering.
+// toTime extracts a non-zero time.Time out of a time.Time or null.Time value.
+func toTime(t any) (time.Time, bool) {
+	switch v := t.(type) {
+	case time.Time:
+		return v, !v.IsZero()
+	case null.Time:
+		return v.Time, v.Valid
+	}
+
+	return time.Time{}, false
+}
+
 func niceDate(t any, layout string) string {
 	switch v := t.(type) {
 	case time.Time:

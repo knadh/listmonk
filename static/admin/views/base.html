@@ -52,9 +52,7 @@
 					{{ with .Data.Profile }}
 						<ot-dropdown>
 							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
-								<span class="user-avatar">
-									{{ if .Avatar.Valid }}<img src="{{ .Avatar.String }}" alt="" />{{ else }}<span>{{ upper (substr 0 1 .Username) }}</span>{{ end }}
-								</span>
+								{{ template "avatar" dict "Seed" (printf "%d" .ID) "Name" (or .Name .Username) "URL" .Avatar.String }}
 								<span class="user-label">{{ .Username }}</span>
 							</button>
 							<menu popover id="user-menu">
