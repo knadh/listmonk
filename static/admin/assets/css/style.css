@@ -17,13 +17,51 @@
 
 /* Theme */
 * {
-    --body: light-dark(#f9f9f9, #171717);
+    --body: light-dark(#f9f9f9, #08090a);
+    --card: light-dark(#fff, #0f1011);
+    --faint: light-dark(#fafafa, #131417);
+    --muted: light-dark(#f4f4f5, #17181b);
+    --secondary: light-dark(#f4f4f5, #1a1b1e);
+    --accent: light-dark(#f4f4f5, #1e1f23);
+    --background: light-dark(#fff, #16171a);
+    --foreground: light-dark(#09090b, #f7f8f8);
+    --card-foreground: light-dark(#09090b, #f7f8f8);
+    --secondary-foreground: light-dark(#574747, #eceef1);
+    --muted-foreground: light-dark(#7a7a7a, #8a8f98);
+    --faint-foreground: light-dark(#a1a1aa, #62666d);
     --primary: light-dark(#0055d4, #4f8ce6);
     --ring: light-dark(#0055d4, #4f8ce6);
-    --muted-foreground: light-dark(#7a7a7a, #a1a1aa);
-    --container-max: 1150px;
-    --border: light-dark(#e5e7eb, #52525b);
+    --border: light-dark(#e5e7eb, #23252a);
+    --input: light-dark(#d4d4d8, #2c2d30);
+    --danger: light-dark(#d32f2f, #f2686e);
+    --success: light-dark(#008032, #52c290);
+    --warning: light-dark(#a65b00, #e6b95c);
+    --shadow-tint-1: light-dark(rgb(0 0 0 / 0.05), rgb(0 0 0 / 0.4));
+    --shadow-tint-2: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.5));
+    --shadow-tint-3: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.6));
+    --shadow-small: 0 1px 2px 0 var(--shadow-tint-1);
+    --shadow-medium: 0 1px 3px 0 var(--shadow-tint-2), 0 1px 2px -1px var(--shadow-tint-2);
+    --shadow-large: 0 4px 6px -1px var(--shadow-tint-3), 0 2px 4px -2px var(--shadow-tint-3);
+
+    --container-max: 1300px;
     --font-sans: "Geist", system-ui, sans-serif;
+
+    /* For badges. */
+    --tone-neutral: light-dark(#666, #9ea3ad);
+    --tone-neutral-bg: light-dark(#f5f5f5, rgb(255 255 255 / 0.06));
+    --tone-blue: light-dark(#1a5fd4, #5eabfa);
+    --tone-blue-bg: light-dark(#e4ecfe, rgb(94 171 250 / 0.13));
+    --tone-violet: light-dark(#6b4fd6, #b3a4fb);
+    --tone-violet-bg: light-dark(#efeafe, rgb(179 164 251 / 0.14));
+    --tone-green: light-dark(#07795c, #52c290);
+    --tone-green-bg: light-dark(#ddf4ec, rgb(82 194 144 / 0.13));
+    --tone-amber: light-dark(#8f5a04, #e6b95c);
+    --tone-amber-bg: light-dark(#fdf0da, rgb(230 185 92 / 0.12));
+    --tone-rose: light-dark(#b33a56, #f28fa8);
+    --tone-rose-bg: light-dark(#fdebef, rgb(242 143 168 / 0.12));
+    --tone-red: light-dark(#bd3325, #f2686e);
+    --tone-red-bg: light-dark(#fdeae6, rgb(242 104 110 / 0.14));
+
     --text-1: 1.5rem;
     --text-regular: var(--text-7);
 }
@@ -69,6 +107,10 @@ table {
         &:hover {
             color: var(--primary);
         }
+    }
+
+    tbody tr:hover {
+        background-color: light-dark(#fafafa, var(--background));
     }
 }
 
@@ -147,83 +189,97 @@ a:has(> .badge:only-child) {
     border-radius: var(--radius-full);
 }
 
-/* All badges are outline. Colour only applies to the text and the border, never a fill,
-   and is set with the --badge-color property below. */
 .badge {
+    --badge-fg: var(--tone-neutral);
+    --badge-bg: var(--tone-neutral-bg);
+
     padding: calc(var(--space-1) * 0.75) var(--space-4);
-    background: none;
-    color: var(--badge-color, var(--muted-foreground));
-    border: 1px solid var(--badge-color, var(--border));
+    background-color: var(--badge-bg);
+    color: var(--badge-fg);
+    border: 0;
 
-    &.scheduled,
+    .dot {
+        font-size: 0.6em;
+        line-height: 1;
+    }
+
+    &.status-running,
+    &.status-subscribed,
+    &.campaign {
+        --badge-fg: var(--tone-blue);
+        --badge-bg: var(--tone-blue-bg);
+    }
+
     &.status-paused,
-    &.tx,
-    &.api,
-    &.double,
-    &.unconfirmed {
-        --badge-color: light-dark(#ed7b00, #d3a065);
+    &.tx {
+        --badge-fg: var(--tone-violet);
+        --badge-bg: var(--tone-violet-bg);
     }
 
-    &.running,
-    &.list,
-    &.campaign,
-    &.user,
-    &.primary {
-        --badge-color: light-dark(#3b8cff, #8aa9cc);
-    }
-
-    /* Subscription/campaign statuses */
-    &.status-confirmed,
-    &.status-finished {
-        --badge-color: light-dark(#36995b, #7eab8b);
-    }
-
-    &.status-unsubscribed,
-    &.status-cancelled {
-        --badge-color: light-dark(#ff5722, #cf9088);
-    }
-    &.status-blocklisted {
-        --badge-color: var(--danger);
-    }
-
-    &.disabled,
-    &.status-draft,
-    &.optin,
-    &.single {
-        --badge-color: light-dark(#7a7a7a, #9a9aa3);
-    }
-
-    &[data-variant="success"] {
-        --badge-color: var(--success);
-    }
+    &.status-scheduled,
+    &.status-unconfirmed,
     &[data-variant="warning"] {
-        --badge-color: var(--warning);
+        --badge-fg: var(--tone-amber);
+        --badge-bg: var(--tone-amber-bg);
     }
+
+    &.status-finished,
+    &.status-confirmed,
+    &.status-enabled,
+    &.optin,
+    &[data-variant="success"] {
+        --badge-fg: var(--tone-green);
+        --badge-bg: var(--tone-green-bg);
+    }
+
+    &.status-cancelled,
+    &.status-unsubscribed {
+        --badge-fg: var(--tone-rose);
+        --badge-bg: var(--tone-rose-bg);
+    }
+
+    &.status-blocklisted,
+    &.status-disabled,
     &[data-variant="danger"] {
-        --badge-color: var(--danger);
+        --badge-fg: var(--tone-red);
+        --badge-bg: var(--tone-red-bg);
     }
+
+    &.small {
+        padding: 0 var(--space-2);
+        font-size: var(--text-8);
+    }
+
+    &.outline {
+        --badge-bg: transparent;
+
+        border: 1px solid var(--border);
+    }
+
+    transition: box-shadow var(--transition-fast);
 
     a:hover > & {
-        --badge-color: rgb(from var(--primary) r g b / .8);
+        opacity: .6;
     }
 }
 
 /* Subscription status icons. */
 .status-icon {
+    &.status-enabled,
     &.status-confirmed {
-        color: light-dark(#36995b, #7eab8b);
+        color: var(--tone-green);
     }
 
     &.status-unsubscribed {
-        color: light-dark(#ff5722, #cf9088);
+        color: var(--tone-rose);
     }
 
     &.status-blocklisted {
-        color: var(--danger);
+        color: var(--tone-red);
     }
 
     &.status-unconfirmed {
-        color: var(--muted-foreground);
+        color: var(--tone-amber);
     }
 }
 
@@ -398,12 +454,6 @@ nav[data-topnav] {
     .user-nav-button {
         padding-top: 0;
         padding-bottom: 0;
-
-        .user-avatar span,
-        .user-avatar img {
-            height: 24px;
-            width: 24px;
-        }
     }
 
     a,
@@ -558,27 +608,38 @@ main {
     gap: var(--space-2);
 }
 
-.user-avatar {
-    img,
-    span {
-        align-items: center;
-        border-radius: 50%;
-        display: inline-flex;
-        height: 32px;
-        justify-content: center;
-        width: 32px;
-    }
-
-    span {
-        background: var(--muted);
-        font-weight: 700;
-    }
-}
-
 .user-label {
     max-width: 12rem;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.avatar {
+    img,
+    span {
+        align-items: center;
+        display: inline-flex;
+        border-radius: 5px;
+        justify-content: center;
+        object-fit: cover;
+        height: 28px;
+        width: 28px;
+    }
+
+    span {
+        font-size: var(--text-8);
+        letter-spacing: 0.02em;
+    }
+}
+
+.name-stack {
+    align-items: flex-start;
+    display: flex;
+    gap: var(--space-3);
+
+    > .avatar {
+        flex-shrink: 0;
+    }
 }
 
 /* Components */
@@ -598,6 +659,11 @@ main {
     h1,
     h4 {
         margin-block-end: 0;
+    }
+
+    .avatar {
+        flex-shrink: 0;
+        margin-inline-end: var(--space-1);
     }
 }
 
@@ -700,7 +766,9 @@ td > .empty-state {
         }
 
         .bulk-actions {
-            box-shadow: -10px 0 10px var(--background);
+            /* Fades the table columns out behind the floating actions. The table
+               sits on a card, so the fade has to match the card, not the page. */
+            box-shadow: -10px 0 10px var(--card);
             position: absolute;
             right: var(--space-6);
             top: var(--space-2);
@@ -961,8 +1029,9 @@ section.lists {
 /* Subscribers */
 .subscribers {
     .blocklisted {
-        td > a {
-            color: var(--danger);
+        td > a,
+        td .name-stack > div > a {
+            color: var(--tone-red);
         }
     }
 
@@ -989,7 +1058,7 @@ section.campaigns {
             vertical-align: middle;
         }
 
-        tr.running {
+        tr.status-running {
             background: color-mix(in srgb, var(--primary) 8%, transparent);
 
             td {
@@ -1001,6 +1070,17 @@ section.campaigns {
             list-style-type: circle;
             margin: 0;
             padding-inline-start: var(--space-4);
+
+            li {
+                max-width: 16ch;
+                a {
+                    display: block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+
         }
 
         td.draft {
@@ -1314,7 +1394,7 @@ section.users {
     }
 
     .blocklisted {
-        color: var(--danger);
+        color: var(--tone-red);
     }
 }
 

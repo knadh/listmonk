@@ -1,7 +1,6 @@
 {{ define "subscriber-lists" -}}
 {{- $root := .Root -}}
 {{- $canSave := .CanSave -}}
-{{- $statusIcons := dict "confirmed" "check-circle" "unsubscribed" "minus-circle" "unconfirmed" "help-circle" -}}
 <div class="card page-content has-table subscriptions">
 	<div class="table-wrapper">
 		<table>
@@ -31,7 +30,7 @@
 							{{- if and (eq .Optin "single") (eq .SubscriptionStatus "unconfirmed") -}}
 								<span class="text-light">&ndash;</span>
 							{{- else -}}
-								{{ Badge (list (Icon (index $statusIcons .SubscriptionStatus)) ($root.L.T (printf "subscribers.status.%s" .SubscriptionStatus))) (printf "enum status-%s" .SubscriptionStatus) }}
+								{{ Badge (list (Dot) ($root.L.T (printf "subscribers.status.%s" .SubscriptionStatus))) (printf "enum status-%s" .SubscriptionStatus) }}
 							{{- end -}}
 						</td>
 						<td>{{ NiceDate .SubscriptionCreatedAt }}</td>

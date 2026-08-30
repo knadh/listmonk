@@ -8,6 +8,7 @@
 		<div class="col-6">
 			<div class="hstack gap-1">
 				<a href="{{ URI "/admin/lists" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+				{{ template "avatar" dict "Seed" (printf "%d" $d.List.ID) "Name" $d.List.Name }}
 				<h1 class="page-title">{{ $d.List.Name }}</h1>
 			</div>
 		</div>
