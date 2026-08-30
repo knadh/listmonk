@@ -25,8 +25,8 @@
 				<span>({{ $d.Page.Total }})</span>
 				{{- if $d.CurrentList }} {{ template "filter-badge" dict "Label" $d.CurrentList.Name "URL" (URI "/admin/subscribers") }}{{ end }}
 				{{- if eq $subStatus "none" }} {{ template "filter-badge" dict "Label" (.L.T "dashboard.orphanSubs") "URL" ($d.Page.FilterURL $base "subscription_status") }}
-				{{- else if $subStatus }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $subStatus)) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
-				{{- if $status }} {{ template "filter-badge" dict "Label" (.L.T (printf "subscribers.status.%s" $status)) "Class" (printf "status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+				{{- else if $subStatus }} {{ template "filter-badge" dict "Label" (list (Dot) (.L.T (printf "subscribers.status.%s" $subStatus))) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
+				{{- if $status }} {{ template "filter-badge" dict "Label" (list (Dot) (.L.T (printf "subscribers.status.%s" $status))) "Class" (printf "status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
 				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
@@ -103,30 +103,35 @@
 						<tr data-testid="sub-row" data-id="{{ .ID }}" {{ if eq .Status "blocklisted" }}class="blocklisted"{{ end }}>
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td  class="email">
-								<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
-								{{- if ne .Status "enabled" }}
-									{{- $label := $.L.T (printf "subscribers.status.%s" .Status) }}
-									<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (index $statusIcons .Status) }}</a>
-								{{- end }}
-								{{- if .ParsedLists }}
-									<div class="hstack gap-4 text-7 mt-2">
-										{{- range $i, $l := .ParsedLists }}
-											{{- if lt $i 2 }}
-												<span>
-													<a class="unstyled text-light" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}">{{ $l.Name }}
-													{{- if or (eq $l.Optin "double") (eq $l.SubscriptionStatus "unsubscribed") }}
-														{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
-														<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (index $statusIcons $l.SubscriptionStatus) }}</span>
-													{{- end }}
-													</a>
-												</span>
-											{{- end }}
+								<div class="name-stack">
+									{{ template "avatar" dict "Seed" (printf "%d" .ID) "Name" (or .Name .Email) }}
+									<div>
+										<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
+										{{- if ne .Status "enabled" }}
+											{{- $label := $.L.T (printf "subscribers.status.%s" .Status) }}
+											<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (index $statusIcons .Status) }}</a>
 										{{- end }}
-										{{- if gt (len .ParsedLists) 2 }}
-											<a href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ range $i, $l := slice .ParsedLists 2 }}{{ if $i }}, {{ end }}{{ $l.Name }}{{ end }}">+{{ sub (len .ParsedLists) 2 }} {{ lower ($.L.T "globals.terms.lists") }}</a>
+										{{- if .ParsedLists }}
+											<div class="hstack gap-4 text-7 mt-2">
+												{{- range $i, $l := .ParsedLists }}
+													{{- if lt $i 2 }}
+														<span>
+															<a class="unstyled text-light" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}">{{ $l.Name }}
+															{{- if or (eq $l.Optin "double") (eq $l.SubscriptionStatus "unsubscribed") }}
+																{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
+																<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (index $statusIcons $l.SubscriptionStatus) }}</span>
+															{{- end }}
+															</a>
+														</span>
+													{{- end }}
+												{{- end }}
+												{{- if gt (len .ParsedLists) 2 }}
+													<a href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ range $i, $l := slice .ParsedLists 2 }}{{ if $i }}, {{ end }}{{ $l.Name }}{{ end }}">+{{ sub (len .ParsedLists) 2 }} {{ lower ($.L.T "globals.terms.lists") }}</a>
+												{{- end }}
+											</div>
 										{{- end }}
 									</div>
-								{{- end }}
+								</div>
 							</td>
 							<td><a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Name }}</a></td>
 							<td>{{ NiceDate .CreatedAt }}</td>

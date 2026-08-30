@@ -64,7 +64,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}" data-subscriber-id="{{ .SubscriberID }}"></td>
 							<td>
 								<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" {{ if eq .SubscriberStatus "blocklisted" }}class="blocklisted"{{ end }}>{{ .Email }}</a>
-								{{ if ne .SubscriberStatus "enabled" }}{{ Badge ($.L.T (printf "subscribers.status.%s" .SubscriberStatus)) (printf "status-%s" .SubscriberStatus) }}{{ end }}
+								{{ if ne .SubscriberStatus "enabled" }}{{ Badge (list (Dot) ($.L.T (printf "subscribers.status.%s" .SubscriberStatus))) (printf "status-%s" .SubscriberStatus) }}{{ end }}
 							</td>
 							<td>
 								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}">{{ .Name }}</a>{{ else }}-{{ end }}

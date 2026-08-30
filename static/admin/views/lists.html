@@ -81,9 +81,14 @@
 						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
-								<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
-								<div class="hstack gap-2 text-8">
-									{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">#{{ . }}</a>{{ end }}
+								<div class="name-stack">
+									{{ template "avatar" dict "Seed" (printf "%d" .ID) "Name" .Name }}
+									<div>
+										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+										<div class="hstack gap-2 text-8">
+											{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">#{{ . }}</a>{{ end }}
+										</div>
+									</div>
 								</div>
 							</td>
 							<td>

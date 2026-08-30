@@ -5,7 +5,6 @@
 {{- $status := $d.Page.Param "status" -}}
 {{- $type := $d.Page.Param "type" -}}
 {{- $tags := $d.Page.Param "tag" -}}
-{{- $statusIcons := dict "draft" "file-text" "scheduled" "clock" "running" "send" "paused" "pause" "cancelled" "x-circle" "finished" "check-circle" -}}
 
 <section class="campaigns" x-data="campaignsView">
 	<header class="row page-header">
@@ -13,8 +12,8 @@
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.campaigns" }}
 				<span>({{ $d.Page.Total }})</span>
-				{{- if $status }} {{ template "filter-badge" dict "Label" (list (Icon (index $statusIcons $status)) (.L.T (printf "campaigns.status.%s" $status))) "Class" (printf "enum status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
-				{{- if $type }} {{ template "filter-badge" dict "Label" (list (Icon "user-check") (.L.T "lists.optin")) "Class" "enum optin" "URL" ($d.Page.FilterURL $base "type") }}{{ end }}
+				{{- if $status }} {{ template "filter-badge" dict "Label" (list (Dot) (.L.T (printf "campaigns.status.%s" $status))) "Class" (printf "enum status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+				{{- if $type }} {{ template "filter-badge" dict "Label" (list (Icon "user-check") (.L.T "lists.optin")) "Class" "enum" "URL" ($d.Page.FilterURL $base "type") }}{{ end }}
 				{{- if $tags }} {{ template "filter-badge" dict "Label" (list (Icon "tag") $tags) "Class" "tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
 				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
@@ -61,11 +60,11 @@
 				<thead>
 					<tr>
 						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
-						<th width="25%" class="cy-name">{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
-						<th width="15%" class="cy-type">{{ .L.T "globals.fields.type" }}</th>
+						<th width="28%" class="cy-name">{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
+						<th width="12%" class="cy-type">{{ .L.T "globals.fields.type" }}</th>
 						<th width="15%" class="cy-lists">{{ .L.T "globals.terms.lists" }}</th>
-						<th width="26%" class="cy-timestamp">{{ $d.Page.SortLink $base "created_at" (.L.T "campaigns.timestamps") }}</th>
-						<th width="15%">{{ .L.T "campaigns.stats" }}</th>
+						<th width="18%">{{ .L.T "campaigns.stats" }}</th>
+						<th width="22%" class="cy-timestamp">{{ $d.Page.SortLink $base "created_at" (.L.T "campaigns.timestamps") }}</th>
 						<th width="5%" class="align-right"></th>
 					</tr>
 				</thead>
@@ -77,37 +76,42 @@
 						{{- $canResume := eq .Status "paused" -}}
 						{{- $canCancel := or (eq .Status "running") (eq .Status "paused") -}}
 						{{- $isDone := or (eq .Status "finished") (eq .Status "cancelled") -}}
-						<tr data-campaign-id="{{ .ID }}" {{ if eq .Status "running" }}class="running"{{ end }}>
+						<tr data-campaign-id="{{ .ID }}" class="status-{{ .Status }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="name">
-								<div class="vstack gap-1">
-									<div>
-										<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
-										<div class="subject text-8 text-light">
-											<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Subject }}</a>
+								{{- $seed := "" }}{{ range .ParsedLists }}{{ $seed = printf "%s%d," $seed .ID }}{{ end }}
+								<div class="name-stack">
+									{{ template "avatar" dict "Seed" $seed "Name" .Name }}
+									<div class="vstack gap-1">
+										<div>
+											<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+											{{- if eq .Type "optin" }}
+												<a href="{{ $base }}?type=optin" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "lists.optin" }}">{{ Badge (list (Icon "user-check") ($.L.T "lists.optin")) "small outline" }}</a>
+											{{- end }}
+											<div class="subject text-8 text-light">
+												<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Subject }}</a>
+											</div>
 										</div>
+										{{- if .Tags }}
+											<div class="hstack gap-2 text-8">
+												{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="tag">#{{ . }}</a>{{ end }}
+											</div>
+										{{- end }}
 									</div>
-									{{- if .Tags }}
-										<div class="hstack gap-2 text-8">
-											{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="tag">#{{ . }}</a>{{ end }}
-										</div>
-									{{- end }}
 								</div>
 							</td>
 							<td class="type">
 								<div class="vstack gap-1">
-									<div>
-										<a href="{{ $base }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "campaigns.status.%s" .Status) }}">
-											{{ Badge (list (Icon (index $statusIcons .Status)) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}
-											{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
-										</a>
-										{{- if or (eq .Status "scheduled") .SendAt.Valid }}
-											<div class="text-8 text-light">{{ Icon "clock" }} {{ NiceDate .SendAt }}</div>
-										{{- end }}
-									</div>
-									{{- if eq .Type "optin" }}
-										<div>
-											<a href="{{ $base }}?type=optin" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "lists.optin" }}">{{ Badge (list (Icon "user-check") ($.L.T "lists.optin")) "enum" }}</a>
+									<a href="{{ $base }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "campaigns.status.%s" .Status) }}">
+										{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}
+										{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
+									</a>
+									{{- if or (eq .Status "scheduled") .SendAt.Valid }}
+										<div class="vstack gap-1 text-8 text-light">
+											{{- with Duration now .SendAt }}
+											<div>{{ . }}</div>
+											{{- end }}
+											<div>{{ Icon "clock" }} {{ NiceDate .SendAt }}</div>
 										</div>
 									{{- end }}
 								</div>
@@ -115,30 +119,34 @@
 							<td class="lists">
 								<ul>
 									{{- range .ParsedLists }}
-										<li><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}">{{ .Name }}</a></li>
+										<li><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></li>
 									{{- end }}
 								</ul>
 							</td>
 							<td class="stats">
 								<dl class="text-8">
-									<div><dt>{{ $.L.T "globals.fields.createdAt" }}</dt><dd>{{ NiceDate .CreatedAt }}</dd></div>
-									{{- if .StartedAt.Valid }}
-										<div><dt>{{ $.L.T "campaigns.startedAt" }}</dt><dd>{{ NiceDate .StartedAt }}</dd></div>
+									<div><dt>{{ $.L.T "campaigns.views" }}</dt><dd>{{ FormatNumber .Views }}</dd></div>
+									<div><dt>{{ $.L.T "campaigns.clicks" }}</dt><dd>{{ FormatNumber .Clicks }}</dd></div>
+									<div><dt>{{ $.L.T "campaigns.sent" }}</dt><dd><span data-stat="sent">{{ FormatNumber .Sent }}</span>{{ if .ToSend }} / <span data-stat="to_send">{{ FormatNumber .ToSend }}</span>{{ end }}</dd></div>
+									<div><dt>{{ $.L.T "globals.terms.bounces" }}</dt><dd><a href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ .ID }}" class="unstyled">{{ FormatNumber .Bounces }}</a></dd></div>
+									{{- with Duration .StartedAt .UpdatedAt }}
+										<div><dt>{{ $.L.T "settings.performance.slidingWindowDuration" }}</dt><dd>{{ . }}</dd></div>
 									{{- end }}
-									{{- if and $isDone .UpdatedAt.Valid }}
-										<div><dt>{{ $.L.T "campaigns.ended" }}</dt><dd>{{ NiceDate .UpdatedAt }}</dd></div>
+									{{- if eq .Status "running" }}
+										<div><dt class="send-rate">{{ Icon "activity" }}</dt><dd><span data-stat="rate">0</span> / {{ $.L.T "campaigns.rateMinuteShort" }}</dd></div>
+										<div><dt>{{ $.L.T "campaigns.progress" }}</dt><dd><progress data-stat="progress" value="{{ .Sent }}" max="{{ .ToSend }}"></progress></dd></div>
 									{{- end }}
 								</dl>
 							</td>
 							<td class="stats">
-								<dl class="text-8">
-									<div><dt>{{ $.L.T "campaigns.views" }}</dt><dd>{{ FormatNumber .Views }}</dd></div>
-									<div><dt>{{ $.L.T "campaigns.clicks" }}</dt><dd>{{ FormatNumber .Clicks }}</dd></div>
-									<div><dt>{{ $.L.T "campaigns.sent" }}</dt><dd><span data-stat="sent">{{ FormatNumber .Sent }}</span> / <span data-stat="to_send">{{ FormatNumber .ToSend }}</span></dd></div>
-									<div><dt>{{ $.L.T "globals.terms.bounces" }}</dt><dd><a href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ .ID }}" class="unstyled">{{ FormatNumber .Bounces }}</a></dd></div>
-									{{- if eq .Status "running" }}
-										<div><dt class="send-rate">{{ Icon "activity" }}</dt><dd><span data-stat="rate">0</span> / {{ $.L.T "campaigns.rateMinuteShort" }}</dd></div>
-										<div><dt>{{ $.L.T "campaigns.progress" }}</dt><dd><progress data-stat="progress" value="{{ .Sent }}" max="{{ .ToSend }}"></progress></dd></div>
+								{{- $day := date "2006-01-02" .CreatedAt.Time }}
+								<dl class="text-8 text-light">
+									<div><dt>{{ $.L.T "globals.fields.createdAt" }}</dt><dd>{{ NiceDate .CreatedAt true }}</dd></div>
+									{{- if .StartedAt.Valid }}
+										<div><dt>{{ $.L.T "campaigns.startedAt" }}</dt><dd>{{ if eq (date "2006-01-02" .StartedAt.Time) $day }}{{ date "15:04" .StartedAt.Time }}{{ else }}{{ NiceDate .StartedAt true }}{{ end }}</dd></div>
+									{{- end }}
+									{{- if and $isDone .UpdatedAt.Valid }}
+										<div><dt>{{ $.L.T "campaigns.ended" }}</dt><dd>{{ if eq (date "2006-01-02" .UpdatedAt.Time) $day }}{{ date "15:04" .UpdatedAt.Time }}{{ else }}{{ NiceDate .UpdatedAt true }}{{ end }}</dd></div>
 									{{- end }}
 								</dl>
 							</td>

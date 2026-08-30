@@ -17,7 +17,7 @@
 							{{ template "filter-badge" dict "Label" $d.Type "URL" ($d.Page.FilterURL $base "type") }}
 						{{- end }}
 					{{- end }}
-					{{- if $d.Status }} {{ template "filter-badge" dict "Label" (.L.T (printf "users.status.%s" $d.Status)) "Class" "enum" "Variant" "danger" "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+					{{- if $d.Status }} {{ template "filter-badge" dict "Label" (list (Dot) (.L.T (printf "users.status.%s" $d.Status))) "Class" (printf "enum status-%s" $d.Status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
 					{{- if $d.UserRoleID }}
 						{{- $roleIcon := "user" }}{{ if eq $d.UserRoleID 1 }}{{ $roleIcon = "star" }}{{ end }}
 						{{ template "filter-badge" dict "Label" (list (Icon $roleIcon) $d.UserRoleName) "URL" ($d.Page.FilterURL $base "user_role_id") }}
@@ -73,14 +73,19 @@
 								<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							{{- end }}
 							<td>
-								{{- if $d.Can "users:manage" }}
-									<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="{{ if eq .Status "disabled" }}text-light{{ end }}">{{ .Username }}</a>
-								{{- else }}
-									<span class="{{ if eq .Status "disabled" }}text-danger{{ end }}">{{ .Username }}</span>
-								{{- end }}
-								{{- if eq .Type "api" }}<a href="{{ $base }}?type=api" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "users.type.api" }}">{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "tag" }}</a>{{ end }}
-								{{- if eq .Status "disabled" }}<a href="{{ $base }}?status=disabled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "users.status.disabled" }}">{{ Badge ($.L.T "users.status.disabled") "enum" "danger" }}</a>{{ end }}
-								{{- if .Name }}<div class="text-light text-8">{{ .Name }}</div>{{ end }}
+								<div class="name-stack">
+									{{ template "avatar" dict "Seed" (printf "%d" .ID) "Name" (or .Name .Username) "URL" .Avatar.String }}
+									<div>
+										{{- if $d.Can "users:manage" }}
+											<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="{{ if eq .Status "disabled" }}text-light{{ end }}">{{ .Username }}</a>
+										{{- else }}
+											<span class="{{ if eq .Status "disabled" }}text-danger{{ end }}">{{ .Username }}</span>
+										{{- end }}
+										{{- if eq .Type "api" }}<a href="{{ $base }}?type=api" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "users.type.api" }}">{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "tag" }}</a>{{ end }}
+										{{- if eq .Status "disabled" }}<a href="{{ $base }}?status=disabled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "users.status.disabled" }}">{{ Badge (list (Dot) ($.L.T "users.status.disabled")) "enum status-disabled" }}</a>{{ end }}
+										{{- if .Name }}<div class="text-light text-8">{{ .Name }}</div>{{ end }}
+									</div>
+								</div>
 							</td>
 							<td>
 								<div class="hstack gap-1">
