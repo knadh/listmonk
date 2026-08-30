@@ -51,6 +51,7 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
 	"gopkg.in/volatiletech/null.v6"
@@ -61,6 +62,12 @@ const (
 	queryFilePath = "/queries"
 
 	emailMsgr = "email"
+
+	// maxRequestBodySize is the maximum allowed HTTP request body size.
+	// It guards against memory-exhaustion denial of service from unbounded
+	// request bodies (e.g. settings, uploads, bounce/webhook handlers) that
+	// read r.Body without an explicit limit.
+	maxRequestBodySize = "32M"
 )
 
 // UrlConfig contains various URL constants used in the app.
@@ -930,6 +937,11 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 			return next(c)
 		}
 	})
+
+	// Limit request body size to protect against memory-exhaustion DoS from
+	// unbounded request bodies read by handlers (settings, uploads, bounce
+	// and webhook endpoints).
+	srv.Use(middleware.BodyLimit(maxRequestBodySize))
 
 	tpl, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, urlCfg), fs, "/public/templates/*.html")
 	if err != nil {
