@@ -51,13 +51,13 @@
 							<td>
 								<div class="hstack">
 									{{- if eq .Type "tx" }}
-										<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.Tc "globals.terms.tx" 1) "enum tx" }}</a>
+										<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.Tc "globals.terms.tx" 1 }}">{{ Badge ($.L.Tc "globals.terms.tx" 1) "enum tx" }}</a>
 									{{- else }}
-										<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.Tc "globals.terms.campaign" 1) "enum campaign" }}</a>
+										<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.Tc "globals.terms.campaign" 1 }}">{{ Badge ($.L.Tc "globals.terms.campaign" 1) "enum campaign" }}</a>
 										{{- if eq .Type "campaign_visual" }}
-											<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.T "campaigns.contentType.visual") "enum" "secondary" }}</a>
+											<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "campaigns.contentType.visual" }}">{{ Badge ($.L.T "campaigns.contentType.visual") "enum" }}</a>
 										{{- else }}
-											<a href="{{ $base }}?type={{ .Type }}">{{ Badge "HTML" "enum" "secondary" }}</a>
+											<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} HTML">{{ Badge "HTML" "enum" }}</a>
 										{{- end }}
 									{{- end }}
 								</div>
