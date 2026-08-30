@@ -70,7 +70,7 @@
 								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}">{{ .Name }}</a>{{ else }}-{{ end }}
 							</td>
 							<td><a href="{{ $base }}?source={{ .Source }}">{{ .Source }}</a></td>
-							<td><a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.T (printf "bounces.%s" .Type)) "enum" "secondary" }}</a></td>
+							<td><a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "bounces.%s" .Type) }}">{{ Badge ($.L.T (printf "bounces.%s" .Type)) "enum" }}</a></td>
 							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>
 							<td class="actions align-right">
 								<ot-dropdown>

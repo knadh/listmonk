@@ -15,14 +15,17 @@
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.lists" }}
 				<span>({{ $d.Page.Total }})</span>
-				{{- if eq $status "archived" }} {{ template "filter-badge" dict "Label" (.L.T "lists.archived") "Class" "outline" "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
-				{{- if $type }} {{ template "filter-badge" dict "Label" (.L.T (printf "lists.types.%s" $type)) "Class" (printf "enum %s" $type) "URL" ($d.Page.FilterURL $base "type") }}{{ end }}
+				{{- if eq $status "archived" }} {{ template "filter-badge" dict "Label" (.L.T "lists.archived") "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+				{{- if $type }}
+					{{- $typeIcon := "eye-off" }}{{ if eq $type "public" }}{{ $typeIcon = "eye" }}{{ end }}
+					{{ template "filter-badge" dict "Label" (list (Icon $typeIcon) (.L.T (printf "lists.types.%s" $type))) "Class" "enum" "URL" ($d.Page.FilterURL $base "type") }}
+				{{- end }}
 				{{- if $optin }}
 					{{- $optinIcon := "user-x" }}{{ if eq $optin "double" }}{{ $optinIcon = "user-check" }}{{ end }}
-					{{ template "filter-badge" dict "Label" (list (Icon $optinIcon) (.L.T (printf "lists.optins.%s" $optin))) "Class" "enum" "Variant" "secondary" "URL" ($d.Page.FilterURL $base "optin") }}
+					{{ template "filter-badge" dict "Label" (list (Icon $optinIcon) (.L.T (printf "lists.optins.%s" $optin))) "Class" "enum" "URL" ($d.Page.FilterURL $base "optin") }}
 				{{- end }}
-				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "outline tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
-				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "Class" "outline" "URL" ($d.Page.FilterURL $base) }}{{ end }}
+				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
+				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
 		<div class="col-6 col-end align-right hstack justify-end">
@@ -65,12 +68,12 @@
 				<thead>
 					<tr>
 						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
-						<th width="20%">{{ $d.Page.SortLink (URI "/admin/lists") "name" (.L.T "globals.fields.name") }}</th>
-						<th>{{ $d.Page.SortLink (URI "/admin/lists") "type" (.L.T "globals.fields.type") }}</th>
-						<th class="subscribers">{{ $d.Page.SortLink (URI "/admin/lists") "subscriber_count" (.L.T "globals.terms.subscribers") }}</th>
-						<th></th>
-						<th>{{ $d.Page.SortLink (URI "/admin/lists") "created_at" (.L.T "globals.fields.createdAt") }}</th>
-						<th class="align-right"></th>
+						<th width="27%">{{ $d.Page.SortLink (URI "/admin/lists") "name" (.L.T "globals.fields.name") }}</th>
+						<th width="22%">{{ $d.Page.SortLink (URI "/admin/lists") "type" (.L.T "globals.fields.type") }}</th>
+						<th width="10%" class="subscribers">{{ $d.Page.SortLink (URI "/admin/lists") "subscriber_count" (.L.T "globals.terms.subscribers") }}</th>
+						<th width="18%"></th>
+						<th width="12%">{{ $d.Page.SortLink (URI "/admin/lists") "created_at" (.L.T "globals.fields.createdAt") }}</th>
+						<th width="5%" class="align-right"></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -85,9 +88,10 @@
 							</td>
 							<td>
 								<div class="hstack">
-									<a href="{{ $base }}?type={{ .Type }}">{{ Badge ($.L.T (printf "lists.types.%s" .Type)) (printf "enum %s" .Type) }}</a>
+									{{- $typeIcon := "eye-off" }}{{ if eq .Type "public" }}{{ $typeIcon = "eye" }}{{ end }}
+									<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "lists.types.%s" .Type) }}">{{ Badge (list (Icon $typeIcon) ($.L.T (printf "lists.types.%s" .Type))) "enum" }}</a>
 									{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
-									<a href="{{ $base }}?optin={{ .Optin }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" "secondary" }}</a>
+									<a href="{{ $base }}?optin={{ .Optin }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "lists.optins.%s" .Optin) }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" }}</a>
 								</div>
 							</td>
 							<td class="subscribers">
@@ -104,22 +108,22 @@
 									{{- $unsubscribed := index $counts "unsubscribed" -}}
 									{{- $blocklisted := index $counts "blocklisted" }}
 									{{- if gt $subscribed 0 }}
-										<dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled">{{ FormatNumber $subscribed }}</a></dd>
+										<div><dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.subscribed" }}">{{ FormatNumber $subscribed }}</a></dd></div>
 									{{- end }}
 									{{- if gt $unsubscribed 0 }}
-										<dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled">{{ FormatNumber $unsubscribed }}</a></dd>
+										<div><dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.unsubscribed" }}">{{ FormatNumber $unsubscribed }}</a></dd></div>
 									{{- end }}
 									{{- if gt $blocklisted 0 }}
-										<dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted">{{ FormatNumber $blocklisted }}</a></dd>
+										<div><dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.blocklisted" }}">{{ FormatNumber $blocklisted }}</a></dd></div>
 									{{- end }}
 									{{- if eq .Optin "double" }}
 										{{- $confirmed := index $counts "confirmed" -}}
 										{{- $unconfirmed := index $counts "unconfirmed" }}
 										{{- if gt $confirmed 0 }}
-											<dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed">{{ FormatNumber $confirmed }}</a></dd>
+											<div><dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.confirmed" }}">{{ FormatNumber $confirmed }}</a></dd></div>
 										{{- end }}
 										{{- if gt $unconfirmed 0 }}
-											<dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed">{{ FormatNumber $unconfirmed }}</a></dd>
+											<div><dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.unconfirmed" }}">{{ FormatNumber $unconfirmed }}</a></dd></div>
 										{{- end }}
 									{{- end }}
 								</dl>

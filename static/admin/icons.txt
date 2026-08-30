@@ -21,6 +21,7 @@ copy
 download-cloud
 edit-2
 eye
+eye-off
 file-text
 grid
 help-circle

@@ -147,61 +147,64 @@ a:has(> .badge:only-child) {
     border-radius: var(--radius-full);
 }
 
+/* All badges are outline. Colour only applies to the text and the border, never a fill,
+   and is set with the --badge-color property below. */
 .badge {
     padding: calc(var(--space-1) * 0.75) var(--space-4);
+    background: none;
+    color: var(--badge-color, var(--muted-foreground));
+    border: 1px solid var(--badge-color, var(--border));
 
-    &.outline {
-        color: var(--muted-foreground);
-    }
-
-    &.enum {
-        min-width: 7rem;
-    }
-
-    &.private,
     &.scheduled,
     &.status-paused,
     &.tx,
     &.api,
     &.double,
     &.unconfirmed {
-        background: light-dark(#fff1e0, #2e261a);
-        color: light-dark(#ed7b00, #d3a065);
+        --badge-color: light-dark(#ed7b00, #d3a065);
     }
 
-    &.public,
     &.running,
     &.list,
     &.campaign,
     &.user,
     &.primary {
-        background: light-dark(#e6f7ff, #1e2733);
-        color: light-dark(#3b8cff, #8aa9cc);
+        --badge-color: light-dark(#3b8cff, #8aa9cc);
     }
 
     /* Subscription/campaign statuses */
     &.status-confirmed,
     &.status-finished {
-        background: light-dark(#dcfce7, #1f2a22);
-        color: light-dark(#36995b, #7eab8b);
+        --badge-color: light-dark(#36995b, #7eab8b);
     }
 
     &.status-unsubscribed,
     &.status-cancelled {
-        background: light-dark(#fff1f0, #2e2320);
-        color: light-dark(#ff5722, #cf9088);
+        --badge-color: light-dark(#ff5722, #cf9088);
     }
     &.status-blocklisted {
-        background: light-dark(#fff1f0, #2e2320);
-        color: var(--danger);
+        --badge-color: var(--danger);
     }
 
     &.disabled,
     &.status-draft,
     &.optin,
     &.single {
-        background: light-dark(#eee, #26262a);
-        color: light-dark(#7a7a7a, #9a9aa3);
+        --badge-color: light-dark(#7a7a7a, #9a9aa3);
+    }
+
+    &[data-variant="success"] {
+        --badge-color: var(--success);
+    }
+    &[data-variant="warning"] {
+        --badge-color: var(--warning);
+    }
+    &[data-variant="danger"] {
+        --badge-color: var(--danger);
+    }
+
+    a:hover > & {
+        --badge-color: rgb(from var(--primary) r g b / .8);
     }
 }
 
@@ -253,11 +256,17 @@ td .badge {
 td.stats {
     dl {
         display: flex;
-        flex-flow: row wrap;
-        align-items: baseline;
-        column-gap: var(--space-2);
+        flex-flow: column;
         row-gap: var(--space-1);
         margin: 0;
+    }
+
+    /* Each dt+dd pair is wrapped in a div so that pairs never flow inline
+       with each other when the cell is wide. */
+    dl > div {
+        display: flex;
+        align-items: baseline;
+        column-gap: var(--space-2);
     }
 
     dt {
@@ -268,7 +277,6 @@ td.stats {
 
     dd {
         flex: 1 1 auto;
-        min-width: max-content;
         margin: 0;
     }
 }
