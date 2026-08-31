@@ -42,8 +42,8 @@
 									{{- if eq .ID 1 }}{{ Badge (list (Icon "star") .Name) "enum" }}{{ else }}{{ .Name }}{{ end -}}
 								</a>
 							</td>
-							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>
-							<td class="date-stack">{{ NiceDate .UpdatedAt }}</td>
+							<td class="date-stack" data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .CreatedAt }}</td>
+							<td class="date-stack" data-label="{{ $.L.T "globals.fields.updatedAt" }}">{{ NiceDate .UpdatedAt }}</td>
 							<td class="actions align-right">
 								{{- if $d.Can "roles:manage" }}
 									<ot-dropdown>

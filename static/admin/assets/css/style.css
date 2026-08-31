@@ -407,19 +407,6 @@ body[data-sidebar-layout] {
     > main {
         overflow-y: visible;
     }
-
-    @media (max-width: 768px) {
-        grid-template-columns: minmax(0, 1fr);
-        column-gap: 0;
-        justify-content: stretch;
-        padding-inline: var(--space-4);
-    }
-
-    &[data-sidebar-open] > aside[data-sidebar] {
-        @media (max-width: 768px) {
-            box-shadow: var(--shadow-large);
-        }
-    }
 }
 
 nav[data-topnav] {
@@ -458,7 +445,7 @@ nav[data-topnav] {
 
     a,
     button {
-        color: var(--muted-foreground);
+        color: var(--foreground);
     }
 
     img {
@@ -512,36 +499,16 @@ nav[data-topnav] {
             }
         }
     }
-
-
-    @media (max-width: 768px) {
-        > .row {
-            --grid-cols: 12;
-            grid-template-columns: minmax(0, 1fr) auto;
-        }
-
-        .favicon {
-            display: inline-block;
-        }
-
-        .logo {
-            display: none;
-        }
-
-        .user-label {
-            display: none;
-        }
-
-        .hstack {
-            gap: var(--space-2);
-        }
-    }
 }
 
 aside[data-sidebar] {
+    align-self: start;
     background: transparent;
     border-inline-end: 0;
     box-shadow: none;
+    height: calc(100dvh - 4.5rem);
+    position: sticky;
+    top: 4.5rem;
 
     > nav {
         margin-block-start: var(--space-3);
@@ -567,32 +534,6 @@ aside[data-sidebar] {
 
     details[open] > summary {
         color: var(--foreground);
-    }
-
-    @media (min-width: 769px) {
-        align-self: start;
-        position: sticky;
-        top: 4.5rem;
-        height: calc(100dvh - 4.5rem);
-    }
-
-    @media (max-width: 768px) {
-        background: var(--background);
-        border-inline-end: 1px solid var(--border);
-        box-sizing: border-box;
-        box-shadow: none;
-        margin-inline-start: calc(-1 * var(--space-4));
-        max-width: calc(100vw - var(--space-4));
-
-        > nav {
-            margin-block-start: 0;
-            padding: var(--space-3) var(--space-2);
-        }
-
-        a,
-        summary {
-            padding-inline: var(--space-3);
-        }
     }
 }
 
@@ -766,8 +707,6 @@ td > .empty-state {
         }
 
         .bulk-actions {
-            /* Fades the table columns out behind the floating actions. The table
-               sits on a card, so the fade has to match the card, not the page. */
             box-shadow: -10px 0 10px var(--card);
             position: absolute;
             right: var(--space-6);
@@ -1447,30 +1386,301 @@ section.users {
 }
 
 /* Responsive */
-@media screen and (max-width: 1100px) {
-    html,
-    body {
-        overflow-x: auto;
+@media (max-width: 768px) {
+    main {
+        padding-block-start: var(--space-6);
     }
 
-    td .badge:not(:last-child),
-    td a:not(:last-child) > .badge {
-        margin-inline-end: 0;
+    #app[data-sidebar-layout] {
+        --topnav-height: 3.25rem;
+
+        grid-template-columns: minmax(0, 1fr);
+        padding-block-start: var(--topnav-height);
+        padding-inline: var(--space-4);
+
+        &[data-sidebar-open] > aside[data-sidebar] {
+            box-shadow: var(--shadow-large);
+        }
     }
 
-    section.dashboard label {
-        min-width: auto;
-    }
-}
+    nav[data-topnav] {
+        background: var(--background);
+        box-shadow: var(--shadow-medium);
+        height: var(--topnav-height);
+        inset-block-start: 0;
+        inset-inline: 0;
+        padding-block: 0;
+        padding-inline: var(--space-4);
+        position: fixed;
+        z-index: 10;
 
-@media screen and (max-width: 850px) {
+        > .row {
+            align-items: center;
+        }
+
+        .hstack {
+            gap: var(--space-2);
+        }
+
+        .favicon {
+            display: inline-block;
+        }
+
+        .logo,
+        .user-label {
+            display: none;
+        }
+    }
+
+    aside[data-sidebar] {
+        align-self: stretch;
+        background: var(--background);
+        border-inline-end: 1px solid var(--border);
+        height: auto;
+        margin-inline-start: calc(-1 * var(--space-4));
+        max-width: calc(100vw - var(--space-4));
+        position: static;
+
+        > nav {
+            margin-block-start: 0;
+            padding: var(--space-3) var(--space-2);
+        }
+
+        a,
+        summary {
+            padding-inline: var(--space-3);
+        }
+    }
+
+    .page-header {
+        margin-bottom: var(--space-4);
+
+        .hstack > * {
+            flex: 1 1 auto;
+        }
+
+        .hstack > .search-form {
+            flex-grow: 999;
+        }
+
+        .search-form ot-dropdown {
+            display: block;
+        }
+    }
+
     .settings .settings-tabs {
         display: block;
+
+        > [role="tablist"] {
+            margin: 0 0 var(--space-4);
+            position: static;
+            width: auto;
+        }
     }
 
-    .settings .settings-tabs>[role="tablist"] {
-        width: auto;
-        margin: 0 0 var(--space-4);
-        position: static;
+    /* Make table rows into cards. */
+    .page-content table:not(.rte-content table) {
+        display: block;
+
+        thead {
+            display: none;
+        }
+
+        thead:has(th input[type="checkbox"], th a[data-sort-field]) {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--space-2);
+            padding-block: var(--space-4);
+            border-bottom: 0;
+        }
+
+        thead tr {
+            display: contents;
+        }
+
+        th {
+            display: none;
+            width: auto;
+            padding: 0;
+            border: 0;
+        }
+
+        th:has(input[type="checkbox"], a[data-sort-field]) {
+            display: block;
+        }
+
+        /* Sort links become pills. */
+        th a[data-sort-field] {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            min-height: 1.75rem;
+            padding: 2px var(--space-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+        }
+
+        tbody {
+            display: block;
+        }
+
+        tbody tr {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            row-gap: var(--space-3);
+            padding-block: var(--space-4);
+        }
+
+        td {
+            grid-column: 1 / -1;
+            width: auto;
+            max-width: none;
+            padding: 0;
+            border: 0;
+            overflow-wrap: anywhere;
+            white-space: normal;
+            text-align: start;
+        }
+
+        td:first-child:not([colspan]),
+        td:first-child:has(> input[type="checkbox"]) + td,
+        td.actions {
+            grid-row: 1;
+            grid-column: 1;
+            padding-block-end: var(--space-3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td:first-child:has(> input[type="checkbox"]) {
+            grid-column: 2;
+            padding-inline: var(--space-3);
+        }
+
+        td.actions {
+            grid-column: 3;
+            text-align: end;
+        }
+
+        td .view {
+            display: none;
+        }
+
+        td[data-label] {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            column-gap: var(--space-4);
+            text-align: end;
+
+            &::before {
+                content: attr(data-label);
+                flex: 0 0 auto;
+                margin-inline-end: auto;
+                color: var(--muted-foreground);
+                text-align: start;
+            }
+        }
+
+        td.stats {
+            &:not(:has(dd)) {
+                display: none;
+            }
+
+            dl {
+                row-gap: var(--space-3);
+            }
+
+            dl > div {
+                column-gap: var(--space-4);
+            }
+
+            dt {
+                min-width: 0;
+            }
+
+            dd {
+                text-align: end;
+            }
+        }
+
+        td.lists {
+            padding-block-end: var(--space-3);
+            border-bottom: 1px solid var(--border);
+
+            li {
+                max-width: none;
+            }
+
+            li a {
+                white-space: normal;
+            }
+        }
+
+        td.type .schedule {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: baseline;
+            column-gap: var(--space-4);
+        }
+    }
+
+    .page-content.card.has-table {
+        background: none;
+        border: 0;
+        box-shadow: none;
+        padding-inline: 0;
+    }
+
+    .page-content .table-wrapper {
+        margin-inline: 0;
+
+        tr :is(th, td) {
+            &:first-child { padding-left: 0; }
+            &:last-child { padding-right: 0; }
+        }
+
+        tbody tr {
+            margin-block-end: var(--space-3);
+            padding-inline: var(--space-4);
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-small);
+        }
+
+        tbody td:first-child:not([colspan]):not(:has(> input[type="checkbox"])),
+        tbody td:first-child:has(> input[type="checkbox"]) + td {
+            margin-inline-start: calc(-1 * var(--space-4));
+            padding-inline-start: var(--space-4);
+        }
+
+        tbody td.lists {
+            margin-inline: calc(-1 * var(--space-4));
+            padding-inline: var(--space-4);
+        }
+
+        tbody td.actions {
+            margin-inline-end: calc(-1 * var(--space-4));
+
+            button.more {
+                font-size: var(--text-3);
+                padding-inline: var(--space-4) 0;
+            }
+        }
+
+        .bulk-actions {
+            top: var(--space-3);
+            right: var(--space-3);
+            box-shadow: none;
+
+            > button {
+                height: 1.75rem;
+            }
+        }
+
+        .pagination {
+            padding-inline-end: 0;
+        }
     }
 }
