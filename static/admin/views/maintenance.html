@@ -3,11 +3,9 @@
 {{- $d := .Data -}}
 
 <section class="maintenance" x-data="maintenanceView">
-	<header class="row page-header">
-		<div class="col-8">
-			<h1 class="page-title">{{ .L.T "maintenance.title" }}</h1>
-			<p class="text-light">{{ .L.T "maintenance.help" }}</p>
-		</div>
+	<header class="page-header">
+		<h1 class="page-title">{{ .L.T "maintenance.title" }}</h1>
+		<p class="text-light">{{ .L.T "maintenance.help" }}</p>
 	</header>
 
 	<div class="page-content vstack gap-6">
