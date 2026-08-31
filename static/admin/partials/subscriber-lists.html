@@ -22,19 +22,19 @@
 								<a href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
 							{{- end }}
 						</td>
-						<td>
+						<td data-label="{{ $root.L.T "lists.optin" }}">
 							{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
 							{{ Badge (list (Icon $icon) ($root.L.T (printf "lists.optins.%s" .Optin))) "enum" }}
 						</td>
-						<td>
+						<td data-label="{{ $root.L.T "globals.fields.status" }}">
 							{{- if and (eq .Optin "single") (eq .SubscriptionStatus "unconfirmed") -}}
 								<span class="text-light">&ndash;</span>
 							{{- else -}}
 								{{ Badge (list (Dot) ($root.L.T (printf "subscribers.status.%s" .SubscriptionStatus))) (printf "enum status-%s" .SubscriptionStatus) }}
 							{{- end -}}
 						</td>
-						<td>{{ NiceDate .SubscriptionCreatedAt }}</td>
-						<td>{{ NiceDate .SubscriptionUpdatedAt }}</td>
+						<td data-label="{{ $root.L.T "globals.fields.createdAt" }}">{{ NiceDate .SubscriptionCreatedAt }}</td>
+						<td data-label="{{ $root.L.T "globals.fields.updatedAt" }}">{{ NiceDate .SubscriptionUpdatedAt }}</td>
 						{{- if $canSave }}
 							<td class="actions align-right">
 								<ot-dropdown>

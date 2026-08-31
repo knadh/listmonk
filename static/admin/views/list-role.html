@@ -58,7 +58,7 @@
 										<label><input type="checkbox" value="list:manage" x-model="l.permissions" :disabled="disabled" /> {{ .L.T "globals.buttons.manage" }}</label>
 									</div>
 								</td>
-								<td class="align-right">
+								<td class="actions align-right">
 									<button type="button" class="ghost icon" data-variant="danger" :disabled="disabled" @click="onDeleteListPerm(l.id)" :aria-label="`{{ .L.T "globals.buttons.delete" }} ${l.name}`">{{ Icon "trash-2" }}</button>
 								</td>
 							</tr>
