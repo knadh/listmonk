@@ -93,7 +93,7 @@
 										<td width="20%"class="text-light">
 											{{- if and (eq .Status "scheduled") .SendAt.Valid }}{{ NiceDate .SendAt }}{{ else }}{{ NiceDate .CreatedAt }}{{ end -}}
 										</td>
-										<td class="align-right">
+										<td class="actions align-right">
 										{{- if $d.Can "campaigns:get_analytics" }}
 											<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}" title="{{ $.L.T "globals.terms.analytics" }}">{{ Icon "bar-chart-2" }}</a>
 										{{- end }}

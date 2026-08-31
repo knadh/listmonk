@@ -16,7 +16,7 @@
 								<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a>
 							{{- end }}
 						</td>
-						<td>{{ NiceDate .CreatedAt }}</td>
+						<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .CreatedAt }}</td>
 						<td>
 							<a href="#" @click.prevent="toggleMeta({{ .ID }})">{{ .Source }} {{ Icon "chevron-down" }}</a>
 							<pre x-show="visibleMeta[{{ .ID }}]" x-cloak>{{ printf "%s" .Meta }}</pre>

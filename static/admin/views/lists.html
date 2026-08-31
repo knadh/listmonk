@@ -99,7 +99,7 @@
 									<a href="{{ $base }}?optin={{ .Optin }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "lists.optins.%s" .Optin) }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" }}</a>
 								</div>
 							</td>
-							<td class="subscribers">
+							<td class="subscribers" data-label="{{ $.L.T "globals.terms.subscribers" }}">
 								{{- if $d.Can "subscribers:get" "subscribers:get_all" }}
 									<a class="subscriber-total align-center" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}">{{ FormatNumber .SubscriberCount }}<br /><span class="view">{{ $.L.T "globals.buttons.view" }}</span></a>
 								{{- else }}
@@ -133,7 +133,7 @@
 									{{- end }}
 								</dl>
 							</td>
-							<td class="date-stack">
+							<td class="date-stack" data-label="{{ $.L.T "globals.fields.createdAt" }}">
 								{{ NiceDate .CreatedAt }}
 								<!-- <p class="text-lighter text-8">{{ NiceDate .UpdatedAt }}</p> -->
 							</td>

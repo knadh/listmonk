@@ -15,8 +15,8 @@
 				{{- range $d.CampaignViews }}
 					<tr>
 						<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a><p class="text-light">{{ .Subject }}</p></td>
-						<td>{{ .ViewCount }}</td>
-						<td>{{ NiceDate .LastViewedAt }}</td>
+						<td data-label="{{ $.L.T "campaigns.views" }}">{{ .ViewCount }}</td>
+						<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .LastViewedAt }}</td>
 					</tr>
 				{{- end }}
 			</tbody>
@@ -31,9 +31,9 @@
 				{{- range $d.LinkClicks }}
 					<tr>
 						<td>{{- if .CampaignID }}<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}">{{ or .CampaignSubject .CampaignName }}</a>{{- end }}</td>
-						<td class="link-click-url"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></td>
-						<td>{{ .ClickCount }}</td>
-						<td>{{ NiceDate .LastClickedAt }}</td>
+						<td class="link-click-url" data-label="{{ $.L.T "globals.terms.url" }}"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></td>
+						<td data-label="{{ $.L.T "campaigns.clicks" }}">{{ .ClickCount }}</td>
+						<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .LastClickedAt }}</td>
 					</tr>
 				{{- end }}
 			</tbody>

@@ -107,7 +107,7 @@
 										{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
 									</a>
 									{{- if or (eq .Status "scheduled") .SendAt.Valid }}
-										<div class="vstack gap-1 text-8 text-light">
+										<div class="schedule vstack gap-1 text-8 text-light">
 											{{- with Duration now .SendAt }}
 											<div>{{ . }}</div>
 											{{- end }}

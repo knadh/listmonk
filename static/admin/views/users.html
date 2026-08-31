@@ -99,9 +99,9 @@
 									{{- end }}
 								</div>
 							</td>
-							<td>{{ if .Email.Valid }}{{ .Email.String }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
-							<td class="date-stack">{{ NiceDate .CreatedAt }}</td>
-							<td class="date-stack">{{ if .LoggedInAt.Valid }}{{ NiceDate .LoggedInAt }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
+							<td data-label="{{ $.L.T "subscribers.email" }}">{{ if .Email.Valid }}{{ .Email.String }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
+							<td class="date-stack" data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .CreatedAt }}</td>
+							<td class="date-stack" data-label="{{ $.L.T "users.lastLogin" }}">{{ if .LoggedInAt.Valid }}{{ NiceDate .LoggedInAt }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
 							<td class="actions align-right">
 								{{- if $d.Can "users:manage" }}
 									<ot-dropdown>

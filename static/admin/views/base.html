@@ -56,7 +56,7 @@
 								<span class="user-label">{{ .Username }}</span>
 							</button>
 							<menu popover id="user-menu">
-								<a href="{{ URI "/admin/user/profile" }}" role="menuitem">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
+								<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
 								<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
 									{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
 								</button>
