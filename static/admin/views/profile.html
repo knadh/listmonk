@@ -5,12 +5,10 @@
 
 <script>window._user = {{ ToJSON $u }};</script>
 <section class="user-profile" x-data="profileView()">
-	<header class="row page-header">
-		<div class="col-8">
-			<div class="hstack gap-1">
-				<h1 class="page-title">{{ .L.T "users.profile" }}</h1>
-				{{- if $u.UserRole.Name }}{{ Badge $u.UserRole.Name }}{{ end }}
-			</div>
+	<header class="page-header">
+		<div class="hstack gap-1">
+			<h1 class="page-title">{{ .L.T "users.profile" }}</h1>
+			{{- if $u.UserRole.Name }}{{ Badge $u.UserRole.Name }}{{ end }}
 		</div>
 	</header>
 

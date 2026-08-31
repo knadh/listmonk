@@ -4,13 +4,11 @@
 
 <script>const _form = {{ ToJSON $d.List }};</script>
 <section class="lists" x-data="listsView(_form)">
-	<header class="row page-header">
-		<div class="col-6">
-			<div class="hstack gap-1">
-				<a href="{{ URI "/admin/lists" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
-				{{ template "avatar" dict "Seed" (printf "%d" $d.List.ID) "Name" $d.List.Name }}
-				<h1 class="page-title">{{ $d.List.Name }}</h1>
-			</div>
+	<header class="page-header">
+		<div class="hstack gap-1">
+			<a href="{{ URI "/admin/lists" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+			{{ template "avatar" dict "Seed" (printf "%d" $d.List.ID) "Name" $d.List.Name }}
+			<h1 class="page-title">{{ $d.List.Name }}</h1>
 		</div>
 	</header>
 
