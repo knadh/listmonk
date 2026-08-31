@@ -854,10 +854,6 @@ visual-editor {
     margin-block-end: var(--space-8);
 }
 
-/* The Squire rich text editor styles live in richtext.css, loaded only on pages
-   that render the richtext-editor partial (see views/campaign.html). */
-
-/* Popover editors (SQL query, campaign test, media upload) */
 .sql-btn {
     border-right: 0;
 }
@@ -1386,7 +1382,7 @@ section.users {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 769px) {
     main {
         padding-block-start: var(--space-6);
     }
@@ -1455,11 +1451,11 @@ section.users {
     .page-header {
         margin-bottom: var(--space-4);
 
-        .hstack > * {
+        .hstack.justify-end > * {
             flex: 1 1 auto;
         }
 
-        .hstack > .search-form {
+        .hstack.justify-end > .search-form {
             flex-grow: 999;
         }
 
@@ -1681,6 +1677,13 @@ section.users {
 
         .pagination {
             padding-inline-end: 0;
+        }
+    }
+
+    section.campaign {
+        [role="tablist"] {
+            max-width: 100%;
+            overflow-y: auto;
         }
     }
 }
