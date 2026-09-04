@@ -1,7 +1,7 @@
 # Upgrade
 
 !!! Warning
-    Always take a backup of the Postgres database before upgrading listmonk
+    Always take a backup of the Postgres database before upgrading listmonk, and a copy of the media uploads directory (`/listmonk/uploads` in the Docker image, or whatever Admin -> Settings -> Media names). The database stores a row per uploaded file; the files themselves are only on disk. If you use the S3 provider, the files are in your bucket instead.
 
 ## Binary
 - Stop the running instance of listmonk.

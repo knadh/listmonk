@@ -77,7 +77,7 @@ command: [sh, -c, "./listmonk --install --idempotent --yes --config /listmonk/co
 ## Nightly
 
 !!! Warning
-    Nightly releases are untested and may have bugs. Use at your own risk. Always take a backup of your Postgres database before using a nightly release.
+    Nightly releases are untested and may have bugs. Use at your own risk. Always take a backup of your Postgres database and of the media uploads directory (`/listmonk/uploads` in the Docker image) before using a nightly release.
 
 A nightly build is automatically published with the latest changes merged to the repository. If you want to access the latest changes without waiting for versioned releases, you can obtain the nightly builds and follow the same instructions above.
 
