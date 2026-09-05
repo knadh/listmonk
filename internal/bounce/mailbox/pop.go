@@ -106,6 +106,7 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 	}
 
 	// Download messages.
+	MESSAGES_LOOP:
 	for id := 1; id <= count; id++ {
 		// Retrieve the raw bytes of the message.
 		b, err := c.RetrRaw(id)
@@ -123,16 +124,24 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 
 		h := m
 
-		// If this is a multipart message, find the last part.
+		// If this is a multipart message, prefer the text/plain part, otherwise use the last part.
 		if mr := m.MultipartReader(); mr != nil {
 			for {
 				part, err := mr.NextPart()
-				if err == io.EOF {
-					break
-				} else if err != nil {
+				if err == nil {
+					if strings.HasPrefix(strings.ToLower(part.Header.Get("Content-Type")), "text/plain") {
+						h = part
+						break
+					}
+				} else {
+					if err == io.EOF {
+						break
+					}
+
 					p.lo.Printf("error reading multipart bounce message %d: %v", id, err)
-					continue
+					continue MESSAGES_LOOP
 				}
+
 				h = part
 			}
 		}
