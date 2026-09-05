@@ -72,6 +72,9 @@ type Auth struct {
 	sessStore *postgres.Store
 	cb        *Callbacks
 	log       *log.Logger
+
+	// Whether the OIDC provider supports PKCE with the S256 challenge method.
+	pkce bool
 }
 
 var sessPruneInterval = time.Hour * 12
@@ -171,6 +174,22 @@ func (o *Auth) initOIDC() error {
 	}
 	o.provider = provider
 
+	// Only use PKCE (RFC 7636) if the provider's metadata advertises it, as providers
+	// that don't support it may reject the extra params.
+	var meta struct {
+		CodeChallengeMethods []string `json:"code_challenge_methods_supported"`
+	}
+	if err := provider.Claims(&meta); err != nil {
+		o.log.Printf("error reading OIDC provider metadata: %v", err)
+	} else {
+		for _, m := range meta.CodeChallengeMethods {
+			if m == "S256" {
+				o.pkce = true
+				break
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -200,38 +219,55 @@ func (o *Auth) getVerifier() (*oidc.IDTokenVerifier, error) {
 	return o.verifier, nil
 }
 
-// getOAuthConfig returns the OAuth config, initializing it if necessary.
-func (o *Auth) getOAuthConfig() (*oauth2.Config, error) {
+// getOAuthConfig returns the OAuth config and whether the provider supports PKCE,
+// initializing them if necessary.
+func (o *Auth) getOAuthConfig() (*oauth2.Config, bool, error) {
 	o.Lock()
 	defer o.Unlock()
 
 	if o.oauthCfg.ClientID == "" {
 		if err := o.initOIDC(); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 	}
-	return &o.oauthCfg, nil
+	return &o.oauthCfg, o.pkce, nil
 }
 
-// GetOIDCAuthURL returns the OIDC provider's auth URL to redirect to.
-func (o *Auth) GetOIDCAuthURL(state, nonce string) string {
-	cfg, err := o.getOAuthConfig()
+// GetOIDCAuthURL returns the OIDC provider's auth URL to redirect to and the PKCE code
+// verifier for the subsequent token exchange, empty if the provider doesn't support PKCE.
+func (o *Auth) GetOIDCAuthURL(state, nonce string) (string, string) {
+	cfg, pkce, err := o.getOAuthConfig()
 	if err != nil {
 		o.log.Printf("error getting OAuth config: %v", err)
-		return ""
+		return "", ""
 	}
-	return cfg.AuthCodeURL(state, oidc.Nonce(nonce))
+
+	opts := []oauth2.AuthCodeOption{oidc.Nonce(nonce)}
+
+	codeVerifier := ""
+	if pkce {
+		codeVerifier = oauth2.GenerateVerifier()
+		opts = append(opts, oauth2.S256ChallengeOption(codeVerifier))
+	}
+
+	return cfg.AuthCodeURL(state, opts...), codeVerifier
 }
 
-// ExchangeOIDCToken takes an OIDC authorization code (recieved via redirect from the OIDC provider),
-// validates it, and returns an OIDC token for subsequent auth.
-func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, OIDCclaim, error) {
-	cfg, err := o.getOAuthConfig()
+// ExchangeOIDCToken takes an OIDC authorization code (recieved via redirect from the OIDC provider)
+// and the PKCE code verifier from the auth request, validates it, and returns an OIDC token for
+// subsequent auth.
+func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDCclaim, error) {
+	cfg, _, err := o.getOAuthConfig()
 	if err != nil {
 		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error getting OAuth config: %v", err))
 	}
 
-	tk, err := cfg.Exchange(context.TODO(), code)
+	var opts []oauth2.AuthCodeOption
+	if codeVerifier != "" {
+		opts = append(opts, oauth2.VerifierOption(codeVerifier))
+	}
+
+	tk, err := cfg.Exchange(context.TODO(), code, opts...)
 	if err != nil {
 		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error exchanging token: %v", err))
 	}
