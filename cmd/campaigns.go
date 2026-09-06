@@ -288,6 +288,11 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
+	// Normalize, permission-gate, and validate the optional segment query.
+	if err := a.processCampaignSegment(c, &o, ""); err != nil {
+		return err
+	}
+
 	out, err := a.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
@@ -340,12 +345,79 @@ func (a *App) UpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
+	// Normalize, permission-gate, and validate the optional segment query.
+	if err := a.processCampaignSegment(c, &o, cm.SubscriberQuery.String); err != nil {
+		return err
+	}
+
 	out, err := a.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// processCampaignSegment normalizes, permission-gates, and validates a campaign's optional
+// subscriber_query segment in place. Segments apply only to regular campaigns; the permission
+// and validation run only when the query is newly set or changed from oldQuery.
+func (a *App) processCampaignSegment(c echo.Context, o *campReq, oldQuery string) error {
+	q := formatSQLExp(o.SubscriberQuery.String)
+
+	// Segments only apply to regular campaigns.
+	if o.Type != models.CampaignTypeRegular {
+		o.SubscriberQuery = null.String{}
+		return nil
+	}
+
+	if q != "" && q != formatSQLExp(oldQuery) {
+		// Writing an arbitrary SQL segment needs the same permission as subscriber SQL queries.
+		user := auth.GetUser(c)
+		if !user.HasPerm(auth.PermSubscribersSqlQuery) {
+			return echo.NewHTTPError(http.StatusForbidden,
+				a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+		}
+		if err := a.core.ValidateCampaignQuery(o.ListIDs, models.CampaignTypeRegular, q); err != nil {
+			return err
+		}
+	}
+
+	if q == "" {
+		o.SubscriberQuery = null.String{}
+	} else {
+		o.SubscriberQuery = null.NewString(q, true)
+	}
+
+	return nil
+}
+
+// PreviewCampaignRecipients returns how many subscribers would receive a campaign sent to the
+// given lists with an optional ad-hoc segment query, applying send-time consent rules.
+func (a *App) PreviewCampaignRecipients(c echo.Context) error {
+	user := auth.GetUser(c)
+
+	var req struct {
+		Lists []int  `json:"lists"`
+		Query string `json:"query"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	listIDs := user.GetPermittedListIDs(req.Lists)
+	if len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.missingFields", "name", "{globals.terms.lists}"))
+	}
+
+	count, err := a.core.CountCampaignRecipients(listIDs, models.CampaignTypeRegular, formatSQLExp(req.Query))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{struct {
+		Count int `json:"count"`
+	}{count}})
 }
 
 // UpdateCampaignStatus handles campaign status modification.
