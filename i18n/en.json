@@ -608,6 +608,7 @@
     "subscribers.errorSendingOptin": "Error sending opt-in e-mail.",
     "subscribers.export": "Export",
     "subscribers.invalidAction": "Invalid action.",
+    "subscribers.invalidAttribsConflict": "Invalid attribs_conflict. Use incoming, existing, or replace.",
     "subscribers.invalidEmail": "Invalid email.",
     "subscribers.invalidJSON": "Invalid JSON in attributes.",
     "subscribers.invalidName": "Invalid name.",

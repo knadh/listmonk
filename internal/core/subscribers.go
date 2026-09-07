@@ -356,6 +356,96 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 	return out, hasOptin, nil
 }
 
+// SubscribeSubscriber creates a subscriber or, if the e-mail already exists, updates their
+// subscriptions and attributes. The second return value indicates whether a new subscriber
+// was created; the third indicates whether an opt-in confirmation e-mail was sent.
+func (c *Core) SubscribeSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool, attribsConflict string) (models.Subscriber, bool, bool, error) {
+	incomingAttribs := sub.Attribs
+
+	out, hasOptin, err := c.InsertSubscriber(sub, listIDs, listUUIDs, preconfirm, true)
+	if err == nil {
+		return out, true, hasOptin, nil
+	}
+
+	e, ok := err.(*echo.HTTPError)
+	if !ok || e.Code != http.StatusConflict {
+		return models.Subscriber{}, false, false, err
+	}
+
+	existing, err := c.GetSubscriber(0, "", sub.Email)
+	if err != nil {
+		return models.Subscriber{}, false, false, err
+	}
+
+	updateSub := existing
+	if strings.TrimSpace(sub.Name) != "" {
+		updateSub.Name = sub.Name
+	}
+	if sub.Status != "" {
+		updateSub.Status = sub.Status
+	}
+	if len(incomingAttribs) > 0 {
+		updateSub.Attribs = applyAttribsConflict(existing.Attribs, incomingAttribs, attribsConflict)
+	}
+
+	out, hasOptin, err = c.UpdateSubscriberWithLists(existing.ID, updateSub, listIDs, listUUIDs, preconfirm, false, true, nil, true)
+	if err != nil {
+		return models.Subscriber{}, false, false, err
+	}
+
+	return out, false, hasOptin, nil
+}
+
+func applyAttribsConflict(existing, incoming models.JSON, conflict string) models.JSON {
+	switch conflict {
+	case models.AttribsConflictReplace:
+		return incoming
+	case models.AttribsConflictExisting:
+		return fillJSON(existing, incoming)
+	default:
+		return mergeJSON(existing, incoming)
+	}
+}
+
+// mergeJSON deep-merges src into dst. Nested maps are merged recursively; incoming values replace existing.
+func mergeJSON(dst, src models.JSON) models.JSON {
+	if dst == nil {
+		dst = models.JSON{}
+	}
+	for k, v := range src {
+		if dstVal, ok := dst[k]; ok {
+			if dstMap, ok := dstVal.(map[string]any); ok {
+				if srcMap, ok := v.(map[string]any); ok {
+					dst[k] = mergeJSON(models.JSON(dstMap), models.JSON(srcMap))
+					continue
+				}
+			}
+		}
+		dst[k] = v
+	}
+	return dst
+}
+
+// fillJSON deep-merges src into dst, keeping existing values on conflict. Only missing or null keys are set.
+func fillJSON(dst, src models.JSON) models.JSON {
+	if dst == nil {
+		dst = models.JSON{}
+	}
+	for k, v := range src {
+		dstVal, ok := dst[k]
+		if !ok || dstVal == nil {
+			dst[k] = v
+			continue
+		}
+		if dstMap, ok := dstVal.(map[string]any); ok {
+			if srcMap, ok := v.(map[string]any); ok {
+				dst[k] = fillJSON(models.JSON(dstMap), models.JSON(srcMap))
+			}
+		}
+	}
+	return dst
+}
+
 // UpdateSubscriber updates a subscriber's properties.
 func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscriber, error) {
 	// Format raw JSON attributes.
