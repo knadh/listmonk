@@ -68,17 +68,20 @@ type Queries struct {
 	GetArchivedCampaigns  *sqlx.Stmt `query:"get-archived-campaigns"`
 	CampaignHasLists      *sqlx.Stmt `query:"campaign-has-lists"`
 
-	// These two queries are read as strings and based on settings.individual_tracking=on/off,
-	// are interpolated and copied to view and click counts. Same query, different tables.
-	GetCampaignAnalyticsCounts string     `query:"get-campaign-analytics-counts"`
-	GetCampaignViewCounts      *sqlx.Stmt `query:"get-campaign-view-counts"`
-	GetCampaignClickCounts     *sqlx.Stmt `query:"get-campaign-click-counts"`
-	GetCampaignLinkCounts      *sqlx.Stmt `query:"get-campaign-link-counts"`
-	GetCampaignBounceCounts    *sqlx.Stmt `query:"get-campaign-bounce-counts"`
-	DeleteCampaignViews        *sqlx.Stmt `query:"delete-campaign-views"`
-	DeleteCampaignLinkClicks   *sqlx.Stmt `query:"delete-campaign-link-clicks"`
-	ExportCampaignViews        *sqlx.Stmt `query:"export-campaign-views"`
-	ExportCampaignLinkClicks   *sqlx.Stmt `query:"export-campaign-link-clicks"`
+	// These queries are read as strings and interpolated with table names before being
+	// prepared. The total and unique variants are copied to view and click counts.
+	// Same query, different tables.
+	GetCampaignAnalyticsCounts   string     `query:"get-campaign-analytics-counts"`
+	GetCampaignViewCounts        *sqlx.Stmt `query:"get-campaign-view-counts"`
+	GetCampaignClickCounts       *sqlx.Stmt `query:"get-campaign-click-counts"`
+	GetCampaignViewCountsUnique  *sqlx.Stmt `query:"get-campaign-view-counts-unique"`
+	GetCampaignClickCountsUnique *sqlx.Stmt `query:"get-campaign-click-counts-unique"`
+	GetCampaignLinkCounts        *sqlx.Stmt `query:"get-campaign-link-counts"`
+	GetCampaignBounceCounts      *sqlx.Stmt `query:"get-campaign-bounce-counts"`
+	DeleteCampaignViews          *sqlx.Stmt `query:"delete-campaign-views"`
+	DeleteCampaignLinkClicks     *sqlx.Stmt `query:"delete-campaign-link-clicks"`
+	ExportCampaignViews          *sqlx.Stmt `query:"export-campaign-views"`
+	ExportCampaignLinkClicks     *sqlx.Stmt `query:"export-campaign-link-clicks"`
 
 	NextCampaigns            *sqlx.Stmt `query:"next-campaigns"`
 	GetRunningCampaign       *sqlx.Stmt `query:"get-running-campaign"`

@@ -626,12 +626,20 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	var (
-		typ  = c.Param("type")
-		from = c.QueryParams().Get("from")
-		to   = c.QueryParams().Get("to")
+		typ    = c.Param("type")
+		from   = c.QueryParams().Get("from")
+		to     = c.QueryParams().Get("to")
+		unique = c.QueryParams().Get("unique") == "true"
 	)
 	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
+	}
+
+	// Unique (distinct-subscriber) counts are only served when individual
+	// subscriber tracking is enabled. Otherwise force total counts so the API
+	// never exposes distinct-subscriber analytics against the privacy setting.
+	if unique && !a.cfg.Privacy.IndividualTracking {
+		unique = false
 	}
 
 	// Campaign link stats.
@@ -645,7 +653,7 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 	}
 
 	// Get the analytics numbers from the DB for the campaigns.
-	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to, unique)
 	if err != nil {
 		return err
 	}

@@ -381,15 +381,23 @@ func (c *Core) GetRunningCampaignStats() ([]models.CampaignStats, error) {
 	return out, nil
 }
 
-func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsCount, error) {
-	// Pick campaign view counts or click counts.
+func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate string, unique bool) ([]models.CampaignAnalyticsCount, error) {
+	// Pick campaign view counts or click counts. When unique is set, use the
+	// variant that counts distinct subscribers instead of total events.
 	var stmt *sqlx.Stmt
 	switch typ {
 	case "views":
 		stmt = c.q.GetCampaignViewCounts
+		if unique {
+			stmt = c.q.GetCampaignViewCountsUnique
+		}
 	case "clicks":
 		stmt = c.q.GetCampaignClickCounts
+		if unique {
+			stmt = c.q.GetCampaignClickCountsUnique
+		}
 	case "bounces":
+		// Bounces have no unique variant, so the unique flag is intentionally ignored.
 		stmt = c.q.GetCampaignBounceCounts
 	default:
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
