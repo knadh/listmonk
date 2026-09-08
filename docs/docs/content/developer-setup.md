@@ -30,8 +30,7 @@ After setting up the dev environment, you can visit `http://localhost:8080`.
 
 2. Inside containers (Using Makefile)
 
-    - Run `make init-dev-docker` to setup container for db.
-    - Run `make dev-docker` to setup docker container suite.
+    - Run `make dev-docker` to build and start the docker container suite.
     - Run `make rm-dev-docker` to clean up docker container suite.
 
 3. Inside containers (Using devcontainer)
