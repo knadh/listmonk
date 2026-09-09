@@ -77,6 +77,14 @@ type Campaign struct {
 	// Fetched bodies of the attachments.
 	Attachments []Attachment `json:"-" db:"-"`
 
+	// LastSubscriberID is the durable resume checkpoint: the highest subscriber
+	// ID for which a message was confirmed processed. It only advances from the
+	// send side (flushed periodically by the campaign manager and on pipe drain),
+	// never when subscriber batches are fetched, so a crash or restart resumes
+	// from the last confirmed send instead of skipping fetched-but-unsent
+	// subscribers.
+	LastSubscriberID int `db:"last_subscriber_id" json:"-"`
+
 	// Pseudofield for getting the total number of subscribers
 	// in searches and queries.
 	Total int `db:"total" json:"-"`

@@ -214,9 +214,15 @@ counts AS (
     GROUP BY camps.id
 ),
 updateCounts AS (
-    WITH uc (campaign_id, sent_count) AS (SELECT * FROM unnest($1::INT[], $2::INT[]))
+    WITH uc (campaign_id, sent_count, last_sub_id) AS (SELECT * FROM unnest($1::INT[], $2::INT[], $3::INT[]))
     UPDATE campaigns
-    SET sent = sent + uc.sent_count
+    SET sent = sent + uc.sent_count,
+        -- The durable resume checkpoint only ever advances from the send side:
+        -- the highest subscriber ID for which a message was confirmed processed.
+        -- It must never move ahead of sends (see next-campaign-subscribers), or
+        -- a crash/restart would permanently skip fetched-but-unsent subscribers.
+        last_subscriber_id = (CASE WHEN uc.last_sub_id > campaigns.last_subscriber_id
+                                   THEN uc.last_sub_id ELSE campaigns.last_subscriber_id END)
     FROM uc WHERE campaigns.id = uc.campaign_id
 ),
 u AS (
@@ -317,8 +323,12 @@ SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscr
 
 -- name: next-campaign-subscribers
 -- Returns a batch of subscribers in a given campaign starting from the last checkpoint
--- (last_subscriber_id). Every fetch updates the checkpoint and the sent count, which means
--- every fetch returns a new batch of subscribers until all rows are exhausted.
+-- ($3). The caller passes the checkpoint explicitly: within a running process the pipe
+-- tracks its own in-memory fetch cursor, and across restarts it resumes from the durable
+-- campaigns.last_subscriber_id column, which only advances from the send side
+-- (next-campaigns / update-campaign-counts). Fetching must never advance the durable
+-- checkpoint: messages are sent asynchronously after a batch is fetched, so a checkpoint
+-- that runs ahead of confirmed sends permanently skips subscribers on crash/restart.
 --
 -- In previous versions, get-running-campaign + this was a single query spread across multiple
 -- CTEs, but despite numerous permutations and combinations, Postgres query planner simply would not use
@@ -363,11 +373,6 @@ subs AS (
             )
         ORDER BY s.id LIMIT $6
     ) subIDs JOIN subscribers s ON (s.id = subIDs.id) ORDER BY s.id
-),
-u AS (
-    UPDATE campaigns
-    SET last_subscriber_id = (SELECT MAX(id) FROM subs), updated_at = NOW()
-    WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1
 )
 SELECT * FROM subs;
 
