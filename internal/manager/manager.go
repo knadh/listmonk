@@ -47,8 +47,8 @@ const (
 // Store represents a data backend, such as a database,
 // that provides subscriber and campaign records.
 type Store interface {
-	NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error)
-	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
+	NextCampaigns(currentIDs []int64, sentCounts []int64, lastSubIDs []int64) ([]*models.Campaign, error)
+	NextSubscribers(campID, lastFetchedID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
 	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
@@ -453,8 +453,8 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 
 	// Periodically scan the data source for campaigns to process.
 	for range t.C {
-		ids, counts := m.getCurrentCampaigns()
-		campaigns, err := m.store.NextCampaigns(ids, counts)
+		ids, counts, lastIDs := m.getCurrentCampaigns()
+		campaigns, err := m.store.NextCampaigns(ids, counts, lastIDs)
 		if err != nil {
 			m.log.Printf("error fetching campaigns: %v", err)
 			continue
@@ -584,16 +584,18 @@ func (m *Manager) worker() {
 	}
 }
 
-// getCurrentCampaigns returns the IDs of campaigns currently being processed
-// and their sent counts.
-func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
+// getCurrentCampaigns returns the IDs of campaigns currently being processed,
+// their sent counts, and the ID of the last subscriber confirmed processed
+// (the send-side resume checkpoint) for each.
+func (m *Manager) getCurrentCampaigns() ([]int64, []int64, []int64) {
 	// Needs to return an empty slice in case there are no campaigns.
 	m.pipesMut.RLock()
 	defer m.pipesMut.RUnlock()
 
 	var (
-		ids    = make([]int64, 0, len(m.pipes))
-		counts = make([]int64, 0, len(m.pipes))
+		ids     = make([]int64, 0, len(m.pipes))
+		counts  = make([]int64, 0, len(m.pipes))
+		lastIDs = make([]int64, 0, len(m.pipes))
 	)
 	for _, p := range m.pipes {
 		ids = append(ids, int64(p.camp.ID))
@@ -602,9 +604,15 @@ func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
 		// as in the database, they're stored cumulatively (sent += $newSent).
 		counts = append(counts, p.sent.Load())
 		p.sent.Store(0)
+
+		// The last confirmed-sent subscriber ID is a high watermark (unlike
+		// sent, it's not a delta), so it's read but never reset. Persisting it
+		// keeps the durable resume checkpoint trailing confirmed sends within
+		// one scan interval.
+		lastIDs = append(lastIDs, int64(p.lastID.Load()))
 	}
 
-	return ids, counts
+	return ids, counts, lastIDs
 }
 
 // trackLink register a URL and return its UUID to be used in message templates

@@ -34,19 +34,23 @@ func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
 }
 
 // NextCampaigns retrieves active campaigns ready to be processed excluding
-// campaigns that are also being processed. Additionally, it takes a map of campaignID:sentCount
-// of campaigns that are being processed and updates them in the DB.
-func (s *store) NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error) {
+// campaigns that are also being processed. Additionally, it takes the IDs,
+// incremental sent counts, and last confirmed-sent subscriber IDs (the
+// send-side resume checkpoints) of campaigns that are being processed and
+// updates them in the DB.
+func (s *store) NextCampaigns(currentIDs []int64, sentCounts []int64, lastSubIDs []int64) ([]*models.Campaign, error) {
 	var out []*models.Campaign
-	err := s.queries.NextCampaigns.Select(&out, pq.Int64Array(currentIDs), pq.Int64Array(sentCounts))
+	err := s.queries.NextCampaigns.Select(&out, pq.Int64Array(currentIDs), pq.Int64Array(sentCounts), pq.Int64Array(lastSubIDs))
 	return out, err
 }
 
 // NextSubscribers retrieves a subset of subscribers of a given campaign.
 // Since batches are processed sequentially, the retrieval is ordered by ID,
-// and every batch takes the last ID of the last batch and fetches the next
-// batch above that.
-func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) {
+// and every batch starts after the given fetch cursor (the last ID of the
+// previous batch, tracked in memory by the campaign pipe). The durable
+// campaigns.last_subscriber_id checkpoint is not read or written here; it
+// only advances from the send side.
+func (s *store) NextSubscribers(campID, lastFetchedID, limit int) ([]models.Subscriber, error) {
 	var camps []runningCamp
 	if err := s.queries.GetRunningCampaign.Select(&camps, campID); err != nil {
 		return nil, err
@@ -62,7 +66,7 @@ func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) 
 	}
 
 	var out []models.Subscriber
-	err := s.queries.NextCampaignSubscribers.Select(&out, camps[0].CampaignID, camps[0].CampaignType, camps[0].LastSubscriberID, camps[0].MaxSubscriberID, pq.Array(listIDs), limit)
+	err := s.queries.NextCampaignSubscribers.Select(&out, camps[0].CampaignID, camps[0].CampaignType, lastFetchedID, camps[0].MaxSubscriberID, pq.Array(listIDs), limit)
 	return out, err
 }
 
