@@ -10,13 +10,13 @@
 
 <form class="settings" @submit.prevent="onSubmit" x-data="settingsView(_settings, _userRoles, _listRoles)">
 		<header class="row page-header">
-			<div class="col-6">
+			<div class="col-4">
 				<h1 class="page-title">
 					{{ .L.T "settings.title" }}
 					<span>({{ $d.Version }})</span>
 				</h1>
 			</div>
-			<div class="col-6 col-end align-right hstack justify-end">
+			<div class="col-8 col-end align-right hstack justify-end">
 				<div class="search-form settings-search">
 					<fieldset class="group">
 						<input type="search" x-ref="search" data-cy="search" @input="onSearch($event)"

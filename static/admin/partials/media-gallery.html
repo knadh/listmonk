@@ -6,7 +6,7 @@
 {{- $canManage := $d.Can "media:manage" -}}
 <section class="media-files" x-data="mediaView({{ if $picker }}'picker'{{ else }}'manage'{{ end }})">
 	<header class="row page-header">
-		<div class="col-6">
+		<div class="col-4">
 			<div class="hstack">
 				<h1 class="page-title">
 					{{ $root.L.T "media.title" }}
@@ -15,7 +15,7 @@
 				{{- if $d.Provider }}<div class="text-lighter">{{ $d.Provider }}</div>{{ end }}
 			</div>
 		</div>
-		<div class="col-6 col-end align-right hstack justify-end">
+		<div class="col-8 col-end align-right hstack justify-end">
 			<form method="get" action="{{ URI "/admin/campaigns/media" }}{{ if $picker }}/fragment{{ end }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
