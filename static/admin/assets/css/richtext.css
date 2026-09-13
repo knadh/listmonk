@@ -423,4 +423,5 @@ richtext-editor.is-fullscreen .rte-content {
 richtext-editor.is-disabled .rte-toolbar {
     opacity: 0.5;
     pointer-events: none;
+    overflow: hidden;
 }
