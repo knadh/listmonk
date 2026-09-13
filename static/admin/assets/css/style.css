@@ -109,8 +109,14 @@ table {
         }
     }
 
-    tbody tr:hover {
-        background-color: none;
+
+    &.has-select {
+        tbody tr:hover {
+            background-color: transparent;
+            td {
+                border-bottom: 1px solid light-dark(#ccc, #444);
+            }
+        }
     }
 }
 
