@@ -52,7 +52,7 @@
 				</template>
 			{{- end }}
 
-			<table>
+			<table class="{{ if $d.Can "users:manage" }}has-select{{ end }}">
 				<thead>
 					<tr>
 						{{- if $d.Can "users:manage" }}
