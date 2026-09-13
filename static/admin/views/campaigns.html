@@ -8,7 +8,7 @@
 
 <section class="campaigns" x-data="campaignsView">
 	<header class="row page-header">
-		<div class="col-6">
+		<div class="col-4">
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.campaigns" }}
 				<span>({{ $d.Page.Total }})</span>
@@ -18,7 +18,7 @@
 				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
-		<div class="col-6 hstack justify-end">
+		<div class="col-8 hstack justify-end">
 			<form method="get" action="{{ $base }}" class="search-form">
 				{{- $d.Page.FormFields "query" "page" -}}
 				<fieldset class="group">

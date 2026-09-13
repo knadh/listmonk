@@ -716,6 +716,7 @@
     "subscribers.sentOptinConfirm": "Opt-in confirmation sent",
     "subscribers.status.blocklisted": "Blocklisted",
     "subscribers.status.confirmed": "Confirmed",
+    "subscribers.status.disabled": "Disabled",
     "subscribers.status.enabled": "Enabled",
     "subscribers.status.subscribed": "Subscribed",
     "subscribers.status.unconfirmed": "Unconfirmed",
