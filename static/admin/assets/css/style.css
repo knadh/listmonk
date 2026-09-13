@@ -17,22 +17,22 @@
 
 /* Theme */
 * {
-    --body: light-dark(#f9f9f9, #08090a);
-    --card: light-dark(#fff, #0f1011);
-    --faint: light-dark(#fafafa, #131417);
-    --muted: light-dark(#f4f4f5, #17181b);
-    --secondary: light-dark(#f4f4f5, #1a1b1e);
-    --accent: light-dark(#f4f4f5, #1e1f23);
-    --background: light-dark(#fff, #16171a);
+    --body: light-dark(#f9f9f9, #0a0b0d);
+    --card: light-dark(#fff, #14161a);
+    --faint: light-dark(#fafafa, #191b1f);
+    --muted: light-dark(#f4f4f5, #1d1f25);
+    --secondary: light-dark(#f4f4f5, #24262c);
+    --accent: light-dark(#f4f4f5, #2b2f36);
+    --background: light-dark(#fff, #212429);
     --foreground: light-dark(#09090b, #f7f8f8);
     --card-foreground: light-dark(#09090b, #f7f8f8);
     --secondary-foreground: light-dark(#574747, #eceef1);
     --muted-foreground: light-dark(#7a7a7a, #8a8f98);
-    --faint-foreground: light-dark(#a1a1aa, #62666d);
+    --faint-foreground: light-dark(#a1a1aa, #767a83);
     --primary: light-dark(#0055d4, #4f8ce6);
     --ring: light-dark(#0055d4, #4f8ce6);
-    --border: light-dark(#e5e7eb, #23252a);
-    --input: light-dark(#d4d4d8, #2c2d30);
+    --border: light-dark(#e5e7eb, #2d3139);
+    --input: light-dark(#d4d4d8, #3a3e47);
     --danger: light-dark(#d32f2f, #f2686e);
     --success: light-dark(#008032, #52c290);
     --warning: light-dark(#a65b00, #e6b95c);
@@ -99,8 +99,12 @@ body {
     height: 100%;
 }
 
+html,
 body {
     background: var(--body);
+}
+
+body {
     font-family: var(--font-sans);
 }
 
@@ -140,7 +144,7 @@ table {
         tbody tr:hover {
             background-color: transparent;
             td {
-                border-bottom: 1px solid light-dark(#ccc, #444);
+                border-bottom: 1px solid light-dark(#ccc, #3c4048);
             }
         }
     }

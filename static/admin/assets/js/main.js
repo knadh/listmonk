@@ -35,10 +35,10 @@ function setupAlpine() {
 
       if (mode === 'auto') {
         localStorage.removeItem('theme');
-        document.body.style.colorScheme = '';
+        document.documentElement.style.colorScheme = '';
       } else {
         localStorage.setItem('theme', mode);
-        document.body.style.colorScheme = mode;
+        document.documentElement.style.colorScheme = mode;
       }
     },
 
