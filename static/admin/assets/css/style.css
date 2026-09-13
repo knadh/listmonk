@@ -110,7 +110,7 @@ table {
     }
 
     tbody tr:hover {
-        background-color: light-dark(#fafafa, var(--background));
+        background-color: none;
     }
 }
 
@@ -995,11 +995,16 @@ section.campaigns {
         }
 
         tr.status-running {
-            background: color-mix(in srgb, var(--primary) 8%, transparent);
+            background: color-mix(in srgb, var(--primary) 1%, transparent);
 
             td {
                 border-bottom-color: color-mix(in srgb, var(--primary) 20%, var(--border));
             }
+        }
+
+        td.counts {
+            border-left: 1px solid var(--border);
+            padding-left: var(--space-4);
         }
 
         td.lists ul {

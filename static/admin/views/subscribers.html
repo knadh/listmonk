@@ -112,7 +112,8 @@
 											<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (or (index $statusIcons .Status) "help-circle") }}</a>
 										{{- end }}
 										{{- if .ParsedLists }}
-											<div class="hstack gap-4 text-7 mt-2">
+											<div class="mt-2">
+												<div class="hstack">
 												{{- range $i, $l := .ParsedLists }}
 													{{- if lt $i 2 }}
 														<span>
@@ -125,6 +126,7 @@
 														</span>
 													{{- end }}
 												{{- end }}
+												</div>
 												{{- if gt (len .ParsedLists) 2 }}
 													<a href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ range $i, $l := slice .ParsedLists 2 }}{{ if $i }}, {{ end }}{{ $l.Name }}{{ end }}">+{{ sub (len .ParsedLists) 2 }} {{ lower ($.L.T "globals.terms.lists") }}</a>
 												{{- end }}
