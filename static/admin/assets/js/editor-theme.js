@@ -1,35 +1,34 @@
 // Forked from https://github.com/fsegurai/codemirror-themes
 // MIT License - Copyright (c) 2025 fsegurai
 
-import { EditorView } from '@codemirror/view';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { EditorView } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 
-// VSCode Light theme color definitions
-const background = '#ffffff';
-const foreground = '#383a42';
-const caret = '#000000';
-const selection = '#add6ff';
-const selectionMatch = '#a8ac94';
-const lineHighlight = '#99999926';
-const gutterBackground = '#ffffff';
-const gutterForeground = '#0055d4';
-const gutterActiveForeground = '#0b216f';
-const keywordColor = '#0055d4';
-const controlKeywordColor = '#af00db';
-const variableColor = '#e45649';
-const classTypeColor = '#0055d4';
-const functionColor = '#795e26';
-const numberColor = '#098658';
-const operatorColor = '#383a42';
-const regexpColor = '#af00db';
-const stringColor = '#50a14f';
-const commentColor = '#999';
-const linkColor = '#0055d4';
-const invalidColor = '#e45649';
+const background = 'var(--cm-bg)';
+const foreground = 'var(--cm-fg)';
+const caret = 'var(--cm-caret)';
+const selection = 'var(--cm-selection)';
+const selectionMatch = 'var(--cm-selection-match)';
+const searchMatch = 'var(--cm-search-match)';
+const lineHighlight = 'var(--cm-active-line)';
+const border = 'var(--cm-border)';
+const gutterForeground = 'var(--cm-gutter-fg)';
+const gutterActiveForeground = 'var(--cm-gutter-active-fg)';
+const keywordColor = 'var(--cm-keyword)';
+const controlKeywordColor = 'var(--cm-control)';
+const variableColor = 'var(--cm-variable)';
+const classTypeColor = 'var(--cm-type)';
+const functionColor = 'var(--cm-function)';
+const numberColor = 'var(--cm-number)';
+const operatorColor = 'var(--cm-operator)';
+const regexpColor = 'var(--cm-regexp)';
+const stringColor = 'var(--cm-string)';
+const commentColor = 'var(--cm-comment)';
+const linkColor = 'var(--cm-link)';
+const invalidColor = 'var(--cm-invalid)';
 
-// Define the editor theme styles for VSCode Light
-const vsCodeLightTheme = /* @__PURE__ */EditorView.theme({
+const editorTheme = /* @__PURE__ */EditorView.theme({
   '&': {
     color: foreground,
     backgroundColor: background,
@@ -44,23 +43,59 @@ const vsCodeLightTheme = /* @__PURE__ */EditorView.theme({
   '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
     backgroundColor: selection,
   },
-  '.cm-searchMatch': {
+  '.cm-selectionMatch': {
     backgroundColor: selectionMatch,
-    outline: `1px solid ${lineHighlight}`,
+  },
+  '.cm-searchMatch': {
+    backgroundColor: searchMatch,
+    outline: `1px solid ${border}`,
   },
   '.cm-activeLine': {
     backgroundColor: lineHighlight,
   },
   '.cm-gutters': {
-    backgroundColor: gutterBackground,
+    backgroundColor: background,
     color: gutterForeground,
+    border: 'none',
   },
   '.cm-activeLineGutter': {
+    backgroundColor: lineHighlight,
     color: gutterActiveForeground,
   },
+  '&.cm-editor .cm-panels': {
+    backgroundColor: background,
+    color: foreground,
+  },
+  '&.cm-editor .cm-panels-top': {
+    borderBottom: `1px solid ${border}`,
+  },
+  '&.cm-editor .cm-panels-bottom': {
+    borderTop: `1px solid ${border}`,
+  },
+  '&.cm-editor .cm-button': {
+    backgroundImage: 'none',
+    backgroundColor: 'var(--cm-button-bg)',
+    color: foreground,
+    border: `1px solid ${border}`,
+    borderRadius: 'var(--radius-small)',
+    '&:active': {
+      backgroundColor: 'var(--cm-button-active-bg)',
+    },
+  },
+  '&.cm-editor .cm-textfield': {
+    backgroundColor: background,
+    color: foreground,
+    border: `1px solid ${border}`,
+    borderRadius: 'var(--radius-small)',
+  },
+  '&.cm-editor .cm-tooltip': {
+    backgroundColor: background,
+    color: foreground,
+    border: `1px solid ${border}`,
+  },
 }, { dark: false });
-// Define the highlighting style for code in the VSCode Light theme
-const vsCodeLightHighlightStyle = /* @__PURE__ */HighlightStyle.define([
+
+const editorHighlightStyle = /* @__PURE__ */HighlightStyle.define([
   {
     tag: [
       tags.keyword,
@@ -126,10 +161,10 @@ const vsCodeLightHighlightStyle = /* @__PURE__ */HighlightStyle.define([
   { tag: tags.emphasis, fontStyle: 'italic' },
   { tag: tags.strikethrough, textDecoration: 'line-through' },
 ]);
-// Extension to enable the VSCode Light theme (both the editor theme and the highlight style)
-const vsCodeLight = [
-  vsCodeLightTheme,
-  /* @__PURE__ */syntaxHighlighting(vsCodeLightHighlightStyle),
+
+const editorExtensions = [
+  editorTheme,
+  /* @__PURE__ */syntaxHighlighting(editorHighlightStyle),
 ];
 
-export { vsCodeLight, vsCodeLightHighlightStyle, vsCodeLightTheme };
+export { editorExtensions, editorHighlightStyle, editorTheme };

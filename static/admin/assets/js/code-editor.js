@@ -12,7 +12,7 @@ import {
 } from '@codemirror/commands';
 import { defaultHighlightStyle, syntaxHighlighting, bracketMatching } from '@codemirror/language';
 import { search, searchKeymap, highlightSelectionMatches } from '@codemirror/search';
-import { vsCodeLight } from './editor-theme.js';
+import { editorExtensions } from './editor-theme.js';
 
 const LANGS = {
   html, css, javascript, markdown,
@@ -81,7 +81,7 @@ class CodeEditor extends HTMLElement {
           // Syntax highlighting and theme.
           syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
           EditorView.lineWrapping,
-          vsCodeLight,
+          editorExtensions,
 
           search({ top: true }),
 
