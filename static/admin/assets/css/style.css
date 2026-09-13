@@ -62,6 +62,32 @@
     --tone-red: light-dark(#bd3325, #f2686e);
     --tone-red-bg: light-dark(#fdeae6, rgb(242 104 110 / 0.14));
 
+    /* CodeMirror code editor. */
+    --cm-bg: var(--card);
+    --cm-fg: var(--foreground);
+    --cm-caret: var(--foreground);
+    --cm-border: var(--border);
+    --cm-selection: light-dark(#add6ff, #2c4f7c);
+    --cm-selection-match: light-dark(rgb(0 85 212 / 0.12), rgb(255 255 255 / 0.14));
+    --cm-search-match: light-dark(#ffe9a8, rgb(230 185 92 / 0.3));
+    --cm-active-line: light-dark(rgb(0 0 0 / 0.04), rgb(255 255 255 / 0.045));
+    --cm-gutter-fg: var(--faint-foreground);
+    --cm-gutter-active-fg: var(--foreground);
+    --cm-button-bg: var(--muted);
+    --cm-button-active-bg: var(--accent);
+    --cm-keyword: light-dark(#0055d4, #6aabec);
+    --cm-control: light-dark(#af00db, #c586c0);
+    --cm-variable: light-dark(#e45649, #9cdcfe);
+    --cm-type: light-dark(#0055d4, #4ec9b0);
+    --cm-function: light-dark(#795e26, #dcdcaa);
+    --cm-number: light-dark(#098658, #b5cea8);
+    --cm-operator: light-dark(#383a42, #d4d4d4);
+    --cm-regexp: light-dark(#af00db, #d16969);
+    --cm-string: light-dark(#50a14f, #ce9178);
+    --cm-comment: light-dark(#999, #7d8590);
+    --cm-link: var(--primary);
+    --cm-invalid: var(--danger);
+
     --text-1: 1.5rem;
     --text-regular: var(--text-7);
 }
