@@ -6,7 +6,7 @@
 
 <section class="roles" x-data="rolesView({ type: {{ ToJSON $d.Type }} })">
 	<header class="row page-header">
-		<div class="col-6">
+		<div class="col-4">
 			<div class="hstack">
 				<h1 class="page-title">
 					{{ if eq $d.Type "list" }}{{ .L.T "users.listRoles" }}{{ else }}{{ .L.T "users.userRoles" }}{{ end }}
@@ -14,7 +14,7 @@
 				</h1>
 			</div>
 		</div>
-		<div class="col-6 col-end align-right hstack justify-end">
+		<div class="col-8 col-end align-right hstack justify-end">
 			{{- if $d.Can "roles:manage" }}
 				<a href="{{ $base }}/new" class="button" data-variant="primary" data-testid="btn-new">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}

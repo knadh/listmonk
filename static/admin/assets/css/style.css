@@ -274,7 +274,8 @@ a:has(> .badge:only-child) {
         color: var(--tone-rose);
     }
 
-    &.status-blocklisted {
+    &.status-blocklisted,
+    &.status-disabled {
         color: var(--tone-red);
     }
 

@@ -4,7 +4,7 @@
 {{- $subStatus := $d.Page.Param "subscription_status" -}}
 {{- $status := $d.Page.Param "status" -}}
 {{- $base := URI "/admin/subscribers" -}}
-{{- $statusIcons := dict "confirmed" "check-circle" "blocklisted" "x-circle" "unsubscribed" "minus-circle" "unconfirmed" "help-circle" -}}
+{{- $statusIcons := dict "confirmed" "check-circle" "blocklisted" "x-circle" "disabled" "pause-circle" "unsubscribed" "minus-circle" "unconfirmed" "help-circle" -}}
 {{- if $d.CurrentList }}{{ $base = printf "%s/lists/%d" (URI "/admin/subscribers") $d.CurrentList.ID }}{{ end -}}
 
 <script>
@@ -19,7 +19,7 @@
 
 <section class="subscribers" x-data="subscribersView()">
 	<header class="row page-header">
-		<div class="col-6">
+		<div class="col-4">
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.subscribers" }}
 				<span>({{ $d.Page.Total }})</span>
@@ -30,7 +30,7 @@
 				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
-		<div class="col-6 col-end hstack justify-end">
+		<div class="col-8 col-end hstack justify-end">
 			<form action="{{ $base }}" class="search-form" :method="advanced ? 'post' : 'get'">
 				{{- $d.Page.FormFields "search" "query" "page" -}}
 				<ot-dropdown>
@@ -109,7 +109,7 @@
 										<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 										{{- if ne .Status "enabled" }}
 											{{- $label := $.L.T (printf "subscribers.status.%s" .Status) }}
-											<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (index $statusIcons .Status) }}</a>
+											<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (or (index $statusIcons .Status) "help-circle") }}</a>
 										{{- end }}
 										{{- if .ParsedLists }}
 											<div class="hstack gap-4 text-7 mt-2">
@@ -119,7 +119,7 @@
 															<a class="unstyled text-light" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}">{{ $l.Name }}
 															{{- if or (eq $l.Optin "double") (eq $l.SubscriptionStatus "unsubscribed") }}
 																{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
-																<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (index $statusIcons $l.SubscriptionStatus) }}</span>
+																<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}</span>
 															{{- end }}
 															</a>
 														</span>

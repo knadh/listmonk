@@ -5,10 +5,10 @@
 <script>const _lists = {{ ToJSON $d.PublicLists }};</script>
 <section class="forms" x-data="formsView(_lists)">
 	<header class="row page-header">
-		<div class="col-6">
+		<div class="col-4">
 			<h1 class="page-title">{{ .L.T "forms.title" }}</h1>
 		</div>
-		<div class="col-6 col-end align-right hstack justify-end">
+		<div class="col-8 col-end align-right hstack justify-end">
 			{{- if $.ConfigJS.PublicSubscription.Enabled }}
 				<a href="{{ $.ConfigJS.RootURL }}/subscription/form" target="_blank" rel="noopener noreferrer" class="button outline small" data-testid="url" title="{{ $.ConfigJS.RootURL }}/subscription/form">
 					{{ Icon "arrow-up-right" }} {{ .L.T "forms.publicSubPage" }}

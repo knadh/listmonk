@@ -11,7 +11,7 @@
 
 <section class="lists" x-data="listsView">
 	<header class="row page-header">
-		<div class="col-6">
+		<div class="col-4">
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.lists" }}
 				<span>({{ $d.Page.Total }})</span>
@@ -28,7 +28,7 @@
 				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
-		<div class="col-6 col-end align-right hstack justify-end">
+		<div class="col-8 col-end align-right hstack justify-end">
 			<form method="get" action="{{ URI "/admin/lists" }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
