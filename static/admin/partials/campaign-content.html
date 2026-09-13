@@ -23,7 +23,7 @@
 	</div>
 
 	<template x-if="canEdit && form.content_type !== 'plain'">
-		<fieldset class="m-0">
+		<fieldset class="mb-0">
 			<label>
 				<input type="checkbox" role="switch" :checked="form.altbody !== null" @change="$event.target.checked ? onAddAltBody() : onRemoveAltBody()" :disabled="!canEdit" /> {{ $root.L.T "campaigns.addAltText" }}
 			</label>
