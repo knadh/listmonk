@@ -103,14 +103,15 @@ type Config struct {
 	} `koanf:"privacy"`
 	Security struct {
 		OIDC struct {
-			Enabled           bool   `koanf:"enabled"`
-			ProviderURL       string `koanf:"provider_url"`
-			ProviderName      string `koanf:"provider_name"`
-			ClientID          string `koanf:"client_id"`
-			ClientSecret      string `koanf:"client_secret"`
-			AutoCreateUsers   bool   `koanf:"auto_create_users"`
-			DefaultUserRoleID int    `koanf:"default_user_role_id"`
-			DefaultListRoleID int    `koanf:"default_list_role_id"`
+			Enabled           bool                     `koanf:"enabled"`
+			ProviderURL       string                   `koanf:"provider_url"`
+			ProviderName      string                   `koanf:"provider_name"`
+			ClientID          string                   `koanf:"client_id"`
+			ClientSecret      string                   `koanf:"client_secret"`
+			AutoCreateUsers   bool                     `koanf:"auto_create_users"`
+			DefaultUserRoleID int                      `koanf:"default_user_role_id"`
+			DefaultListRoleID int                      `koanf:"default_list_role_id"`
+			RoleMappings      []models.OIDCRoleMapping `koanf:"role_mappings"`
 		} `koanf:"oidc"`
 
 		Captcha struct {
