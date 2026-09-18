@@ -7,24 +7,11 @@ import { TEditorConfiguration } from './core';
 
 export const INSPECTOR_MIN_WIDTH = 280;
 export const INSPECTOR_DEFAULT_WIDTH = 320;
-const INSPECTOR_WIDTH_KEY = 'listmonk-email-builder-inspector-width';
 
 function clampInspectorWidth(width: number) {
   // Leave at least 320px for the canvas.
   const max = Math.max(INSPECTOR_MIN_WIDTH, window.innerWidth - 320);
   return Math.min(Math.max(width, INSPECTOR_MIN_WIDTH), max);
-}
-
-function loadInspectorWidth() {
-  try {
-    const w = parseInt(window.localStorage.getItem(INSPECTOR_WIDTH_KEY) || '', 10);
-    if (w > 0) {
-      return clampInspectorWidth(w);
-    }
-  } catch (e) {
-    // localStorage may be unavailable.
-  }
-  return INSPECTOR_DEFAULT_WIDTH;
 }
 
 type TValue = {
@@ -49,7 +36,7 @@ const editorStateStore = create(subscribeWithSelector<TValue>(() => ({
   selectedScreenSize: 'desktop',
 
   inspectorDrawerOpen: true,
-  inspectorDrawerWidth: loadInspectorWidth(),
+  inspectorDrawerWidth: INSPECTOR_DEFAULT_WIDTH,
   inspectorDrawerResizing: false,
   samplesDrawerOpen: true,
 })));
@@ -98,16 +85,8 @@ export function setInspectorDrawerResizing(inspectorDrawerResizing: boolean) {
   return editorStateStore.setState({ inspectorDrawerResizing });
 }
 
-export function setInspectorDrawerWidth(width: number, persist = false) {
-  const inspectorDrawerWidth = clampInspectorWidth(width);
-  editorStateStore.setState({ inspectorDrawerWidth });
-  if (persist) {
-    try {
-      window.localStorage.setItem(INSPECTOR_WIDTH_KEY, String(inspectorDrawerWidth));
-    } catch (e) {
-      // Ignore.
-    }
-  }
+export function setInspectorDrawerWidth(width: number) {
+  return editorStateStore.setState({ inspectorDrawerWidth: clampInspectorWidth(width) });
 }
 
 export function reclampInspectorDrawerWidth() {

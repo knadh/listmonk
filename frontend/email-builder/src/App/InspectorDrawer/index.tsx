@@ -41,7 +41,7 @@ export default function InspectorDrawer() {
     }
     e.currentTarget.releasePointerCapture(e.pointerId);
     setInspectorDrawerResizing(false);
-    setInspectorDrawerWidth(window.innerWidth - e.clientX, true);
+    setInspectorDrawerWidth(window.innerWidth - e.clientX);
   };
 
   // Keep the panel within bounds when the window is resized.
