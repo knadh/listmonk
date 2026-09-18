@@ -98,6 +98,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	// Preserve OIDC role mappings when older clients do not send the field.
+	// An explicit empty array still clears the mappings.
+	if set.OIDC.RoleMappings == nil {
+		set.OIDC.RoleMappings = cur.OIDC.RoleMappings
+	}
+
 	// Validate and sanitize postback Messenger names along with SMTP names
 	// (where each SMTP is also considered as a standalone messenger).
 	// Duplicates are disallowed and "email" is a reserved name.
@@ -262,6 +268,14 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		}
 	}
 
+	userRoleIDs, listRoleIDs, err := a.getOIDCRoleIDSets()
+	if err != nil {
+		return err
+	}
+	if err := validateOIDCRoleMappings(set.OIDC.RoleMappings, userRoleIDs, listRoleIDs); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	for n, v := range set.UploadExtensions {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}
@@ -339,6 +353,30 @@ func (a *App) UpdateSettingsByKey(c echo.Context) error {
 	return a.handleSettingsRestart(c)
 }
 
+func (a *App) getOIDCRoleIDSets() (map[int]struct{}, map[int]struct{}, error) {
+	userRoles, err := a.core.GetRoles()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	listRoles, err := a.core.GetListRoles()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	userRoleIDs := make(map[int]struct{}, len(userRoles))
+	for _, role := range userRoles {
+		userRoleIDs[role.ID] = struct{}{}
+	}
+
+	listRoleIDs := make(map[int]struct{}, len(listRoles))
+	for _, role := range listRoles {
+		listRoleIDs[role.ID] = struct{}{}
+	}
+
+	return userRoleIDs, listRoleIDs, nil
+}
+
 // GetOIDCRoleMappings returns the configured OIDC role mappings.
 func (a *App) GetOIDCRoleMappings(c echo.Context) error {
 	set, err := a.core.GetSettings()
@@ -364,24 +402,9 @@ func (a *App) UpdateOIDCRoleMappings(c echo.Context) error {
 		)
 	}
 
-	userRoles, err := a.core.GetRoles()
+	userRoleIDs, listRoleIDs, err := a.getOIDCRoleIDSets()
 	if err != nil {
 		return err
-	}
-
-	listRoles, err := a.core.GetListRoles()
-	if err != nil {
-		return err
-	}
-
-	userRoleIDs := make(map[int]struct{}, len(userRoles))
-	for _, role := range userRoles {
-		userRoleIDs[role.ID] = struct{}{}
-	}
-
-	listRoleIDs := make(map[int]struct{}, len(listRoles))
-	for _, role := range listRoles {
-		listRoleIDs[role.ID] = struct{}{}
 	}
 
 	if err := validateOIDCRoleMappings(
