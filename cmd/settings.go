@@ -339,6 +339,84 @@ func (a *App) UpdateSettingsByKey(c echo.Context) error {
 	return a.handleSettingsRestart(c)
 }
 
+// GetOIDCRoleMappings returns the configured OIDC role mappings.
+func (a *App) GetOIDCRoleMappings(c echo.Context) error {
+	set, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+
+	mappings := set.OIDC.RoleMappings
+	if mappings == nil {
+		mappings = []models.OIDCRoleMapping{}
+	}
+
+	return c.JSON(http.StatusOK, okResp{mappings})
+}
+
+// UpdateOIDCRoleMappings validates and updates the OIDC role mappings.
+func (a *App) UpdateOIDCRoleMappings(c echo.Context) error {
+	mappings := []models.OIDCRoleMapping{}
+	if err := c.Bind(&mappings); err != nil {
+		return echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.T("globals.messages.invalidData"),
+		)
+	}
+
+	userRoles, err := a.core.GetRoles()
+	if err != nil {
+		return err
+	}
+
+	listRoles, err := a.core.GetListRoles()
+	if err != nil {
+		return err
+	}
+
+	userRoleIDs := make(map[int]struct{}, len(userRoles))
+	for _, role := range userRoles {
+		userRoleIDs[role.ID] = struct{}{}
+	}
+
+	listRoleIDs := make(map[int]struct{}, len(listRoles))
+	for _, role := range listRoles {
+		listRoleIDs[role.ID] = struct{}{}
+	}
+
+	if err := validateOIDCRoleMappings(
+		mappings,
+		userRoleIDs,
+		listRoleIDs,
+	); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Read the current OIDC settings server-side. This is important because
+	// GetSettings() returns the real client secret internally, while the public
+	// settings API masks secrets before returning them.
+	set, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+
+	set.OIDC.RoleMappings = mappings
+
+	raw, err := json.Marshal(set.OIDC)
+	if err != nil {
+		return echo.NewHTTPError(
+			http.StatusInternalServerError,
+			a.i18n.Ts("settings.errorEncoding", "error", err.Error()),
+		)
+	}
+
+	if err := a.core.UpdateSettingsByKey("security.oidc", raw); err != nil {
+		return err
+	}
+
+	return a.handleSettingsRestart(c)
+}
+
 // handleSettingsRestart checks for running campaigns and either triggers an
 // immediate app restart or marks the app as needing a restart.
 func (a *App) handleSettingsRestart(c echo.Context) error {

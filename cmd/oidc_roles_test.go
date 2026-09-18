@@ -313,3 +313,127 @@ func TestResolveOIDCRoles(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateOIDCRoleMappings(t *testing.T) {
+	userRoleIDs := map[int]struct{}{
+		1: {},
+		5: {},
+	}
+
+	listRoleIDs := map[int]struct{}{
+		6: {},
+		7: {},
+	}
+
+	tests := []struct {
+		name     string
+		mappings []models.OIDCRoleMapping
+		wantErr  bool
+	}{
+		{
+			name: "valid mapping with both roles",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim:      "department",
+					Match:      "AN",
+					UserRoleID: intPtr(5),
+					ListRoleID: intPtr(6),
+				},
+			},
+		},
+		{
+			name: "valid user role only",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim:      "groups",
+					Match:      "listmonk-admin",
+					UserRoleID: intPtr(1),
+				},
+			},
+		},
+		{
+			name: "valid list role only",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim:      "department",
+					Match:      "AN",
+					ListRoleID: intPtr(6),
+				},
+			},
+		},
+		{
+			name: "missing claim",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Match:      "AN",
+					UserRoleID: intPtr(5),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing match",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim:      "department",
+					UserRoleID: intPtr(5),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "no target role",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim: "department",
+					Match: "AN",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "unknown user role",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim:      "department",
+					Match:      "AN",
+					UserRoleID: intPtr(999),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "unknown list role",
+			mappings: []models.OIDCRoleMapping{
+				{
+					Claim:      "department",
+					Match:      "AN",
+					ListRoleID: intPtr(999),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name:     "empty mappings are valid",
+			mappings: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateOIDCRoleMappings(
+				tt.mappings,
+				userRoleIDs,
+				listRoleIDs,
+			)
+
+			if tt.wantErr && err == nil {
+				t.Fatal("expected validation error")
+			}
+
+			if !tt.wantErr && err != nil {
+				t.Fatalf("unexpected validation error: %v", err)
+			}
+		})
+	}
+}

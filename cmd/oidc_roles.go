@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/knadh/listmonk/models"
 )
@@ -69,4 +70,53 @@ func oidcClaimMatches(raw json.RawMessage, expected string) bool {
 	}
 
 	return false
+}
+
+// validateOIDCRoleMappings validates OIDC role mapping configuration.
+// Role IDs must reference roles of the corresponding type.
+func validateOIDCRoleMappings(
+	mappings []models.OIDCRoleMapping,
+	userRoleIDs map[int]struct{},
+	listRoleIDs map[int]struct{},
+) error {
+	for i, mapping := range mappings {
+		n := i + 1
+
+		if mapping.Claim == "" {
+			return fmt.Errorf("OIDC role mapping %d: claim is required", n)
+		}
+
+		if mapping.Match == "" {
+			return fmt.Errorf("OIDC role mapping %d: match is required", n)
+		}
+
+		if mapping.UserRoleID == nil && mapping.ListRoleID == nil {
+			return fmt.Errorf(
+				"OIDC role mapping %d: at least one of user_role_id or list_role_id is required",
+				n,
+			)
+		}
+
+		if mapping.UserRoleID != nil {
+			if _, ok := userRoleIDs[*mapping.UserRoleID]; !ok {
+				return fmt.Errorf(
+					"OIDC role mapping %d: user role ID %d does not exist",
+					n,
+					*mapping.UserRoleID,
+				)
+			}
+		}
+
+		if mapping.ListRoleID != nil {
+			if _, ok := listRoleIDs[*mapping.ListRoleID]; !ok {
+				return fmt.Errorf(
+					"OIDC role mapping %d: list role ID %d does not exist",
+					n,
+					*mapping.ListRoleID,
+				)
+			}
+		}
+	}
+
+	return nil
 }
