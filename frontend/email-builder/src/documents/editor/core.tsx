@@ -8,7 +8,6 @@ import { Heading, HeadingPropsSchema } from '@usewaypoint/block-heading';
 import { Html, HtmlPropsSchema } from '@usewaypoint/block-html';
 import { Image, ImagePropsSchema } from '@usewaypoint/block-image';
 import { Spacer, SpacerPropsSchema } from '@usewaypoint/block-spacer';
-import { Text, TextPropsSchema } from '@usewaypoint/block-text';
 import {
   buildBlockComponent,
   buildBlockConfigurationDictionary,
@@ -22,6 +21,15 @@ import ContainerPropsSchema from '../blocks/Container/ContainerPropsSchema';
 import EmailLayoutEditor from '../blocks/EmailLayout/EmailLayoutEditor';
 import EmailLayoutPropsSchema from '../blocks/EmailLayout/EmailLayoutPropsSchema';
 import EditorBlockWrapper from '../blocks/helpers/block-wrappers/EditorBlockWrapper';
+import { Text, TextProps, TextPropsSchema } from '../blocks/Text';
+
+import { useDocument } from './EditorContext';
+
+function EditorText(props: TextProps) {
+  const root = useDocument().root;
+  const markdownStyles = root?.type === 'EmailLayout' ? root.data?.markdownStyles : null;
+  return <Text {...props} markdownStyles={markdownStyles} />;
+}
 
 // Adds an opt-in `embed` flag to the upstream Image props. The renderer
 // (frontend/email-builder/src/utils.tsx) re-tags marked <img>s with
@@ -109,7 +117,7 @@ const EDITOR_DICTIONARY = buildBlockConfigurationDictionary({
     schema: TextPropsSchema,
     Component: (props) => (
       <EditorBlockWrapper>
-        <Text {...props} />
+        <EditorText {...props} />
       </EditorBlockWrapper>
     ),
   },
