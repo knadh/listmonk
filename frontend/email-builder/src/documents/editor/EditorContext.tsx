@@ -5,6 +5,28 @@ import getConfiguration from '../../getConfiguration';
 
 import { TEditorConfiguration } from './core';
 
+export const INSPECTOR_MIN_WIDTH = 280;
+export const INSPECTOR_DEFAULT_WIDTH = 320;
+const INSPECTOR_WIDTH_KEY = 'listmonk-email-builder-inspector-width';
+
+function clampInspectorWidth(width: number) {
+  // Leave at least 320px for the canvas.
+  const max = Math.max(INSPECTOR_MIN_WIDTH, window.innerWidth - 320);
+  return Math.min(Math.max(width, INSPECTOR_MIN_WIDTH), max);
+}
+
+function loadInspectorWidth() {
+  try {
+    const w = parseInt(window.localStorage.getItem(INSPECTOR_WIDTH_KEY) || '', 10);
+    if (w > 0) {
+      return clampInspectorWidth(w);
+    }
+  } catch (e) {
+    // localStorage may be unavailable.
+  }
+  return INSPECTOR_DEFAULT_WIDTH;
+}
+
 type TValue = {
   document: TEditorConfiguration;
 
@@ -14,6 +36,8 @@ type TValue = {
   selectedScreenSize: 'desktop' | 'mobile';
 
   inspectorDrawerOpen: boolean;
+  inspectorDrawerWidth: number;
+  inspectorDrawerResizing: boolean;
   samplesDrawerOpen: boolean;
 };
 
@@ -25,6 +49,8 @@ const editorStateStore = create(subscribeWithSelector<TValue>(() => ({
   selectedScreenSize: 'desktop',
 
   inspectorDrawerOpen: true,
+  inspectorDrawerWidth: loadInspectorWidth(),
+  inspectorDrawerResizing: false,
   samplesDrawerOpen: true,
 })));
 
@@ -58,6 +84,30 @@ export function useSelectedSidebarTab() {
 
 export function useInspectorDrawerOpen() {
   return editorStateStore((s) => s.inspectorDrawerOpen);
+}
+
+export function useInspectorDrawerWidth() {
+  return editorStateStore((s) => s.inspectorDrawerWidth);
+}
+
+export function useInspectorDrawerResizing() {
+  return editorStateStore((s) => s.inspectorDrawerResizing);
+}
+
+export function setInspectorDrawerResizing(inspectorDrawerResizing: boolean) {
+  return editorStateStore.setState({ inspectorDrawerResizing });
+}
+
+export function setInspectorDrawerWidth(width: number, persist = false) {
+  const inspectorDrawerWidth = clampInspectorWidth(width);
+  editorStateStore.setState({ inspectorDrawerWidth });
+  if (persist) {
+    try {
+      window.localStorage.setItem(INSPECTOR_WIDTH_KEY, String(inspectorDrawerWidth));
+    } catch (e) {
+      // Ignore.
+    }
+  }
 }
 
 export function useSamplesDrawerOpen() {

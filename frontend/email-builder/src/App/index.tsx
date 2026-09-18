@@ -2,9 +2,9 @@ import { Stack, useTheme } from '@mui/material';
 import React from 'react';
 
 import { TEditorConfiguration } from '../documents/editor/core';
-import { setDocument, subscribeDocument, useInspectorDrawerOpen, useSamplesDrawerOpen } from '../documents/editor/EditorContext';
+import { setDocument, subscribeDocument, useInspectorDrawerOpen, useInspectorDrawerResizing, useInspectorDrawerWidth, useSamplesDrawerOpen } from '../documents/editor/EditorContext';
 import { renderHtmlWithMeta } from '../utils';
-import InspectorDrawer, { INSPECTOR_DRAWER_WIDTH } from './InspectorDrawer';
+import InspectorDrawer from './InspectorDrawer';
 import TemplatePanel from './TemplatePanel';
 
 export const DEFAULT_SOURCE: TEditorConfiguration = {
@@ -33,6 +33,8 @@ export interface AppProps {
 
 export default function App(props: AppProps) {
   const inspectorDrawerOpen = useInspectorDrawerOpen();
+  const inspectorDrawerWidth = useInspectorDrawerWidth();
+  const resizing = useInspectorDrawerResizing();
   const samplesDrawerOpen = useSamplesDrawerOpen();
 
   const marginLeftTransition = useDrawerTransition('margin-left', samplesDrawerOpen);
@@ -59,8 +61,8 @@ export default function App(props: AppProps) {
 
       <Stack
         sx={{
-          marginRight: inspectorDrawerOpen ? `${INSPECTOR_DRAWER_WIDTH}px` : 0,
-          transition: [marginLeftTransition, marginRightTransition].join(', '),
+          marginRight: inspectorDrawerOpen ? `${inspectorDrawerWidth}px` : 0,
+          transition: resizing ? 'none' : [marginLeftTransition, marginRightTransition].join(', '),
           height: props.height ? props.height : 'auto',
         }}
       >
