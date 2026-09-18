@@ -110,6 +110,14 @@ export function setInspectorDrawerWidth(width: number, persist = false) {
   }
 }
 
+export function reclampInspectorDrawerWidth() {
+  const { inspectorDrawerWidth } = editorStateStore.getState();
+  const clamped = clampInspectorWidth(inspectorDrawerWidth);
+  if (clamped !== inspectorDrawerWidth) {
+    editorStateStore.setState({ inspectorDrawerWidth: clamped });
+  }
+}
+
 export function useSamplesDrawerOpen() {
   return editorStateStore((s) => s.samplesDrawerOpen);
 }

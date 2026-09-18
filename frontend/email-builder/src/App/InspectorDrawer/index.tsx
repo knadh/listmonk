@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 
 import {
-  setInspectorDrawerResizing, setInspectorDrawerWidth, setSidebarTab, useInspectorDrawerOpen,
+  reclampInspectorDrawerWidth, setInspectorDrawerResizing, setInspectorDrawerWidth, setSidebarTab, useInspectorDrawerOpen,
   useInspectorDrawerResizing, useInspectorDrawerWidth, useSelectedSidebarTab,
 } from '../../documents/editor/EditorContext';
 
@@ -28,6 +28,13 @@ export default function InspectorDrawer() {
       setInspectorDrawerWidth(window.innerWidth - e.clientX);
     }
   };
+  const onPointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    // The pointer position is unreliable on cancel, so end the drag without saving.
+    if (dragging) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      setInspectorDrawerResizing(false);
+    }
+  };
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging) {
       return;
@@ -36,6 +43,13 @@ export default function InspectorDrawer() {
     setInspectorDrawerResizing(false);
     setInspectorDrawerWidth(window.innerWidth - e.clientX, true);
   };
+
+  // Keep the panel within bounds when the window is resized.
+  React.useEffect(() => {
+    const onResize = () => reclampInspectorDrawerWidth();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const renderCurrentSidebarPanel = () => {
     switch (selectedSidebarTab) {
@@ -66,7 +80,7 @@ export default function InspectorDrawer() {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
+        onPointerCancel={onPointerCancel}
         sx={{
           position: 'absolute',
           top: 0,
