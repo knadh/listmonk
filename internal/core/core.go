@@ -70,7 +70,11 @@ var (
 var (
 	regexFullTextQuery  = regexp.MustCompile(`\s+`)
 	regexpSpaces        = regexp.MustCompile(`[\s]+`)
-	campQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
+	// campQuerySortFields is the whitelist of fields allowed to be sorted on in the
+	// campaigns list query. These are real campaigns table columns except for list_count,
+	// which is a computed column in query-campaigns. Blob and JSON columns (eg: body,
+	// headers, attribs, archive_meta) are excluded as sorting on them is meaningless.
+	campQuerySortFields = []string{"id", "uuid", "name", "subject", "from_email", "content_type", "send_at", "status", "tags", "type", "messenger", "template_id", "to_send", "sent", "started_at", "created_at", "updated_at", "archive", "archive_slug", "list_count"}
 	subQuerySortFields  = []string{"email", "status", "name", "created_at", "updated_at"}
 	listQuerySortFields = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
 )

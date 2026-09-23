@@ -101,7 +101,8 @@
           </b-taglist>
         </div>
       </b-table-column>
-      <b-table-column v-slot="props" cell-class="lists" field="lists" :label="$t('globals.terms.lists')" width="15%">
+      <b-table-column v-slot="props" cell-class="lists" field="list_count" :label="$t('globals.terms.lists')" width="15%" sortable
+        header-class="cy-list-count">
         <ul>
           <li v-for="l in props.row.lists" :key="l.id">
             <router-link :to="{ name: 'subscribers_list', params: { listID: l.id } }">
@@ -132,7 +133,8 @@
         </div>
       </b-table-column>
 
-      <b-table-column v-slot="props" field="stats" :label="$t('campaigns.stats')" width="15%">
+      <b-table-column v-slot="props" field="sent" :label="$t('campaigns.stats')" width="15%" sortable
+        header-class="cy-stats">
         <div class="fields stats" :set="stats = getCampaignStats(props.row)">
           <p>
             <label for="#">{{ $t('campaigns.views') }}</label>

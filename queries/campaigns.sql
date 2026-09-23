@@ -62,6 +62,7 @@ SELECT id FROM camp;
 -- with every resultant row.
 SELECT  c.*,
         COUNT(*) OVER () AS total,
+        (SELECT COUNT(*) FROM campaign_lists WHERE campaign_id = c.id) AS list_count,
         (
             SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
                 SELECT COALESCE(campaign_lists.list_id, 0) AS id,
