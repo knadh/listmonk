@@ -21,18 +21,18 @@
 	</header>
 
 	<form method="post" @submit.prevent="onSubmit">
-		<div class="card page-content content">
-			<section class="dialog-body">
-				<div data-field>
-					<label for="user-type">{{ .L.T "users.type" }}</label>
-					<select name="type" id="user-type" autofocus x-model="form.type" :disabled="isEditing">
-						<option value="user">{{ .L.T "users.type.user" }}</option>
-						<option value="api">{{ .L.T "users.type.api" }}</option>
-					</select>
-				</div>
-
-				<fieldset>
+		<div class="page-content content">
+			<section>
+				<fieldset class="card">
 					<legend>{{ .L.T "users.profile" }}</legend>
+					<div data-field>
+						<label for="user-type">{{ .L.T "users.type" }}</label>
+						<select name="type" id="user-type" autofocus x-model="form.type" :disabled="isEditing">
+							<option value="user">{{ .L.T "users.type.user" }}</option>
+							<option value="api">{{ .L.T "users.type.api" }}</option>
+						</select>
+					</div>
+
 					<label data-field>
 						{{ .L.T "users.username" }}
 						<input name="username" maxlength="200" required autocomplete="off" pattern="[a-zA-Z0-9_\-\.@]+$" autofocus x-model="form.username" />
@@ -44,10 +44,12 @@
 						<input name="name" maxlength="200" x-model="form.name" />
 					</label>
 
-					<label data-field :aria-disabled="form.type === 'api'">
-						{{ .L.T "subscribers.email" }}
-						<input name="email" type="email" maxlength="200" :required="form.type !== 'api'" x-model="form.email" :disabled="form.type === 'api'" />
-					</label>
+					<template x-if="form.type !== 'api'">
+						<label data-field>
+							{{ .L.T "subscribers.email" }}
+							<input name="email" type="email" maxlength="200" required x-model="form.email" />
+						</label>
+					</template>
 
 					<div data-field>
 						<label for="user-status">{{ .L.T "globals.fields.status" }}</label>
@@ -58,22 +60,24 @@
 					</div>
 				</fieldset>
 
-				<fieldset :disabled="form.type === 'api'">
-					<legend>{{ .L.T "users.password" }}</legend>
-					<label data-field>
-						<input type="checkbox" x-model="form.password_login" data-testid="password-login" /> {{ .L.T "users.passwordEnable" }}
-					</label>
-					<label data-field>
-						{{ .L.T "users.password" }}
-						<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && !isEditing" x-model="form.password" />
-					</label>
-					<label data-field>
-						{{ .L.T "users.passwordRepeat" }}
-						<input type="password" name="password2" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && !isEditing && form.password" x-model="form.password2" />
-					</label>
-				</fieldset>
+				<template x-if="form.type !== 'api'">
+					<fieldset class="card">
+						<legend>{{ .L.T "users.password" }}</legend>
+						<label data-field>
+							<input type="checkbox" x-model="form.password_login" data-testid="password-login" /> {{ .L.T "users.passwordEnable" }}
+						</label>
+						<label data-field>
+							{{ .L.T "users.password" }}
+							<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && !isEditing" x-model="form.password" />
+						</label>
+						<label data-field>
+							{{ .L.T "users.passwordRepeat" }}
+							<input type="password" name="password2" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && !isEditing && form.password" x-model="form.password2" />
+						</label>
+					</fieldset>
+				</template>
 
-				<fieldset>
+				<fieldset class="card">
 					<legend>{{ .L.Tc "users.roles" 2 }}</legend>
 					<div data-field>
 						<label for="user-role">{{ .L.Tc "users.userRole" 1 }}</label>
@@ -95,7 +99,7 @@
 				</fieldset>
 			</section>
 
-			<footer class="dialog-foot hstack justify-between mt-6">
+			<footer class="hstack justify-between mt-6">
 				<div class="hstack gap-1">
 					{{- if $d.IsEditing }}
 						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
