@@ -196,8 +196,21 @@ func (a *App) OIDCLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
 	}
 
+	authURL, codeVerifier := a.auth.GetOIDCAuthURL(base64.URLEncoding.EncodeToString(b), nonce.Value)
+
+	// Stash the PKCE code verifier in a cookie for the callback to use in the exchange.
+	if codeVerifier != "" {
+		c.SetCookie(&http.Cookie{
+			Name:     "oidc_code_verifier",
+			Value:    codeVerifier,
+			HttpOnly: true,
+			Path:     "/",
+			SameSite: http.SameSiteLaxMode,
+		})
+	}
+
 	// Redirect to the external OIDC provider.
-	return c.Redirect(http.StatusFound, a.auth.GetOIDCAuthURL(base64.URLEncoding.EncodeToString(b), nonce.Value))
+	return c.Redirect(http.StatusFound, authURL)
 }
 
 // OIDCFinish receives the redirect callback from the OIDC provider and completes the handshake.
@@ -208,8 +221,14 @@ func (a *App) OIDCFinish(c echo.Context) error {
 		return a.renderLoginPage(c, echo.NewHTTPError(http.StatusUnauthorized, a.i18n.T("users.invalidRequest")))
 	}
 
+	// Get the PKCE code verifier set on the login request, if any.
+	codeVerifier := ""
+	if ck, err := c.Cookie("oidc_code_verifier"); err == nil {
+		codeVerifier = ck.Value
+	}
+
 	// Validate the OIDC token.
-	oidcToken, claims, err := a.auth.ExchangeOIDCToken(c.Request().URL.Query().Get("code"), nonce.Value)
+	oidcToken, claims, err := a.auth.ExchangeOIDCToken(c.Request().URL.Query().Get("code"), nonce.Value, codeVerifier)
 	if err != nil {
 		return a.renderLoginPage(c, err)
 	}
