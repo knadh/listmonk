@@ -50,6 +50,7 @@ settings
 star
 sun
 tag
+terminal
 tool
 trash-2
 type
