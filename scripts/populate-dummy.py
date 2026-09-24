@@ -19,8 +19,9 @@ NUM_USERS = 10
 NUM_ROLES = 3
 NUM_CLICKS = 10000
 NUM_VIEWS = 10000
+NUM_BOUNCES = 100
 
-# Number of campaigns and links that clicks/views are spread across.
+# Number of campaigns and links that clicks/views/bounces are spread across.
 SAMPLE_CAMPAIGNS = 10
 SAMPLE_LINKS = 10
 
@@ -246,6 +247,14 @@ def main():
         INSERT INTO campaign_views (campaign_id, subscriber_id, created_at) VALUES {}
     """, views)
     print(f"{len(views)} campaign views")
+
+    bounces = [(random.choice(click_camps), random.choice(sub_ids),
+                random.choice(["soft", "hard", "complaint"]), "demo", rand_time(now))
+               for _ in range(NUM_BOUNCES)]
+    insert(cur, """
+        INSERT INTO bounces (campaign_id, subscriber_id, type, source, created_at) VALUES {}
+    """, bounces)
+    print(f"{len(bounces)} bounces")
 
     db.commit()
     cur.close()
