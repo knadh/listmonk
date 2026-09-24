@@ -8,48 +8,35 @@ import (
 	"unicode"
 )
 
-// avatarColors is the pool of colours to use in generated avatars. Based on
-// (CC0, https://www.dicebear.com/styles/glass).
 var avatarColors = []struct {
 	light string
 	mid   string
 	dark  string
 }{
-	{"#fde2e2", "#f08c8c", "#411010"},
-	{"#fde6e2", "#f09d8c", "#411810"},
-	{"#fdebe2", "#f0ae8c", "#412110"},
-	{"#fdf0e2", "#f0be8c", "#412910"},
-	{"#fdf4e2", "#f0cf8c", "#413110"},
-	{"#fdf9e2", "#f0e08c", "#413910"},
-	{"#fdfde2", "#f0f08c", "#414110"},
-	{"#f9fde2", "#e0f08c", "#394110"},
-	{"#f4fde2", "#cff08c", "#314110"},
-	{"#f0fde2", "#bef08c", "#294110"},
-	{"#ebfde2", "#aef08c", "#214110"},
-	{"#e6fde2", "#9df08c", "#184110"},
-	{"#e2fde2", "#8cf08c", "#104110"},
-	{"#e2fde6", "#8cf09d", "#104118"},
-	{"#e2fdeb", "#8cf0ae", "#104121"},
-	{"#e2fdf0", "#8cf0be", "#104129"},
-	{"#e2fdf4", "#8cf0cf", "#104131"},
-	{"#e2fdf9", "#8cf0e0", "#104139"},
-	{"#e2fdfd", "#8cf0f0", "#104141"},
-	{"#e2f9fd", "#8ce0f0", "#103941"},
-	{"#e2f4fd", "#8ccff0", "#103141"},
-	{"#e2f0fd", "#8cbef0", "#102941"},
-	{"#e2ebfd", "#8caef0", "#102141"},
-	{"#e2e6fd", "#8c9df0", "#101841"},
-	{"#e2e2fd", "#8c8cf0", "#101041"},
-	{"#e6e2fd", "#9d8cf0", "#181041"},
-	{"#ebe2fd", "#ae8cf0", "#211041"},
-	{"#f0e2fd", "#be8cf0", "#291041"},
-	{"#f4e2fd", "#cf8cf0", "#311041"},
-	{"#f9e2fd", "#e08cf0", "#391041"},
-	{"#fde2fd", "#f08cf0", "#411041"},
-	{"#fde2f9", "#f08ce0", "#411039"},
-	{"#fde2f0", "#f08cbe", "#411029"},
-	{"#fde2eb", "#f08cae", "#411021"},
-	{"#fde2e6", "#f08c9d", "#411018"},
+	{"#e4f0ff", "#83b8fa", "#203657"},
+	{"#e8edff", "#95adfa", "#283457"},
+	{"#eeebff", "#ad9ff5", "#303254"},
+	{"#f2eaff", "#c29cf2", "#3c3152"},
+	{"#f8e8ff", "#d69beb", "#46314f"},
+	{"#ffe8f6", "#eb9cd4", "#50314a"},
+	{"#ffe8ef", "#f59fbc", "#573443"},
+	{"#ffeae7", "#faa99e", "#5b373a"},
+	{"#fff0e3", "#f9bb8b", "#593d30"},
+	{"#fff4df", "#f5ca7c", "#544328"},
+	{"#fff7df", "#ecd77c", "#4d4828"},
+	{"#f5f9e1", "#d1df86", "#434c2a"},
+	{"#eaf9e6", "#ace099", "#384d2f"},
+	{"#e2f9ec", "#8cddb0", "#2e4d37"},
+	{"#dff9f2", "#7adbc2", "#274d41"},
+	{"#dff8f7", "#76d8d1", "#234c49"},
+	{"#e0f7fc", "#7cd1e5", "#244850"},
+	{"#e2f3ff", "#85c5f5", "#264356"},
+	{"#e7efff", "#99b4fa", "#2a3d59"},
+	{"#ececff", "#aaa8f6", "#323858"},
+	{"#e9eeff", "#a1aef8", "#2f3956"},
+	{"#e5f0ff", "#90b7fa", "#283d57"},
+	{"#e1f3ff", "#7ec3f7", "#234158"},
+	{"#e1f2ff", "#7ebff9", "#204459"},
 }
 
 // avatar is the CSS style and the initials of a generated avatar.
