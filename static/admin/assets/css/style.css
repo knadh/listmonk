@@ -178,6 +178,10 @@ ot-tabs:not(:defined) {
 }
 
 fieldset {
+    &.card {
+        padding-block-start: var(--space-4);
+    }
+
     > [data-field]:last-child {
         margin-block-end: 0;
     }
@@ -1344,9 +1348,6 @@ section.import {
         .search-hide {
             display: none !important;
         }
-    }
-    fieldset.card {
-        padding-block-start: var(--space-4);
     }
 }
 
