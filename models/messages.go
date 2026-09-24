@@ -90,7 +90,7 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template, funcs txttpl.FuncMap) 
 	b.Reset()
 
 	// Render alt body if it has any templating strings.
-	if m.AltBody != "" && hasTplExpr(m.AltBody) {
+	if m.AltBody != "" && HasTplExpr(m.AltBody) {
 		t, err := txttpl.New(BaseTpl).Funcs(funcs).Parse(m.AltBody)
 		if err != nil {
 			return fmt.Errorf("error compiling alt body: %v", err)
@@ -108,7 +108,7 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template, funcs txttpl.FuncMap) 
 		subject = m.Subject
 	)
 	if subject != "" {
-		if hasTplExpr(m.Subject) {
+		if HasTplExpr(m.Subject) {
 			// If the subject has a template string, render that.
 			s, err := txttpl.New(BaseTpl).Funcs(funcs).Parse(m.Subject)
 			if err != nil {
