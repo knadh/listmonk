@@ -240,19 +240,18 @@ a:has(> .badge:only-child) {
     }
 
     &.status-running,
-    &.status-subscribed,
-    &.campaign {
+    &.status-subscribed {
         --badge-fg: var(--tone-blue);
         --badge-bg: var(--tone-blue-bg);
     }
 
-    &.status-paused,
-    &.tx {
+    &.status-paused {
         --badge-fg: var(--tone-violet);
         --badge-bg: var(--tone-violet-bg);
     }
 
     &.status-scheduled,
+    &.bounce-soft,
     &.status-unconfirmed,
     &[data-variant="warning"] {
         --badge-fg: var(--tone-amber);
@@ -269,6 +268,7 @@ a:has(> .badge:only-child) {
     }
 
     &.status-cancelled,
+    &.bounce-hard,
     &.status-unsubscribed {
         --badge-fg: var(--tone-rose);
         --badge-bg: var(--tone-rose-bg);
