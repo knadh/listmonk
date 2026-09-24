@@ -45,3 +45,4 @@ Following is a list of HTTP messenger servers that connect to various backends.
 | [listmonk-mailersend](https://github.com/tkawczynski/listmonk-mailersend)            | Mailersend       |
 | [listmonk-novu-messenger](https://github.com/Codepowercode/listmonk-novu-messenger)  | Novu             |
 | [listmonk-push-messenger](https://github.com/shyamkrishna21/listmonk-push-messenger) | Google FCM       |
+| [listmonk-resend](https://github.com/derekantrican/listmonk-resend)                  | Resend           |
