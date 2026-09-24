@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -23,12 +24,13 @@ import (
 )
 
 type OIDCclaim struct {
-	Email             string `json:"email"`
-	EmailVerified     bool   `json:"email_verified"`
-	Sub               string `json:"sub"`
-	Picture           string `json:"picture"`
-	Name              string `json:"name"`
-	PreferredUsername string `json:"preferred_username"`
+	Email             string                     `json:"email"`
+	EmailVerified     bool                       `json:"email_verified"`
+	Sub               string                     `json:"sub"`
+	Picture           string                     `json:"picture"`
+	Name              string                     `json:"name"`
+	PreferredUsername string                     `json:"preferred_username"`
+	RawClaims         map[string]json.RawMessage `json:"-"`
 }
 
 type OIDCConfig struct {
@@ -258,6 +260,11 @@ func (o *Auth) ExchangeOIDCToken(code, nonce string) (string, OIDCclaim, error) 
 	var claims OIDCclaim
 	if err := idTk.Claims(&claims); err != nil {
 		return "", OIDCclaim{}, errors.New("error getting user from OIDC")
+	}
+
+	// Preserve all top-level ID token claims for generic claim-based features
+	if err := idTk.Claims(&claims.RawClaims); err != nil {
+		return "", OIDCclaim{}, errors.New("error getting raw claims from OIDC")
 	}
 
 	// If claims doesn't have the e-mail, attempt to fetch it from the userinfo endpoint.
