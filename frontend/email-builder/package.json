@@ -25,6 +25,8 @@
     "@usewaypoint/document-core": "^0.0.6",
     "@usewaypoint/email-builder": "^0.0.8",
     "highlight.js": "^11.9.0",
+    "insane": "^2.6.2",
+    "marked": "^12.0.2",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
@@ -33,6 +35,7 @@
     "zustand": "^4.5.1"
   },
   "devDependencies": {
+    "@types/insane": "^1.0.0",
     "@types/node": "^22.7.4",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",

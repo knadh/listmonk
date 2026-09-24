@@ -5,6 +5,15 @@ import getConfiguration from '../../getConfiguration';
 
 import { TEditorConfiguration } from './core';
 
+export const INSPECTOR_MIN_WIDTH = 280;
+export const INSPECTOR_DEFAULT_WIDTH = 320;
+
+function clampInspectorWidth(width: number) {
+  // Leave at least 320px for the canvas.
+  const max = Math.max(INSPECTOR_MIN_WIDTH, window.innerWidth - 320);
+  return Math.min(Math.max(width, INSPECTOR_MIN_WIDTH), max);
+}
+
 type TValue = {
   document: TEditorConfiguration;
 
@@ -14,6 +23,8 @@ type TValue = {
   selectedScreenSize: 'desktop' | 'mobile';
 
   inspectorDrawerOpen: boolean;
+  inspectorDrawerWidth: number;
+  inspectorDrawerResizing: boolean;
   samplesDrawerOpen: boolean;
 };
 
@@ -25,6 +36,8 @@ const editorStateStore = create(subscribeWithSelector<TValue>(() => ({
   selectedScreenSize: 'desktop',
 
   inspectorDrawerOpen: true,
+  inspectorDrawerWidth: INSPECTOR_DEFAULT_WIDTH,
+  inspectorDrawerResizing: false,
   samplesDrawerOpen: true,
 })));
 
@@ -58,6 +71,30 @@ export function useSelectedSidebarTab() {
 
 export function useInspectorDrawerOpen() {
   return editorStateStore((s) => s.inspectorDrawerOpen);
+}
+
+export function useInspectorDrawerWidth() {
+  return editorStateStore((s) => s.inspectorDrawerWidth);
+}
+
+export function useInspectorDrawerResizing() {
+  return editorStateStore((s) => s.inspectorDrawerResizing);
+}
+
+export function setInspectorDrawerResizing(inspectorDrawerResizing: boolean) {
+  return editorStateStore.setState({ inspectorDrawerResizing });
+}
+
+export function setInspectorDrawerWidth(width: number) {
+  return editorStateStore.setState({ inspectorDrawerWidth: clampInspectorWidth(width) });
+}
+
+export function reclampInspectorDrawerWidth() {
+  const { inspectorDrawerWidth } = editorStateStore.getState();
+  const clamped = clampInspectorWidth(inspectorDrawerWidth);
+  if (clamped !== inspectorDrawerWidth) {
+    editorStateStore.setState({ inspectorDrawerWidth: clamped });
+  }
 }
 
 export function useSamplesDrawerOpen() {

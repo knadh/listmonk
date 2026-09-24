@@ -4,6 +4,12 @@ import react from '@vitejs/plugin-react-swc';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      // Make the renderer inside @usewaypoint/email-builder use our Text block (Markdown element styles).
+      '@usewaypoint/block-text': resolve(__dirname, 'src/documents/blocks/Text/index.tsx'),
+    },
+  },
   define: {
     'process.env.NODE_ENV': '"production"',
   },

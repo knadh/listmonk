@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from '@usewaypoint/email-builder';
 import { TEditorConfiguration } from './documents/editor/core';
+import { setActiveMarkdownStyles, getActiveMarkdownStyles } from './documents/blocks/Text/markdownStyles';
 import { postProcessForOutlook } from './outlook';
 
 const VIEWPORT_META = '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
@@ -65,7 +66,16 @@ export function renderHtmlWithMeta(
   options: { rootBlockId: string; outlook?: boolean }
 ): string {
   const embedURLs = collectImageEmbedURLs(document);
-  const html = renderToStaticMarkup(document, options);
+  // The renderer only hands blocks their own props, so pass the document's Markdown styles separately.
+  const root = document.root;
+  const previousStyles = getActiveMarkdownStyles();
+  setActiveMarkdownStyles(root?.type === 'EmailLayout' ? root.data?.markdownStyles : null);
+  let html: string;
+  try {
+    html = renderToStaticMarkup(document, options);
+  } finally {
+    setActiveMarkdownStyles(previousStyles);
+  }
   const rendered = options.outlook ? postProcessForOutlook(html) : html;
   const output = applyImageEmbeds(rendered, embedURLs);
   const head = options.outlook ? `${VIEWPORT_META}${MSO_DOCUMENT_SETTINGS}` : VIEWPORT_META;
