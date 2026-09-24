@@ -19,8 +19,8 @@
 	</header>
 
 	<form method="post" @submit.prevent="onSubmit">
-		<div class="card page-content content">
-			<section class="dialog-body">
+		<div class="page-content content">
+			<section class="card">
 				<label data-field>
 					{{ .L.T "globals.fields.name" }}
 					<input name="name" maxlength="200" autofocus required :disabled="disabled" x-model="form.name" />
@@ -72,22 +72,20 @@
 				</table>
 			</section>
 
-			<footer class="dialog-foot">
-				<div class="row mt-6">
-					<div class="col-6 hstack gap-3">
-						{{- if $d.IsEditing }}
-							<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
-								<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
-							</button>
-						{{- end }}
-						<a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer" class="text-light text-8">
-							{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
-						</a>
-					</div>
-					<div class="col-6 hstack justify-end">
-						<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
-						<button type="submit" data-variant="primary" data-testid="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
-					</div>
+			<footer class="hstack justify-between mt-6">
+				<div class="hstack gap-3">
+					{{- if $d.IsEditing }}
+						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+							<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+						</button>
+					{{- end }}
+					<a href="https://listmonk.app/docs/roles-and-permissions" target="_blank" rel="noopener noreferrer" class="text-light text-8">
+						{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}
+					</a>
+				</div>
+				<div class="hstack gap-3 justify-end">
+					<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
+					<button type="submit" data-variant="primary" data-testid="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
 				</div>
 			</footer>
 		</div>

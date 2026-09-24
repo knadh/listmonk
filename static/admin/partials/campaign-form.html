@@ -4,8 +4,9 @@
 {{- $canManage := .CanManage -}}
 {{- $canSend := .CanSend -}}
 {{- $submit := "onSave" -}}{{ if $isNew }}{{ $submit = "onCreate" }}{{ end }}
-<div class="card page-content content">
+<div class="{{ if not $isNew }}card {{ end }}page-content content">
 	<form @submit.prevent="{{ $submit }}">
+		{{- if $isNew }}<section class="card">{{ end }}
 		<label data-field>
 			{{ $root.L.T "globals.fields.name" }}
 			<input name="name" maxlength="200" x-model="form.name" :disabled="!canEdit" autofocus required />
@@ -81,10 +82,11 @@
 				</label>
 			</template>
 		</fieldset>
-
 		{{- if $isNew }}
-			<hr />
-			<button type="submit" data-variant="primary" data-cy="btn-continue" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ $root.L.T "campaigns.continue" }}</button>
+		</section>
+			<footer class="hstack justify-end mt-6">
+				<button type="submit" data-variant="primary" data-cy="btn-continue" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ $root.L.T "campaigns.continue" }}</button>
+			</footer>
 		{{- end }}
 	</form>
 
