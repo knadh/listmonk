@@ -38,7 +38,7 @@
 					{{- range $d.Roles }}
 						<tr data-testid="role-row" data-id="{{ .ID }}">
 							<td>
-								<a href="{{ $base }}/{{ .ID }}">
+								<a href="{{ $base }}/{{ .ID }}" class="unstyled">
 									{{- if eq .ID 1 }}{{ Badge (list (Icon "star") .Name) "enum" }}{{ else }}{{ .Name }}{{ end -}}
 								</a>
 							</td>

@@ -61,14 +61,14 @@
 						<tr data-testid="bounce-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}" data-subscriber-id="{{ .SubscriberID }}"></td>
 							<td>
-								<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" {{ if eq .SubscriberStatus "blocklisted" }}class="blocklisted"{{ end }}>{{ .Email }}</a>
+								<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" class="unstyled{{ if eq .SubscriberStatus "blocklisted" }} blocklisted{{ end }}">{{ .Email }}</a>
 								{{ if ne .SubscriberStatus "enabled" }}{{ Badge (list (Dot) ($.L.T (printf "subscribers.status.%s" .SubscriberStatus))) (printf "status-%s" .SubscriberStatus) }}{{ end }}
 							</td>
 							<td data-label="{{ $.L.T "globals.terms.campaign" }}">
-								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}">{{ .Name }}</a>{{ else }}-{{ end }}
+								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}" class="unstyled">{{ .Name }}</a>{{ else }}-{{ end }}
 							</td>
-							<td data-label="{{ $.L.T "bounces.source" }}"><a href="{{ $base }}?source={{ .Source }}">{{ .Source }}</a></td>
-							<td data-label="{{ $.L.T "globals.fields.type" }}"><a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "bounces.%s" .Type) }}">{{ Badge ($.L.T (printf "bounces.%s" .Type)) "enum" }}</a></td>
+							<td data-label="{{ $.L.T "bounces.source" }}"><a href="{{ $base }}?source={{ .Source }}" class="unstyled">{{ .Source }}</a></td>
+							<td data-label="{{ $.L.T "globals.fields.type" }}"><a href="{{ $base }}?type={{ .Type }}" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "bounces.%s" .Type) }}">{{ Badge ($.L.T (printf "bounces.%s" .Type)) "enum" }}</a></td>
 							<td class="date-stack" data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .CreatedAt }}</td>
 							<td class="actions align-right">
 								<ot-dropdown>

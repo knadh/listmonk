@@ -44,7 +44,7 @@
 					{{- range $d.Templates }}
 						<tr data-testid="template-row" data-id="{{ .ID }}">
 							<td>
-								<a href="{{ $base }}/{{ .ID }}" data-testid="btn-edit">{{ .Name }}</a>
+								<a href="{{ $base }}/{{ .ID }}" class="unstyled" data-testid="btn-edit">{{ .Name }}</a>
 								{{ if .IsDefault }}{{ Badge ($.L.T "templates.default") }}{{ end }}
 								{{- if eq .Type "tx" }}<p class="text-light">{{ .Subject }}</p>{{ end }}
 							</td>

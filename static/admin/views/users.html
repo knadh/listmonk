@@ -77,7 +77,7 @@
 									{{ template "avatar" dict "Seed" (printf "%d" .ID) "Name" (or .Name .Username) "URL" .Avatar.String }}
 									<div>
 										{{- if $d.Can "users:manage" }}
-											<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="{{ if eq .Status "disabled" }}text-light{{ end }}">{{ .Username }}</a>
+											<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="unstyled{{ if eq .Status "disabled" }} text-light{{ end }}">{{ .Username }}</a>
 										{{- else }}
 											<span class="{{ if eq .Status "disabled" }}text-danger{{ end }}">{{ .Username }}</span>
 										{{- end }}
