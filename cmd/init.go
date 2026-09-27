@@ -787,7 +787,20 @@ func initMediaStore(ko *koanf.Koanf) media.Store {
 
 // initNotifs initializes the notifier with the system e-mail templates.
 func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlConfig, ko *koanf.Koanf) {
-	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, u), fs, "/static/email-templates/*.html")
+	htmlPaths, err := fs.Glob("/static/email-templates/*.html")
+	if err != nil {
+		lo.Fatalf("error matching *.html e-mail notif templates: %v", err)
+	}
+	txtPaths, err := fs.Glob("/static/email-templates/*.txt")
+	if err != nil {
+		lo.Fatalf("error matching *.txt e-mail notif templates: %v", err)
+	}
+	paths := append(htmlPaths, txtPaths...)
+	if len(paths) == 0 {
+		lo.Fatalf("error matching e-mail notif templates: no files match")
+	}
+
+	tpls, err := stuffbin.ParseTemplates(initTplFuncs(i, u), fs, paths...)
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
 	}

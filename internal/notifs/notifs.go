@@ -80,6 +80,16 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 	}
 	body := buf.Bytes()
 
+	var bufAlt bytes.Buffer
+	tplNameText := tplName + "-text"
+	if Tpls.Lookup(tplNameText) != nil {
+		if err := Tpls.ExecuteTemplate(&bufAlt, tplNameText, data); err != nil {
+			no.lo.Printf("error compiling notification template '%s': %v", tplNameText, err)
+			return err
+		}
+	}
+	altBody := bufAlt.Bytes()
+
 	subject, body = GetTplSubject(subject, body)
 
 	m := models.Message{
@@ -90,6 +100,7 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 		Subject:     subject,
 		Body:        body,
 		Headers:     hdr,
+		AltBody:     altBody,
 	}
 
 	// Send the message.
