@@ -143,3 +143,4 @@ $ helm upgrade \
 * [*Docker* with nginx reverse proxy, certbot SSL, and Gmail SMTP](https://www.maketecheasier.com/create-own-newsletter-with-listmonk/)
 * [Install Listmonk on Self-hosting with *Pre-Configured AMI Package at AWS* by Single Click](https://meetrix.io/articles/how-to-install-llama-2-on-aws-with-pre-configured-ami-package/)
 * [*Fly.io* working example](https://gitlab.com/votelog/apps/newsletter)
+* [*Docker via Ansible* with the MASH playbook](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/services/listmonk.md)
