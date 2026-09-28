@@ -27,6 +27,12 @@ Visit `http://localhost:9000`
 
 See [installation docs](https://listmonk.app/docs/installation)
 
+#### Easypanel
+
+[Easypanel](https://easypanel.io) is a self-hosted Docker deployment platform, and it maintains a one-click deployment template for listmonk:
+
+[![Deploy on Easypanel](https://easypanel.io/img/deploy-on-easypanel-40.svg)](https://easypanel.io/templates/listmonk)
+
 __________________
 
 ### Binary
