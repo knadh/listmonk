@@ -40,7 +40,7 @@ function usersView() {
 }
 
 // userForm is the add/edit form page component.
-function userForm({ isEditing = false, canSave = false } = {}) {
+function userForm({ isNew = true, canSave = false } = {}) {
   const user = window._user || {};
   const userRoles = window._userRoles || [];
 
@@ -70,19 +70,19 @@ function userForm({ isEditing = false, canSave = false } = {}) {
   });
 
   return {
-    form: isEditing ? fromUser(user) : makeForm(),
+    form: !isNew ? fromUser(user) : makeForm(),
     apiToken: null,
     createdName: '',
 
-    get isEditing() {
-      return isEditing;
+    get isNew() {
+      return isNew;
     },
 
     onSubmit() {
       if (!canSave || !this._validate()) {
         return;
       }
-      if (isEditing) {
+      if (!isNew) {
         this.updateUser();
       } else {
         this.createUser();
