@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -34,7 +35,8 @@ type listsView struct {
 type listView struct {
 	adminView
 
-	List models.List
+	IsNew bool
+	List  models.List
 }
 
 // publicListForm is the minimal list representation used by the forms view.
@@ -81,6 +83,16 @@ func (a *App) ViewLists(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "admin-lists", data)
+}
+
+// ViewNewList renders the new list page.
+func (a *App) ViewNewList(c echo.Context) error {
+	data := listView{
+		adminView: newAdminView(c, fmt.Sprintf("%s / %s", a.i18n.T("lists.newList"), a.i18n.T("globals.terms.lists")), "", "lists.all"),
+		IsNew:     true,
+	}
+
+	return c.Render(http.StatusOK, "admin-list", data)
 }
 
 // ViewList renders the HTML view for editing a list.

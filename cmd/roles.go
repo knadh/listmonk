@@ -38,7 +38,7 @@ type permGroup struct {
 type roleFormView struct {
 	adminView
 
-	IsEditing  bool
+	IsNew      bool
 	Role       any
 	PermGroups []permGroup
 	AllLists   []models.List
@@ -101,8 +101,8 @@ func (a *App) ViewUserRole(c echo.Context) error {
 	}
 
 	var (
-		role      auth.Role
-		isEditing bool
+		role  auth.Role
+		isNew = true
 	)
 	if c.Get("id") != nil {
 		r, err := a.core.GetRole(getID(c))
@@ -110,7 +110,7 @@ func (a *App) ViewUserRole(c echo.Context) error {
 			return err
 		}
 		role = r
-		isEditing = true
+		isNew = false
 	}
 
 	groups, err := a.parsePermGroups()
@@ -119,14 +119,14 @@ func (a *App) ViewUserRole(c echo.Context) error {
 	}
 
 	title := a.i18n.T("users.newUserRole")
-	if isEditing {
+	if !isNew {
 		title = role.Name.String
 	}
 	title += " / " + a.i18n.T("users.userRoles")
 
 	data := roleFormView{
 		adminView:  newAdminView(c, title, "", "users.user-roles"),
-		IsEditing:  isEditing,
+		IsNew:      isNew,
 		Role:       role,
 		PermGroups: groups,
 	}
@@ -141,8 +141,8 @@ func (a *App) ViewListRole(c echo.Context) error {
 	}
 
 	var (
-		role      auth.ListRole
-		isEditing bool
+		role  auth.ListRole
+		isNew = true
 	)
 	if c.Get("id") != nil {
 		// There's no core getter for a single list role, so fetch all and pick the one.
@@ -162,7 +162,7 @@ func (a *App) ViewListRole(c echo.Context) error {
 		if !found {
 			return echo.NewHTTPError(http.StatusNotFound, a.i18n.Ts("globals.messages.notFound", "name", "{users.listRole}"))
 		}
-		isEditing = true
+		isNew = false
 	}
 
 	// All lists for the list-permission selector.
@@ -172,14 +172,14 @@ func (a *App) ViewListRole(c echo.Context) error {
 	}
 
 	title := a.i18n.T("users.newListRole")
-	if isEditing {
+	if !isNew {
 		title = role.Name.String
 	}
 	title += " / " + a.i18n.T("users.listRoles")
 
 	data := roleFormView{
 		adminView: newAdminView(c, title, "", "users.list-roles"),
-		IsEditing: isEditing,
+		IsNew:     isNew,
 		Role:      role,
 		AllLists:  lists,
 	}

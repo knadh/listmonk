@@ -1,51 +1,39 @@
 {{ define "subscriber-form" -}}
 {{- $root := .Root -}}
 {{- $submit := .Submit -}}
-{{- $method := .Method -}}
-{{- $isDialog := eq $method "dialog" -}}
 {{- $canSave := .CanSave -}}
-<form method="{{ $method }}" @submit.prevent="{{ $submit }}">
-	<div class="{{ if $isDialog }}dialog-card content{{ else }}card page-content content{{ end }}">
-		{{- if $isDialog }}
-			<header class="dialog-head">
-				<h4 class="dialog-title">{{ $root.L.T "subscribers.newSubscriber" }}</h4>
-			</header>
-
-			<section class="dialog-body">
-				{{ template "subscriber-fields" $root }}
+<form method="post" @submit.prevent="{{ $submit }}">
+	<div class="page-content content">
+		<section class="card">
+			{{ template "subscriber-fields" $root }}
+			{{- if .IsNew }}
 				{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
 				<label data-field :aria-disabled="!hasOptinList">
 					<input type="checkbox" x-model="form.preconfirm" data-testid="preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
 					<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
 				</label>
-				{{ template "subscriber-attribs" $root }}
-			</section>
-			<footer class="dialog-foot hstack gap-3 justify-end">
-				<button type="button" class="outline" @click="onClose">{{ $root.L.T "globals.buttons.close" }}</button>
-				{{- if $canSave }}
-					<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
-				{{- end }}
-			</footer>
-		{{- else }}
-			{{ template "subscriber-fields" $root }}
+			{{- end }}
 			{{ template "subscriber-attribs" $root }}
-			<footer class="dialog-foot hstack justify-between mt-6">
-				<div class="hstack gap-1">
+		</section>
+
+		<footer class="hstack justify-between mt-6">
+			<div class="hstack gap-1">
+				{{- if not .IsNew }}
 					<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
 						<strong>{{ $root.L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
 					</button>
 					<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
 						<strong>{{ $root.L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
 					</button>
-				</div>
-				<div class="hstack gap-3 justify-end">
-					<a href="{{ URI "/admin/subscribers" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
-					{{- if $canSave }}
-						<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
-					{{- end }}
-				</div>
-			</footer>
-		{{- end }}
+				{{- end }}
+			</div>
+			<div class="hstack gap-3 justify-end">
+				<a href="{{ URI "/admin/subscribers" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+				{{- if $canSave }}
+					<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('subscribers.save')" :aria-busy="isLoading('subscribers.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+				{{- end }}
+			</div>
+		</footer>
 	</div>
 </form>
 {{- end }}

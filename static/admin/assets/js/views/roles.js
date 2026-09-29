@@ -46,7 +46,7 @@ function rolesView({ type = 'user' } = {}) {
 }
 
 // roleForm is the add/edit form page component (user or list roles).
-function roleForm({ type = 'user', isEditing = false, canManage = false } = {}) {
+function roleForm({ type = 'user', isNew = true, canManage = false } = {}) {
   const role = window._role || {};
   const permGroups = window._permGroups || [];
   const allLists = window._lists || [];
@@ -81,11 +81,11 @@ function roleForm({ type = 'user', isEditing = false, canManage = false } = {}) 
 
   return {
     // The primordial super admin role (id 1) or lacking manage permission disables the form.
-    disabled: !canManage || (isEditing && role.id === 1),
-    form: isEditing ? fromRole() : { ...makeForm(), permissions: type === 'user' ? defaultUserPerms() : [] },
+    disabled: !canManage || (!isNew && role.id === 1),
+    form: !isNew ? fromRole() : { ...makeForm(), permissions: type === 'user' ? defaultUserPerms() : [] },
 
-    get isEditing() {
-      return isEditing;
+    get isNew() {
+      return isNew;
     },
 
     // Lists not yet added to the role.
@@ -126,7 +126,7 @@ function roleForm({ type = 'user', isEditing = false, canManage = false } = {}) 
       if (this.disabled) {
         return;
       }
-      if (this.isEditing) {
+      if (!this.isNew) {
         this.updateRole();
       } else {
         this.createRole();

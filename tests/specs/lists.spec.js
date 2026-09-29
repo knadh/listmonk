@@ -168,11 +168,12 @@ test.describe('Lists', () => {
       await page.goto(LISTS);
       await page.getByTestId('btn-new').click();
 
-      const dialog = page.locator('dialog[open]');
-      await fillListForm(dialog, {
+      await expect(page).toHaveURL(/\/admin\/lists\/new$/);
+      const form = page.locator('section.lists form');
+      await fillListForm(form, {
         name, type: c.type, optin: c.optin, tag: `tag${n}`, description: `desc-${c.type}-${n}`,
       });
-      await withListAPI(page, 'POST', () => dialog.getByTestId('btn-save').click());
+      await withListAPI(page, 'POST', () => form.getByTestId('btn-save').click());
 
       const row = listRow(page, name);
       await expect(row).toBeVisible();

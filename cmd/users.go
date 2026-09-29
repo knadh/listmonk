@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -48,7 +49,7 @@ type userView struct {
 	adminView
 
 	User      auth.User
-	IsEditing bool
+	IsNew     bool
 	UserRoles []auth.Role
 	ListRoles []auth.ListRole
 }
@@ -109,17 +110,18 @@ func (a *App) ViewUser(c echo.Context) error {
 	}
 
 	var (
-		user      auth.User
-		isEditing bool
+		user  auth.User
+		isNew = true
 	)
 	if c.Get("id") != nil {
 		out, err := a.core.GetUser(getID(c), "", "")
 		if err != nil {
 			return err
 		}
+
 		out.Password = null.String{}
 		user = out
-		isEditing = true
+		isNew = false
 	}
 
 	// Roles for the role selectors.
@@ -129,15 +131,15 @@ func (a *App) ViewUser(c echo.Context) error {
 	}
 
 	title := a.i18n.T("users.newUser")
-	if isEditing {
+	if !isNew {
 		title = user.Name
 	}
-	title += " / " + a.i18n.T("globals.terms.users")
+	title = fmt.Sprintf("%s / %s", title, a.i18n.T("globals.terms.users"))
 
 	data := userView{
 		adminView: newAdminView(c, title, "", "users.users"),
 		User:      user,
-		IsEditing: isEditing,
+		IsNew:     isNew,
 		UserRoles: userRoles,
 		ListRoles: listRoles,
 	}
