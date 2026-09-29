@@ -7,6 +7,7 @@
 | GET    | [/api/subscribers/{subscriber_id}/export](#get-apisubscriberssubscriber_idexport)       | Export a specific subscriber.                  |
 | GET    | [/api/subscribers/{subscriber_id}/bounces](#get-apisubscriberssubscriber_idbounces)     | Retrieve a  subscriber bounce records.         |
 | POST   | [/api/subscribers](#post-apisubscribers)                                                | Create a new subscriber.                       |
+| POST   | [/api/subscribers/subscription](#post-apisubscriberssubscription)                       | Create or update a subscriber subscription.    |
 | POST   | [/api/subscribers/{subscriber_id}/optin](#post-apisubscriberssubscriber_idoptin)        | Sends optin confirmation email to subscribers. |
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
@@ -336,6 +337,71 @@ curl -u 'api_username:access_token' 'http://localhost:9000/api/subscribers' -H '
     },
     "status": "enabled",
     "lists": [1]
+  }
+}
+```
+
+______________________________________________________________________
+
+#### POST /api/subscribers/subscription
+
+Create or update a subscriber subscription. If the e-mail address is new, a subscriber is created. If the e-mail already exists, the subscriber's list memberships are updated (including resubscribing unsubscribed users) and attributes are updated. Opt-in confirmation e-mails are sent automatically for double opt-in lists when applicable.
+
+This endpoint is intended for backend integrations that need a single call to handle signup flows with attributes, replacing the multi-step create / search / opt-in pattern.
+
+##### Parameters
+
+| Name                     | Type       | Required | Description                                                                                                                   |
+|:-------------------------|:-----------|:---------|:------------------------------------------------------------------------------------------------------------------------------|
+| email                    | string     | Yes      | Subscriber's email address.                                                                                                   |
+| name                     | string     |          | Subscriber's name. Defaults to the e-mail local-part if omitted.                                                              |
+| status                   | string     |          | Subscriber's status: `enabled`, `blocklisted`. Defaults to `enabled`.                                                         |
+| lists                    | number\[\] |          | List of list IDs to subscribe to. If omitted, existing list memberships are unchanged on update.                             |
+| attribs                  | JSON       |          | Optional JSON object attributes for the subscriber.                                                                 |
+| attribs_conflict         | string     |          | How to apply `attribs` when the subscriber already exists: `incoming` (default), `existing`, or `replace`. See below. |
+| preconfirm_subscriptions | bool       |          | If true, subscriptions are marked as confirmed and no opt-in emails are sent for double opt-in lists.                         |
+
+When the e-mail address already exists, `attribs_conflict` controls how incoming attributes are combined with existing ones:
+
+| Value | Behavior |
+|-------|----------|
+| `incoming` | For each key in `attribs`, incoming values replace existing values. Keys not in the request are unchanged. Nested objects are merged recursively with incoming values winning on conflict. |
+| `existing` | For each key in `attribs`, existing values are kept when already set. Incoming values are applied only for keys that are missing or null. Nested objects are merged recursively with existing values winning on conflict. |
+| `replace` | The entire `attribs` object is replaced with the incoming value. |
+
+##### Example Request
+
+```shell
+curl -u 'api_username:access_token' 'http://localhost:9000/api/subscribers/subscription' -H 'Content-Type: application/json' \
+    --data '{"email":"subscriber@domain.com","name":"The Subscriber","lists":[1],"attribs":{"signup_location":"ios"}}'
+```
+
+##### Example Response
+
+```json
+{
+  "data": {
+    "subscriber": {
+      "id": 3,
+      "created_at": "2019-07-03T12:17:29.735507+05:30",
+      "updated_at": "2019-07-03T12:17:29.735507+05:30",
+      "uuid": "eb420c55-4cfb-4972-92ba-c93c34ba475d",
+      "email": "subscriber@domain.com",
+      "name": "The Subscriber",
+      "attribs": {
+        "signup_location": "ios"
+      },
+      "status": "enabled",
+      "lists": [
+        {
+          "subscription_status": "unconfirmed",
+          "id": 1,
+          "name": "Default list"
+        }
+      ]
+    },
+    "created": true,
+    "has_optin": true
   }
 }
 ```

@@ -19,6 +19,10 @@ const (
 	SubscriptionStatusUnconfirmed  = "unconfirmed"
 	SubscriptionStatusConfirmed    = "confirmed"
 	SubscriptionStatusUnsubscribed = "unsubscribed"
+
+	AttribsConflictIncoming = "incoming"
+	AttribsConflictExisting = "existing"
+	AttribsConflictReplace  = "replace"
 )
 
 // Subscribers represents a slice of Subscriber.
