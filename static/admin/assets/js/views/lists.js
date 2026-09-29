@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs';
 import {
   api,
+  urls,
   config,
   i18n,
 } from '../main.js';
@@ -29,22 +30,9 @@ function component(list = null) {
 
     // ===============
     // Event handlers.
-    onOpenNew() {
-      this._resetForm();
-      this._openDialog();
-    },
-
-    onClose() {
-      this.$refs.dialog.close();
-    },
-
-    onDialogClose() {
-      this._resetForm();
-    },
-
     async onSubmitNew() {
       const data = await api('lists.save', '/lists', 'POST', this._payload());
-      u.reload({ message: i18n.ts('globals.messages.created', { name: data.name }) });
+      u.redirect(`${urls.admin}/lists`, { message: i18n.ts('globals.messages.created', { name: data.name }) });
     },
 
     async onSubmitUpdate() {
@@ -97,14 +85,6 @@ function component(list = null) {
 
     // ===============
     // Public functions.
-    get isEditing() {
-      return this.form.id !== null;
-    },
-
-    get dialogTitle() {
-      return this.isEditing ? this.form.name : i18n.t('lists.newList');
-    },
-
     get isArchived() {
       return this.form.status === 'archived';
     },
@@ -115,15 +95,6 @@ function component(list = null) {
 
     // ===============
     // Private functions.
-    _resetForm() {
-      this.form = makeForm();
-    },
-
-    _openDialog() {
-      this.$refs.dialog.showModal();
-      this.$nextTick(() => this.$refs.name.focus());
-    },
-
     _payload() {
       return {
         name: this.form.name,

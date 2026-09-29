@@ -81,6 +81,7 @@ type subscribersView struct {
 type subscriberView struct {
 	adminView
 
+	IsNew         bool
 	Tab           string
 	Subscriber    models.Subscriber
 	AllLists      []models.List
@@ -142,6 +143,22 @@ func (a *App) ViewSubscribers(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "admin-subscribers", data)
+}
+
+// ViewNewSubscriber renders the new subscriber page.
+func (a *App) ViewNewSubscriber(c echo.Context) error {
+	allLists, err := a.getViewableLists(c)
+	if err != nil {
+		return err
+	}
+
+	data := subscriberView{
+		adminView: newAdminView(c, fmt.Sprintf("%s / %s", a.i18n.T("subscribers.newSubscriber"), a.i18n.T("globals.terms.subscribers")), "", "subscribers.all"),
+		IsNew:     true,
+		AllLists:  allLists,
+	}
+
+	return c.Render(http.StatusOK, "admin-subscriber", data)
 }
 
 // ViewSubscriber renders the profile and subscriptions tabs of a subscriber.

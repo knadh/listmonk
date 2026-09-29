@@ -56,26 +56,13 @@ function component(sub = null) {
 
     // ===============
     // New / edit form.
-    onOpenNew() {
-      this.form = makeForm();
-      this.$refs.dialog.showModal();
-    },
-
-    onClose() {
-      this.$refs.dialog.close();
-    },
-
-    onDialogClose() {
-      this.form = makeForm();
-    },
-
     async onSubmitNew() {
       const payload = this._payload();
       if (!payload) {
         return;
       }
       const data = await api('subscribers.save', '/subscribers', 'POST', payload);
-      u.reload({ message: i18n.ts('globals.messages.created', { name: data.email }) });
+      u.redirect(`${urls.admin}/subscribers`, { message: i18n.ts('globals.messages.created', { name: data.email }) });
     },
 
     async onSubmitUpdate() {

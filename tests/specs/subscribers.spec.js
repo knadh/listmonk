@@ -190,13 +190,14 @@ test.describe('Subscribers: create, edit & delete', () => {
     await page.goto(SUBSCRIBERS);
     await page.getByTestId('btn-new').click();
 
-    const dialog = page.locator('dialog[open]');
-    await dialog.locator('input[name=email]').fill('created@example.com');
-    await dialog.locator('input[name=name]').fill('Created');
-    await selectList(dialog, 'Default list');
+    await expect(page).toHaveURL(/\/admin\/subscribers\/new$/);
+    const form = page.locator('section.subscribers form');
+    await form.locator('input[name=email]').fill('created@example.com');
+    await form.locator('input[name=name]').fill('Created');
+    await selectList(form, 'Default list');
     await Promise.all([
       page.waitForResponse((r) => /\/api\/subscribers$/.test(r.url()) && r.request().method() === 'POST'),
-      dialog.getByTestId('btn-save').click(),
+      form.getByTestId('btn-save').click(),
     ]);
 
     // The listing shows the new subscriber on the Default list.
@@ -211,16 +212,17 @@ test.describe('Subscribers: create, edit & delete', () => {
     await page.goto(SUBSCRIBERS);
     await page.getByTestId('btn-new').click();
 
-    const dialog = page.locator('dialog[open]');
-    await dialog.locator('input[name=email]').fill('confirmed@example.com');
-    await dialog.locator('input[name=name]').fill('Confirmed');
-    await selectList(dialog, 'Opt-in list');
+    await expect(page).toHaveURL(/\/admin\/subscribers\/new$/);
+    const form = page.locator('section.subscribers form');
+    await form.locator('input[name=email]').fill('confirmed@example.com');
+    await form.locator('input[name=name]').fill('Confirmed');
+    await selectList(form, 'Opt-in list');
     // Pre-confirm only enables once a double opt-in list is picked.
-    await expect(dialog.getByTestId('preconfirm')).toBeEnabled();
-    await dialog.getByTestId('preconfirm').check();
+    await expect(form.getByTestId('preconfirm')).toBeEnabled();
+    await form.getByTestId('preconfirm').check();
     await Promise.all([
       page.waitForResponse((r) => /\/api\/subscribers$/.test(r.url()) && r.request().method() === 'POST'),
-      dialog.getByTestId('btn-save').click(),
+      form.getByTestId('btn-save').click(),
     ]);
 
     // The listing badge shows the Opt-in list subscription as confirmed.
