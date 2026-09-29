@@ -33,6 +33,21 @@ services:
         source: listmonk-dev-db
         target: /var/lib/postgresql/data
 
+  init:
+    build:
+      context: ../
+      dockerfile: dev/app.Dockerfile
+    command: ["make", "init-docker"]
+    depends_on:
+      db:
+        condition: service_started
+    volumes:
+      - ../:/app
+      - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
+    networks:
+      - listmonk-dev
+    restart: "no"
+
   front:
     build:
       context: ../
@@ -42,6 +57,7 @@ services:
       - "8080:8080"
     environment:
       - LISTMONK_API_URL=http://backend:9000
+      - LISTMONK_VITE_HOST=true
     depends_on:
       - db
     volumes:
@@ -57,10 +73,31 @@ services:
     ports:
       - "9000:9000"
     depends_on:
-      - db
+      db:
+        condition: service_started
+      init:
+        condition: service_completed_successfully
     volumes:
       - ../:/app
       - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
+    networks:
+      - listmonk-dev
+
+  # Workspace container for VS Code / Cursor devcontainers. Omitted from
+  # `make dev-docker`; the editor starts this service when reopening in container.
+  devcontainer:
+    image: dev-devcontainer
+    build:
+      context: ../
+      dockerfile: dev/app.Dockerfile
+    command: ["sleep", "infinity"]
+    volumes:
+      - ../:/app
+      - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_started
     networks:
       - listmonk-dev
 

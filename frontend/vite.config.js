@@ -21,6 +21,7 @@ export default defineConfig(({ _, mode }) => {
     },
     server: {
       port: env.LISTMONK_FRONTEND_PORT || 8080,
+      host: env.LISTMONK_VITE_HOST === 'true',
       proxy: {
         '^/$': {
           target: env.LISTMONK_API_URL || 'http://127.0.0.1:9000',
