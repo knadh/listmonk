@@ -14,9 +14,16 @@ import (
 )
 
 // GetUsers retrieves users.
-func (c *Core) GetUsers(typ, status string, userRoleID, listRoleID int) ([]auth.User, error) {
-	out := []auth.User{}
-	if err := c.q.GetUsers.Select(&out, typ, status, userRoleID, listRoleID); err != nil {
+func (c *Core) GetUsers(typ, status string, userRoleID, listRoleID int, orderBy, order string) ([]auth.User, error) {
+	if order == "" {
+		order = SortAsc
+	}
+
+	var (
+		out     = []auth.User{}
+		_, stmt = makeSearchQuery("", orderBy, order, c.q.GetUsers, userQuerySortFields)
+	)
+	if err := c.db.Select(&out, stmt, typ, status, userRoleID, listRoleID); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.users}", "error", pqErrMsg(err)))
 	}

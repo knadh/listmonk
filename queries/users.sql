@@ -93,7 +93,7 @@ FROM users
         AND ($2 = '' OR users.status = $2::user_status)
         AND ($3 = 0 OR users.user_role_id = $3)
         AND ($4 = 0 OR users.list_role_id = $4)
-    ORDER BY users.created_at;
+    ORDER BY %order%;
 
 -- name: get-user
 WITH sel AS (

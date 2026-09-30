@@ -71,6 +71,7 @@ var (
 	regexpSpaces        = regexp.MustCompile(`[\s]+`)
 	campQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
 	subQuerySortFields  = []string{"email", "status", "name", "created_at", "updated_at"}
+	userQuerySortFields = []string{"username", "email", "created_at", "loggedin_at"}
 	listQuerySortFields = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
 )
 

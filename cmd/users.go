@@ -25,6 +25,8 @@ var (
 		"status":       "",
 		"user_role_id": "",
 		"list_role_id": "",
+		"order_by":     "created_at",
+		"order":        "asc",
 	}
 )
 
@@ -70,7 +72,7 @@ func (a *App) ViewUsers(c echo.Context) error {
 	)
 
 	// Filtering is done in SQL.
-	users, err := a.core.GetUsers(fType, fStatus, fUserRole, fListRole)
+	users, err := a.core.GetUsers(fType, fStatus, fUserRole, fListRole, q.Get("order_by"), q.Get("order"))
 	if err != nil {
 		return err
 	}
@@ -200,7 +202,7 @@ func (a *App) GetUser(c echo.Context) error {
 // GetUsers retrieves all users.
 func (a *App) GetUsers(c echo.Context) error {
 	// Get all users from the DB.
-	out, err := a.core.GetUsers("", "", 0, 0)
+	out, err := a.core.GetUsers("", "", 0, 0, c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
 		return err
 	}
@@ -528,7 +530,7 @@ func (a *App) DisableTOTP(c echo.Context) error {
 // It also returns a bool indicating whether there are any actual users in the DB at all,
 // which if there aren't, the first time user setup needs to be run.
 func cacheUsers(co *core.Core, a *auth.Auth) (bool, error) {
-	users, err := co.GetUsers("", "", 0, 0)
+	users, err := co.GetUsers("", "", 0, 0, "", "")
 	if err != nil {
 		return false, err
 	}
