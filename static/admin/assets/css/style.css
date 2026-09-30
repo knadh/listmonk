@@ -1358,6 +1358,17 @@ section.import {
 
 /* Users & roles */
 section.users {
+    .role-name {
+        align-items: center;
+        gap: var(--space-2);
+
+        .avatar span {
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+        }
+    }
+
     td .badge {
         margin-inline: var(--space-1);
     }
