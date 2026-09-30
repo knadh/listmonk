@@ -83,9 +83,8 @@
 								{{- range $d.Campaigns }}
 									<tr>
 										<td width="55%">
-											{{- $seed := "" }}{{ range .ParsedLists }}{{ $seed = printf "%s%d," $seed .ID }}{{ end }}
 											<div class="name-stack">
-												{{ template "avatar" dict "Seed" $seed "Name" .Name }}
+												{{ template "avatar" dict "Kind" "campaign" "Seed" (printf "%d" .ID) "Name" .Name }}
 												<div><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
 											</div>
 										</td>

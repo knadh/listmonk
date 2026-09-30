@@ -8,35 +8,41 @@ import (
 	"unicode"
 )
 
-var avatarColors = []struct {
+var avatarColors = map[string][]struct {
 	light string
 	mid   string
 	dark  string
 }{
-	{"#e4f0ff", "#83b8fa", "#203657"},
-	{"#e8edff", "#95adfa", "#283457"},
-	{"#eeebff", "#ad9ff5", "#303254"},
-	{"#f2eaff", "#c29cf2", "#3c3152"},
-	{"#f8e8ff", "#d69beb", "#46314f"},
-	{"#ffe8f6", "#eb9cd4", "#50314a"},
-	{"#ffe8ef", "#f59fbc", "#573443"},
-	{"#ffeae7", "#faa99e", "#5b373a"},
-	{"#fff0e3", "#f9bb8b", "#593d30"},
-	{"#fff4df", "#f5ca7c", "#544328"},
-	{"#fff7df", "#ecd77c", "#4d4828"},
-	{"#f5f9e1", "#d1df86", "#434c2a"},
-	{"#eaf9e6", "#ace099", "#384d2f"},
-	{"#e2f9ec", "#8cddb0", "#2e4d37"},
-	{"#dff9f2", "#7adbc2", "#274d41"},
-	{"#dff8f7", "#76d8d1", "#234c49"},
-	{"#e0f7fc", "#7cd1e5", "#244850"},
-	{"#e2f3ff", "#85c5f5", "#264356"},
-	{"#e7efff", "#99b4fa", "#2a3d59"},
-	{"#ececff", "#aaa8f6", "#323858"},
-	{"#e9eeff", "#a1aef8", "#2f3956"},
-	{"#e5f0ff", "#90b7fa", "#283d57"},
-	{"#e1f3ff", "#7ec3f7", "#234158"},
-	{"#e1f2ff", "#7ebff9", "#204459"},
+	"list": {
+		{"#e1f7f3", "#78cbbb", "#234a43"},
+		{"#e3f7f5", "#80cec6", "#234a47"},
+		{"#e4f6f2", "#88cdbb", "#284b42"},
+		{"#e0f5f4", "#72c5c2", "#214947"},
+	},
+	"campaign": {
+		{"#eeebff", "#ad9ff5", "#303254"},
+		{"#f0eaff", "#b29bf0", "#383052"},
+		{"#edeaff", "#a89aee", "#323052"},
+		{"#f2ecff", "#ba9feb", "#3c3152"},
+	},
+	"subscriber": {
+		{"#e4f0ff", "#83b8fa", "#203657"},
+		{"#e2f3ff", "#85c5f5", "#264356"},
+		{"#e5f0ff", "#90b7fa", "#283d57"},
+		{"#e1f2ff", "#7ebff9", "#204459"},
+	},
+	"user": {
+		{"#faedf2", "#dfa4bb", "#50313e"},
+		{"#f9edf3", "#d9a5bf", "#4b3143"},
+		{"#fbedf0", "#e2a7b5", "#52343e"},
+		{"#f8ecf2", "#d49eb5", "#4c3140"},
+	},
+	"role": {
+		{"#edf0f4", "#a6b4c5", "#303c4c"},
+		{"#eef1f5", "#afbac9", "#343f4d"},
+		{"#ebf0f3", "#a1b5c1", "#2f414a"},
+		{"#eef0f5", "#adb3c8", "#373d4e"},
+	},
 }
 
 // avatar is the CSS style and the initials of a generated avatar.
@@ -45,16 +51,23 @@ type avatar struct {
 	Text  string
 }
 
-// makeAvatar generates a "glass" style avatar with a CSS gradient for a given seed.
+// makeAvatar generates a "glass" style avatar with a CSS gradient for an object type and seed.
 // It returns the CSS style + initials of the name that can be printed in HTML.
-func makeAvatar(seed, name string) avatar {
-	sum := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(seed))))
+func makeAvatar(kind, seed, name string) avatar {
+	colors, ok := avatarColors[kind]
+	if !ok {
+		// Greyish default.
+		colors = avatarColors["role"]
+	}
+	sum := sha256.Sum256([]byte(kind + ":" + strings.ToLower(strings.TrimSpace(seed))))
 
 	// Pick colours.
-	n := len(avatarColors)
-	i := int(sum[0]) % n
-	one := avatarColors[i]
-	two := avatarColors[(i+1+int(sum[1])%3)%n]
+	var (
+		n   = len(colors)
+		i   = int(sum[0]) % n
+		one = colors[i]
+		two = colors[(i+1+int(sum[1])%3)%n]
+	)
 
 	// Two hue blobs, a white shimmer on top, inspired by DiceBear's glass style.
 	style := fmt.Sprintf("background-color:%s;color:%s;background-image:radial-gradient(circle at %d%% %d%%,#ffffff73,transparent 55%%),radial-gradient(circle at %d%% %d%%,%sa6,transparent %d%%),radial-gradient(circle at %d%% %d%%,%sa6,transparent %d%%)",

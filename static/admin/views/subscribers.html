@@ -104,7 +104,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td  class="email">
 								<div class="name-stack">
-									{{ template "avatar" dict "Seed" (printf "%d" .ID) "Name" (or .Name .Email) }}
+									{{ template "avatar" dict "Kind" "subscriber" "Seed" (printf "%d" .ID) "Name" (or .Name .Email) }}
 									<div>
 										<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 										{{- if ne .Status "enabled" }}
