@@ -79,9 +79,8 @@
 						<tr data-campaign-id="{{ .ID }}" class="status-{{ .Status }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="name">
-								{{- $seed := "" }}{{ range .ParsedLists }}{{ $seed = printf "%s%d," $seed .ID }}{{ end }}
 								<div class="name-stack">
-									{{ template "avatar" dict "Seed" $seed "Name" .Name }}
+									{{ template "avatar" dict "Kind" "campaign" "Seed" (printf "%d" .ID) "Name" .Name }}
 									<div class="vstack gap-1">
 										<div>
 											<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>

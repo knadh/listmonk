@@ -614,6 +614,14 @@ main {
     }
 }
 
+.avatar-user,
+.avatar-subscriber {
+    img,
+    span {
+        border-radius: 50%;
+    }
+}
+
 .name-stack {
     align-items: flex-start;
     display: flex;
