@@ -682,6 +682,7 @@ td > .empty-state {
 
 .page-content {
     margin-block-end: var(--space-6);
+    min-height: 10vh;
 
     &.card.has-table {
         padding-block-start: 0;
@@ -761,7 +762,7 @@ td > .empty-state {
         }
 
         .actions button.more {
-            padding: 0 var(--space-1);
+            padding: var(--space-1);
             border-radius: 0;
         }
     }
@@ -933,6 +934,10 @@ visual-editor {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+
+    ot-upload.card {
+        border: 0;
+    }
 }
 
 @supports (anchor-name: --a) {
@@ -1162,12 +1167,12 @@ section.campaign {
 
 /* Templates */
 section.templates {
-    td .badge {
-        min-width: 100px;
-    }
-
     .editor-body {
         margin-block: var(--space-3);
+    }
+
+    a.default {
+        font-weight: bold;
     }
 }
 
@@ -1245,8 +1250,14 @@ section.import {
     .actions {
         opacity: 0;
         position: absolute;
-        right: var(--space-2);
-        top: var(--space-2);
+        right: var(--space-1);
+        top: var(--space-1);
+
+        .more {
+            min-width: auto;
+            width: auto;
+            padding: var(--space-1);
+        }
     }
 
     figure:hover .actions,
@@ -1702,6 +1713,11 @@ section.users {
             border: 1px solid var(--border);
             border-radius: var(--radius-medium);
             box-shadow: var(--shadow-small);
+            transition: box-shadow var(--transition-fast);
+
+            &:is(:hover, :focus-within, :active) {
+                box-shadow: var(--shadow-large);
+            }
         }
 
         tbody td:first-child:not([colspan]):not(:has(> input[type="checkbox"])),

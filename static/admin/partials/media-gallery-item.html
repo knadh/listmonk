@@ -15,7 +15,7 @@
 		<span class="text-light text-8" x-text="niceDate(m.created_at)"></span>
 	</figcaption>
 	<ot-dropdown class="actions">
-		<button type="button" class="ghost small icon" aria-label="{{ $root.L.T "globals.buttons.more" }}" popovertarget="attach" :popovertarget="`attach-${idx}`">{{ Icon "more-vertical" }}</button>
+		<button type="button" class="ghost more icon" aria-label="{{ $root.L.T "globals.buttons.more" }}" popovertarget="attach" :popovertarget="`attach-${idx}`">{{ Icon "more-vertical" }}</button>
 		<menu popover :id="`attach-${idx}`">
 			<button type="button" role="menuitem" class="ghost" data-variant="danger" :disabled="!canEdit" @click.prevent="onDeleteAttachment(m)">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</button>
 		</menu>
@@ -39,7 +39,7 @@
 	</figcaption>
 	{{- if $canManage }}
 		<ot-dropdown class="actions">
-			<button popovertarget="media-actions-{{ $m.ID }}" type="button" class="ghost small icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
+			<button popovertarget="media-actions-{{ $m.ID }}" type="button" class="ghost more icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
 			<menu popover id="media-actions-{{ $m.ID }}">
 				<button type="button" role="menuitem" class="ghost" data-variant="danger" data-cy="btn-delete" @click.prevent="onDelete({{ $m.ID }}, {{ ToJSON $m.Filename }})">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</button>
 			</menu>

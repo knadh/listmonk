@@ -25,6 +25,24 @@ var avatarColors = map[string][]struct {
 		{"#edeaff", "#a89aee", "#323052"},
 		{"#f2ecff", "#ba9feb", "#3c3152"},
 	},
+	"campaign-template": {
+		{"#fff0e9", "#e8ab91", "#573b2f"},
+		{"#fceee7", "#dfa58b", "#51392e"},
+		{"#fff2e9", "#e9b295", "#573e30"},
+		{"#fcece5", "#e2a18a", "#54372d"},
+	},
+	"campaign-visual-template": {
+		{"#f2eaff", "#bf9ce5", "#463154"},
+		{"#f5ecff", "#c6a2e8", "#4a3457"},
+		{"#efe8fa", "#b698dd", "#403050"},
+		{"#f4e9fc", "#c39be0", "#493153"},
+	},
+	"tx-template": {
+		{"#e3f6fa", "#82c9d8", "#254750"},
+		{"#e5f5fa", "#8ac5d7", "#294550"},
+		{"#e1f5f8", "#79c5d1", "#22474d"},
+		{"#e7f7fa", "#91cdd8", "#2b4950"},
+	},
 	"subscriber": {
 		{"#e4f0ff", "#83b8fa", "#203657"},
 		{"#e2f3ff", "#85c5f5", "#264356"},
@@ -32,16 +50,22 @@ var avatarColors = map[string][]struct {
 		{"#e1f2ff", "#7ebff9", "#204459"},
 	},
 	"user": {
+		{"#edf7e5", "#a4ce86", "#354b29"},
+		{"#eaf5e4", "#98c77f", "#304927"},
+		{"#f0f7e6", "#afcf8b", "#3c4d2b"},
+		{"#e9f5e7", "#94c58a", "#304a2d"},
+	},
+	"user-role": {
 		{"#faedf2", "#dfa4bb", "#50313e"},
 		{"#f9edf3", "#d9a5bf", "#4b3143"},
 		{"#fbedf0", "#e2a7b5", "#52343e"},
 		{"#f8ecf2", "#d49eb5", "#4c3140"},
 	},
-	"role": {
-		{"#edf0f4", "#a6b4c5", "#303c4c"},
-		{"#eef1f5", "#afbac9", "#343f4d"},
-		{"#ebf0f3", "#a1b5c1", "#2f414a"},
-		{"#eef0f5", "#adb3c8", "#373d4e"},
+	"list-role": {
+		{"#fff3df", "#e8be78", "#574222"},
+		{"#fff1dc", "#e5b56f", "#553e20"},
+		{"#faf3df", "#d9bd78", "#504323"},
+		{"#fff0e0", "#e7b582", "#573f28"},
 	},
 }
 
@@ -56,8 +80,8 @@ type avatar struct {
 func makeAvatar(kind, seed, name string) avatar {
 	colors, ok := avatarColors[kind]
 	if !ok {
-		// Greyish default.
-		colors = avatarColors["role"]
+		// Default to the user role palette.
+		colors = avatarColors["user-role"]
 	}
 	sum := sha256.Sum256([]byte(kind + ":" + strings.ToLower(strings.TrimSpace(seed))))
 
