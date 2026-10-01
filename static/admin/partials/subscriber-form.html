@@ -4,16 +4,27 @@
 {{- $canSave := .CanSave -}}
 <form method="post" @submit.prevent="{{ $submit }}">
 	<div class="page-content content">
-		<section class="card">
-			{{ template "subscriber-fields" $root }}
+		<section>
+			<fieldset class="card">
+				<legend>{{ $root.L.T "users.profile" }}</legend>
+				{{ template "subscriber-fields" $root }}
+			</fieldset>
+
 			{{- if .IsNew }}
-				{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Label" "subscribers.lists" "Placeholder" "subscribers.listsPlaceholder" }}
-				<label data-field :aria-disabled="!hasOptinList">
-					<input type="checkbox" x-model="form.preconfirm" data-testid="preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
-					<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
-				</label>
+				<fieldset class="card">
+					<legend>{{ $root.L.T "subscribers.lists" }}</legend>
+					{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Placeholder" "subscribers.listsPlaceholder" }}
+					<label data-field :aria-disabled="!hasOptinList">
+						<input type="checkbox" x-model="form.preconfirm" data-testid="preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
+						<small data-hint>{{ $root.L.T "subscribers.preconfirmHelp" }}</small>
+					</label>
+				</fieldset>
 			{{- end }}
-			{{ template "subscriber-attribs" $root }}
+
+			<fieldset class="card">
+				<legend id="subscriber-attribs-label">{{ $root.L.T "globals.terms.attribs" }}</legend>
+				{{ template "subscriber-attribs" $root }}
+			</fieldset>
 		</section>
 
 		<footer class="hstack justify-between mt-6">
@@ -62,9 +73,8 @@
 
 {{ define "subscriber-attribs" -}}
 {{- $root := . -}}
-<label data-field class="mt-6">
-	{{ $root.L.T "globals.terms.attribs" }}
-	<textarea name="attribs" rows="4" x-model="form.strAttribs" class="monospace"></textarea>
+<div data-field>
+	<textarea name="attribs" aria-labelledby="subscriber-attribs-label" rows="4" x-model="form.strAttribs" class="monospace"></textarea>
 	<small data-hint>{{ $root.L.T "subscribers.attribsHelp" }} <code>{"job": "developer", "location": "Mars", "has_rocket": true}</code></small>
-</label>
+</div>
 {{- end }}

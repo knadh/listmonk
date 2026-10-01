@@ -118,7 +118,10 @@
 							<td class="lists">
 								<ul>
 									{{- range .ParsedLists }}
-										<li><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></li>
+										<li class="name-stack">
+											{{ template "avatar" dict "Kind" "list" "Seed" (printf "%d" .ID) "Name" .Name }}
+											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+										</li>
 									{{- end }}
 								</ul>
 							</td>

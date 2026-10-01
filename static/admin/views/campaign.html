@@ -47,7 +47,7 @@
 	</header>
 
 	{{- if $isNew }}
-		<div role="tablist">
+		<div role="tablist" data-variant="primary">
 			<a role="tab" aria-selected="true">{{ Icon "mail" }} {{ .L.Tc "globals.terms.campaign" 1 }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "file-text" }} {{ .L.T "campaigns.content" }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }}</a>

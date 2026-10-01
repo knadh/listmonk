@@ -4,86 +4,97 @@
 {{- $canManage := .CanManage -}}
 {{- $canSend := .CanSend -}}
 {{- $submit := "onSave" -}}{{ if $isNew }}{{ $submit = "onCreate" }}{{ end }}
-<div class="{{ if not $isNew }}card {{ end }}page-content content">
+<div class="page-content content">
 	<form @submit.prevent="{{ $submit }}">
-		{{- if $isNew }}<section class="card">{{ end }}
-		<label data-field>
-			{{ $root.L.T "globals.fields.name" }}
-			<input name="name" maxlength="200" x-model="form.name" :disabled="!canEdit" autofocus required />
-		</label>
-
-		<label data-field>
-			{{ $root.L.T "campaigns.subject" }}
-			<input name="subject" maxlength="5000" x-model="form.subject" :disabled="!canEdit" required />
-		</label>
-
-		<label data-field>
-			{{ $root.L.T "campaigns.fromAddress" }}
-			<input name="from_email" maxlength="200" x-model="form.from_email" :disabled="!canEdit" placeholder="{{ $root.L.T "campaigns.fromAddressPlaceholder" }}" required />
-		</label>
-
-		{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "campaign-lists" "Label" "globals.terms.lists" "Placeholder" "campaigns.sendToLists" "Disabled" "!canEdit" }}
-
-		<label data-field for="messenger">
-			{{ $root.L.Tc "globals.terms.messenger" 1 }}
-			<select id="messenger" name="messenger" x-model="form.messenger" :disabled="!canEdit" required>
-				{{- range $root.ConfigJS.Messengers }}<option value="{{ . }}">{{ . }}</option>{{ end }}
-			</select>
-		</label>
-
-		<label data-field for="content_type">
-			{{ $root.L.T "campaigns.format" }}
-			<select id="content_type" name="content_type" x-model="form.content_type" {{ if not $isNew }}disabled{{ else }}:disabled="!canEdit"{{ end }}>
-				<option value="richtext">{{ $root.L.T "campaigns.contentType.richtext" }}</option>
-				<option value="html">{{ $root.L.T "campaigns.contentType.html" }}</option>
-				<option value="markdown">{{ $root.L.T "campaigns.contentType.markdown" }}</option>
-				<option value="plain">{{ $root.L.T "campaigns.contentType.plain" }}</option>
-				<option value="visual">{{ $root.L.T "campaigns.contentType.visual" }}</option>
-			</select>
-		</label>
-
-		<label data-field>
-			{{ $root.L.T "globals.terms.tags" }}
-			<ot-taginput x-model="form.tags" :disabled="!canEdit"><input placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="200" /></ot-taginput>
-		</label>
-
-		<fieldset>
-			<div class="row">
-				<div class="col-6">
-					<label data-field>
-						<input type="checkbox" role="switch" x-model="form.sendLater" @change="onToggleSendLater" :disabled="!canEdit" data-cy="btn-send-later" /> {{ $root.L.T "campaigns.sendLater" }}
-					</label>
-
-					<template x-if="form.sendLater">
-						<label data-field>
-							{{ $root.L.T "campaigns.dateAndTime" }}
-							<input type="datetime-local" name="send_at" x-model="form.sendAtLocal" :disabled="!canEdit" />
-						</label>
-					</template>
-				</div>
-				{{- if and (not $isNew) $canSend }}
-					<div class="col-6 col-end hstack justify-end">
-						<button type="button" class="outline" data-variant="primary" data-cy="btn-schedule" x-cloak x-show="canSchedule" @click="onStart">{{ Icon "clock" }} {{ $root.L.T "campaigns.schedule" }}</button>
-						<button type="button" class="outline" data-variant="danger" data-cy="btn-unschedule" x-cloak x-show="canUnSchedule" @click="onUnschedule">{{ Icon "clock" }} {{ $root.L.T "campaigns.unSchedule" }}</button>
-					</div>
-				{{- end }}
-			</div>
-		</fieldset>
-
-		<fieldset>
-			<label data-field>
-				<input type="checkbox" role="switch" x-model="isHeadersVisible" :disabled="!canEdit" data-cy="btn-headers" /> {{ $root.L.T "settings.smtp.customHeaders" }}
-			</label>
-
-			<template x-if="isHeadersVisible">
+		<section>
+			<fieldset class="card">
+				<legend>{{ $root.L.Tc "globals.terms.campaign" 1 }}</legend>
 				<label data-field>
-					<textarea name="headers" x-model="form.headersStr" :disabled="!canEdit" placeholder='[{"X-Custom": "value"}]'></textarea>
-					<small data-hint>{{ $root.L.T "campaigns.customHeadersHelp" }}</small>
+					{{ $root.L.T "globals.fields.name" }}
+					<input name="name" maxlength="200" x-model="form.name" :disabled="!canEdit" autofocus required />
 				</label>
-			</template>
-		</fieldset>
-		{{- if $isNew }}
+
+				<label data-field>
+					{{ $root.L.T "campaigns.subject" }}
+					<input name="subject" maxlength="5000" x-model="form.subject" :disabled="!canEdit" required />
+				</label>
+
+				<label data-field>
+					{{ $root.L.T "globals.terms.tags" }}
+					<ot-taginput x-model="form.tags" :disabled="!canEdit"><input placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="200" /></ot-taginput>
+				</label>
+			</fieldset>
+
+			<fieldset class="card">
+				<legend>{{ $root.L.T "globals.terms.lists" }}</legend>
+				{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "campaign-lists" "Placeholder" "campaigns.sendToLists" "Disabled" "!canEdit" }}
+			</fieldset>
+
+			<fieldset class="card">
+				<legend>{{ $root.L.Tc "globals.terms.messenger" 1 }}</legend>
+				<label data-field>
+					{{ $root.L.T "campaigns.fromAddress" }}
+					<input name="from_email" maxlength="200" x-model="form.from_email" :disabled="!canEdit" placeholder="{{ $root.L.T "campaigns.fromAddressPlaceholder" }}" required />
+				</label>
+
+				<label data-field for="messenger">
+					{{ $root.L.Tc "globals.terms.messenger" 1 }}
+					<select id="messenger" name="messenger" x-model="form.messenger" :disabled="!canEdit" required>
+						{{- range $root.ConfigJS.Messengers }}<option value="{{ . }}">{{ . }}</option>{{ end }}
+					</select>
+				</label>
+
+				<label data-field for="content_type">
+					{{ $root.L.T "campaigns.format" }}
+					<select id="content_type" name="content_type" x-model="form.content_type" {{ if not $isNew }}disabled{{ else }}:disabled="!canEdit"{{ end }}>
+						<option value="richtext">{{ $root.L.T "campaigns.contentType.richtext" }}</option>
+						<option value="html">{{ $root.L.T "campaigns.contentType.html" }}</option>
+						<option value="markdown">{{ $root.L.T "campaigns.contentType.markdown" }}</option>
+						<option value="plain">{{ $root.L.T "campaigns.contentType.plain" }}</option>
+						<option value="visual">{{ $root.L.T "campaigns.contentType.visual" }}</option>
+					</select>
+				</label>
+			</fieldset>
+
+			<fieldset class="card">
+				<legend>{{ $root.L.T "campaigns.schedule" }}</legend>
+				<div class="row">
+					<div class="col-6">
+						<label data-field>
+							<input type="checkbox" role="switch" x-model="form.sendLater" @change="onToggleSendLater" :disabled="!canEdit" data-cy="btn-send-later" /> {{ $root.L.T "campaigns.sendLater" }}
+						</label>
+
+						<template x-if="form.sendLater">
+							<label data-field>
+								{{ $root.L.T "campaigns.dateAndTime" }}
+								<input type="datetime-local" name="send_at" x-model="form.sendAtLocal" :disabled="!canEdit" />
+							</label>
+						</template>
+					</div>
+					{{- if and (not $isNew) $canSend }}
+						<div class="col-6 col-end hstack justify-end">
+							<button type="button" class="outline" data-variant="primary" data-cy="btn-schedule" x-cloak x-show="canSchedule" @click="onStart">{{ Icon "clock" }} {{ $root.L.T "campaigns.schedule" }}</button>
+							<button type="button" class="outline" data-variant="danger" data-cy="btn-unschedule" x-cloak x-show="canUnSchedule" @click="onUnschedule">{{ Icon "clock" }} {{ $root.L.T "campaigns.unSchedule" }}</button>
+						</div>
+					{{- end }}
+				</div>
+			</fieldset>
+
+			<fieldset class="card">
+				<legend>{{ $root.L.T "settings.smtp.customHeaders" }}</legend>
+				<label data-field>
+					<input type="checkbox" role="switch" x-model="isHeadersVisible" :disabled="!canEdit" data-cy="btn-headers" /> {{ $root.L.T "settings.smtp.customHeaders" }}
+				</label>
+
+				<template x-if="isHeadersVisible">
+					<label data-field>
+						<textarea name="headers" x-model="form.headersStr" :disabled="!canEdit" placeholder='[{"X-Custom": "value"}]'></textarea>
+						<small data-hint>{{ $root.L.T "campaigns.customHeadersHelp" }}</small>
+					</label>
+				</template>
+			</fieldset>
 		</section>
+		{{- if $isNew }}
 			<footer class="hstack justify-end mt-6">
 				<button type="submit" data-variant="primary" data-cy="btn-continue" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ $root.L.T "campaigns.continue" }}</button>
 			</footer>
@@ -91,7 +102,7 @@
 	</form>
 
 	{{- if not $isNew }}
-		<footer class="dialog-foot hstack justify-between mt-6">
+		<footer class="hstack justify-between mt-6">
 			<div class="hstack gap-1">
 				<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
 					<strong>{{ $root.L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>

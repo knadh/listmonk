@@ -2,7 +2,7 @@
 {{- $root := .Root -}}
 {{- $canManage := .CanManage -}}
 {{- $canSend := .CanSend -}}
-<div class="card page-content content">
+<div class="page-content content">
 	<div class="row">
 		<div class="col-6">
 			<label data-field>
@@ -19,35 +19,39 @@
 		{{ end }}
 	</div>
 
-	<fieldset :disabled="!canArchive || !form.archive">
-		<legend>{{ $root.L.T "campaigns.archive" }}</legend>
+	<template x-if="form.archive">
+		<div>
+			<fieldset class="card" :disabled="!canArchive">
+				<legend>{{ $root.L.T "campaigns.archive" }}</legend>
 
-		<fieldset class="group">
-			<legend class="mb-0">{{ $root.L.Tc "globals.terms.template" 1 }}</legend>
-			<select x-model.number="form.archive_template_id" name="archive_template" :disabled="form.content_type === 'visual'" required>
-				<template x-for="t in templatesFor('campaign')" :key="t.id">
-					<option :value="t.id" x-text="t.name"></option>
+				<fieldset class="group">
+					<legend class="mb-0">{{ $root.L.Tc "globals.terms.template" 1 }}</legend>
+					<select x-model.number="form.archive_template_id" name="archive_template" :disabled="form.content_type === 'visual'" required>
+						<template x-for="t in templatesFor('campaign')" :key="t.id">
+							<option :value="t.id" x-text="t.name"></option>
+						</template>
+					</select>
+					<button type="button" data-variant="primary" data-cy="btn-preview" @click="onPreviewArchive">{{ $root.L.T "campaigns.preview" }}</button>
+				</fieldset>
+
+				<label data-field>
+					{{ $root.L.T "campaigns.archiveSlug" }}
+					<input name="archive_slug" maxlength="200" x-model="form.archive_slug" data-cy="archive-slug" />
+					<small data-hint>{{ $root.L.T "campaigns.archiveSlugHelp" }}</small>
+				</label>
+
+				<a class="text-8" href="{{ $root.Data.ArchiveURL }}" target="_blank" rel="noopener noreferrer">{{ Icon "link-2" }} {{ $root.Data.ArchiveURL }}</a>
+			</fieldset>
+
+			<fieldset class="card" :disabled="!canArchive" data-field>
+				<legend>{{ $root.L.T "campaigns.archiveMeta" }}</legend>
+				<textarea name="archive_meta" x-model="form.archiveMetaStr" data-cy="archive-meta" rows="15"></textarea>
+				<small data-hint>{{ $root.L.T "campaigns.archiveMetaHelp" }}</small>
+				<template x-if="form.archiveMetaStr === '' || form.archiveMetaStr === '{}'">
+					<div class="mt-4"><button type="button" class="outline small" @click="onFillArchiveMeta">{{ $root.L.T "templates.makeDefault" }}</button></div>
 				</template>
-			</select>
-			<button type="button" data-variant="primary" data-cy="btn-preview" @click="onPreviewArchive">{{ $root.L.T "campaigns.preview" }}</button>
-		</fieldset>
-
-		<label data-field>
-			{{ $root.L.T "campaigns.archiveSlug" }}
-			<input name="archive_slug" maxlength="200" x-model="form.archive_slug" data-cy="archive-slug" />
-			<small data-hint>{{ $root.L.T "campaigns.archiveSlugHelp" }}</small>
-		</label>
-
-		<a class="text-8" :class="{ 'text-lighter': !form.archive }" href="{{ $root.Data.ArchiveURL }}" target="_blank" rel="noopener noreferrer">{{ Icon "link-2" }} {{ $root.Data.ArchiveURL }}</a>
-	</fieldset>
-
-	<fieldset :disabled="!canArchive || !form.archive" data-field>
-		<legend>{{ $root.L.T "campaigns.archiveMeta" }}</legend>
-		<textarea name="archive_meta" x-model="form.archiveMetaStr" data-cy="archive-meta" rows="15"></textarea>
-		<small data-hint>{{ $root.L.T "campaigns.archiveMetaHelp" }}</small>
-		<template x-if="form.archive && (form.archiveMetaStr === '' || form.archiveMetaStr === '{}')">
-			<div class="mt-4"><button type="button" class="outline small" @click="onFillArchiveMeta">{{ $root.L.T "templates.makeDefault" }}</button></div>
-		</template>
-	</fieldset>
+			</fieldset>
+		</div>
+	</template>
 </div>
 {{- end }}
