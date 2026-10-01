@@ -11,6 +11,7 @@ import (
 	"net/textproto"
 	"regexp"
 	"strings"
+	txttpl "text/template"
 
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
@@ -44,17 +45,19 @@ type Notifs struct {
 var (
 	reTitle = regexp.MustCompile(`(?s)<title\s*data-i18n\s*>(.+?)</title>`)
 
-	Tpls *template.Template
-	no   *Notifs
+	Tpls    *template.Template
+	TxtTpls *txttpl.Template
+	no      *Notifs
 )
 
 // Initialize returns a new Notifs instance.
-func Initialize(opt Opt, tpls *template.Template, em *email.Emailer, lo *log.Logger) {
+func Initialize(opt Opt, tpls *template.Template, txtTpls *txttpl.Template, em *email.Emailer, lo *log.Logger) {
 	if no != nil {
 		lo.Fatal("notifs already initialized")
 	}
 
 	Tpls = tpls
+	TxtTpls = txtTpls
 	no = &Notifs{
 		opt: opt,
 		em:  em,
@@ -80,6 +83,16 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 	}
 	body := buf.Bytes()
 
+	var bufAlt bytes.Buffer
+	tplNameText := tplName + "-text"
+	if TxtTpls != nil && TxtTpls.Lookup(tplNameText) != nil {
+		if err := TxtTpls.ExecuteTemplate(&bufAlt, tplNameText, data); err != nil {
+			no.lo.Printf("error compiling notification template '%s': %v", tplNameText, err)
+			return err
+		}
+	}
+	altBody := bufAlt.Bytes()
+
 	subject, body = GetTplSubject(subject, body)
 
 	m := models.Message{
@@ -90,6 +103,7 @@ func Notify(toEmails []string, subject, tplName string, data any, hdr textproto.
 		Subject:     subject,
 		Body:        body,
 		Headers:     hdr,
+		AltBody:     altBody,
 	}
 
 	// Send the message.
