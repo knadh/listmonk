@@ -24,7 +24,7 @@
 				</h1>
 			</div>
 		</div>
-		<div class="col-6 col-end align-right hstack justify-end">
+		<div class="col-6 hstack justify-end">
 			{{- if and (eq $d.Tab "lists") ($d.Can "subscribers:manage") }}
 				{{ if ne $sub.Status "blocklisted" }}
 				<button type="button" class="outline" data-testid="btn-send-optin" @click.prevent="onSendOptin" :disabled="!hasOptinSub">{{ Icon "mail" }} {{ .L.T "subscribers.sendOptinConfirm" }}</button>
@@ -38,7 +38,7 @@
 	</header>
 
 	{{- if not $d.IsNew }}
-		<div role="tablist">
+		<div role="tablist" data-variant="primary">
 			<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "profile" }}aria-selected="true"{{ end }}>{{ Icon "user" }} {{ .L.Tc "globals.terms.subscriber" 1 }}</a>
 			<a role="tab" href="{{ $base }}/lists" {{ if eq $d.Tab "lists" }}aria-selected="true"{{ end }}>{{ Icon "list" }} {{ .L.Tc "globals.terms.lists" 2 }} ({{ len $sub.ParsedLists }})</a>
 			<a role="tab" href="{{ $base }}/activity" {{ if eq $d.Tab "activity" }}aria-selected="true"{{ end }}>{{ Icon "activity" }} {{ .L.T "subscribers.activity" }}</a>
