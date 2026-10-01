@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	txttpl "text/template"
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
@@ -787,22 +788,14 @@ func initMediaStore(ko *koanf.Koanf) media.Store {
 
 // initNotifs initializes the notifier with the system e-mail templates.
 func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlConfig, ko *koanf.Koanf) {
-	htmlPaths, err := fs.Glob("/static/email-templates/*.html")
-	if err != nil {
-		lo.Fatalf("error matching *.html e-mail notif templates: %v", err)
-	}
-	txtPaths, err := fs.Glob("/static/email-templates/*.txt")
-	if err != nil {
-		lo.Fatalf("error matching *.txt e-mail notif templates: %v", err)
-	}
-	paths := append(htmlPaths, txtPaths...)
-	if len(paths) == 0 {
-		lo.Fatalf("error matching e-mail notif templates: no files match")
-	}
-
-	tpls, err := stuffbin.ParseTemplates(initTplFuncs(i, u), fs, paths...)
+	tpls, err := stuffbin.ParseTemplatesGlob(initTplFuncs(i, u), fs, "/static/email-templates/*.html")
 	if err != nil {
 		lo.Fatalf("error parsing e-mail notif templates: %v", err)
+	}
+
+	txtTpls, err := parseTextTemplatesGlob(initTplFuncs(i, u), fs, "/static/email-templates/*.txt")
+	if err != nil {
+		lo.Fatalf("error parsing e-mail notif text templates: %v", err)
 	}
 
 	// Read the notification templates.
@@ -827,7 +820,7 @@ func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlC
 		FromEmail:    ko.String("app.from_email"),
 		SystemEmails: ko.Strings("app.notify_emails"),
 		ContentType:  contentType,
-	}, tpls, em, lo)
+	}, tpls, txtTpls, em, lo)
 }
 
 // initBounceManager initializes the bounce manager that scans mailboxes and listens to webhooks
@@ -1208,4 +1201,36 @@ func joinFSPaths(root string, paths []string) []string {
 	}
 
 	return out
+}
+
+// parseTextTemplatesGlob takes a file system, a file path pattern, and parses matching files
+// into a template.Template with an optional template.FuncMap that will be applied to the
+// compiled templates.
+func parseTextTemplatesGlob(f txttpl.FuncMap, fs stuffbin.FileSystem, pattern string) (*txttpl.Template, error) {
+	paths, err := fs.Glob(pattern)
+	if err != nil {
+		return nil, err
+	}
+	if len(paths) == 0 {
+		return nil, nil
+	}
+
+	tpl := txttpl.New(filepath.Base(paths[0]))
+	if f != nil {
+		tpl = tpl.Funcs(f)
+	}
+
+	for _, p := range paths {
+		f, err := fs.Read(p)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %v", p, err)
+		}
+
+		_, err = tpl.Parse(string(f))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return tpl, nil
 }
