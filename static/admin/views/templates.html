@@ -35,7 +35,6 @@
 					<tr>
 						<th>{{ .L.T "globals.fields.name" }}</th>
 						<th>{{ .L.T "globals.fields.type" }}</th>
-						<th>{{ .L.T "globals.fields.id" }}</th>
 						<th>{{ .L.T "globals.fields.createdAt" }}</th>
 						<th class="actions align-right"></th>
 					</tr>
@@ -69,7 +68,6 @@
 									{{- end }}
 								</div>
 							</td>
-							<td data-label="{{ $.L.T "globals.fields.id" }}">{{ .ID }}</td>
 							<td class="date-stack" data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .CreatedAt }}</td>
 							<td class="actions align-right">
 								<ot-dropdown>

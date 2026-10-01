@@ -10,8 +10,8 @@
 
 	<div class="page-content vstack gap-6">
 		<!-- Subscribers -->
-		<div class="card">
-			<h4 class="text-4">{{ .L.T "globals.terms.subscribers" }}</h4>
+		<fieldset class="card">
+			<legend>{{ .L.T "globals.terms.subscribers" }}</legend>
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
@@ -31,11 +31,11 @@
 					</button>
 				</div>
 			</div>
-		</div>
+		</fieldset>
 
 		<!-- Subscriptions -->
-		<div class="card">
-			<h4 class="text-4">{{ .L.Tc "globals.terms.subscriptions" 2 }}</h4>
+		<fieldset class="card">
+			<legend>{{ .L.Tc "globals.terms.subscriptions" 2 }}</legend>
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
@@ -59,11 +59,11 @@
 					</button>
 				</div>
 			</div>
-		</div>
+		</fieldset>
 
 		<!-- Analytics -->
-		<div class="card">
-			<h4 class="text-4">{{ .L.T "globals.terms.analytics" }}</h4>
+		<fieldset class="card">
+			<legend>{{ .L.T "globals.terms.analytics" }}</legend>
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
@@ -115,35 +115,37 @@
 					</a>
 				</div>
 			</div>
-		</div>
+		</fieldset>
 
 		{{- if $d.Can "settings:manage" }}
 		<!-- Database -->
-		<form class="card" @submit.prevent="onUpdateDBSettings">
-			<h4 class="text-4">{{ .L.T "maintenance.database.title" }}</h4>
-			<h5 class="text-5">Vacuum</h5>
-			<p class="text-light">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
-			<div class="row">
-				<div class="col-3">
-					<label data-field>
-						<input type="checkbox" role="switch" x-model="dbSettings.vacuum" />
-						{{ .L.T "globals.buttons.enabled" }}
-					</label>
+		<form @submit.prevent="onUpdateDBSettings">
+			<fieldset class="card">
+				<legend>{{ .L.T "maintenance.database.title" }}</legend>
+				<h5 class="text-5">Vacuum</h5>
+				<p class="text-light">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
+				<div class="row">
+					<div class="col-3">
+						<label data-field>
+							<input type="checkbox" role="switch" x-model="dbSettings.vacuum" />
+							{{ .L.T "globals.buttons.enabled" }}
+						</label>
+					</div>
+					<div class="col-4" :aria-disabled="!dbSettings.vacuum">
+						<label data-field>
+							{{ .L.T "settings.maintenance.cron" }}
+							<input placeholder="0 2 * * *" pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)"
+								:disabled="!dbSettings.vacuum" x-model="dbSettings.vacuum_cron_interval" />
+						</label>
+					</div>
+					<div class="col-5 col-end hstack justify-end">
+						<button type="submit" data-variant="primary" data-cy="btn-save-db"
+							:disabled="isSaving" :aria-busy="isSaving" data-spinner="small">
+							{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}
+						</button>
+					</div>
 				</div>
-				<div class="col-4" :aria-disabled="!dbSettings.vacuum">
-					<label data-field>
-						{{ .L.T "settings.maintenance.cron" }}
-						<input placeholder="0 2 * * *" pattern="((\*|[0-9,\-\/]+)\s+){4}(\*|[0-9,\-\/]+)"
-							:disabled="!dbSettings.vacuum" x-model="dbSettings.vacuum_cron_interval" />
-					</label>
-				</div>
-				<div class="col-5 col-end hstack justify-end">
-					<button type="submit" data-variant="primary" data-cy="btn-save-db"
-						:disabled="isSaving" :aria-busy="isSaving" data-spinner="small">
-						{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}
-					</button>
-				</div>
-			</div>
+			</fieldset>
 		</form>
 		{{- end }}
 	</div>
