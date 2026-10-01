@@ -82,8 +82,8 @@
 										{{- else }}
 											<span class="{{ if eq .Status "disabled" }}text-danger{{ end }}">{{ .Username }}</span>
 										{{- end }}
-										{{- if eq .Type "api" }}<a href="{{ $base }}?type=api" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "users.type.api" }}">{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "tag" }}</a>{{ end }}
-										{{- if eq .Status "disabled" }}<a href="{{ $base }}?status=disabled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "users.status.disabled" }}">{{ Badge (list (Dot) ($.L.T "users.status.disabled")) "enum status-disabled" }}</a>{{ end }}
+										{{- if eq .Type "api" }}<a href="{{ $base }}?type=api" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "users.type.api" }}">{{ Badge (list (Icon "code") ($.L.T "users.type.api")) "tag" }}</a>{{ end }}
+										{{- if eq .Status "disabled" }}<a href="{{ $base }}?status=disabled" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "users.status.disabled" }}">{{ Badge (list (Dot) ($.L.T "users.status.disabled")) "enum status-disabled" }}</a>{{ end }}
 										{{- if .Name }}<div class="text-light text-8">{{ .Name }}</div>{{ end }}
 									</div>
 								</div>
@@ -91,15 +91,15 @@
 							<td data-label="{{ $.L.T "subscribers.email" }}" class="text-light">{{ if .Email.Valid }}{{ .Email.String }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
 							<td data-label="{{ $.L.Tc "users.userRole" 1 }}">
 								<div class="name-stack role-name">
-									{{ template "avatar" dict "Kind" "role" "Seed" (printf "%d" .UserRole.ID) "Name" .UserRole.Name }}
-									<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ .UserRole.Name }}">{{ .UserRole.Name }}</a>
+									{{ template "avatar" dict "Kind" "user-role" "Seed" (printf "%d" .UserRole.ID) "Name" .UserRole.Name }}
+									<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .UserRole.Name }}">{{ .UserRole.Name }}</a>
 								</div>
 							</td>
 							<td data-label="{{ $.L.Tc "users.listRole" 2 }}">
 								{{- with .ListRole }}
 									<div class="name-stack role-name">
-										{{ template "avatar" dict "Kind" "role" "Seed" (printf "%d" .ID) "Name" .Name }}
-										<a href="{{ $base }}?list_role_id={{ .ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ .Name }}">{{ .Name }}</a>
+										{{ template "avatar" dict "Kind" "list-role" "Seed" (printf "%d" .ID) "Name" .Name }}
+										<a href="{{ $base }}?list_role_id={{ .ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
 									</div>
 								{{- else }}
 									<span class="text-light">&mdash;</span>

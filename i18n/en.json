@@ -243,6 +243,7 @@
     "globals.buttons.toggleSelect": "Toggle selection",
     "globals.buttons.refresh": "Refresh",
     "globals.buttons.view": "View",
+    "globals.buttons.filter": "Filter",
     "globals.buttons.search": "Search",
     "globals.days.0": "Sun",
     "globals.days.1": "Sun",
