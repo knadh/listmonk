@@ -306,7 +306,7 @@ export default Vue.extend({
     },
 
     deleteLists() {
-      const name = this.$tc('globals.terms.list', this.numSelectedCampaigns);
+      const name = this.$tc('globals.terms.list', this.numSelectedLists);
 
       const fn = () => {
         const params = {};
