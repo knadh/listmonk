@@ -36,7 +36,7 @@
 				<ot-dropdown>
 					<fieldset class="group">
 						<input name="search" aria-label="Search" data-testid="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
-						<button type="button" class="outline sql-btn dot-indicator" :class="{ 'is-active': advanced }" popovertarget="sql-editor" data-testid="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "subscribers.advancedQuery" }}">SQL {}</button>
+						<button type="button" class="outline sql-btn dot-indicator" :class="{ 'is-active': advanced, external: !advanced }" popovertarget="sql-editor" data-testid="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "subscribers.advancedQuery" }}">SQL {}</button>
 						<button type="submit" data-testid="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 					</fieldset>
 					<div popover id="sql-editor" class="sql-editor" data-testid="query-editor" @toggle="isSqlOpen = ($event.newState === 'open'); if (isSqlOpen) $nextTick(() => $refs.queryInput.focus())">

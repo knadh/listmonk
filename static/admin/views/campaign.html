@@ -37,7 +37,7 @@
 		{{- if $showRight }}
 			<div class="col-6 col-end hstack justify-end">
 				{{- if $showPreview }}
-					<button type="button" class="outline" data-cy="btn-preview" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "campaigns.preview" }}</button>
+					<button type="button" class="outline external" data-cy="btn-preview" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "campaigns.preview" }}</button>
 				{{- end }}
 				{{- if $showActions }}
 					<button type="button" data-variant="primary" data-cy="btn-save" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
@@ -58,7 +58,7 @@
 		{{ template "campaign-form" dict "Root" . "IsNew" $isNew "CanManage" $canManage "CanSend" $canSend }}
 	{{- else }}
 		<ot-tabs data-anchor="tab">
-			<div role="tablist">
+			<div role="tablist" data-variant="primary">
 				<button type="button" role="tab" id="campaign">{{ Icon "send" }} {{ .L.Tc "globals.terms.campaign" 1 }}</button>
 				<button type="button" role="tab" id="content">{{ Icon "align-left" }} {{ .L.T "campaigns.content" }}</button>
 				<button type="button" role="tab" id="attribs">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }} <span x-cloak x-show="form.attribsStr.trim() !== '' && form.attribsStr.trim() !== '{}'">{{ Icon "check-circle" }}</span></button>
@@ -67,7 +67,7 @@
 			</div>
 
 			<ot-dropdown class="content-settings" x-cloak x-show="activeTab === 'content'">
-				<button type="button" class="outline small" popovertarget="content-settings" :title="contentSettingsLabel">{{ Icon "settings" }} <span class="content-settings-label" x-text="contentSettingsLabel"></span></button>
+				<button type="button" class="outline small external" popovertarget="content-settings" :title="contentSettingsLabel">{{ Icon "settings" }} <span class="content-settings-label" x-text="contentSettingsLabel"></span></button>
 				<div popover id="content-settings" class="content-settings-menu">
 					<div data-field>
 						<label>{{ .L.T "campaigns.format" }}</label>

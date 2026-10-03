@@ -19,7 +19,7 @@
 							{{- if .Restricted }}
 								<span class="text-light">{{ .Name }}</span>
 							{{- else }}
-								<a href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
+								<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
 							{{- end }}
 						</td>
 						<td data-label="{{ $root.L.T "lists.optin" }}">
