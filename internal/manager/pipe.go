@@ -11,14 +11,15 @@ import (
 )
 
 type pipe struct {
-	camp       *models.Campaign
-	rate       *ratecounter.RateCounter
-	wg         *sync.WaitGroup
-	sent       atomic.Int64
-	lastID     atomic.Uint64
-	errors     atomic.Uint64
-	stopped    atomic.Bool
-	withErrors atomic.Bool
+	camp        *models.Campaign
+	rate        *ratecounter.RateCounter
+	wg          *sync.WaitGroup
+	sent        atomic.Int64
+	lastID      atomic.Uint64
+	lastFetched atomic.Int64
+	errors      atomic.Uint64
+	stopped     atomic.Bool
+	withErrors  atomic.Bool
 
 	m *Manager
 }
@@ -54,6 +55,12 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		m:    m,
 	}
 
+	// Seed the in-memory fetch cursor from the durable send-side checkpoint.
+	// After a restart, fetching resumes from the last confirmed send, so
+	// subscribers whose messages were fetched but never sent (crash, kill,
+	// OOM) are picked up again instead of being silently skipped.
+	p.lastFetched.Store(int64(c.LastSubscriberID))
+
 	// Increment the waitgroup so that Wait() blocks immediately. This is necessary
 	// as a campaign pipe is created first and subscribers/messages under it are
 	// fetched asynchronolusly later. The messages each add to the wg and that
@@ -79,8 +86,9 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 // in the current batch or not. A false indicates that all subscribers
 // have been processed, or that a campaign has been paused or cancelled.
 func (p *pipe) NextSubscribers() (bool, error) {
-	// Fetch the next batch of subscribers from a 'running' campaign.
-	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.m.cfg.BatchSize)
+	// Fetch the next batch of subscribers from a 'running' campaign, starting
+	// from the pipe's in-memory fetch cursor.
+	subs, err := p.m.store.NextSubscribers(p.camp.ID, int(p.lastFetched.Load()), p.m.cfg.BatchSize)
 	if err != nil {
 		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
 	}
@@ -90,6 +98,14 @@ func (p *pipe) NextSubscribers() (bool, error) {
 	if len(subs) == 0 {
 		return false, nil
 	}
+
+	// Advance the in-memory fetch cursor to the last ID in the batch (batches
+	// are ordered by subscriber ID). This deliberately does not touch
+	// campaigns.last_subscriber_id in the DB: the durable checkpoint advances
+	// only from the send side (pipe.lastID, flushed by the manager's campaign
+	// scan and on pipe drain), keeping it behind confirmed sends so that a
+	// crash or restart can never skip fetched-but-unsent subscribers.
+	p.lastFetched.Store(int64(subs[len(subs)-1].ID))
 
 	// Is there a sliding window limit configured?
 	hasSliding := p.m.cfg.SlidingWindow &&
