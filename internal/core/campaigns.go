@@ -1,8 +1,10 @@
 package core
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
@@ -192,6 +194,7 @@ func (c *Core) CreateCampaign(o models.Campaign, listIDs []int, mediaIDs []int) 
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
 		o.BodySource,
+		o.SubscriberQuery,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noSubs"))
@@ -231,7 +234,8 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 		o.ArchiveTemplateID,
 		o.ArchiveMeta,
 		pq.Array(mediaIDs),
-		o.BodySource)
+		o.BodySource,
+		o.SubscriberQuery)
 	if err != nil {
 		c.log.Printf("error updating campaign: %v", err)
 		return models.Campaign{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -244,6 +248,92 @@ func (c *Core) UpdateCampaign(id int, o models.Campaign, listIDs []int, mediaIDs
 	}
 
 	return out, nil
+}
+
+// NextCampaignFilteredSubscribers fetches the next batch of subscribers for a campaign that has
+// a subscriber_query segment, splicing the (validated-at-save) expression into the filtered
+// send template. The expression is AND-gated with consent, so it can only narrow the set.
+func (c *Core) NextCampaignFilteredSubscribers(campID int, campType string, lastID, maxID int, listIDs []int, query string, limit int) ([]models.Subscriber, error) {
+	stmt := strings.ReplaceAll(c.q.NextCampaignSubscribersFiltered, "%query%", query)
+
+	var out []models.Subscriber
+	if err := c.db.Select(&out, stmt, campID, campType, lastID, maxID, pq.Array(listIDs), limit); err != nil {
+		c.log.Printf("error fetching filtered campaign subscribers: %v", err)
+		return nil, err
+	}
+
+	return out, nil
+}
+
+// SetCampaignFilteredToSend recomputes and persists to_send for a filtered campaign, returning
+// the new value. Run once at start since next-campaigns computes an unfiltered count.
+func (c *Core) SetCampaignFilteredToSend(campID int, query string) (int, error) {
+	stmt := strings.ReplaceAll(c.q.UpdateCampaignFilteredToSend, "%query%", query)
+
+	var n int
+	if err := c.db.Get(&n, stmt, campID); err != nil {
+		c.log.Printf("error setting filtered to_send count: %v", err)
+		return 0, err
+	}
+
+	return n, nil
+}
+
+// ValidateCampaignQuery checks that a segment expression references only allowed tables and
+// parses against the recipient-count query. EXPLAIN-only, no execution.
+func (c *Core) ValidateCampaignQuery(listIDs []int, campType, queryExp string) error {
+	if strings.TrimSpace(queryExp) == "" {
+		return nil
+	}
+	if listIDs == nil {
+		listIDs = []int{}
+	}
+
+	stmt := strings.ReplaceAll(c.q.CountCampaignRecipients, "%query%", queryExp)
+	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, pq.Array(listIDs), campType); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("subscribers.errorPreparingQuery", "error", err.Error()))
+	}
+
+	return nil
+}
+
+// CountCampaignRecipients returns how many subscribers of the given lists would receive a
+// campaign of campType after consent and an optional segment query (the recipients preview).
+func (c *Core) CountCampaignRecipients(listIDs []int, campType, queryExp string) (int, error) {
+	if listIDs == nil {
+		listIDs = []int{}
+	}
+
+	cond := "TRUE"
+	if strings.TrimSpace(queryExp) != "" {
+		cond = queryExp
+	}
+
+	stmt := strings.ReplaceAll(c.q.CountCampaignRecipients, "%query%", cond)
+	if cond != "TRUE" {
+		if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, pq.Array(listIDs), campType); err != nil {
+			return 0, echo.NewHTTPError(http.StatusBadRequest,
+				c.i18n.Ts("subscribers.errorPreparingQuery", "error", err.Error()))
+		}
+	}
+
+	// Read-only tx so an arbitrary expression can never mutate.
+	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		c.log.Printf("error preparing campaign recipient count: %v", err)
+		return 0, echo.NewHTTPError(http.StatusBadRequest,
+			c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+	}
+	defer tx.Rollback()
+
+	var total int
+	if err := tx.Get(&total, stmt, pq.Array(listIDs), campType); err != nil {
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	return total, nil
 }
 
 // UpdateCampaignStatus updates a campaign's status, eg: draft to running.

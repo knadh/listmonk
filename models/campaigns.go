@@ -60,6 +60,9 @@ type Campaign struct {
 	ArchiveTemplateID null.Int        `db:"archive_template_id" json:"archive_template_id"`
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
+	// Optional ad-hoc segment SQL expression AND-gated with consent at send time.
+	SubscriberQuery null.String `db:"subscriber_query" json:"subscriber_query"`
+
 	// TemplateBody is joined in from templates by the next-campaigns query.
 	TemplateBody        string             `db:"template_body" json:"-"`
 	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`

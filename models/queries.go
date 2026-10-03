@@ -84,6 +84,11 @@ type Queries struct {
 	GetRunningCampaign       *sqlx.Stmt `query:"get-running-campaign"`
 	NextCampaignSubscribers  *sqlx.Stmt `query:"next-campaign-subscribers"`
 	GetOneCampaignSubscriber *sqlx.Stmt `query:"get-one-campaign-subscriber"`
+
+	// Non-prepared arbitrary segment queries (carry a %query% subscriber filter).
+	NextCampaignSubscribersFiltered string `query:"next-campaign-subscribers-filtered"`
+	CountCampaignRecipients         string `query:"count-campaign-recipients"`
+	UpdateCampaignFilteredToSend    string `query:"update-campaign-filtered-to-send"`
 	UpdateCampaign           *sqlx.Stmt `query:"update-campaign"`
 	UpdateCampaignStatus     *sqlx.Stmt `query:"update-campaign-status"`
 	UpdateCampaignCounts     *sqlx.Stmt `query:"update-campaign-counts"`

@@ -81,6 +81,22 @@
                 <list-selector v-model="form.lists" :selected="form.lists" :all="lists.results" :disabled="!canEdit"
                   :label="$t('globals.terms.lists')" :placeholder="$t('campaigns.sendToLists')" />
 
+                <b-field v-if="form.messenger.startsWith('email') && $can('subscribers:sql_query')"
+                  :label="$t('campaigns.segment')" label-position="on-border" :message="$t('campaigns.segmentHelp')">
+                  <b-input v-model="form.subscriberQuery" type="textarea" :disabled="!canEdit" name="subscriber_query"
+                    placeholder="subscribers.attribs->>'city' = 'Berlin'" />
+                </b-field>
+                <div v-if="form.messenger.startsWith('email') && $can('subscribers:sql_query') && form.subscriberQuery"
+                  class="mb-4">
+                  <b-button icon-left="account-search-outline" :disabled="form.lists.length === 0"
+                    @click="onPreviewRecipients">
+                    {{ $t('campaigns.previewRecipients') }}
+                  </b-button>
+                  <span v-if="recipientCount !== null" class="ml-2 has-text-grey">
+                    {{ $t('campaigns.recipientCount', { num: recipientCount }) }}
+                  </span>
+                </div>
+
                 <div class="columns">
                   <div class="column is-6">
                     <b-field :label="$tc('globals.terms.messenger')" label-position="on-border">
@@ -359,6 +375,9 @@ export default Vue.extend({
       isPreviewingArchive: false,
       activeTab: 'campaign',
 
+      // Transient count from the "Preview recipients" button for the segment query.
+      recipientCount: null,
+
       data: {},
 
       // IDs from ?list_id query param.
@@ -375,6 +394,7 @@ export default Vue.extend({
         attribsStr: '{}',
         messenger: 'email',
         lists: [],
+        subscriberQuery: '',
         tags: [],
         sendAt: null,
         content: {
@@ -571,6 +591,7 @@ export default Vue.extend({
         name: this.form.name,
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
+        subscriber_query: this.form.subscriberQuery || null,
         from_email: this.form.fromEmail,
         content_type: this.form.content.contentType,
         messenger: this.form.messenger,
@@ -588,12 +609,22 @@ export default Vue.extend({
       return false;
     },
 
+    onPreviewRecipients() {
+      this.$api.previewCampaignRecipients({
+        lists: this.form.lists.map((l) => l.id),
+        query: this.form.subscriberQuery,
+      }).then((d) => {
+        this.recipientCount = d.count;
+      });
+    },
+
     async updateCampaign(typ) {
       const data = {
         archive_slug: this.form.archiveSlug,
         name: this.form.name,
         subject: this.form.subject,
         lists: this.form.lists.map((l) => l.id),
+        subscriber_query: this.form.subscriberQuery || null,
         from_email: this.form.fromEmail,
         messenger: this.form.messenger,
         type: 'regular',

@@ -302,6 +302,12 @@ export const createCampaign = async (data) => http.post(
   { loading: models.campaigns },
 );
 
+export const previewCampaignRecipients = async (data) => http.post(
+  '/api/campaigns/preview-recipients',
+  data,
+  { loading: models.campaigns },
+);
+
 export const getCampaignViewCounts = async (params) => http.get(
   '/api/campaigns/analytics/views',
   { params, loading: models.campaigns },

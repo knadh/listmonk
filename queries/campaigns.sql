@@ -25,7 +25,8 @@ WITH tpl AS (
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody,
         content_type, send_at, headers, attribs, tags, messenger, template_id, to_send,
-        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source)
+        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source,
+        subscriber_query)
         SELECT $1, $2, $3, $4, $5,
             -- body
             COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
@@ -40,7 +41,9 @@ camp AS (
             $18,
             $19,
             -- body_source
-            COALESCE($21, (SELECT body_source FROM tpl))
+            COALESCE($21, (SELECT body_source FROM tpl)),
+            -- subscriber_query
+            $22
         RETURNING id
 ),
 med AS (
@@ -309,7 +312,7 @@ SELECT link_clicks.campaign_id,
 -- name: get-running-campaign
 -- Returns the metadata for a running campaign that is required by next-campaign-subscribers to retrieve
 -- a batch of campaign subscribers for processing.
-SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id, lists.id AS list_id
+SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id, lists.id AS list_id, campaigns.subscriber_query
     FROM campaigns
     JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
     JOIN lists ON (lists.id = campaign_lists.list_id)
@@ -371,6 +374,100 @@ u AS (
 )
 SELECT * FROM subs;
 
+-- name: next-campaign-subscribers-filtered
+-- Identical to next-campaign-subscribers but aliases tables by their FULL names
+-- (subscribers, subscriber_lists) so a %query% segment expression (mirroring the
+-- subscribers advanced query) can be spliced in. Used only when a campaign has a
+-- non-empty subscriber_query. The consent CASE is canonical in next-campaigns.counts;
+-- %query% is AND-gated, so consent always wins.
+WITH campLists AS (
+    SELECT lists.id AS list_id, optin FROM lists
+    LEFT JOIN campaign_lists ON campaign_lists.list_id = lists.id
+    WHERE campaign_lists.campaign_id = $1
+),
+subs AS (
+    SELECT subscribers.*
+    FROM (
+        SELECT DISTINCT subscribers.id
+        FROM subscriber_lists
+        JOIN campLists ON subscriber_lists.list_id = campLists.list_id
+        JOIN subscribers ON subscribers.id = subscriber_lists.subscriber_id
+        WHERE
+            subscriber_lists.list_id = ANY($5::INT[])
+            AND subscribers.id > $3
+            AND subscribers.id <= $4
+            AND subscribers.status != 'blocklisted'
+            AND (
+                ($2 = 'optin' AND subscriber_lists.status = 'unconfirmed' AND campLists.optin = 'double')
+                OR (
+                    $2 != 'optin' AND (
+                        (campLists.optin = 'double' AND subscriber_lists.status = 'confirmed') OR
+                        (campLists.optin != 'double' AND subscriber_lists.status != 'unsubscribed')
+                    )
+                )
+            )
+            AND %query%
+        ORDER BY subscribers.id LIMIT $6
+    ) subIDs JOIN subscribers ON (subscribers.id = subIDs.id) ORDER BY subscribers.id
+),
+u AS (
+    UPDATE campaigns
+    SET last_subscriber_id = (SELECT MAX(id) FROM subs), updated_at = NOW()
+    WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1
+)
+SELECT * FROM subs;
+
+-- name: count-campaign-recipients
+-- Counts recipients for a set of lists ($1) and campaign type ($2) applying consent
+-- AND the %query% segment. Keyed by list_ids (not a campaign) so it serves both the
+-- recipients preview and save-time validation. Consent CASE mirrors next-campaigns.counts.
+WITH campLists AS (
+    SELECT lists.id AS list_id, lists.optin FROM lists WHERE lists.id = ANY($1::INT[])
+)
+SELECT COUNT(DISTINCT subscribers.id) AS total
+FROM campLists
+JOIN subscriber_lists ON subscriber_lists.list_id = campLists.list_id
+    AND (
+        CASE
+            WHEN $2 = 'optin' THEN subscriber_lists.status = 'unconfirmed' AND campLists.optin = 'double'
+            WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed'
+            ELSE subscriber_lists.status != 'unsubscribed'
+        END
+    )
+JOIN subscribers ON subscribers.id = subscriber_lists.subscriber_id AND subscribers.status != 'blocklisted'
+WHERE %query%;
+
+-- name: update-campaign-filtered-to-send
+-- Recomputes to_send for a single campaign ($1) applying consent AND the %query% segment,
+-- then persists it. Run once when a filtered campaign starts (next-campaigns computes an
+-- unfiltered count). Consent CASE mirrors next-campaigns.counts.
+WITH camp AS (
+    SELECT id, type FROM campaigns WHERE id = $1
+),
+campLists AS (
+    SELECT lists.id AS list_id, lists.optin FROM lists
+    INNER JOIN campaign_lists ON campaign_lists.list_id = lists.id
+    WHERE campaign_lists.campaign_id = $1
+),
+counts AS (
+    SELECT COUNT(DISTINCT subscribers.id) AS to_send
+    FROM camp
+    JOIN campLists ON TRUE
+    JOIN subscriber_lists ON subscriber_lists.list_id = campLists.list_id
+        AND (
+            CASE
+                WHEN camp.type = 'optin' THEN subscriber_lists.status = 'unconfirmed' AND campLists.optin = 'double'
+                WHEN campLists.optin = 'double' THEN subscriber_lists.status = 'confirmed'
+                ELSE subscriber_lists.status != 'unsubscribed'
+            END
+        )
+    JOIN subscribers ON subscribers.id = subscriber_lists.subscriber_id AND subscribers.status != 'blocklisted'
+    WHERE %query%
+)
+UPDATE campaigns SET to_send = COALESCE((SELECT to_send FROM counts), 0), updated_at = NOW()
+WHERE id = $1
+RETURNING to_send;
+
 -- name: delete-campaign-views
 DELETE FROM campaign_views WHERE created_at < $1;
 
@@ -412,6 +509,7 @@ WITH camp AS (
         archive_template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $17::INT END),
         archive_meta=$18,
         body_source=$20,
+        subscriber_query=$21,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
