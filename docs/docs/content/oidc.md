@@ -6,6 +6,213 @@ Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compl
 ### User auto-creation
 If `Settings -> Security -> OIDC -> Auto-create users` is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID).
 
+## OIDC role mappings
+
+When OIDC user auto-creation is enabled, listmonk can assign user and list roles based on claims present in the verified OIDC ID token.
+
+Role mappings are evaluated only when a new OIDC user is automatically created. Existing users are not updated on subsequent logins, even if their OIDC claims change.
+
+### Supported claim values
+
+Role mappings support top-level OIDC claims with either of these JSON types:
+
+- string
+- array of strings
+
+Matching is exact and case-sensitive.
+
+Nested claims, regular expressions, glob patterns, JSONPath expressions, boolean logic, and partial matches are not supported.
+
+For complex provider-specific claims, configure the identity provider to expose the required value as a top-level ID token claim.
+
+### Mapping behavior
+
+Mappings are evaluated in declaration order.
+
+The first matching mapping wins.
+
+A mapping can define:
+
+- `user_role_id`
+- `list_role_id`
+- or both
+
+If a matching mapping omits one of these fields, the corresponding configured default OIDC role is preserved.
+
+If no mapping matches, the configured OIDC default user role and default list role are used.
+
+Example:
+
+```json
+[
+  {
+    "claim": "groups",
+    "match": "listmonk-admin",
+    "user_role_id": 1
+  },
+  {
+    "claim": "department",
+    "match": "IT",
+    "user_role_id": 5,
+    "list_role_id": 6
+  }
+]
+```
+
+For an ID token such as:
+
+```json
+{
+  "groups": [
+    "users",
+    "listmonk-admin"
+  ],
+  "department": "IT"
+}
+```
+
+the first mapping matches and wins. The user receives `user_role_id = 1`, while the configured default list role is preserved.
+
+If the mappings are reversed, the `department = IT` mapping wins instead.
+
+### Managing role mappings through the API
+
+OIDC role mappings can be managed without directly editing the database.
+
+#### Get the current mappings
+
+```http
+GET /api/settings/oidc/role-mappings
+```
+
+The caller must have the `settings:get` permission.
+
+Example response:
+
+```json
+{
+  "data": [
+    {
+      "claim": "department",
+      "match": "IT",
+      "list_role_id": 6
+    },
+    {
+      "claim": "groups",
+      "match": "listmonk-admin",
+      "user_role_id": 1
+    }
+  ]
+}
+```
+
+#### Replace the mappings
+
+```http
+PUT /api/settings/oidc/role-mappings
+Content-Type: application/json
+```
+
+The caller must have the `settings:manage` permission.
+
+The request body is the complete ordered list of mappings:
+
+```json
+[
+  {
+    "claim": "department",
+    "match": "IT",
+    "list_role_id": 6
+  },
+  {
+    "claim": "groups",
+    "match": "listmonk-admin",
+    "user_role_id": 1
+  }
+]
+```
+
+The API validates each mapping before saving it.
+
+Each mapping must have:
+
+- a non-empty `claim`
+- a non-empty `match`
+- at least one of `user_role_id` or `list_role_id`
+
+Referenced role IDs must exist and must be valid for the corresponding role type.
+
+If validation fails, the API returns an HTTP `400` response and the existing mappings are left unchanged.
+
+After a successful update, listmonk uses its normal settings reload mechanism.
+
+### Example with a string claim
+
+ID token:
+
+```json
+{
+  "department": "IT"
+}
+```
+
+Mapping:
+
+```json
+[
+  {
+    "claim": "department",
+    "match": "IT",
+    "user_role_id": 5,
+    "list_role_id": 6
+  }
+]
+```
+
+A newly auto-created user receives user role `5` and list role `6`.
+
+### Example with an array claim
+
+ID token:
+
+```json
+{
+  "groups": [
+    "users",
+    "marketing",
+    "listmonk-admin"
+  ]
+}
+```
+
+Mapping:
+
+```json
+[
+  {
+    "claim": "groups",
+    "match": "listmonk-admin",
+    "user_role_id": 1
+  }
+]
+```
+
+The mapping matches because one value in the `groups` array is exactly `listmonk-admin`.
+
+Only the user role is overridden. The configured default list role is preserved.
+
+### Important notes
+
+- Role mappings apply only to newly auto-created OIDC users.
+- Existing users are not resynchronized on login.
+- Claim names are top-level ID token claim names.
+- Matching is exact and case-sensitive.
+- Array claims are supported only when all values are strings.
+- The first matching mapping wins.
+- If no mapping matches, the configured default OIDC roles are used.
+- The identity provider must include mapped claims in the OIDC ID token.
+
+
 # Tutorials
 
 Tutorials for configuring listmonk SSO with popular OIDC providers.

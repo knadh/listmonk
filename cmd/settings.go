@@ -98,6 +98,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	// Preserve OIDC role mappings when older clients do not send the field.
+	// An explicit empty array still clears the mappings.
+	if set.OIDC.RoleMappings == nil {
+		set.OIDC.RoleMappings = cur.OIDC.RoleMappings
+	}
+
 	// Validate and sanitize postback Messenger names along with SMTP names
 	// (where each SMTP is also considered as a standalone messenger).
 	// Duplicates are disallowed and "email" is a reserved name.
@@ -262,6 +268,14 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		}
 	}
 
+	userRoleIDs, listRoleIDs, err := a.getOIDCRoleIDSets()
+	if err != nil {
+		return err
+	}
+	if err := validateOIDCRoleMappings(set.OIDC.RoleMappings, userRoleIDs, listRoleIDs); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	for n, v := range set.UploadExtensions {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}
@@ -333,6 +347,93 @@ func (a *App) UpdateSettingsByKey(c echo.Context) error {
 
 	// Update the value in the DB.
 	if err := a.core.UpdateSettingsByKey(key, b); err != nil {
+		return err
+	}
+
+	return a.handleSettingsRestart(c)
+}
+
+func (a *App) getOIDCRoleIDSets() (map[int]struct{}, map[int]struct{}, error) {
+	userRoles, err := a.core.GetRoles()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	listRoles, err := a.core.GetListRoles()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	userRoleIDs := make(map[int]struct{}, len(userRoles))
+	for _, role := range userRoles {
+		userRoleIDs[role.ID] = struct{}{}
+	}
+
+	listRoleIDs := make(map[int]struct{}, len(listRoles))
+	for _, role := range listRoles {
+		listRoleIDs[role.ID] = struct{}{}
+	}
+
+	return userRoleIDs, listRoleIDs, nil
+}
+
+// GetOIDCRoleMappings returns the configured OIDC role mappings.
+func (a *App) GetOIDCRoleMappings(c echo.Context) error {
+	set, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+
+	mappings := set.OIDC.RoleMappings
+	if mappings == nil {
+		mappings = []models.OIDCRoleMapping{}
+	}
+
+	return c.JSON(http.StatusOK, okResp{mappings})
+}
+
+// UpdateOIDCRoleMappings validates and updates the OIDC role mappings.
+func (a *App) UpdateOIDCRoleMappings(c echo.Context) error {
+	mappings := []models.OIDCRoleMapping{}
+	if err := c.Bind(&mappings); err != nil {
+		return echo.NewHTTPError(
+			http.StatusBadRequest,
+			a.i18n.T("globals.messages.invalidData"),
+		)
+	}
+
+	userRoleIDs, listRoleIDs, err := a.getOIDCRoleIDSets()
+	if err != nil {
+		return err
+	}
+
+	if err := validateOIDCRoleMappings(
+		mappings,
+		userRoleIDs,
+		listRoleIDs,
+	); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Read the current OIDC settings server-side. This is important because
+	// GetSettings() returns the real client secret internally, while the public
+	// settings API masks secrets before returning them.
+	set, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+
+	set.OIDC.RoleMappings = mappings
+
+	raw, err := json.Marshal(set.OIDC)
+	if err != nil {
+		return echo.NewHTTPError(
+			http.StatusInternalServerError,
+			a.i18n.Ts("settings.errorEncoding", "error", err.Error()),
+		)
+	}
+
+	if err := a.core.UpdateSettingsByKey("security.oidc", raw); err != nil {
 		return err
 	}
 
