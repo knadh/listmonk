@@ -116,6 +116,20 @@ a {
     }
 }
 
+:is(.button, button).external {
+    background-color: var(--card);
+    border-color: var(--primary);
+
+    &:not([data-variant="danger"]):not([data-variant="secondary"]) {
+        border-color: light-dark(#ddd, var(--input));
+    }
+
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+}
+
 textarea.monospace {
     font-family: var(--font-mono);
 }
@@ -176,6 +190,7 @@ ot-tabs:not(:defined) {
 
 [role="tablist"][data-variant="primary"] {
     margin-bottom: var(--space-4);
+    background-color: light-dark(#ededee, var(--muted));
 }
 
 fieldset {

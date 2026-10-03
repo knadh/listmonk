@@ -80,7 +80,7 @@
 					</a>
 				</div>
 				<div class="hstack gap-3 justify-end">
-					<a href="{{ $base }}" class="button outline">{{ .L.T "globals.buttons.back" }}</a>
+					<a href="{{ $base }}" class="button outline external">{{ .L.T "globals.buttons.back" }}</a>
 					<button type="submit" data-variant="primary" data-testid="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
 				</div>
 			</footer>

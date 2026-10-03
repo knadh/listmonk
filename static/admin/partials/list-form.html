@@ -55,7 +55,7 @@
 				{{- end }}
 			</div>
 			<div class="hstack gap-3 justify-end">
-				<a href="{{ URI "/admin/lists" }}" class="button outline">{{ $root.L.T "globals.buttons.back" }}</a>
+				<a href="{{ URI "/admin/lists" }}" class="button outline external">{{ $root.L.T "globals.buttons.back" }}</a>
 				{{- if $canSave }}
 					<button type="submit" data-variant="primary" data-testid="btn-save" data-spinner="small" :disabled="isLoading('lists.save')" :aria-busy="isLoading('lists.save')">{{ $root.L.T "globals.buttons.save" }}</button>
 				{{- end }}

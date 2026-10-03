@@ -23,7 +23,7 @@
 				{{- $d.Page.FormFields "query" "page" -}}
 				<fieldset class="group">
 					<input name="query" aria-label="Search" data-cy="query" placeholder="{{ .L.T "campaigns.queryPlaceholder" }}" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+					<button type="submit" class="outline external" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}

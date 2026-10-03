@@ -33,7 +33,7 @@
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
 					<input name="query" aria-label="Search" data-testid="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline" data-testid="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+					<button type="submit" class="outline external" data-testid="btn-query" aria-label="Search">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $d.Can "lists:manage_all" }}
