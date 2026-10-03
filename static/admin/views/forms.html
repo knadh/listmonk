@@ -10,7 +10,7 @@
 		</div>
 		<div class="col-8 col-end align-right hstack justify-end">
 			{{- if $.ConfigJS.PublicSubscription.Enabled }}
-				<a href="{{ $.ConfigJS.RootURL }}/subscription/form" target="_blank" rel="noopener noreferrer" class="button outline small" data-testid="url" title="{{ $.ConfigJS.RootURL }}/subscription/form">
+				<a href="{{ $.ConfigJS.RootURL }}/subscription/form" target="_blank" rel="noopener noreferrer" class="button outline small external" data-testid="url" title="{{ $.ConfigJS.RootURL }}/subscription/form">
 					{{ Icon "arrow-up-right" }} {{ .L.T "forms.publicSubPage" }}
 				</a>
 			{{- end }}
