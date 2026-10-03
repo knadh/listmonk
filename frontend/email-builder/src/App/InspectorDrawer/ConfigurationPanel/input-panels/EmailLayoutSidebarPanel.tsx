@@ -7,6 +7,7 @@ import EmailLayoutPropsSchema, {
 } from '../../../../documents/blocks/EmailLayout/EmailLayoutPropsSchema';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import MarkdownStylesInput from './helpers/MarkdownStylesInput';
 import BooleanInput from './helpers/inputs/BooleanInput';
 import ColorInput, { NullableColorInput } from './helpers/inputs/ColorInput';
 import { NullableFontFamily } from './helpers/inputs/FontFamily';
@@ -71,6 +72,10 @@ export default function EmailLayoutSidebarFields({ data, setData }: EmailLayoutS
         label="Outlook compatibility"
         defaultValue={data.outlook ?? false}
         onChange={(outlook) => updateData({ ...data, outlook })}
+      />
+      <MarkdownStylesInput
+        value={data.markdownStyles}
+        onChange={(markdownStyles) => updateData({ ...data, markdownStyles })}
       />
     </BaseSidebarPanel>
   );

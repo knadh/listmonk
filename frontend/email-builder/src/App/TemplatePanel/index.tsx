@@ -11,6 +11,7 @@ import {
   useSelectedMainTab,
   useSelectedScreenSize,
 } from '../../documents/editor/EditorContext';
+import { setActiveMarkdownStyles } from '../../documents/blocks/Text/markdownStyles';
 import ToggleInspectorPanelButton from '../InspectorDrawer/ToggleInspectorPanelButton';
 
 import DownloadJson from './DownloadJson';
@@ -21,6 +22,8 @@ import MainTabsGroup from './MainTabsGroup';
 
 export default function TemplatePanel() {
   const document = useDocument();
+  // The preview's Reader renders blocks that can't receive the styles as props.
+  setActiveMarkdownStyles(document.root?.type === 'EmailLayout' ? document.root.data?.markdownStyles : null);
   const selectedMainTab = useSelectedMainTab();
   const selectedScreenSize = useSelectedScreenSize();
 

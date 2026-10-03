@@ -30,6 +30,8 @@ const EmailLayoutPropsSchema = z.object({
   fontFamily: FONT_FAMILY_SCHEMA,
   childrenIds: z.array(z.string()).optional().nullable(),
   outlook: z.boolean().optional().nullable(),
+  // Element (h1, p, ul...) -> inline CSS declarations applied to rendered Markdown.
+  markdownStyles: z.record(z.string(), z.string()).optional().nullable(),
 });
 
 export default EmailLayoutPropsSchema;
