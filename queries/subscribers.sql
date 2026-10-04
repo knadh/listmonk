@@ -252,6 +252,9 @@ UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
 -- Unsubscribes a subscriber given a campaign UUID (from all the lists in the campaign) and the subscriber UUID.
 -- If $3 is TRUE, then all subscriptions of the subscriber is blocklisted
 -- and all existing subscriptions, irrespective of lists, unsubscribed.
+-- Opt-in confirmation mail has no campaign. It uses the all-zero UUID in List-Unsubscribe.
+-- That sentinel cancels pending (unconfirmed) subscriptions only, so one-click does not
+-- report success while leaving the subscriber unconfirmed, and does not touch confirmed lists.
 WITH lists AS (
     SELECT list_id FROM campaign_lists
     LEFT JOIN campaigns ON (campaign_lists.campaign_id = campaigns.id)
@@ -263,8 +266,14 @@ sub AS (
 )
 UPDATE subscriber_lists SET status = 'unsubscribed', updated_at=NOW() WHERE
     subscriber_id = (SELECT id FROM sub) AND status != 'unsubscribed' AND
-    -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
-    CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
+    CASE
+        -- Blocklist: every list.
+        WHEN $3 IS TRUE THEN list_id != 0
+        -- One-click on a double opt-in confirmation: cancel pending opt-ins only.
+        WHEN $1 = '00000000-0000-0000-0000-000000000000'::uuid THEN status = 'unconfirmed'
+        -- Otherwise unsubscribe from the campaign's lists.
+        ELSE list_id = ANY(SELECT list_id FROM lists)
+    END;
 
 -- name: delete-unconfirmed-subscriptions
 WITH optins AS (

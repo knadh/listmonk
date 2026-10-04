@@ -882,6 +882,8 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 			qListIDs.Add("l", l.UUID)
 		}
 		out.OptinURL = fmt.Sprintf(u.OptinURL, sub.UUID, qListIDs.Encode())
+		// No campaign exists for this mail. dummyUUID is the one-click target;
+		// unsubscribe-by-campaign cancels unconfirmed subscriptions for it.
 		out.UnsubURL = fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
 
 		// Unsub headers.
