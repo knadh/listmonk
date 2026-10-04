@@ -98,10 +98,6 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 	if out.Tags == nil {
 		out.Tags = []string{}
 	}
-	// Total counts.
-	for _, c := range out.SubscriberCounts {
-		out.SubscriberCount += c
-	}
 
 	return out, nil
 }
