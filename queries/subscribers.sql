@@ -266,6 +266,14 @@ UPDATE subscriber_lists SET status = 'unsubscribed', updated_at=NOW() WHERE
     -- If $3 is false, unsubscribe from the campaign's lists, otherwise all lists.
     CASE WHEN $3 IS FALSE THEN list_id = ANY(SELECT list_id FROM lists) ELSE list_id != 0 END;
 
+-- name: unsubscribe-unconfirmed-subscriptions
+-- Marks a subscriber's unconfirmed (pending double opt-in) subscriptions as unsubscribed.
+-- Used when the List-Unsubscribe URL in an opt-in confirmation e-mail is invoked; that
+-- URL carries a placeholder campaign UUID as there is no campaign to map it to.
+UPDATE subscriber_lists SET status='unsubscribed', updated_at=NOW()
+    WHERE status = 'unconfirmed' AND
+    subscriber_id = (SELECT id FROM subscribers WHERE uuid = $1);
+
 -- name: delete-unconfirmed-subscriptions
 WITH optins AS (
     SELECT id FROM lists WHERE optin = 'double'

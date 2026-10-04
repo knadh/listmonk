@@ -275,7 +275,17 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 		blocklist = a.cfg.Privacy.AllowBlocklist && req.Blocklist
 	)
 	if !req.Manage || blocklist {
-		if err := a.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist); err != nil {
+		var err error
+		if blocklist || campUUID != dummyUUID {
+			err = a.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist)
+		} else {
+			// Opt-in confirmation e-mails carry a placeholder campaign UUID in
+			// the List-Unsubscribe URL as there is no campaign. A one-click
+			// unsubscribe on it cancels the subscriber's pending (unconfirmed)
+			// subscriptions.
+			err = a.core.UnsubscribeUnconfirmed(subUUID)
+		}
+		if err != nil {
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.errorProcessingRequest")))
 		}

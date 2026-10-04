@@ -509,6 +509,20 @@ func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) e
 	return nil
 }
 
+// UnsubscribeUnconfirmed marks a subscriber's unconfirmed (pending double opt-in)
+// subscriptions as unsubscribed. This is used when the one-click unsubscribe URL
+// in an opt-in confirmation e-mail is invoked. That URL carries a placeholder
+// campaign UUID as there is no campaign to map it to.
+func (c *Core) UnsubscribeUnconfirmed(subUUID string) error {
+	if _, err := c.q.UnsubscribeUnconfirmed.Exec(subUUID); err != nil {
+		c.log.Printf("error unsubscribing unconfirmed subscriptions: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // ConfirmOptionSubscription confirms a subscriber's optin subscription.
 func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string, meta models.JSON) error {
 	if meta == nil {
