@@ -26,6 +26,10 @@ type lettermintNotif struct {
 			EnhancedStatus string `json:"enhanced_status_code"`
 			Content        string `json:"content"`
 		} `json:"response"`
+		Headers []struct {
+			Name  string `json:"name"`
+			Value string `json:"value"`
+		} `json:"headers"`
 		Metadata json.RawMessage `json:"metadata"`
 		Tag      string          `json:"tag"`
 	} `json:"data"`
@@ -92,7 +96,13 @@ func (l *Lettermint) ProcessBounce(sig string, body []byte) ([]models.Bounce, er
 	}
 
 	campUUID := ""
-	if len(n.Data.Metadata) > 0 {
+	for _, header := range n.Data.Headers {
+		if strings.EqualFold(header.Name, models.EmailHeaderCampaignUUID) && strings.TrimSpace(header.Value) != "" {
+			campUUID = strings.TrimSpace(header.Value)
+			break
+		}
+	}
+	if campUUID == "" && len(n.Data.Metadata) > 0 {
 		var meta map[string]string
 		if err := json.Unmarshal(n.Data.Metadata, &meta); err == nil {
 			if v, ok := meta["X-Listmonk-Campaign"]; ok {

@@ -54,6 +54,22 @@ listmonk supports receiving bounce webhook events from the following SMTP provid
 | `https://listmonk.yoursite.com/webhooks/service/forwardemail` | Forward Email webhook                  | [More info](https://forwardemail.net/en/faq#do-you-support-bounce-webhooks)                                           |
 | `https://listmonk.yoursite.com/webhooks/service/lettermint`   | Lettermint webhook                     | [More info](https://lettermint.co/knowledge-base/guides/send-newsletter-with-listmonk)                                                |
 
+## Lettermint
+
+Configure `/webhooks/service/lettermint` as the Lettermint webhook destination. Set the webhook signing key in Settings -> Bounces -> Lettermint. Subscribe to `message.hard_bounced`, `message.soft_bounced`, and `message.spam_complaint`.
+
+The handler reads the first nonempty `X-Listmonk-Campaign` entry from `data.headers`. It compares header names without case sensitivity. If no campaign header exists, it uses `data.metadata["X-Listmonk-Campaign"]`.
+
+Older listmonk versions use only metadata. For those versions, add this campaign custom header:
+
+```json
+[
+  {"X-LM-Metadata-X-Listmonk-Campaign": "{{ .Campaign.UUID }}"}
+]
+```
+
+Lettermint consumes this header and stores the campaign UUID as webhook metadata. It does not change metadata for messages already accepted. Messages with no campaign header or metadata can still record a bounce, but the bounce has no campaign ID.
+
 ## Amazon Simple Email Service (SES)
 
 If using SES as your SMTP provider, automatic bounce processing is the recommended way to maintain your [sender reputation](https://docs.aws.amazon.com/ses/latest/dg/monitor-sender-reputation.html). The settings below are based on Amazon's [recommendations](https://docs.aws.amazon.com/ses/latest/dg/send-email-concepts-deliverability.html). Please note that your sending domain must be verified in SES before proceeding.
