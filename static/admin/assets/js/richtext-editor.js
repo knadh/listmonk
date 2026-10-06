@@ -351,7 +351,6 @@ class RichtextEditor extends HTMLElement {
     f.url.value = tracked ? href.slice(0, -TRACK_SUFFIX.length) : href;
     f.text.value = a ? a.textContent : sel;
     f.title.value = a?.getAttribute('title') ?? '';
-    f.newwindow.checked = a?.getAttribute('target') === '_blank';
     f.track.checked = a ? tracked : localStorage.getItem(TRACK_KEY) === 'true';
 
     d.querySelector('[data-rte-act="submit"]').onclick = () => {
@@ -369,10 +368,6 @@ class RichtextEditor extends HTMLElement {
       const attrs = {};
       if (f.title.value.trim()) {
         attrs.title = f.title.value.trim();
-      }
-      if (f.newwindow.checked) {
-        attrs.target = '_blank';
-        attrs.rel = 'noopener noreferrer';
       }
 
       ed.focus();
