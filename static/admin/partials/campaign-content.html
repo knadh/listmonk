@@ -4,8 +4,8 @@
 {{- $canManage := .CanManage -}}
 {{- $canSend := .CanSend -}}
 <div class="page-content content editor">
-	<fieldset class="card">
-		<legend>{{ $root.L.T "campaigns.content" }}</legend>
+	<fieldset class="card editor-box">
+		<!-- <legend>{{ $root.L.T "campaigns.content" }}</legend> -->
 		<div class="editor-body" :class="{ 'is-loading': showEditorSpinner }" @editor-ready="editorReady = true" @campaign-save.window="onSave" @campaign-preview.window="onPreviewContent" @richtext-media="onEditorMedia($event)" @visual-media="onEditorMedia($event)" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source">
 			<template x-if="contentReady && form.content_type === 'richtext'">
 				{{ template "richtext-editor" dict "Root" $root "Body" $c.Body "Disabled" (not (or (eq $c.Status "draft") (eq $c.Status "scheduled") (eq $c.Status "paused"))) }}
