@@ -1144,15 +1144,18 @@ func initCron(co *core.Core, db *sqlx.DB) {
 		if intval == "" {
 			lo.Println("error: invalid cron interval string for slow query cache")
 		} else {
-			_, err := c.Add(intval, func() {
-				lo.Println("refreshing slow query cache")
-				_ = co.RefreshMatViews(true)
-				lo.Println("done refreshing slow query cache")
-			})
+			schedule, err := parseCronString(intval)
+			if err == nil {
+				_, err = c.Schedule(schedule, func() {
+					lo.Println("refreshing slow query cache")
+					_ = co.RefreshMatViews(true)
+					lo.Println("done refreshing slow query cache")
+				})
+			}
 			if err != nil {
 				lo.Printf("error initializing slow cache query cron: %v", err)
 			} else {
-				lo.Printf("IMPORTANT: database slow query caching is enabled. Aggregate numbers and stats will not be realtime. Next refresh at: %v", c.Entries()[len(c.Entries())-1].Next)
+				lo.Printf("IMPORTANT: database slow query caching is enabled. Aggregate numbers and stats will not be realtime. Next refresh at: %v", schedule.Next(time.Now()))
 			}
 		}
 	}
@@ -1163,9 +1166,12 @@ func initCron(co *core.Core, db *sqlx.DB) {
 		if intval == "" {
 			lo.Println("error: invalid cron interval string for database vacuum")
 		} else {
-			_, err := c.Add(intval, func() {
-				RunDBVacuum(db, lo)
-			})
+			schedule, err := parseCronString(intval)
+			if err == nil {
+				_, err = c.Schedule(schedule, func() {
+					RunDBVacuum(db, lo)
+				})
+			}
 			if err != nil {
 				lo.Printf("error initializing database vacuum cron: %v", err)
 			} else {
@@ -1506,4 +1512,13 @@ func badgeContent(content any) template.HTML {
 	}
 
 	return template.HTML(template.HTMLEscapeString(fmt.Sprint(content)))
+}
+
+// parseCronString parses a standard cron expression.
+func parseCronString(spec string) (cron.Schedule, error) {
+	p, err := cron.NewDefaultParser(cron.StandardOptions)
+	if err != nil {
+		return nil, err
+	}
+	return p.Parse(spec)
 }
