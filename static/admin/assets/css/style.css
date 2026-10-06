@@ -651,6 +651,7 @@ main {
 
 /* Components */
 .page-header {
+    min-height: calc(1lh + 2 * var(--space-2) + 2px);
     margin-bottom: var(--space-6);
 
     .back {
@@ -906,8 +907,6 @@ td > .empty-state {
 
 visual-editor {
     display: block;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-small);
     width: 100%;
 
     iframe {
@@ -1148,9 +1147,14 @@ section.campaign {
         }
     }
 
-    .editor .editor-body {
-        position: relative;
-        min-height: 65vh;
+    .editor {
+        .editor-body {
+            position: relative;
+            min-height: 65vh;
+        }
+        .editor-box {
+            padding: 0;
+        }
     }
 
     [role="tabpanel"] {
