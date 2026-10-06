@@ -1090,7 +1090,7 @@ section.campaigns {
                 .avatar span {
                     width: 20px;
                     height: 20px;
-                    font-size: 10px;
+                    font-size: 0.6rem;
                 }
 
                 a {
