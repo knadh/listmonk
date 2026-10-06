@@ -40,8 +40,8 @@
 							<td>
 								<div class="name-stack">
 									{{ template "avatar" dict "Kind" (printf "%s-role" $d.Type) "Seed" (printf "%d" .ID) "Name" .Name }}
-									<a href="{{ $base }}/{{ .ID }}" class="unstyled">
-										{{- if eq .ID 1 }}{{ Badge (list (Icon "star") .Name) "enum" }}{{ else }}{{ .Name }}{{ end -}}
+									<a href="{{ $base }}/{{ .ID }}" class="unstyled" {{ if eq .ID 1 }}style="font-weight: bold"{{ end}}>
+										{{ .Name }}
 									</a>
 								</div>
 							</td>
