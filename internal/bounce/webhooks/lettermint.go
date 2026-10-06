@@ -88,12 +88,6 @@ func (l *Lettermint) ProcessBounce(sig string, body []byte) ([]models.Bounce, er
 		typ = models.BounceTypeHard
 	case "message.soft_bounced":
 		typ = models.BounceTypeSoft
-	case "message.failed":
-		if strings.TrimSpace(n.Data.Recipient) == "" {
-			return nil, nil
-		}
-		// Processing and TLS failures do not establish an invalid recipient.
-		typ = models.BounceTypeSoft
 	case "message.spam_complaint":
 		typ = models.BounceTypeComplaint
 	default:
