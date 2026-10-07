@@ -109,7 +109,7 @@
 										<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 										{{- if ne .Status "enabled" }}
 											{{- $label := $.L.T (printf "subscribers.status.%s" .Status) }}
-											<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (or (index $statusIcons .Status) "help-circle") }}</a>
+											<a href="{{ $base }}?status={{ .Status }}" class="status-icon status-{{ .Status }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $label }}" aria-label="{{ $.L.T "globals.buttons.filter" }} {{ $label }}">{{ Icon (or (index $statusIcons .Status) "help-circle") }}</a>
 										{{- end }}
 										{{- if .ParsedLists }}
 											<div class="mt-2">
@@ -117,7 +117,7 @@
 												{{- range $i, $l := .ParsedLists }}
 													{{- if lt $i 2 }}
 														<span>
-															<a class="unstyled text-light" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}">{{ $l.Name }}
+															<a class="unstyled text-light" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $l.Name }}">{{ $l.Name }}
 															{{- if or (eq $l.Optin "double") (eq $l.SubscriptionStatus "unsubscribed") }}
 																{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
 																<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}</span>
