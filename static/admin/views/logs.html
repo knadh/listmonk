@@ -14,7 +14,7 @@
 					<span class="line">
 						<span class="timestamp" x-text="l.timestamp"></span>
 						<span class="file" x-show="l.file && l.file !== '*'" x-text="l.file + ':'"></span>
-						<span class="log-message" x-text="l.message"></span>
+						<span class="log-message" :class="{ error: l.message.includes('error') }" x-text="l.message"></span>
 					</span>
 				</template>
 			</div>
