@@ -984,8 +984,8 @@ visual-editor {
     .campaign-test.campaign-test {
         position-anchor: --campaign-test-anchor;
         inset: auto !important;
-        bottom: calc(anchor(top) + var(--space-1)) !important;
-        left: anchor(left) !important;
+        top: calc(anchor(bottom) + var(--space-1)) !important;
+        right: anchor(right) !important;
     }
 
     .media-upload-btn {

@@ -218,7 +218,8 @@ test('previews and test-sends unsaved content without modifying the draft', asyn
   await fillBody(page, 'plain', 'Unsaved hello {{ .Subscriber.Name }}');
   await button(page, 'Preview').click();
   await expect(page.frameLocator('.preview-modal iframe').locator('body')).toContainText('Unsaved hello Demo Subscriber');
-  await button(page, 'Send test message').click();
+  await button(page.locator('.preview-modal'), 'Close').click();
+  await button(page.locator('.page-header'), 'Send test message').click();
   await page.locator('#campaign-test input[type="email"]').fill('john@example.com');
   await page.locator('#campaign-test input[type="email"]').press('Enter');
   await button(page.locator('#campaign-test'), 'Send').click();
