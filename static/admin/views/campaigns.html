@@ -85,7 +85,7 @@
 										<div>
 											<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
 											{{- if eq .Type "optin" }}
-												<a href="{{ $base }}?type=optin" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "lists.optin" }}">{{ Badge (list (Icon "user-check") ($.L.T "lists.optin")) "small outline" }}</a>
+												<a href="{{ $base }}?type=optin" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "lists.optin" }}">{{ Badge (list (Icon "user-check") ($.L.T "lists.optin")) "small outline" }}</a>
 											{{- end }}
 											<div class="subject text-8 text-light">
 												<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Subject }}</a>
@@ -93,7 +93,7 @@
 										</div>
 										{{- if .Tags }}
 											<div class="hstack gap-2 text-8">
-												{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" class="tag">#{{ . }}</a>{{ end }}
+												{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}" class="tag">#{{ . }}</a>{{ end }}
 											</div>
 										{{- end }}
 									</div>
@@ -101,7 +101,7 @@
 							</td>
 							<td class="type">
 								<div class="vstack gap-1">
-									<a href="{{ $base }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "campaigns.status.%s" .Status) }}">
+									<a href="{{ $base }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "campaigns.status.%s" .Status) }}">
 										{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}
 										{{- if eq .Status "running" }}<span class="spinner" data-spinner="small" aria-busy="true"></span>{{ end }}
 									</a>
@@ -120,7 +120,7 @@
 									{{- range .ParsedLists }}
 										<li class="name-stack">
 											{{ template "avatar" dict "Kind" "list" "Seed" (printf "%d" .ID) "Name" .Name }}
-											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}" class="unstyled">{{ .Name }}</a>
 										</li>
 									{{- end }}
 								</ul>
@@ -130,7 +130,7 @@
 									<div><dt>{{ $.L.T "campaigns.views" }}</dt><dd>{{ FormatNumber .Views }}</dd></div>
 									<div><dt>{{ $.L.T "campaigns.clicks" }}</dt><dd>{{ FormatNumber .Clicks }}</dd></div>
 									<div><dt>{{ $.L.T "campaigns.sent" }}</dt><dd><span data-stat="sent">{{ FormatNumber .Sent }}</span>{{ if .ToSend }} / <span data-stat="to_send">{{ FormatNumber .ToSend }}</span>{{ end }}</dd></div>
-									<div><dt>{{ $.L.T "globals.terms.bounces" }}</dt><dd><a href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ .ID }}" class="unstyled">{{ FormatNumber .Bounces }}</a></dd></div>
+									<div><dt>{{ $.L.T "globals.terms.bounces" }}</dt><dd><a href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}" class="unstyled">{{ FormatNumber .Bounces }}</a></dd></div>
 									{{- with Duration .StartedAt .UpdatedAt }}
 										<div><dt>{{ $.L.T "settings.performance.slidingWindowDuration" }}</dt><dd>{{ . }}</dd></div>
 									{{- end }}

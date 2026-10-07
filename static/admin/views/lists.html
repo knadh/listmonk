@@ -86,7 +86,7 @@
 									<div>
 										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
 										<div class="hstack gap-2 text-8">
-											{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}">#{{ . }}</a>{{ end }}
+											{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a>{{ end }}
 										</div>
 									</div>
 								</div>
@@ -94,14 +94,14 @@
 							<td>
 								<div class="hstack">
 									{{- $typeIcon := "eye-off" }}{{ if eq .Type "public" }}{{ $typeIcon = "eye" }}{{ end }}
-									<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "lists.types.%s" .Type) }}">{{ Badge (list (Icon $typeIcon) ($.L.T (printf "lists.types.%s" .Type))) "enum" }}</a>
+									<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "lists.types.%s" .Type) }}">{{ Badge (list (Icon $typeIcon) ($.L.T (printf "lists.types.%s" .Type))) "enum" }}</a>
 									{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
-									<a href="{{ $base }}?optin={{ .Optin }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T (printf "lists.optins.%s" .Optin) }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" }}</a>
+									<a href="{{ $base }}?optin={{ .Optin }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "lists.optins.%s" .Optin) }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" }}</a>
 								</div>
 							</td>
 							<td class="subscribers" data-label="{{ $.L.T "globals.terms.subscribers" }}">
 								{{- if $d.Can "subscribers:get" "subscribers:get_all" }}
-									<a class="subscriber-total align-center" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}">{{ FormatNumber .SubscriberCount }}<br /><span class="view">{{ $.L.T "globals.buttons.view" }}</span></a>
+									<a class="subscriber-total align-center" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ FormatNumber .SubscriberCount }}<br /><span class="view">{{ $.L.T "globals.buttons.view" }}</span></a>
 								{{- else }}
 									<span class="subscriber-total">{{ FormatNumber .SubscriberCount }}</span>
 								{{- end }}
@@ -113,22 +113,22 @@
 									{{- $unsubscribed := index $counts "unsubscribed" -}}
 									{{- $blocklisted := index $counts "blocklisted" }}
 									{{- if gt $subscribed 0 }}
-										<div><dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.subscribed" }}">{{ FormatNumber $subscribed }}</a></dd></div>
+										<div><dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.subscribed" }}">{{ FormatNumber $subscribed }}</a></dd></div>
 									{{- end }}
 									{{- if gt $unsubscribed 0 }}
-										<div><dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.unsubscribed" }}">{{ FormatNumber $unsubscribed }}</a></dd></div>
+										<div><dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.unsubscribed" }}">{{ FormatNumber $unsubscribed }}</a></dd></div>
 									{{- end }}
 									{{- if gt $blocklisted 0 }}
-										<div><dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.blocklisted" }}">{{ FormatNumber $blocklisted }}</a></dd></div>
+										<div><dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.blocklisted" }}">{{ FormatNumber $blocklisted }}</a></dd></div>
 									{{- end }}
 									{{- if eq .Optin "double" }}
 										{{- $confirmed := index $counts "confirmed" -}}
 										{{- $unconfirmed := index $counts "unconfirmed" }}
 										{{- if gt $confirmed 0 }}
-											<div><dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.confirmed" }}">{{ FormatNumber $confirmed }}</a></dd></div>
+											<div><dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.confirmed" }}">{{ FormatNumber $confirmed }}</a></dd></div>
 										{{- end }}
 										{{- if gt $unconfirmed 0 }}
-											<div><dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "subscribers.status.unconfirmed" }}">{{ FormatNumber $unconfirmed }}</a></dd></div>
+											<div><dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.unconfirmed" }}">{{ FormatNumber $unconfirmed }}</a></dd></div>
 										{{- end }}
 									{{- end }}
 								</dl>

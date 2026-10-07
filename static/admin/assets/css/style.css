@@ -116,20 +116,6 @@ a {
     }
 }
 
-:is(.button, button).external {
-    background-color: var(--card);
-    border-color: var(--primary);
-
-    &:not([data-variant="danger"]):not([data-variant="secondary"]) {
-        border-color: light-dark(#ddd, var(--input));
-    }
-
-    &:hover:not(:disabled):not([aria-disabled="true"]) {
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-}
-
 textarea.monospace {
     font-family: var(--font-mono);
 }
@@ -160,6 +146,21 @@ table {
         }
     }
 }
+
+
+:is(.button, button).external {
+    background-color: var(--card);
+    border-color: var(--primary);
+
+    &:not([data-variant="danger"]):not([data-variant="secondary"]) {
+        border-color: light-dark(#ddd, var(--input));
+    }
+
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+        border-color: var(--faint-foreground);
+    }
+}
+
 
 svg.icon {
     display: inline-block;
@@ -345,6 +346,11 @@ a:has(> .badge:only-child) {
     align-items: center;
     gap: var(--space-1);
     vertical-align: middle;
+
+    .badge {
+        background-color: var(--card);
+        border: 1px solid var(--border);
+    }
 
     a {
         display: inline-flex;
@@ -1089,7 +1095,8 @@ section.campaigns {
                 .avatar span {
                     width: 20px;
                     height: 20px;
-                    font-size: 0.6rem;
+                    font-size: 0.5rem;
+                    font-weight: var(--font-medium);
                 }
 
                 a {
