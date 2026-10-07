@@ -30,7 +30,7 @@
 				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
 		</div>
-		<div class="col-8 col-end hstack justify-end">
+		<div class="col-8 hstack justify-end buttons">
 			<form action="{{ $base }}" class="search-form" :method="advanced ? 'post' : 'get'">
 				{{- $d.Page.FormFields "search" "query" "page" -}}
 				<ot-dropdown>
@@ -47,7 +47,7 @@
 								<a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank" rel="noopener noreferrer">{{ .L.T "globals.buttons.learnMore" }}.</a>
 							</small>
 						</div>
-						<div class="hstack justify-end">
+						<div class="hstack justify-end buttons">
 							<button type="button" class="outline" data-testid="btn-query-reset" @click="query = ''" :disabled="query.trim() === ''">{{ .L.T "subscribers.reset" }}</button>
 							<button type="submit" data-variant="primary" data-testid="btn-query">{{ .L.T "subscribers.query" }}</button>
 						</div>

@@ -28,7 +28,7 @@
 				{{- if and (not $isNew) $t.IsDefault }}{{ Badge (.L.T "templates.default") "enum" }}{{ end }}
 			</div>
 		</div>
-		<div class="col-6 col-end hstack justify-end">
+		<div class="col-6 hstack justify-end buttons">
 			<button type="button" class="outline external" data-testid="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "templates.preview" }}</button>
 		</div>
 	</header>

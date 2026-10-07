@@ -15,7 +15,7 @@
 				{{- if $d.Provider }}<div class="text-lighter">{{ $d.Provider }}</div>{{ end }}
 			</div>
 		</div>
-		<div class="col-8 col-end align-right hstack justify-end">
+		<div class="col-8 hstack justify-end buttons">
 			<form method="get" action="{{ URI "/admin/campaigns/media" }}{{ if $picker }}/fragment{{ end }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
@@ -39,7 +39,7 @@
 									</div>
 								</ot-upload>
 							</div>
-							<div class="hstack justify-end">
+							<div class="hstack justify-end buttons">
 								<button type="submit" data-variant="primary" data-cy="btn-submit" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
 									{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
 								</button>

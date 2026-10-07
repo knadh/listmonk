@@ -35,7 +35,7 @@
 			</div>
 		</div>
 		{{- if $showRight }}
-			<div class="col-6 col-end hstack justify-end">
+			<div class="col-6 hstack justify-end buttons">
 				{{- if $showActions }}
 					<ot-dropdown>
 						<button type="button" class="outline external campaign-test-btn dot-indicator" :class="{ 'is-active': form.testEmails.length > 0 }" popovertarget="campaign-test" :disabled="isNew" data-cy="btn-test">{{ Icon "mail" }} {{ .L.T "campaigns.sendTest" }}</button>
@@ -44,7 +44,7 @@
 								<ot-taginput x-model="form.testEmails"><input type="email" placeholder="{{ .L.T "campaigns.testEmails" }}" :disabled="isNew" @blur="$el.value !== '' && $el.closest('ot-taginput').add($el.value)" autofocus /></ot-taginput>
 								<small data-hint>{{ .L.T "campaigns.sendTestHelp" }}</small>
 							</label>
-							<div class="hstack justify-end">
+							<div class="hstack justify-end buttons">
 								<button type="button" data-variant="primary" @click="onTest" :disabled="isNew || isLoading('campaigns.test')" :aria-busy="isLoading('campaigns.test')" data-spinner="small">{{ Icon "mail" }} {{ .L.T "campaigns.send" }}</button>
 							</div>
 						</div>

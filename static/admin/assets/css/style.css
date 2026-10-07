@@ -1561,12 +1561,17 @@ section.users {
     .page-header {
         margin-bottom: var(--space-4);
 
-        .hstack.justify-end > * {
-            flex: 1 1 auto;
-        }
+        .buttons {
+            width: 100%;
 
-        .hstack.justify-end > .search-form {
-            flex-grow: 999;
+            > * {
+                flex: 0 0 100%;
+                width: 100%;
+            }
+
+            > ot-dropdown > button {
+                width: 100%;
+            }
         }
 
         .search-form ot-dropdown {
