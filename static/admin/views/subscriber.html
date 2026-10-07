@@ -24,7 +24,7 @@
 				</h1>
 			</div>
 		</div>
-		<div class="col-6 hstack justify-end">
+		<div class="col-6 hstack justify-end buttons">
 			{{- if and (eq $d.Tab "lists") ($d.Can "subscribers:manage") }}
 				{{ if ne $sub.Status "blocklisted" }}
 				<button type="button" class="outline external" data-testid="btn-send-optin" @click.prevent="onSendOptin" :disabled="!hasOptinSub">{{ Icon "mail" }} {{ .L.T "subscribers.sendOptinConfirm" }}</button>
