@@ -1443,25 +1443,37 @@ section.users {
     }
 
     .line {
-        display: block;
+        display: flex;
+        align-items: flex-start;
         margin-block-end: 2px;
 
         &:hover {
             background: var(--faint);
+        }
+
+        .error {
+            color: var(--danger);
         }
     }
 
     .timestamp,
     .file {
         color: var(--primary);
-        display: inline-block;
+        flex-shrink: 0;
         margin-inline-end: var(--space-2);
         min-width: 100px;
         user-select: auto;
+        white-space: nowrap;
     }
 
     .timestamp {
         margin-inline-end: var(--space-4);
+    }
+
+    .log-message {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 }
 
