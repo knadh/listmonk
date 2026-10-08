@@ -1,0 +1,61 @@
+Return-Path: <>
+Received: from mail.example.com (mail.example.com [10.1.2.101])
+         by mailstore.example.com with LMTPA;
+         Wed, 29 Sep 2021 08:20:33 +0000
+Date: Wed, 29 Sep 2021 08:20:34 GMT
+From: Mail Delivery Subsystem <MAILER-DAEMON@mail.example.com>
+Message-Id: <202109290820.18T8KYXY004619@mail.example.com>
+To: prvs=190694bd6d=no-reply@sender.example.com
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+        boundary="18T8KYXY004619.1632903634/mail.example.com"
+Subject: Returned mail: see transcript for details
+Auto-Submitted: auto-generated (failure)
+
+This is a MIME-encapsulated message
+
+--18T8KYXY004619.1632903634/mail.example.com
+
+The original message was received at Wed, 29 Sep 2021 08:20:33 GMT
+from mail.example.com [10.1.2.101]
+
+* Sendmail is experiencing difficulty in delivering your message.
+
+   ----- The following addresses had permanent fatal errors -----
+<sas@example.ch>
+    (reason: 550 Host unknown)
+
+   ----- Transcript of session follows -----
+550 5.1.2 <sas@example.ch>... Host unknown (Name server: example.ch.
+: host not found)
+
+--18T8KYXY004619.1632903634/mail.example.com
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mail.example.com
+Received-From-MTA: DNS; mail.example.com
+Arrival-Date: Wed, 29 Sep 2021 08:20:33 GMT
+
+Final-Recipient: RFC822; sas@example.ch
+Action: failed
+Status: 5.1.2
+Remote-MTA: DNS; example.ch
+Diagnostic-Code: SMTP; 550 Host unknown
+Last-Attempt-Date: Wed, 29 Sep 2021 08:20:34 GMT
+
+--18T8KYXY004619.1632903634/mail.example.com
+Content-Type: text/rfc822-headers
+
+Return-Path: <prvs=190694bd6d=no-reply@sender.example.com>
+Received: from mail.example.com (mail.example.com [10.1.2.101])
+        by mail.example.com with ESMTP id 18T8KXXY004617
+        for <sas@example.ch>; Wed, 29 Sep 2021 08:20:33 GMT
+X-Listmonk-Subscriber: 73d11b6b-3da2-47d5-9dd6-7b3c96a8e15b
+Message-Id: <1632903633748563659.927.5595426720521411472@examplece>
+Mime-Version: 1.0
+From: "Test Test" <no-reply@sender.example.com>
+Date: Wed, 29 Sep 2021 08:20:33 +0000
+X-Listmonk-Campaign: 730438ad-a86a-424d-8604-288f6f6f1831
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+
+--18T8KYXY004619.1632903634/mail.example.com--

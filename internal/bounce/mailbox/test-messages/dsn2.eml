@@ -1,0 +1,104 @@
+Return-Path: <>
+Delivered-To: hirlevel@example.com
+Received: from mail.example.com
+	by edu3 with LMTP id gMXBJZH21mE9RAAApul+Lg
+	for <hirlevel@example.com>; Thu, 06 Jan 2022 15:02:57 +0100
+Received: by mail.example.com (Postfix)
+	id 7B7811A086CF; Thu,  6 Jan 2022 15:02:57 +0100 (CET)
+Date: Thu,  6 Jan 2022 15:02:57 +0100 (CET)
+From: MAILER-DAEMON@mail.hers.hu (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: hirlevel@example.com
+Auto-Submitted: auto-replied
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="41FE61A09C01.1641477777/mail.example.com"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20220106140257.7B7811A086CF@mail.example.com>
+
+This is a MIME-encapsulated message.
+
+--41FE61A09C01.1641477777/mail.example.com
+Content-Description: Notification
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+This is the mail system at host mail.example.com.
+
+I'm sorry to have to inform you that your message could not
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to postmaster.
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+                   The mail system
+
+<test@example.com>: Host or domain name not found. Name
+    service error for name=example.com type=A: Host not found
+
+--41FE61A09C01.1641477777/mail.example.com
+Content-Description: Delivery report
+Content-Type: message/global-delivery-status
+Content-Transfer-Encoding: 8bit
+
+Reporting-MTA: dns; mail.example.com
+X-Postfix-Queue-ID: 41FE61A09C01
+X-Postfix-Sender: rfc822; hirlevel@example.com
+Arrival-Date: Thu,  6 Jan 2022 15:02:57 +0100 (CET)
+
+Final-Recipient: rfc822; test@example.com
+Original-Recipient: rfc822;test@example.com
+Action: failed
+Status: 5.4.4
+Diagnostic-Code: X-Postfix; Host or domain name not found. Name service error
+    for name=example.com type=A: Host not found
+
+--41FE61A09C01.1641477777/mail.example.com
+Content-Description: Undelivered Message
+Content-Type: message/global
+Content-Transfer-Encoding: 8bit
+
+Return-Path: <hirlevel@example.com>
+Received: from localhost (localhost [127.0.0.1])
+	by mail.example.com (Postfix) with UTF8SMTP id 41FE61A09C01
+	for <test@example.com>; Thu,  6 Jan 2022 15:02:57 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at mail.hers.hu
+Received: from mail.example.com ([127.0.0.1])
+	by localhost (mail.example.com [127.0.0.1]) (amavisd-new, port 10026)
+	with UTF8LMTP id P55Eyi_KKrPe for <test@example.com>;
+	Thu,  6 Jan 2022 15:02:57 +0100 (CET)
+Received: from localhost (mail.example.com [127.0.0.1])
+	(Authenticated sender: hirlevel@example.com)
+	by mail.example.com (Postfix) with UTF8SMTPSA id AE0231A086CF
+	for <test@example.com>; Thu,  6 Jan 2022 15:02:56 +0100 (CET)
+Content-Type: text/html; charset=UTF-8
+To: <test@example.com>
+Message-Id: <1641477776713090833.30240.5322564447204887968@edu3>
+X-Listmonk-Subscriber: a1c7a976-ad38-44f2-84de-55b0dc375352
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+List-Unsubscribe: <https://hirlevel.example.com/subscription/d9510e30-b4e7-4548-b75d-810cb2d03578/a1c7a976-ad38-44f2-84de-55b0dc375352>
+Content-Transfer-Encoding: quoted-printable
+Subject: =?UTF-8?q?Bojler_Elad=C3=B3!?=
+From: <hirlevel@example.com>
+Date: Thu, 06 Jan 2022 15:02:56 +0100
+Mime-Version: 1.0
+X-Listmonk-Campaign: d9510e30-b4e7-4548-b75d-810cb2d03578
+
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Du=
+tf-8">
+        <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-sc=
+ale=3D1, minimum-scale=3D1">
+        <base target=3D"_blank">
+    </head>
+<body style=3D"background-color: #F0F1F3;font-family: 'Helvetica Neue', 'Se=
+goe UI', Helvetica, sans-serif;font-size: 15px;line-height: 26px;margin: 0;=
+color: #444;">
+</body>
+</html>
+
+--41FE61A09C01.1641477777/mail.example.com--
