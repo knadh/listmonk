@@ -9,6 +9,7 @@ archive
 at-sign
 bar-chart-2
 calendar
+check
 check-circle
 check-square
 chevron-down

@@ -2,6 +2,7 @@
 {{ template "admin-header" . }}
 {{- $d := .Data -}}
 {{- $base := URI "/admin/lists" -}}
+{{- $statusIcons := dict "confirmed" "check" "unsubscribed" "x" -}}
 {{- $status := $d.Page.Param "status" -}}
 {{- $type := $d.Page.Param "type" -}}
 {{- $optin := $d.Page.Param "optin" -}}
@@ -70,8 +71,7 @@
 						<th width="5%"><input type="checkbox" aria-label="{{ .L.T "globals.buttons.toggleSelect" }}"></th>
 						<th width="27%">{{ $d.Page.SortLink (URI "/admin/lists") "name" (.L.T "globals.fields.name") }}</th>
 						<th width="22%">{{ $d.Page.SortLink (URI "/admin/lists") "type" (.L.T "globals.fields.type") }}</th>
-						<th width="10%" class="subscribers">{{ $d.Page.SortLink (URI "/admin/lists") "subscriber_count" (.L.T "globals.terms.subscribers") }}</th>
-						<th width="18%"></th>
+						<th width="20%" class="subscribers">{{ $d.Page.SortLink (URI "/admin/lists") "subscriber_count" (.L.T "globals.terms.subscribers") }}</th>
 						<th width="12%">{{ $d.Page.SortLink (URI "/admin/lists") "created_at" (.L.T "globals.fields.createdAt") }}</th>
 						<th width="5%" class="align-right"></th>
 					</tr>
@@ -101,37 +101,37 @@
 							</td>
 							<td class="subscribers" data-label="{{ $.L.T "globals.terms.subscribers" }}">
 								{{- if $d.Can "subscribers:get" "subscribers:get_all" }}
-									<a class="subscriber-total align-center" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ FormatNumber .SubscriberCount }}<br /><span class="view">{{ $.L.T "globals.buttons.view" }}</span></a>
+									<a class="subscriber-total" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ FormatNumber .SubscriberCount }}</a>
 								{{- else }}
 									<span class="subscriber-total">{{ FormatNumber .SubscriberCount }}</span>
 								{{- end }}
-							</td>
-							<td class="stats">
-								<dl class="text-8">
-									{{- $counts := .SubscriberCounts -}}
-									{{- $subscribed := index $counts "subscribed" -}}
-									{{- $unsubscribed := index $counts "unsubscribed" -}}
-									{{- $blocklisted := index $counts "blocklisted" }}
-									{{- if gt $subscribed 0 }}
-										<div><dt>{{ $.L.T "subscribers.status.subscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=subscribed" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.subscribed" }}">{{ FormatNumber $subscribed }}</a></dd></div>
-									{{- end }}
-									{{- if gt $unsubscribed 0 }}
-										<div><dt>{{ $.L.T "subscribers.status.unsubscribed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unsubscribed" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.unsubscribed" }}">{{ FormatNumber $unsubscribed }}</a></dd></div>
-									{{- end }}
-									{{- if gt $blocklisted 0 }}
-										<div><dt>{{ $.L.T "subscribers.status.blocklisted" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=blocklisted" class="unstyled blocklisted" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.blocklisted" }}">{{ FormatNumber $blocklisted }}</a></dd></div>
-									{{- end }}
-									{{- if eq .Optin "double" }}
-										{{- $confirmed := index $counts "confirmed" -}}
-										{{- $unconfirmed := index $counts "unconfirmed" }}
-										{{- if gt $confirmed 0 }}
-											<div><dt>{{ $.L.T "subscribers.status.confirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=confirmed" class="unstyled confirmed" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.confirmed" }}">{{ FormatNumber $confirmed }}</a></dd></div>
+								{{- $listID := .ID -}}
+								{{- $total := max .SubscriberCount 1 -}}
+								{{- $counts := .SubscriberCounts -}}
+								{{- $stats := list -}}
+								{{- $statuses := list "unsubscribed" -}}
+								{{- if eq .Optin "double" -}}
+									{{- $statuses = list "confirmed" "unconfirmed" "unsubscribed" -}}
+								{{- end -}}
+								{{- range $statuses -}}
+									{{- $count := index $counts . -}}
+									{{- $label := $.L.T (printf "subscribers.status.%s" .) -}}
+									{{- $percent := mulf (divf $count $total) 100 -}}
+									{{- $title := printf "%s %s (%.2f%%)" $label (FormatNumber $count) $percent -}}
+									{{- $stats = append $stats (dict "Status" . "Count" $count "Label" $label "Percent" $percent "Title" $title) -}}
+								{{- end }}
+								<div class="subscriber-breakdown">
+									<div class="subscriber-meters" role="group" aria-label="{{ $.L.T "globals.terms.subscribers" }}: {{ .Name }} — {{ $.L.T "globals.fields.status" }}">
+										{{- range $stats }}
+											<meter class="status-{{ .Status }}" min="0" max="{{ $total }}" value="{{ .Count }}" style="width: {{ .Percent }}%" aria-label="{{ .Label }}" aria-valuetext="{{ .Title }}" title="{{ .Title }}">{{ .Title }}</meter>
 										{{- end }}
-										{{- if gt $unconfirmed 0 }}
-											<div><dt>{{ $.L.T "subscribers.status.unconfirmed" }}</dt><dd><a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}?subscription_status=unconfirmed" class="unstyled unconfirmed" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "subscribers.status.unconfirmed" }}">{{ FormatNumber $unconfirmed }}</a></dd></div>
+									</div>
+									<div class="subscriber-legend text-8">
+										{{- range $stats }}
+											<a class="unstyled text-grey" href="{{ URI "/admin/subscribers/lists" }}/{{ $listID }}?subscription_status={{ .Status }}" title="{{ .Title }}" aria-label="{{ .Title }}"><span class="status-icon status-{{ .Status }}" aria-hidden="true">{{ if eq .Status "unconfirmed" }}?{{ else }}{{ Icon (index $statusIcons .Status) }}{{ end }}</span> {{ printf "%.2f%%" .Percent }}</a>
 										{{- end }}
-									{{- end }}
-								</dl>
+									</div>
+								</div>
 							</td>
 							<td class="date-stack" data-label="{{ $.L.T "globals.fields.createdAt" }}">
 								{{ NiceDate .CreatedAt }}
