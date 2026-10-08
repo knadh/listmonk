@@ -4,7 +4,7 @@
 {{- $subStatus := $d.Page.Param "subscription_status" -}}
 {{- $status := $d.Page.Param "status" -}}
 {{- $base := URI "/admin/subscribers" -}}
-{{- $statusIcons := dict "confirmed" "check-circle" "blocklisted" "x-circle" "disabled" "pause-circle" "unsubscribed" "minus-circle" "unconfirmed" "help-circle" -}}
+{{- $statusIcons := dict "confirmed" "check" "blocklisted" "x-circle" "disabled" "pause-circle" "unsubscribed" "x" "unconfirmed" "help-circle" -}}
 {{- if $d.CurrentList }}{{ $base = printf "%s/lists/%d" (URI "/admin/subscribers") $d.CurrentList.ID }}{{ end -}}
 
 <script>
@@ -113,14 +113,14 @@
 										{{- end }}
 										{{- if .ParsedLists }}
 											<div class="mt-2">
-												<div class="hstack">
+												<div class="hstack list-names">
 												{{- range $i, $l := .ParsedLists }}
 													{{- if lt $i 2 }}
 														<span>
 															<a class="unstyled text-light" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $l.Name }}">{{ $l.Name }}
 															{{- if or (eq $l.Optin "double") (eq $l.SubscriptionStatus "unsubscribed") }}
 																{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
-																<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}</span>
+																<span class="status-icon status-{{ $l.SubscriptionStatus }}" title="{{ $label }}" aria-label="{{ $label }}">{{ if eq $l.SubscriptionStatus "unconfirmed" }}?{{ else }}{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}{{ end }}</span>
 															{{- end }}
 															</a>
 														</span>

@@ -1025,9 +1025,65 @@ section.dashboard {
 
 /* Lists */
 section.lists {
+    .subscriber-breakdown {
+        margin-top: var(--space-2);
+
+        .status-confirmed { --meter-color: rgb(66, 169, 138); }
+        .status-unconfirmed { --meter-color: rgb(232, 180, 88); }
+        .status-unsubscribed { --meter-color: rgb(213, 105, 105); }
+
+        .status-icon {
+            color: var(--meter-color);
+        }
+    }
+
+    .subscriber-meters {
+        display: flex;
+        align-items: flex-start;
+        overflow: hidden;
+        border-radius: var(--radius-small);
+        max-width: 90%;
+
+        &::after {
+            content: "";
+            flex: 1;
+            border-top: 2px solid var(--border);
+        }
+
+        meter {
+            appearance: none;
+            box-sizing: content-box;
+            flex: 0 0 auto;
+            min-width: 0;
+            height: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-top: 2px solid var(--meter-color);
+            border-radius: 0;
+        }
+    }
+
+    .subscriber-legend {
+        display: flex;
+        gap: var(--space-4);
+        margin-top: var(--space-2);
+
+        .text-grey {
+            color: var(--muted-foreground);
+            white-space: nowrap;
+        }
+
+        .dot {
+            font-size: 0.6em;
+            vertical-align: middle;
+        }
+    }
+
     th, td {
         &.subscribers {
-            text-align: center;
+            text-align: left;
         }
     }
 
@@ -1039,6 +1095,10 @@ section.lists {
 
 /* Subscribers */
 .subscribers {
+    .list-names {
+        row-gap: var(--space-1);
+    }
+
     .blocklisted {
         td > a,
         td .name-stack > div > a {
@@ -1797,6 +1857,21 @@ section.users {
 
         .pagination {
             padding-inline-end: 0;
+        }
+    }
+
+    section.lists {
+        .subscriber-breakdown {
+            flex: 0 0 100%;
+            min-width: 0;
+        }
+
+        .subscriber-meters {
+            max-width: 100%;
+        }
+
+        .subscriber-legend {
+            flex-wrap: wrap;
         }
     }
 
