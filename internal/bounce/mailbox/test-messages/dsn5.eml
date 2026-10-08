@@ -1,0 +1,61 @@
+From: <postmaster@list.example.com>
+To: <bounces@list.example.com>
+Subject: mail delivery failed
+Message-Id: <dtbbDAYh7sHWvZFy9D1rSQ@list.example.com>
+References: <xy4svdnGpJwy2BjYjJouGako@example.com>
+Date: 30 Sep 2026 15:03:07 +0000
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type="delivery-status"; boundary="43d715581a33a00c5a9126d941ca57b30657bfbf2777f83dd5082fc15f24"
+
+--43d715581a33a00c5a9126d941ca57b30657bfbf2777f83dd5082fc15f24
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain
+
+
+Delivery has failed permanently for your email to:
+
+	bounce@icloud.com
+
+No further deliveries will be attempted.
+
+Error during the last delivery attempt:
+
+	remote smtp server sent unexpected response status code: got 554, expected 2xx, permanent: 554 5.7.1 [CS01] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137. Txn ID 00000000-0000-0000-0000-000000000000
+
+Full SMTP response:
+
+	554 5.7.1 [CS01] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137. Txn ID 00000000-0000-0000-0000-000000000000
+
+--43d715581a33a00c5a9126d941ca57b30657bfbf2777f83dd5082fc15f24
+Content-Transfer-Encoding: 7BIT
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; list.example.com
+Arrival-Date: 30 Sep 2026 15:02:58 +0000
+
+Final-Recipient: rfc822;bounce@icloud.com
+Action: failed
+Status: 5.7.1 (remote smtp server sent unexpected response status code: got 554, expected 2xx, permanent: 554 5.7.1 [CS01] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137. Txn ID 00000000-0000-0000-0000-000000000000)
+Remote-MTA: dns;mx01.mail.icloud.com
+Diagnostic-Code: smtp; 554 5.7.1 [CS01] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137. Txn ID 00000000-0000-0000-0000-000000000000
+Last-Attempt-Date: 30 Sep 2026 15:02:58 +0000
+
+--43d715581a33a00c5a9126d941ca57b30657bfbf2777f83dd5082fc15f24
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/rfc822-headers
+
+Received: from list.example.com by
+	list.example.com ([172.30.0.3]) via tcp with ESMTPSA id
+	flM-mvBoUb3HgCXYACQp7w (TLS1.3 TLS_AES_128_GCM_SHA256) for
+	<bounce@icloud.com>; 30 Sep 2026 15:02:58 +0000
+Message-Id: <xy4svdnGpJwy2BjYjJouGako@example.com>
+Subject: Confirm your email address
+From: "Test" <hello@example.com>
+Date: Wed, 30 Sep 2026 16:02:58 +0100
+Mime-Version: 1.0
+X-Listmonk-Subscriber: a4eec08a-4c6e-4c49-ba0b-54bb2a96d768
+To: <bounce@icloud.com>
+Content-Type: multipart/alternative;
+ boundary=ddbb07ef3c669acf960d7710113df3a8b954aac6756beb62ccc8d1982639
+
+--43d715581a33a00c5a9126d941ca57b30657bfbf2777f83dd5082fc15f24--
