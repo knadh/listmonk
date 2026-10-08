@@ -139,6 +139,12 @@ with any Timezone listed [here](https://en.wikipedia.org/wiki/List_of_tz_databas
 ### Retries
 The `Settings -> SMTP -> Retries` denotes the number of times a message that fails at the moment of sending is retried silently using different connections from the SMTP pool. The messages that fail even after retries are the ones that are logged as errors and ignored.
 
+### HELO hostname
+
+`Settings -> SMTP -> HELO hostname` is the name sent in the SMTP `EHLO`/`HELO`. Leave it empty and the connection introduces itself as `localhost`.
+
+Google Workspace SMTP relay (`smtp-relay.gmail.com`) asks the sending server to present its own name there, not `localhost` and not `smtp-relay.gmail.com`. If the relay allows any address, Google also says to sign in with SMTP AUTH or to present a domain you own in that command. Mailbox SMTP (`smtp.gmail.com`) often accepts the default, which is why one Google host can work while the relay does not. Set the field to a hostname you control, for example `listmonk.example.com`. [Google's relay guidance](https://knowledge.workspace.google.com/admin/gmail/advanced/route-outgoing-smtp-relay-messages-through-google) describes the check.
+
 ## SMTP ports
 Some server hosts block outgoing SMTP ports (25, 465). You may have to contact your host to unblock them before being able to send e-mails. Eg: [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
