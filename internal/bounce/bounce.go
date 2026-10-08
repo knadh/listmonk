@@ -81,6 +81,8 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 		switch opt.MailboxType {
 		case "pop":
 			m.mailbox = mailbox.NewPOP(opt.Mailbox, lo)
+		case "imap":
+			m.mailbox = mailbox.NewIMAP(opt.Mailbox, lo)
 		default:
 			return nil, errors.New("unknown bounce mailbox type")
 		}
@@ -141,7 +143,7 @@ func (m *Manager) Run() {
 // runMailboxScanner runs a blocking loop that scans the mailbox at given intervals.
 func (m *Manager) runMailboxScanner() {
 	for {
-		m.log.Printf("scanning bounce mailbox %s", m.opt.Mailbox.Host)
+		m.log.Printf("scanning %s bounce mailbox %s", m.opt.MailboxType, m.opt.Mailbox.Host)
 		if err := m.mailbox.Scan(1000, m.queue); err != nil {
 			m.log.Printf("error scanning bounce mailbox: %v", err)
 		}

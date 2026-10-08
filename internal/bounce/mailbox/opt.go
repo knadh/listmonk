@@ -24,6 +24,10 @@ type Opt struct {
 	// Folder is the name of the IMAP folder to scan for e-mails.
 	Folder string `json:"folder"`
 
+	// TrashFolder is the name of the IMAP folder to more processed e-mails to
+	// instead of deleting.
+	TrashFolder string `json:"trash_folder"`
+
 	// Optional TLS settings.
 	TLSEnabled    bool `json:"tls_enabled"`
 	TLSSkipVerify bool `json:"tls_skip_verify"`
