@@ -2,6 +2,9 @@ package mailbox
 
 import "time"
 
+// Maximum message size to download
+var maxMessageSize = 1024 * 1024 // 1mb
+
 // Opt represents an e-mail POP/IMAP mailbox configuration.
 type Opt struct {
 	// Host is the server's hostname.
