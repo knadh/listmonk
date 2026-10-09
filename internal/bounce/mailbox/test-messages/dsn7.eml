@@ -1,0 +1,94 @@
+Return-Path: <>
+Authentication-Results: example.com;
+	iprev=pass (without dnssec) policy.iprev=23.249.218.244;
+	dkim=pass (1024 bit rsa, without dnssec) header.d=amazonses.com
+	header.s=smjs5bczbyxi6u2ua6eveuxqal7joyry header.a=rsa-sha256
+	header.b=jcnua0Ew7lKA;
+	spf=pass (without dnssec)
+	smtp.helo=d218-244.smtp-out.eu-west-2.amazonses.com;
+	dmarc=pass (without dnssec) header.from=eu-west-2.amazonses.com
+Received-SPF: pass
+	(domain d218-244.smtp-out.eu-west-2.amazonses.com, from ehlo because mailfrom is empty)
+	client-ip=23.249.218.244;
+	envelope-from="postmaster@d218-244.smtp-out.eu-west-2.amazonses.com";
+	helo=d218-244.smtp-out.eu-west-2.amazonses.com;
+	mechanism="ip4:23.249.218.244"; receiver=example.com;
+	identity=helo
+Received: from d218-244.smtp-out.eu-west-2.amazonses.com ([23.249.218.244])
+	by example.com ([172.30.0.3]) via tcp with ESMTPS id
+	LMjE7k0fPNNIp8bKR04uZA (TLS1.3 TLS_AES_128_GCM_SHA256) for
+	<bounces@example.com>; 5 Oct 2026 11:31:51 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=smjs5bczbyxi6u2ua6eveuxqal7joyry; d=amazonses.com; t=1791199910;
+	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type:Feedback-ID;
+	bh=tWrXq4sfQ4tvNLlX3ifr8mUDBdiUYESKoy4JsCizWmo=;
+	b=jcnua0Ew7lKAs6HmM9v4ocZAWwBGw5Id0ewdi4L2YIKpaW40igsLdZ8cs+YHUtju
+	tnu/1nID0MELXg4aC3+edPQbQaOqlPnVMnzpWnQ53/JlMQTJKk5oNdmk6MWktZOhSdN
+	/eKaWB80VcFysftBGvydcCJqlGFGzW1l4SZXZb+U=
+Date: Mon, 5 Oct 2026 11:31:50 +0000
+From: MAILER-DAEMON@eu-west-2.amazonses.com
+To: Test Bounces <bounces@example.com>
+Message-ID: <010b01a10bd59ab4-0816c2f1-77d0-41a1-8edb-92df76e92a3b-000000@eu-west-2.amazonses.com>
+Subject: Delivery Status Notification (Failure)
+MIME-Version: 1.0
+Content-Type: multipart/report; 
+	boundary="----=_Part_94187_1779699454.1791199910604"; 
+	report-type=delivery-status
+Feedback-ID: ::1.eu-west-2.xt7WMhTko9T30pmfpYXYpWY4KSstOlp/P5M0f0u9GXk=:AmazonSES
+X-SES-Outgoing: 2026.10.05-23.249.218.244
+
+------=_Part_94187_1779699454.1791199910604
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Description: Notification
+
+An error occurred while trying to deliver the mail to the following recipients:
+bounce@simulator.amazonses.com
+------=_Part_94187_1779699454.1791199910604
+Content-Type: message/delivery-status
+Content-Transfer-Encoding: 7bit
+Content-Description: Delivery Status Notification
+
+Reporting-MTA: dns; d218-15.smtp-out.eu-west-2.amazonses.com
+
+Action: failed
+Final-Recipient: rfc822; bounce@simulator.amazonses.com
+Diagnostic-Code: smtp; 550 5.1.1 As requested: user unknown <bounce@simulator.amazonses.com>
+Status: 5.1.1
+
+
+------=_Part_94187_1779699454.1791199910604
+Content-Type: message/rfc822
+Content-Description: Undelivered Message
+
+Subject: Test Message
+Message-Id: <010b01a10bd5988a-600e3591-2708-4a3c-8c35-f0825c9ab130-000000@eu-west-2.amazonses.com>
+From: Test Bounces <bounces@example.com>
+Date: Mon, 5 Oct 2026 11:31:50 +0000
+Mime-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To: bounce@simulator.amazonses.com
+Feedback-ID: ::1.eu-west-2.p+G9B50gElGkmucCAKrfW47y8iCzC7R4mmrpa1ptpJ8=:AmazonSES
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=smjs5bczbyxi6u2ua6eveuxqal7joyry; d=amazonses.com; t=1791199910;
+	h=Subject:Message-Id:From:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:To:Feedback-ID;
+	bh=W/mwWYwHzZM9xtNLiz/77cOwHrHY1eMyX3qhZdPQiuw=;
+	b=XvTVJeEHM+c1HY3Vlip8adyxTI2lFvnKPRyecrnfVAcBu3Ne2QTQQmJfMHqDEoj+
+	UbV/ZQbA7wBUWuqFVrCscIrVCIHLHSRcKN50iFXOzxdA+yqB+9PBqrEf9s/1sNcEwsD
+	/FlHP2N949Q9lN7MjXzLoDBkqUeJDt+hqxxy07d4=
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset=3D"utf-8" />
+    <meta
+      name=3D"viewport"
+      content=3D"width=3Ddevice-width,initial-scale=3D1,minimum-scale=3D1"
+    />
+    <base target=3D"_blank" />
+  </head>
+  <body>
+  </body>
+</html>
+------=_Part_94187_1779699454.1791199910604--

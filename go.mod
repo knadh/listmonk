@@ -7,9 +7,11 @@ require (
 	github.com/altcha-org/altcha-lib-go v1.0.0
 	github.com/coreos/go-oidc/v3 v3.14.1
 	github.com/disintegration/imaging v1.6.2
+	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-message v0.18.2
 	github.com/gdgvda/cron v0.4.0
 	github.com/gofrs/uuid/v5 v5.3.2
+	github.com/google/go-cmp v0.6.0
 	github.com/gorilla/feeds v1.2.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/knadh/go-pop3 v1.0.2
@@ -47,6 +49,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
+	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect

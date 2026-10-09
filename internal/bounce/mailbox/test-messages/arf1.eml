@@ -1,0 +1,101 @@
+Return-Path: <no-reply@amazonses.com>
+Authentication-Results: example.com;
+	iprev=pass (without dnssec) policy.iprev=23.249.218.243;
+	dkim=pass (1024 bit rsa, without dnssec) header.d=amazonses.com
+	header.s=smjs5bczbyxi6u2ua6eveuxqal7joyry header.a=rsa-sha256
+	header.b=qRZJiYBTyHKL;
+	spf=pass (without dnssec) smtp.mailfrom=amazonses.com;
+	dmarc=pass (without dnssec) header.from=eu-west-2.email-abuse.amazonses.com
+Received-SPF: pass (domain amazonses.com) client-ip=23.249.218.243;
+	envelope-from="no-reply@amazonses.com";
+	helo=d218-243.smtp-out.eu-west-2.amazonses.com;
+	mechanism="ip4:23.249.208.0/20"; receiver=example.com;
+	identity=mailfrom
+Received: from d218-243.smtp-out.eu-west-2.amazonses.com ([23.249.218.243])
+	by example.com ([172.30.0.3]) via tcp with ESMTPS id
+	YLPJ694dQ0YfrbsQtp_BZQ (TLS1.3 TLS_AES_128_GCM_SHA256) for
+	<bounces@example.com>; 5 Oct 2026 11:32:29 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=smjs5bczbyxi6u2ua6eveuxqal7joyry; d=amazonses.com; t=1791199948;
+	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type:Feedback-ID;
+	bh=oPog1Np1RsMp6QGqmjGVx91ulX5e6tRpEzcwOPRkA2w=;
+	b=qRZJiYBTyHKLmAoZ7bhHP2LdlIQRhzg2ERzyfRa5SKTjuBbMdWiqQbheXGIjHrwB
+	n+/si9H4xQLCwsyWuTfiscje/ekzHU9fOqJQXXCp9NqJUpaRZhqPeCeyMLYDRF24H3H
+	vltAiYb3OI6GOcIXHYvaWVGik/o+xdXa0NP1QdWU=
+Date: Mon, 5 Oct 2026 11:32:28 +0000
+From: complaints@eu-west-2.email-abuse.amazonses.com
+To: Bounce Test <bounces@example.com>
+Message-ID: <010b01a10bd62e99-67c5dd8c-4b1a-4b00-8095-94426eaca9ee-000000@eu-west-2.amazonses.com>
+Subject: FW:Test Message
+MIME-Version: 1.0
+Content-Type: multipart/report; 
+	boundary="----=_Part_61506_10144811.1791199947129";
+	report-type=feedback-report
+Feedback-ID: ::1.eu-west-2.xt7WMhTko9T30pmfpYXYpWY4KSstOlp/P5M0f0u9GXk=:AmazonSES
+X-SES-Outgoing: 2026.10.05-23.249.218.243
+
+------=_Part_61506_10144811.1791199947129
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+This is an example of a complaint email response.
+
+Thank you,
+
+-Amazon SES Mailbox Simulator
+
+------=_Part_61506_10144811.1791199947129
+Content-Type: message/feedback-report
+Content-Transfer-Encoding: 7bit
+
+Feedback-Type: abuse
+User-Agent: Amazon SES Mailbox Simulator
+Version: 3.0
+Original-Envelope-Id: <010b01a10bd62800-41b17c07-f21d-44fe-8e92-7d52e2484de7-000000@eu-west-2.amazonses.com>
+Original-Mail-From: 010b01a10bd62800-41b17c07-f21d-44fe-8e92-7d52e2484de7-000000@example.com
+Original-Rcpt-to: complaint@simulator.amazonses.com
+Source-IP: 10.0.80.40
+
+------=_Part_61506_10144811.1791199947129
+Content-Type: message/rfc822
+
+Received: from d218-16.smtp-out.eu-west-2.amazonses.com (ip-10-0-80-40.eu-west-1.compute.internal [10.0.80.40])
+        by ip-10-0-61-199.eu-west-1.compute.internal
+        with SMTP (Amazon SES Mailbox Simulator) id 6YUvyUTg3xyPX18uJ6mX
+        for complaint@simulator.amazonses.com;
+        Mon, 05 Oct 2026 11:32:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=smjs5bczbyxi6u2ua6eveuxqal7joyry; d=amazonses.com; t=1791199946;
+	h=Subject:Message-Id:From:Date:Mime-Version:Content-Type:Content-Transfer-Encoding:To:Feedback-ID;
+	bh=W/mwWYwHzZM9xtNLiz/77cOwHrHY1eMyX3qhZdPQiuw=;
+	b=jNd6AyCc9trxDnYPyB/2fmSge1HXWQhWSZoqfbXnmULgDiW4dyXsev9BYJoTUOSk
+	0l8ENtFqhWfaCWpxxmnDBM9tIomQs6nh/u8eFKALoby7BmnTYoJLGQUkHyq7GeKtjoI
+	CZ+Gc4Wa2gRlAEUTbqD67KyCAMJyHNgFTHcrNkSA=
+Subject: Test Message
+Message-ID: <010b01a10bd62800-41b17c07-f21d-44fe-8e92-7d52e2484de7-000000@eu-west-2.amazonses.com>
+From: Bounce Test <bounces@example.com>
+Date: Mon, 5 Oct 2026 11:32:26 +0000
+Mime-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To: complaint@simulator.amazonses.com
+Feedback-ID: ::1.eu-west-2.p+G9B50gElGkmucCAKrfW47y8iCzC7R4mmrpa1ptpJ8=:AmazonSES
+X-SES-Outgoing: 2026.10.05-23.249.218.16
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset=3D"utf-8" />
+    <meta
+      name=3D"viewport"
+      content=3D"width=3Ddevice-width,initial-scale=3D1,minimum-scale=3D1"
+    />
+    <base target=3D"_blank" />
+  </head>
+  <body>
+  </body>
+</html>
+
+------=_Part_61506_10144811.1791199947129--
