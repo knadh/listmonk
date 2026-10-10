@@ -499,8 +499,9 @@ func (c *Core) DeleteSubscribersByQuery(searchStr, queryExp string, listIDs []in
 }
 
 // UnsubscribeByCampaign unsubscribes a given subscriber from lists in a given campaign.
-func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) error {
-	if _, err := c.q.UnsubscribeByCampaign.Exec(campUUID, subUUID, blocklist); err != nil {
+// If unsubUnconfirmed is true, unsub all unconfirmed subscriptions instead.
+func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist, unsubAllUnconfirmed bool) error {
+	if _, err := c.q.UnsubscribeByCampaign.Exec(campUUID, subUUID, blocklist, unsubAllUnconfirmed); err != nil {
 		c.log.Printf("error unsubscribing: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
