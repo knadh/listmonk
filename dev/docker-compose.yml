@@ -1,55 +1,59 @@
-version: "3"
-
 services:
   adminer:
     image: adminer:4.8.1-standalone
     restart: always
     ports:
-      - 8070:8080
-    networks:
-      - listmonk-dev
+      - "127.0.0.1:8070:8080"
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
     ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # UI
-    networks:
-      - listmonk-dev
+      - "127.0.0.1:1025:1025" # SMTP
+      - "127.0.0.1:8025:8025" # UI
 
   db:
-    image: postgres:13
-    ports:
-      - "5432:5432"
-    networks:
-      - listmonk-dev
+    image: postgres:18
     environment:
       - POSTGRES_PASSWORD=listmonk-dev
       - POSTGRES_USER=listmonk-dev
       - POSTGRES_DB=listmonk-dev
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
     volumes:
       - type: volume
         source: listmonk-dev-db
-        target: /var/lib/postgresql/data
+        target: /var/lib/postgresql
 
-  backend:
+  dev:
     build:
       context: ../
       dockerfile: dev/app.Dockerfile
-    command: ["make", "run-backend-docker"]
+    init: true
+    environment:
+      DEV_CONFIG: dev/config.toml
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ../:/app
-      - ${GOPATH:-${HOME}/go}/pkg/mod/cache:/go/pkg/mod/cache
-    networks:
-      - listmonk-dev
+      - go-mod:/go/pkg/mod
+      - go-build:/root/.cache/go-build
+      - admin-dist:/app/static/admin/dist
+      - type: volume
+        source: node-modules
+        target: /app/static/admin/node_modules
+        volume:
+          nocopy: true
 
 volumes:
   listmonk-dev-db:
-
-networks:
-  listmonk-dev:
+  go-mod:
+  go-build:
+  admin-dist:
+  node-modules:

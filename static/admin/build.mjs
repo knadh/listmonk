@@ -16,9 +16,11 @@ const watch = process.argv.includes('--watch');
 const COMPRESS_EXT = ['.js', '.css', '.svg'];
 
 async function build() {
-  // Fresh /dist dir.
-  await rm(dist, { recursive: true, force: true });
+  // Clear the contents, preserving dist itself so it can be a Docker volume.
   await mkdir(dist, { recursive: true });
+  for (const entry of await readdir(dist)) {
+    await rm(path.join(dist, entry), { recursive: true, force: true });
+  }
 
   // Verbatim static assets (icons, images) and stylesheets.
   await cp(path.join(root, 'assets/static'), dist, { recursive: true });

@@ -51,11 +51,16 @@ $(STUFFBIN):
 $(BIN): $(SRC) go.mod go.sum schema.sql $(SQL) permissions.json
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
 
-# Run the backend in dev mode. The SSR admin assets are loaded from disk from
-# static/admin/dist, so build them first.
+# Run the backend in dev mode. DEV_CONFIG is set by the dev container to use
+# its config and initialize a fresh DB.
+GO_RUN = CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
+
 .PHONY: run
 run: $(FRONTEND_DIST)
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
+ifneq ($(DEV_CONFIG),)
+	$(GO_RUN) --config="$(DEV_CONFIG)" --install --idempotent --yes
+endif
+	$(GO_RUN) $(if $(DEV_CONFIG),--config="$(DEV_CONFIG)")
 
 # Install SSR admin frontend deps.
 $(FRONTEND_DEPS_STAMP): $(FRONTEND)/package.json $(FRONTEND)/bun.lock
@@ -103,31 +108,23 @@ release-dry:
 release:
 	goreleaser release --parallelism 1 --clean
 
-# Build local docker images for development.
+# Build the dev environmentt.
 .PHONY: build-dev-docker
-build-dev-docker: build ## Build docker containers for the entire suite (Front/Core/PG).
-	cd dev; \
-	docker compose build ; \
+build-dev-docker:
+	docker compose -f dev/docker-compose.yml build
 
-# Spin a local docker suite for local development.
-.PHONY: dev-docker
-dev-docker: build-dev-docker ## Build and spawns docker containers for the entire suite (Front/Core/PG).
-	cd dev; \
-	docker compose up
+# Start the dev services and open a shell.
+.PHONY: run-dev-docker
+run-dev-docker:
+	docker compose -f dev/docker-compose.yml up -d --wait
+	docker compose -f dev/docker-compose.yml exec dev bash
 
-# Run the backend in docker-dev mode. The SSR admin assets are loaded from disk from static/admin/dist.
-.PHONY: run-backend-docker
-run-backend-docker:
-	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd --config=dev/config.toml
+# Stop the dev services (db is preserved).
+.PHONY: stop-dev-docker
+stop-dev-docker:
+	docker compose -f dev/docker-compose.yml down
 
-# Tear down the complete local development docker suite.
+# Remove the the dev environment and storage.
 .PHONY: rm-dev-docker
-rm-dev-docker: build ## Delete the docker containers including DB volumes.
-	cd dev; \
-	docker compose down -v ; \
-
-# Setup the db for local dev docker suite.
-.PHONY: init-dev-docker
-init-dev-docker: build-dev-docker ## Delete the docker containers including DB volumes.
-	cd dev; \
-	docker compose run --rm backend sh -c "make dist && ./listmonk --install --idempotent --yes --config dev/config.toml"
+rm-dev-docker:
+	docker compose -f dev/docker-compose.yml down -v

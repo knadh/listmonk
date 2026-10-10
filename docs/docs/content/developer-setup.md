@@ -17,28 +17,15 @@ The app is a Go backend that server-renders the admin UI (HTML templates with JS
 > [mailhog](https://github.com/mailhog/MailHog) is an excellent standalone mock SMTP server (with a UI) for testing and dev.
 
 
-### Running the dev environment
-You can run your dev environment locally or inside containers.
+### Running the Docker dev environment
 
-After setting up the dev environment, you can visit `http://localhost:9000`.
+- Run `make build-dev-docker` once to build the dev container which bundles Go, Postgres, Bun etc.
+- Run `make run-dev-docker` to start it and enter its shell.
+- Inside the shell, run `make run` which builds static assets, initializes a fresh DB, and starts listmonk on `:9000`.
+- For subsequent changes, simply Ctrl-C and re-run `make run` for changes to Go and static files to be picked up.
 
 
-1. Locally
-
-    - Run `make run` to start the listmonk dev server on `:9000`. It builds the SSR admin assets (from `static/admin/`) and serves the admin at `/admin`. To rebuild admin assets on change while developing, run `cd static/admin && bun run watch` in a separate terminal.
-
-2. Inside containers (Using Makefile)
-
-    - Run `make init-dev-docker` to setup container for db.
-    - Run `make dev-docker` to setup docker container suite.
-    - Run `make rm-dev-docker` to clean up docker container suite.
-
-3. Inside containers (Using devcontainer)
-
-    - Open repo in vscode, open command palette, and select "Dev Containers: Rebuild and Reopen in Container".
-
-It will set up db, and start frontend/backend for you.
-
+Run `make stop-dev-docker` to stop the container and `make rm-dev-docker` to completely remove it.
 
 # Production build
 Run `make dist` to build the SSR admin frontend and the Go binary, embedding the static assets into a single self-contained binary, `listmonk`.

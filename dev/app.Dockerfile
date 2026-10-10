@@ -1,11 +1,13 @@
-FROM golang:1.24.1 AS go
+FROM oven/bun:1.4.3 AS bun
 
-FROM node:16 AS node
+FROM golang:1.27.2-trixie
 
-COPY --from=go /usr/local/go /usr/local/go
-ENV GOPATH /go
+RUN apt-get update && apt-get install -y --no-install-recommends python3 \
+    && rm -rf /var/lib/apt/lists/* \
+    && git config --system --add safe.directory /app
+
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 ENV CGO_ENABLED=0
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 WORKDIR /app
-CMD [ "sleep infinity" ]
+CMD ["sleep", "infinity"]
