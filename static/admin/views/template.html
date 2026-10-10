@@ -17,7 +17,7 @@
 		<div class="col-6">
 			<div class="hstack gap-1">
 				<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
-				<div class="avatar">
+				<div class="avatar avatar-title">
 					{{- if not $isNew }}
 						{{- $kind := "campaign-template" -}}
 						{{- if eq $t.Type "tx" }}{{ $kind = "tx-template" }}{{ else if eq $t.Type "campaign_visual" }}{{ $kind = "campaign-visual-template" }}{{ end -}}

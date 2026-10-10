@@ -231,6 +231,27 @@ func (c *Core) GetSubscriberActivity(id int) (models.SubscriberActivity, error) 
 	return out, nil
 }
 
+// DeleteSubscriberActivity deletes a subscriber's campaign views or link clicks.
+func (c *Core) DeleteSubscriberActivity(id int, activityType string) error {
+	var stmt *sqlx.Stmt
+	switch activityType {
+	case "campaign_views":
+		stmt = c.q.DeleteSubscriberCampaignViews
+	case "link_clicks":
+		stmt = c.q.DeleteSubscriberLinkClicks
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid activity type.")
+	}
+
+	if _, err := stmt.Exec(id); err != nil {
+		c.log.Printf("error deleting subscriber activity: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{subscribers.activity}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
 // ExportSubscribers returns an iterator function that provides lists of subscribers based
 // on the given criteria in an exportable form. The iterator function returned can be called
 // repeatedly until there are nil subscribers. It's an iterator because exports can be extremely

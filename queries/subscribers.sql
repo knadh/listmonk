@@ -439,6 +439,12 @@ SELECT (SELECT email FROM prof) as email,
         COALESCE((SELECT JSON_AGG(t) FROM views t), '[]') AS campaign_views,
         COALESCE((SELECT JSON_AGG(t) FROM clicks t), '[]') AS link_clicks;
 
+-- name: delete-subscriber-campaign-views
+DELETE FROM campaign_views WHERE subscriber_id = $1;
+
+-- name: delete-subscriber-link-clicks
+DELETE FROM link_clicks WHERE subscriber_id = $1;
+
 -- name: get-subscriber-activity
 -- Gets the subscriber's campaign views and link clicks with detailed information
 -- for display in the Activity tab

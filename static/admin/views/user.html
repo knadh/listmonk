@@ -12,10 +12,10 @@
 	<header class="page-header">
 		<div class="hstack gap-1">
 			<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
-			<div class="avatar{{ if eq $d.User.Status "disabled" }} disabled{{ end }}">
+			<div class="avatar avatar-title{{ if eq $d.User.Status "disabled" }} disabled{{ end }}">
 				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "user" "Name" (or $d.User.Name $d.User.Username) "URL" $d.User.Avatar.String }}{{ end }}
 				<h1 class="page-title avatar-label">
-					{{- if not $d.IsNew }}{{ $d.User.Name }}{{ else }}{{ .L.T "users.newUser" }}{{ end -}}
+					{{- if not $d.IsNew }}{{ or $d.User.Name $d.User.Username }}{{ else }}{{ .L.T "users.newUser" }}{{ end -}}
 				</h1>
 			</div>
 			{{- if and (not $d.IsNew) (eq $d.User.Status "disabled") }}{{ Badge (list (Dot) ($.L.T "users.status.disabled")) "enum status-disabled" }}{{ end }}

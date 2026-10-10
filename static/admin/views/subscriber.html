@@ -13,7 +13,7 @@
 		<div class="col-6">
 			<div class="hstack gap-1">
 				<a href="{{ URI "/admin/subscribers" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
-				<div class="avatar{{ if eq $sub.Status "blocklisted" }} disabled{{ end }}">
+				<div class="avatar avatar-title{{ if eq $sub.Status "blocklisted" }} disabled{{ end }}">
 					{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or $sub.Name $sub.Email) }}{{ end }}
 					<h1 class="page-title avatar-label">
 						{{- if $d.IsNew }}

@@ -7,7 +7,7 @@
 	<header class="page-header">
 		<div class="hstack gap-1">
 			<a href="{{ URI "/admin/lists" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
-			<div class="avatar{{ if eq $d.List.Status "archived" }} disabled{{ end }}">
+			<div class="avatar avatar-title{{ if eq $d.List.Status "archived" }} disabled{{ end }}">
 				{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list" "Name" $d.List.Name }}{{ end }}
 				<h1 class="page-title avatar-label">{{ if $d.IsNew }}{{ .L.T "lists.newList" }}{{ else }}{{ $d.List.Name }}{{ end }}</h1>
 			</div>

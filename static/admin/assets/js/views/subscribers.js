@@ -275,6 +275,17 @@ function component(sub = null) {
     },
 
     // ===============
+    // Activity tab.
+    async onClearActivity(type) {
+      if (!(await u.confirm())) {
+        return;
+      }
+
+      await api('subscribers', `/subscribers/${this.form.id}/activity/${type}`, 'DELETE');
+      u.reload({ message: i18n.t('globals.messages.done') });
+    },
+
+    // ===============
     // Bounces tab.
     toggleMeta(id) {
       this.visibleMeta[id] = !this.visibleMeta[id];

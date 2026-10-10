@@ -25,7 +25,7 @@
 	<div class="card page-content has-table">
 		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('bounces')" @change="onChange($event)">
 			<template x-if="numSelected > 0">
-				<ot-dropdown class="bulk-actions">
+				<ot-dropdown class="bulk-actions" data-variant="primary">
 					<button popovertarget="bounce-bulk-actions" type="button" class="small" data-testid="btn-bulk-actions">
 						<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
 					</button>

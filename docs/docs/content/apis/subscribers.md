@@ -18,6 +18,7 @@
 | PUT    | [/api/subscribers/query/blocklist](#put-apisubscribersqueryblocklist)                   | Blocklist subscribers based on SQL expression. |
 | DELETE | [/api/subscribers/{subscriber_id}](#delete-apisubscriberssubscriber_id)                 | Delete a specific subscriber.                  |
 | DELETE | [/api/subscribers/{subscriber_id}/bounces](#delete-apisubscriberssubscriber_idbounces)  | Delete a specific subscriber's bounce records. |
+| DELETE | [/api/subscribers/{subscriber_id}/activity/{type}](#delete-apisubscriberssubscriber_idactivitytype) | Clear a subscriber's campaign views or link clicks. |
 | DELETE | [/api/subscribers](#delete-apisubscribers)                                              | Delete one or more subscribers.                |
 | POST   | [/api/subscribers/query/delete](#post-apisubscribersquerydelete)                        | Delete subscribers based on SQL expression.    |
 
@@ -662,6 +663,27 @@ Delete a subscriber's bounce records
 
 ```shell
 curl -u 'api_username:access_token' -X DELETE 'http://localhost:9000/api/subscribers/9/bounces'
+```
+
+##### Example Response
+
+```json
+{
+    "data": true
+}
+```
+
+______________________________________________________________________
+
+#### DELETE /api/subscribers/{subscriber_id}/activity/{type}
+
+Clear a subscriber's activity. `type` must be `campaign_views` or `link_clicks`.
+Only the selected activity type is deleted. Requires `subscribers:manage` and access to the subscriber.
+
+##### Example Request
+
+```shell
+curl -u 'api_username:access_token' -X DELETE 'http://localhost:9000/api/subscribers/1/activity/campaign_views'
 ```
 
 ##### Example Response

@@ -38,7 +38,7 @@
 		<div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('campaigns')" @change="onChange($event)">
 			{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
 				<template x-if="numSelected > 0">
-					<ot-dropdown class="bulk-actions">
+					<ot-dropdown class="bulk-actions" data-variant="primary">
 						<button popovertarget="camp-bulk-actions" type="button" class="small" data-cy="btn-bulk-actions">
 							<span x-text="numSelectedLabel"></span> {{ Icon "more-vertical" }}
 						</button>
