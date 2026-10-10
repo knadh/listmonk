@@ -347,7 +347,7 @@ a:has(> .badge:only-child) {
     gap: var(--space-1);
     vertical-align: middle;
 
-    .badge {
+    &.filter-default .badge {
         background-color: var(--card);
         border: 1px solid var(--border);
     }
