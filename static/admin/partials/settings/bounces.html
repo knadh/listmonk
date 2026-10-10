@@ -44,72 +44,98 @@
 				<template x-if="form['bounce.mailboxes'][0].enabled">
 					<div class="settings-items">
 						<template x-for="(item, n) in form['bounce.mailboxes']" :key="n">
-							<fieldset class="card">
-								<div data-field>
-									<label>{{ $.L.T "settings.bounces.type" }}</label>
-									<select x-model="item.type">
-										<option value="pop">POP</option>
-									</select>
-								</div>
+							<fieldset>
+								<fieldset class="card">
+									<legend>{{ $.L.T "settings.bounces.type" }}</legend>
+									<div data-field class="hstack">
+										<label><input type="radio" value="pop" name="mailbox_type" x-model="item.type" /> POP</label>
+										<label><input type="radio" value="imap" name="mailbox_type" x-model="item.type" /> IMAP</label>
+									</div>
+								</fieldset>
 
-								<div class="row">
-									<div class="col-8">
+								<fieldset class="card">
+									<legend>{{ $.L.T "settings.mailserver.host" }}</legend>
+									<div class="row">
+										<div class="col-8">
+											<label data-field>
+												{{ $.L.T "settings.mailserver.host" }}
+												<input maxlength="200" placeholder="mailbox.yourmailserver.net" x-model="item.host" />
+												<small data-hint>{{ $.L.T "settings.bounces.hostHelp" }}</small>
+											</label>
+										</div>
+										<div class="col-4">
+											<label data-field>
+												{{ $.L.T "settings.mailserver.port" }}
+												<input type="number" min="1" max="65535" placeholder="995" x-model.number="item.port" />
+												<small data-hint>{{ $.L.T "settings.bounces.portHelp" }}</small>
+											</label>
+										</div>
+									</div>
+								</fieldset>
+
+								<fieldset class="card">
+									<legend>{{ $.L.T "settings.mailserver.authProtocol" }}</legend>
+									<div data-field>
+										<label>{{ $.L.T "settings.mailserver.authProtocol" }}</label>
+										<select x-model="item.auth_protocol" :disabled="item.type === 'imap'" x-effect="if (item.type === 'imap') item.auth_protocol = 'userpass'">
+											<option value="none">none</option>
+											<option value="userpass">userpass</option>
+										</select>
+									</div>
+
+									<label data-field>
+										{{ $.L.T "settings.mailserver.username" }}
+										<input maxlength="200" placeholder="mailboxuser" :disabled="item.auth_protocol === 'none'" x-model="item.username" />
+									</label>
+
+									<label data-field>
+										{{ $.L.T "settings.mailserver.password" }}
+										<input type="password" maxlength="200" :disabled="item.auth_protocol === 'none'" x-model="item.password" />
+										<small data-hint>{{ $.L.T "settings.mailserver.passwordHelp" }}</small>
+									</label>
+								</fieldset>
+
+								<fieldset class="card">
+									<legend>{{ $.L.T "settings.mailserver.tls" }}</legend>
+									<div class="row">
+										<div class="col-6">
+											<label data-field>
+												<input type="checkbox" role="switch" x-model="item.tls_enabled" />
+												{{ $.L.T "settings.mailserver.tls" }}
+												<small data-hint>{{ $.L.T "settings.bounces.tlsHelp" }}</small>
+											</label>
+										</div>
+										<div class="col-6">
+											<label data-field>
+												<input type="checkbox" role="switch" :disabled="!item.tls_enabled" x-model="item.tls_skip_verify" />
+												{{ $.L.T "settings.mailserver.skipTLS" }}
+												<small data-hint>{{ $.L.T "settings.mailserver.skipTLSHelp" }}</small>
+											</label>
+										</div>
+									</div>
+								</fieldset>
+
+								<fieldset class="card">
+									<label data-field>
+										{{ $.L.T "settings.bounces.scanInterval" }}
+										<input maxlength="10" placeholder="15m" x-model="item.scan_interval" />
+										<small data-hint>{{ $.L.T "settings.bounces.scanIntervalHelp" }}</small>
+									</label>
+
+									<div x-show="item.type === 'imap'">
 										<label data-field>
-											{{ $.L.T "settings.mailserver.host" }}
-											<input maxlength="200" placeholder="bounce.yourmailserver.net" x-model="item.host" />
-											<small data-hint>{{ $.L.T "settings.mailserver.hostHelp" }}</small>
+											{{ $.L.T "settings.bounces.folder" }}
+											<input maxlength="200" placeholder="INBOX" x-model="item.folder" />
+											<small data-hint>{{ $.L.T "settings.bounces.folderHelp" }}</small>
+										</label>
+
+										<label data-field>
+											{{ $.L.T "settings.bounces.trashFolder" }}
+											<input maxlength="200" x-model="item.trash_folder" />
+											<small data-hint>{{ $.L.T "settings.bounces.trashFolderHelp" }}</small>
 										</label>
 									</div>
-									<div class="col-4">
-										<label data-field>
-											{{ $.L.T "settings.mailserver.port" }}
-											<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.port" />
-											<small data-hint>{{ $.L.T "settings.mailserver.portHelp" }}</small>
-										</label>
-									</div>
-								</div>
-
-								<div data-field>
-									<label>{{ $.L.T "settings.mailserver.authProtocol" }}</label>
-									<select x-model="item.auth_protocol">
-										<option value="none">none</option>
-										<option value="userpass">userpass</option>
-									</select>
-								</div>
-
-								<label data-field>
-									{{ $.L.T "settings.mailserver.username" }}
-									<input maxlength="200" placeholder="mysmtp" :disabled="item.auth_protocol === 'none'" x-model="item.username" />
-								</label>
-
-								<label data-field>
-									{{ $.L.T "settings.mailserver.password" }}
-									<input type="password" maxlength="200" :disabled="item.auth_protocol === 'none'" x-model="item.password" />
-									<small data-hint>{{ $.L.T "settings.mailserver.passwordHelp" }}</small>
-								</label>
-
-								<div class="row">
-									<div class="col-6">
-										<label data-field>
-											<input type="checkbox" role="switch" x-model="item.tls_enabled" />
-											{{ $.L.T "settings.mailserver.tls" }}
-											<small data-hint>{{ $.L.T "settings.mailserver.tlsHelp" }}</small>
-										</label>
-									</div>
-									<div class="col-6">
-										<label data-field>
-											<input type="checkbox" role="switch" :disabled="!item.tls_enabled" x-model="item.tls_skip_verify" />
-											{{ $.L.T "settings.mailserver.skipTLS" }}
-											<small data-hint>{{ $.L.T "settings.mailserver.skipTLSHelp" }}</small>
-										</label>
-									</div>
-								</div>
-
-								<label data-field>
-									{{ $.L.T "settings.bounces.scanInterval" }}
-									<input maxlength="10" placeholder="15m" x-model="item.scan_interval" />
-									<small data-hint>{{ $.L.T "settings.bounces.scanIntervalHelp" }}</small>
-								</label>
+								</fieldset>
 							</fieldset>
 						</template>
 					</div>
