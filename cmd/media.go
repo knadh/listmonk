@@ -68,8 +68,9 @@ func (a *App) ViewMediaFragment(c echo.Context) error {
 
 // mediaQueryDefaults is the allow list of filter query params.
 var mediaQueryDefaults = map[string]string{
-	"page":  "",
-	"query": "",
+	"page":     "",
+	"per_page": "100",
+	"query":    "",
 }
 
 // getMedia queries paginated media items from the DB.
@@ -77,7 +78,6 @@ func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) 
 	q := makeQuery(c.Request().URL.Query(), mediaQueryDefaults)
 
 	pg := a.pg.NewFromURL(q)
-	pg.Limit = 100
 	res, total, err := a.core.QueryMedia(a.cfg.MediaUpload.Provider, a.media, q.Get("query"), pg.Offset, pg.Limit)
 	if err != nil {
 		return nil, models.PageProps{}, err

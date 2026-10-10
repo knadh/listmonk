@@ -53,6 +53,7 @@ var (
 	// campaignsQueryDefaults is the allow list of filter query params.
 	campaignsQueryDefaults = map[string]string{
 		"page":     "",
+		"per_page": "",
 		"query":    "",
 		"order_by": "",
 		"order":    "",

@@ -15,6 +15,7 @@ import (
 // bouncesQueryDefaults is the allowlist of filter query params.
 var bouncesQueryDefaults = map[string]string{
 	"page":        "",
+	"per_page":    "",
 	"order_by":    "",
 	"order":       "",
 	"source":      "",

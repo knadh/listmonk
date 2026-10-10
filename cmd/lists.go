@@ -13,6 +13,7 @@ import (
 // listsQueryDefaults is the allow list of filter query params.
 var listsQueryDefaults = map[string]string{
 	"page":     "",
+	"per_page": "",
 	"minimal":  "",
 	"query":    "",
 	"order_by": "",

@@ -27,6 +27,7 @@ const (
 // subscribersQueryDefaults is the allow list of filter query params.
 var subscribersQueryDefaults = map[string]string{
 	"page":                "",
+	"per_page":            "",
 	"search":              "",
 	"query":               "",
 	"order_by":            "",
