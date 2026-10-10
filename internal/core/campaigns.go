@@ -381,7 +381,7 @@ func (c *Core) GetRunningCampaignStats() ([]models.CampaignStats, error) {
 	return out, nil
 }
 
-func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate, granularity string) ([]models.CampaignAnalyticsCount, error) {
+func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate, interval string) ([]models.CampaignAnalyticsCount, error) {
 	// Pick campaign view counts or click counts.
 	var stmt *sqlx.Stmt
 	switch typ {
@@ -398,27 +398,20 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate, 
 	if !strHasLen(fromDate, 10, 30) || !strHasLen(toDate, 10, 30) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("analytics.invalidDates"))
 	}
-	if !isValidAnalyticsGranularity(granularity) {
+	switch interval {
+	case "hour", "day", "week", "month":
+	default:
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
 	}
 
 	out := []models.CampaignAnalyticsCount{}
-	if err := stmt.Select(&out, pq.Array(campIDs), fromDate, toDate, granularity); err != nil {
+	if err := stmt.Select(&out, pq.Array(campIDs), fromDate, toDate, interval); err != nil {
 		c.log.Printf("error fetching campaign %s: %v", typ, err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
 	}
 
 	return out, nil
-}
-
-func isValidAnalyticsGranularity(granularity string) bool {
-	switch granularity {
-	case "", "hour", "day", "week", "month":
-		return true
-	default:
-		return false
-	}
 }
 
 // GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.

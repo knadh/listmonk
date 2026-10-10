@@ -17,7 +17,7 @@
 			<div class="card float">
 				<h4 class="title">{{ .L.T "analytics.title" }}</h4>
 				<div class="row">
-					<div class="col-5">
+					<div class="col-4">
 						<label data-field>
 							{{ .L.T "globals.terms.campaigns" }}
 							<ot-taginput x-model="campaigns">
@@ -30,21 +30,39 @@
 						</template>
 					</div>
 
-					<div class="col-7">
+					<div class="col-5">
 						<data data-field>
 							<label>{{ .L.T "analytics.fromDate" }} &rarr; {{ .L.T "analytics.toDate" }}</label>
 							<fieldset class="group">
 								<input type="datetime-local" name="from" value="{{ $d.FromInput }}" aria-label="{{ .L.T "analytics.fromDate" }}" data-cy="from" />
 								<input type="datetime-local" name="to" value="{{ $d.ToInput }}" aria-label="{{ .L.T "analytics.toDate" }}" data-cy="to" />
-								<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="campaigns.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
-									{{ .L.T "globals.buttons.view" }}
-								</button>
 							</fieldset>
 							{{- if $d.DisableTracking }}
 								<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.trackingDisabled" }}</span>
 							{{- else if not $d.IndividualTracking }}
 								<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.nonIndividualTracking" }}</span>
 							{{- end }}
+						</data>
+					</div>
+
+					<div class="col-2">
+						<data data-field>
+							<label for="analytics-interval">{{ .L.T "analytics.interval" }}</label>
+							<select id="analytics-interval" name="interval" data-cy="interval">
+								<option value="day" {{ if eq $d.Interval "day" }}selected{{ end }}>{{ .L.T "globals.terms.day" }}</option>
+								<option value="hour" {{ if eq $d.Interval "hour" }}selected{{ end }}>{{ .L.T "globals.terms.hour" }}</option>
+								<option value="week" {{ if eq $d.Interval "week" }}selected{{ end }}>{{ .L.T "globals.terms.week" }}</option>
+								<option value="month" {{ if eq $d.Interval "month" }}selected{{ end }}>{{ .L.T "globals.terms.month" }}</option>
+							</select>
+						</data>
+					</div>
+
+					<div class="col-1">
+						<data data-field>
+							<label aria-hidden="true">&nbsp;</label>
+							<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="campaigns.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
+								{{ .L.T "globals.buttons.view" }}
+							</button>
 						</data>
 					</div>
 				</div>
