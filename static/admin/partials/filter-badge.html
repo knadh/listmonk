@@ -1,5 +1,12 @@
 {{ define "filter-badge" -}}
 <span class="filter-tag">
-       {{ Badge .Label (default "" .Class) (default "" .Variant) }} <a href="{{ .URL }}" title="{{ L.T "globals.buttons.remove" }}" data-testid="btn-remove-filter">{{ Icon "x" }}</a>
+       {{- if .LabelURL }}<a href="{{ .LabelURL }}" class="unstyled">{{ end }}
+       {{- if .Avatar }}
+       <span class="badge badge-avatar {{ default "" .Class }}"{{ if .Variant }} data-variant="{{ .Variant }}"{{ end }}>{{ template "avatar" .Avatar }} {{ .Label }}</span>
+       {{- else }}
+       {{ Badge .Label (default "" .Class) (default "" .Variant) }}
+       {{- end }}
+       {{- if .LabelURL }}</a>{{ end }}
+       <a href="{{ .URL }}" title="{{ L.T "globals.buttons.remove" }}" data-testid="btn-remove-filter">{{ Icon "x" }}</a>
 </span>
 {{- end }}
