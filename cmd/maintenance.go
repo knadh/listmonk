@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/knadh/listmonk/internal/auth"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,10 +23,6 @@ type maintenanceView struct {
 
 // ViewMaintenance renders the HTML view for the maintenance page.
 func (a *App) ViewMaintenance(c echo.Context) error {
-	if !can(auth.GetUser(c), "settings:maintain") {
-		return auth.ErrPermDenied
-	}
-
 	s, err := a.core.GetSettings()
 	if err != nil {
 		return err

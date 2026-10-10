@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
@@ -51,4 +52,9 @@ func can(user auth.User, perms ...string) bool {
 
 func canManageList(user auth.User, id int) bool {
 	return user.HasListPerm(auth.PermTypeManage, id) == nil
+}
+
+// renderAdminMessage renders a message page.
+func (a *App) renderAdminMessage(c echo.Context, title, description string) error {
+	return c.Render(http.StatusForbidden, "admin-message", newAdminView(c, title, description, ""))
 }

@@ -58,10 +58,6 @@ type userView struct {
 
 // ViewUsers renders the HTML view listing all users.
 func (a *App) ViewUsers(c echo.Context) error {
-	if !can(auth.GetUser(c), auth.PermUsersGet) {
-		return auth.ErrPermDenied
-	}
-
 	// Whitelisted filter params.
 	q := makeQuery(c.Request().URL.Query(), usersQueryDefaults)
 	var (
@@ -107,10 +103,6 @@ func (a *App) ViewUsers(c echo.Context) error {
 // ViewUser renders the HTML add/edit form for a user. It handles both the "new user"
 // (no ID) and the "edit user" (ID in the URI) cases.
 func (a *App) ViewUser(c echo.Context) error {
-	if !can(auth.GetUser(c), auth.PermUsersGet) {
-		return auth.ErrPermDenied
-	}
-
 	var (
 		user  auth.User
 		isNew = true
@@ -127,9 +119,16 @@ func (a *App) ViewUser(c echo.Context) error {
 	}
 
 	// Roles for the role selectors.
-	userRoles, listRoles, err := a.getRoles()
-	if err != nil {
-		return err
+	var (
+		userRoles []auth.Role
+		listRoles []auth.ListRole
+	)
+	if can(auth.GetUser(c), auth.PermRolesGet) {
+		var err error
+		userRoles, listRoles, err = a.getRoles()
+		if err != nil {
+			return err
+		}
 	}
 
 	title := a.i18n.T("users.newUser")

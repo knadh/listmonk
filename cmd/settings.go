@@ -106,10 +106,6 @@ type settingsView struct {
 
 // ViewSettings renders the HTML view for the settings form.
 func (a *App) ViewSettings(c echo.Context) error {
-	if !can(auth.GetUser(c), "settings:get") {
-		return auth.ErrPermDenied
-	}
-
 	s, err := a.core.GetSettings()
 	if err != nil {
 		return err
@@ -465,10 +461,6 @@ type logsView struct {
 
 // ViewLogs renders the HTML view for the application log viewer.
 func (a *App) ViewLogs(c echo.Context) error {
-	if !can(auth.GetUser(c), "settings:get") {
-		return auth.ErrPermDenied
-	}
-
 	data := logsView{
 		adminView: newAdminView(c, a.i18n.T("logs.title"), "", "settings.logs"),
 		Lines:     a.bufLog.Lines(),

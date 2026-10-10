@@ -116,6 +116,12 @@ type subLinkClick struct {
 // ViewSubscribers renders the HTML view for subscribers, optionally filtered by a list.
 func (a *App) ViewSubscribers(c echo.Context) error {
 	listID, _ := strconv.Atoi(c.Param("id"))
+	if listID > 0 {
+		user := auth.GetUser(c)
+		if err := user.HasListPerm(auth.PermTypeGet, listID); err != nil {
+			return a.renderAdminMessage(c, "Error", a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+		}
+	}
 
 	subs, props, err := a.getSubscribers(c, listID)
 	if err != nil {

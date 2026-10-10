@@ -102,7 +102,7 @@ func (a *App) ViewList(c echo.Context) error {
 	// Check if the user has access to the list.
 	id := getID(c)
 	if err := user.HasListPerm(auth.PermTypeGet, id); err != nil {
-		return err
+		return a.renderAdminMessage(c, "Error", a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
 	}
 
 	list, err := a.core.GetList(id, "")
@@ -120,7 +120,9 @@ func (a *App) ViewList(c echo.Context) error {
 
 // ViewForms renders the HTML view for the public subscription form generator.
 func (a *App) ViewForms(c echo.Context) error {
-	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, true, nil)
+	user := auth.GetUser(c)
+	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
+	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, hasAllPerm, permittedIDs)
 	if err != nil {
 		return err
 	}

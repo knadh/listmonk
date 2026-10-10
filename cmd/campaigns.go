@@ -84,9 +84,13 @@ type campaignView struct {
 
 // ViewNewCampaign renders the new campaign page (only the "campaign" tab).
 func (a *App) ViewNewCampaign(c echo.Context) error {
-	tpls, err := a.core.GetTemplates("", "", true, "", "")
-	if err != nil {
-		return err
+	var tpls []models.Template
+	if can(auth.GetUser(c), "templates:get") {
+		var err error
+		tpls, err = a.core.GetTemplates("", "", true, "", "")
+		if err != nil {
+			return err
+		}
 	}
 
 	// Pre-selected lists from ?list_id query params (filtered by permission).
@@ -157,9 +161,13 @@ func (a *App) ViewCampaign(c echo.Context) error {
 		}
 	}
 
-	tpls, err := a.core.GetTemplates("", "", true, "", "")
-	if err != nil {
-		return err
+	var tpls []models.Template
+	if can(auth.GetUser(c), "templates:get") {
+		var err error
+		tpls, err = a.core.GetTemplates("", "", true, "", "")
+		if err != nil {
+			return err
+		}
 	}
 
 	allLists, err := a.getViewableLists(c)

@@ -54,10 +54,6 @@ type roleFormView struct {
 
 // ViewUserRoles renders the HTML view listing user roles.
 func (a *App) ViewUserRoles(c echo.Context) error {
-	if !can(auth.GetUser(c), auth.PermRolesGet) {
-		return auth.ErrPermDenied
-	}
-
 	q := makeQuery(c.Request().URL.Query(), rolesQueryDefaults)
 	roles, err := a.core.GetRoles(q.Get("query"), q.Get("order_by"), q.Get("order"))
 	if err != nil {
@@ -81,10 +77,6 @@ func (a *App) ViewUserRoles(c echo.Context) error {
 
 // ViewListRoles renders the HTML view listing list roles.
 func (a *App) ViewListRoles(c echo.Context) error {
-	if !can(auth.GetUser(c), auth.PermRolesGet) {
-		return auth.ErrPermDenied
-	}
-
 	q := makeQuery(c.Request().URL.Query(), rolesQueryDefaults)
 	roles, err := a.core.GetListRoles(q.Get("query"), q.Get("order_by"), q.Get("order"))
 	if err != nil {
@@ -108,10 +100,6 @@ func (a *App) ViewListRoles(c echo.Context) error {
 
 // ViewUserRole renders the HTML add/edit form for a user role.
 func (a *App) ViewUserRole(c echo.Context) error {
-	if !can(auth.GetUser(c), auth.PermRolesGet) {
-		return auth.ErrPermDenied
-	}
-
 	var (
 		role  auth.Role
 		isNew = true
@@ -148,10 +136,6 @@ func (a *App) ViewUserRole(c echo.Context) error {
 
 // ViewListRole renders the HTML add/edit form for a list role.
 func (a *App) ViewListRole(c echo.Context) error {
-	if !can(auth.GetUser(c), auth.PermRolesGet) {
-		return auth.ErrPermDenied
-	}
-
 	var (
 		role  auth.ListRole
 		isNew = true
@@ -178,7 +162,7 @@ func (a *App) ViewListRole(c echo.Context) error {
 	}
 
 	// All lists for the list-permission selector.
-	lists, err := a.core.GetLists("", models.ListStatusActive, true, nil)
+	lists, err := a.getViewableLists(c)
 	if err != nil {
 		return err
 	}

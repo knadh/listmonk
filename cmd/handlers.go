@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"path"
@@ -50,6 +51,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 	// =================================================================
 	// Authenticated non /api handlers.
 	{
+		pm := a.auth.Perm
+
 		// Attach a middleware to the group that checks for auth.
 		g := e.Group("", a.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
@@ -64,7 +67,13 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 					return c.Redirect(http.StatusTemporaryRedirect, u.String())
 				}
 
-				return next(c)
+				err := next(c)
+				var httpErr *echo.HTTPError
+				if errors.As(err, &httpErr) && httpErr.Code == http.StatusForbidden && !c.Response().Committed {
+					return a.renderAdminMessage(c, "Error", a.i18n.Ts("globals.messages.permissionDenied", "name", c.Path()))
+				}
+
+				return err
 			}
 		})
 
@@ -74,47 +83,48 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
 		g.GET(uriAdmin, a.ViewDashboard)
 		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
-		g.GET(path.Join(uriAdmin, "/lists/new"), a.ViewNewList)
+		g.GET(path.Join(uriAdmin, "/lists/new"), pm(a.ViewNewList, "lists:manage_all"))
 		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
 		g.GET(path.Join(uriAdmin, "/lists/forms"), a.ViewForms)
-		g.GET(path.Join(uriAdmin, "/campaigns"), a.ViewCampaigns)
-		g.GET(path.Join(uriAdmin, "/campaigns/media"), a.ViewMedia)
-		g.GET(path.Join(uriAdmin, "/campaigns/media/fragment"), a.ViewMediaFragment)
-		g.GET(path.Join(uriAdmin, "/campaigns/analytics"), a.ViewCampaignAnalytics)
-		g.GET(path.Join(uriAdmin, "/campaigns/new"), a.ViewNewCampaign)
-		g.GET(path.Join(uriAdmin, "/campaigns/:id"), hasID(a.ViewCampaign))
-		g.GET(path.Join(uriAdmin, "/campaigns/:id/:tab"), hasID(a.ViewCampaign))
-		g.GET(path.Join(uriAdmin, "/templates"), a.ViewTemplates)
-		g.GET(path.Join(uriAdmin, "/templates/new"), a.ViewNewTemplate)
-		g.GET(path.Join(uriAdmin, "/templates/:id"), hasID(a.ViewTemplate))
-		g.GET(path.Join(uriAdmin, "/subscribers/import"), a.ViewImport)
-		g.GET(path.Join(uriAdmin, "/subscribers/bounces"), a.ViewBounces)
-		g.GET(path.Join(uriAdmin, "/subscribers"), a.ViewSubscribers)
-		g.POST(path.Join(uriAdmin, "/subscribers"), a.ViewSubscribers)
-		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), hasID(a.ViewSubscribers))
-		g.POST(path.Join(uriAdmin, "/subscribers/lists/:id"), hasID(a.ViewSubscribers))
-		g.GET(path.Join(uriAdmin, "/subscribers/new"), a.ViewNewSubscriber)
-		g.GET(path.Join(uriAdmin, "/subscribers/:id"), hasID(a.ViewSubscriber))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), hasID(a.ViewSubscriber))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), hasID(a.ViewSubscriberBounces))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/activity"), hasID(a.ViewSubscriberActivity))
+		g.GET(path.Join(uriAdmin, "/campaigns"), pm(a.ViewCampaigns, "campaigns:get_all", "campaigns:get"))
+		g.GET(path.Join(uriAdmin, "/campaigns/media"), pm(a.ViewMedia, "media:get"))
+		g.GET(path.Join(uriAdmin, "/campaigns/media/fragment"), pm(a.ViewMediaFragment, "media:get"))
+		g.GET(path.Join(uriAdmin, "/campaigns/analytics"), pm(a.ViewCampaignAnalytics, "campaigns:get_analytics"))
+		g.GET(path.Join(uriAdmin, "/campaigns/new"), pm(a.ViewNewCampaign, "campaigns:manage_all", "campaigns:manage"))
+		g.GET(path.Join(uriAdmin, "/campaigns/:id"), pm(hasID(a.ViewCampaign), "campaigns:get_all", "campaigns:get"))
+		g.GET(path.Join(uriAdmin, "/campaigns/:id/:tab"), pm(hasID(a.ViewCampaign), "campaigns:get_all", "campaigns:get"))
+		g.GET(path.Join(uriAdmin, "/templates"), pm(a.ViewTemplates, "templates:get"))
+		g.GET(path.Join(uriAdmin, "/templates/new"), pm(a.ViewNewTemplate, "templates:manage"))
+		g.GET(path.Join(uriAdmin, "/templates/:id"), pm(hasID(a.ViewTemplate), "templates:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/import"), pm(a.ViewImport, "subscribers:import"))
+		g.GET(path.Join(uriAdmin, "/subscribers/bounces"), pm(a.ViewBounces, "bounces:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers"), pm(a.ViewSubscribers, "subscribers:get_all", "subscribers:get"))
+		g.POST(path.Join(uriAdmin, "/subscribers"), pm(a.ViewSubscribers, "subscribers:get_all", "subscribers:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), pm(hasID(a.ViewSubscribers), "subscribers:get_all", "subscribers:get"))
+		g.POST(path.Join(uriAdmin, "/subscribers/lists/:id"), pm(hasID(a.ViewSubscribers), "subscribers:get_all", "subscribers:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/new"), pm(a.ViewNewSubscriber, "subscribers:manage"))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id"), pm(hasID(a.ViewSubscriber), "subscribers:get_all", "subscribers:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), pm(hasID(a.ViewSubscriber), "subscribers:get_all", "subscribers:get"))
+		// This view renders both the subscriber profile and bounce records.
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), pm(pm(hasID(a.ViewSubscriberBounces), "bounces:get"), "subscribers:get_all", "subscribers:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/activity"), pm(hasID(a.ViewSubscriberActivity), "subscribers:get_all", "subscribers:get"))
 
 		// Users and roles. Static segments are registered before the :id param routes.
-		g.GET(path.Join(uriAdmin, "/users"), a.ViewUsers)
-		g.GET(path.Join(uriAdmin, "/users/new"), a.ViewUser)
-		g.GET(path.Join(uriAdmin, "/users/roles"), a.ViewUserRoles)
-		g.GET(path.Join(uriAdmin, "/users/roles/new"), a.ViewUserRole)
-		g.GET(path.Join(uriAdmin, "/users/roles/lists"), a.ViewListRoles)
-		g.GET(path.Join(uriAdmin, "/users/roles/lists/new"), a.ViewListRole)
-		g.GET(path.Join(uriAdmin, "/users/roles/lists/:id"), hasID(a.ViewListRole))
-		g.GET(path.Join(uriAdmin, "/users/roles/:id"), hasID(a.ViewUserRole))
-		g.GET(path.Join(uriAdmin, "/users/:id"), hasID(a.ViewUser))
+		g.GET(path.Join(uriAdmin, "/users"), pm(a.ViewUsers, "users:get"))
+		g.GET(path.Join(uriAdmin, "/users/new"), pm(a.ViewUser, "users:manage"))
+		g.GET(path.Join(uriAdmin, "/users/roles"), pm(a.ViewUserRoles, "roles:get"))
+		g.GET(path.Join(uriAdmin, "/users/roles/new"), pm(a.ViewUserRole, "roles:manage"))
+		g.GET(path.Join(uriAdmin, "/users/roles/lists"), pm(a.ViewListRoles, "roles:get"))
+		g.GET(path.Join(uriAdmin, "/users/roles/lists/new"), pm(a.ViewListRole, "roles:manage"))
+		g.GET(path.Join(uriAdmin, "/users/roles/lists/:id"), pm(hasID(a.ViewListRole), "roles:get"))
+		g.GET(path.Join(uriAdmin, "/users/roles/:id"), pm(hasID(a.ViewUserRole), "roles:get"))
+		g.GET(path.Join(uriAdmin, "/users/:id"), pm(hasID(a.ViewUser), "users:get"))
 		g.GET(path.Join(uriAdmin, "/user/profile"), a.ViewProfile)
 
 		// Settings.
-		g.GET(path.Join(uriAdmin, "/settings"), a.ViewSettings)
-		g.GET(path.Join(uriAdmin, "/settings/logs"), a.ViewLogs)
-		g.GET(path.Join(uriAdmin, "/settings/maintenance"), a.ViewMaintenance)
+		g.GET(path.Join(uriAdmin, "/settings"), pm(a.ViewSettings, "settings:get"))
+		g.GET(path.Join(uriAdmin, "/settings/logs"), pm(a.ViewLogs, "settings:get"))
+		g.GET(path.Join(uriAdmin, "/settings/maintenance"), pm(a.ViewMaintenance, "settings:maintain"))
 	}
 
 	// =================================================================
