@@ -8,16 +8,28 @@
 	</div>
 
 	{{- if $d.CampaignViews }}
-	<div class="card float page-content has-table mt-6">
+	<div class="card float page-content has-table mt-8">
 		<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
 		<div class="table-wrapper">
 			<table>
-				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th width="10%">{{ .L.T "campaigns.views" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
+				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th width="10%" class="align-center">{{ .L.T "campaigns.views" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
 				<tbody>
 					{{- range $d.CampaignViews }}
 						<tr>
-							<td><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a><p class="text-light">{{ .Subject }}</p></td>
-							<td data-label="{{ $.L.T "campaigns.views" }}">{{ .ViewCount }}</td>
+							<td class="name">
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+									<div class="avatar-label vstack gap-1">
+										<div>
+											<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+											<div class="subject text-8 text-light">
+												<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Subject }}</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td class="align-center" data-label="{{ $.L.T "campaigns.views" }}">{{ .ViewCount }}</td>
 							<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .LastViewedAt }}</td>
 						</tr>
 					{{- end }}
@@ -28,17 +40,31 @@
 	{{- end }}
 
 	{{- if $d.LinkClicks }}
-	<div class="card float page-content has-table mt-6">
+	<div class="card float page-content has-table mt-8">
 		<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
 		<div class="table-wrapper">
 			<table>
-				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th>{{ .L.T "globals.terms.url" }}</th><th width="10%">{{ .L.T "campaigns.clicks" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
+				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th>{{ .L.T "globals.terms.url" }}</th><th width="10%" class="align-center">{{ .L.T "campaigns.clicks" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
 				<tbody>
 					{{- range $d.LinkClicks }}
 						<tr>
-							<td>{{- if .CampaignID }}<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}">{{ or .CampaignSubject .CampaignName }}</a>{{- end }}</td>
+							<td class="name">
+								{{- if .CampaignID }}
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .CampaignName }}
+									<div class="avatar-label vstack gap-1">
+										<div>
+											<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}" class="unstyled">{{ .CampaignName }}</a>
+											<div class="subject text-8 text-light">
+												<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}" class="unstyled">{{ .CampaignSubject }}</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								{{- end }}
+							</td>
 							<td class="link-click-url" data-label="{{ $.L.T "globals.terms.url" }}"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></td>
-							<td data-label="{{ $.L.T "campaigns.clicks" }}">{{ .ClickCount }}</td>
+							<td class="align-center" data-label="{{ $.L.T "campaigns.clicks" }}">{{ .ClickCount }}</td>
 							<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .LastClickedAt }}</td>
 						</tr>
 					{{- end }}
