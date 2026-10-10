@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -182,12 +183,7 @@ func (o *Auth) initOIDC() error {
 	if err := provider.Claims(&meta); err != nil {
 		o.log.Printf("error reading OIDC provider metadata: %v", err)
 	} else {
-		for _, m := range meta.CodeChallengeMethods {
-			if m == "S256" {
-				o.pkce = true
-				break
-			}
-		}
+		o.pkce = slices.Contains(meta.CodeChallengeMethods, "S256")
 	}
 
 	return nil
@@ -253,17 +249,20 @@ func (o *Auth) GetOIDCAuthURL(state, nonce string) (string, string) {
 	return cfg.AuthCodeURL(state, opts...), codeVerifier
 }
 
-// ExchangeOIDCToken takes an OIDC authorization code (recieved via redirect from the OIDC provider)
+// ExchangeOIDCToken takes an OIDC authorization code (received via redirect from the OIDC provider)
 // and the PKCE code verifier from the auth request, validates it, and returns an OIDC token for
 // subsequent auth.
 func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDCclaim, error) {
-	cfg, _, err := o.getOAuthConfig()
+	cfg, pkce, err := o.getOAuthConfig()
 	if err != nil {
 		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("error getting OAuth config: %v", err))
 	}
 
 	var opts []oauth2.AuthCodeOption
-	if codeVerifier != "" {
+	if pkce {
+		if codeVerifier == "" {
+			return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, "PKCE code verifier missing")
+		}
 		opts = append(opts, oauth2.VerifierOption(codeVerifier))
 	}
 
