@@ -142,6 +142,9 @@ The `Settings -> SMTP -> Retries` denotes the number of times a message that fai
 ## SMTP ports
 Some server hosts block outgoing SMTP ports (25, 465). You may have to contact your host to unblock them before being able to send e-mails. Eg: [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
+## HELO hostname
+By default, listmonk will auto-generate a hostname and advertise that to the SMTP server. Certain hosts such as Google Workspace SMTP and relay require it to be set to an valid hostname (FQDN).
+
 
 ## Performance
 
