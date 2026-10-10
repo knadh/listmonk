@@ -159,12 +159,12 @@
 									</button>
 									<menu popover id="camp-actions-{{ .ID }}">
 										<button type="button" role="menuitem" class="ghost" data-cy="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "campaigns.preview" }}</button>
+										{{- if and ($d.Can "campaigns:send") $canStart }}
+											<button type="button" role="menuitem" class="ghost" data-cy="btn-start" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'running')">{{ Icon "send" }} {{ $.L.T "campaigns.start" }}</button>
+										{{- end }}
 										<hr />
 										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										{{- if $d.Can "campaigns:send" }}
-											{{- if $canStart }}
-												<button type="button" role="menuitem" class="ghost" data-cy="btn-start" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'running')">{{ Icon "send" }} {{ $.L.T "campaigns.start" }}</button>
-											{{- end }}
 											{{- if $canSchedule }}
 												<button type="button" role="menuitem" class="ghost" data-cy="btn-schedule" @click.prevent="onChangeStatus({{ .ID }}, {{ ToJSON .Name }}, 'scheduled', true)">{{ Icon "clock" }} {{ $.L.T "campaigns.schedule" }}</button>
 											{{- end }}
