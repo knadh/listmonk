@@ -758,6 +758,7 @@ class RichtextEditor extends HTMLElement {
   initShortcuts() {
     const emit = (name) => (self, e) => {
       e.preventDefault();
+      e.stopPropagation();
       this.dispatchEvent(new CustomEvent(name, { bubbles: true }));
     };
 
