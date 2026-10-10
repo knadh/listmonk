@@ -20,7 +20,7 @@
 				{{- if not $isNew }}
 					{{- $kind := "campaign-template" -}}
 					{{- if eq $t.Type "tx" }}{{ $kind = "tx-template" }}{{ else if eq $t.Type "campaign_visual" }}{{ $kind = "campaign-visual-template" }}{{ end -}}
-					{{ template "avatar" dict "Kind" $kind "Seed" (printf "%d" $t.ID) "Name" $t.Name }}
+					{{ template "avatar" dict "Kind" $kind "Name" $t.Name }}
 				{{- end }}
 				<h1 class="page-title">
 					{{- if $isNew }}{{ .L.T "templates.newTemplate" }}{{ else }}{{ $t.Name }}{{ end -}}

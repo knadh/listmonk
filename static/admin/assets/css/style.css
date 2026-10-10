@@ -357,15 +357,7 @@ a:has(> .badge:only-child) {
         white-space: nowrap;
 
         .avatar {
-            display: inline-flex;
             margin: 0;
-
-            img,
-            span {
-                height: 18px;
-                width: 18px;
-                font-size: 8px;
-            }
         }
     }
 
@@ -637,21 +629,110 @@ main {
 }
 
 .avatar {
+    --avatar-size: 1.75rem;
+    --avatar-font-size: var(--text-8);
+    --avatar-light: #faedf2;
+    --avatar-mid: #dfa4bb;
+    --avatar-dark: #50313e;
+    --avatar-accent: #d9a5bf;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    vertical-align: middle;
+    line-height: 1;
+
+    &.small {
+        --avatar-size: 1.25rem;
+        --avatar-font-size: 0.5rem;
+    }
+
+    &.xsmall {
+        --avatar-size: 1rem;
+        --avatar-font-size: 0.5rem;
+    }
+
     img,
     span {
         align-items: center;
         display: inline-flex;
-        border-radius: 5px;
+        border-radius: 0.3125rem;
         justify-content: center;
         object-fit: cover;
-        height: 28px;
-        width: 28px;
+        height: var(--avatar-size);
+        width: var(--avatar-size);
     }
 
     span {
-        font-size: var(--text-8);
+        font-size: var(--avatar-font-size);
         letter-spacing: 0.02em;
     }
+}
+
+.avatar-initials {
+    background-color: var(--avatar-light);
+    color: var(--avatar-dark);
+    background-image:
+        radial-gradient(circle at 27% 17%, #ffffff73, transparent 55%),
+        radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--avatar-mid) 65%, transparent), transparent 95%),
+        radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--avatar-accent) 65%, transparent), transparent 90%);
+}
+
+.avatar-list {
+    --avatar-light: #e1f7f3;
+    --avatar-mid: #78cbbb;
+    --avatar-dark: #234a43;
+    --avatar-accent: #80cec6;
+}
+
+.avatar-campaign {
+    --avatar-light: #eeebff;
+    --avatar-mid: #ad9ff5;
+    --avatar-dark: #303254;
+    --avatar-accent: #b29bf0;
+}
+
+.avatar-campaign-template {
+    --avatar-light: #fff0e9;
+    --avatar-mid: #e8ab91;
+    --avatar-dark: #573b2f;
+    --avatar-accent: #dfa58b;
+}
+
+.avatar-campaign-visual-template {
+    --avatar-light: #f2eaff;
+    --avatar-mid: #bf9ce5;
+    --avatar-dark: #463154;
+    --avatar-accent: #c6a2e8;
+}
+
+.avatar-tx-template {
+    --avatar-light: #e3f6fa;
+    --avatar-mid: #82c9d8;
+    --avatar-dark: #254750;
+    --avatar-accent: #8ac5d7;
+}
+
+.avatar-subscriber {
+    --avatar-light: #e4f0ff;
+    --avatar-mid: #83b8fa;
+    --avatar-dark: #203657;
+    --avatar-accent: #85c5f5;
+}
+
+.avatar-user {
+    --avatar-light: #edf7e5;
+    --avatar-mid: #a4ce86;
+    --avatar-dark: #354b29;
+    --avatar-accent: #98c77f;
+}
+
+.avatar-list-role {
+    --avatar-light: #fff3df;
+    --avatar-mid: #e8be78;
+    --avatar-dark: #574222;
+    --avatar-accent: #e5b56f;
 }
 
 .avatar-user,
@@ -663,13 +744,9 @@ main {
 }
 
 .name-stack {
-    align-items: flex-start;
+    align-items: center;
     display: flex;
     gap: var(--space-3);
-
-    > .avatar {
-        flex-shrink: 0;
-    }
 }
 
 /* Components */
@@ -693,7 +770,6 @@ main {
     }
 
     .avatar {
-        flex-shrink: 0;
         margin-inline-end: var(--space-1);
     }
 }
@@ -1123,13 +1199,6 @@ section.lists {
         max-width: 16ch;
         font-size: var(--text-8);
 
-        .avatar span {
-            width: 16px;
-            height: 16px;
-            font-size: 0.7rem;
-            text-align: center;
-        }
-
         a {
             min-width: 0;
             display: block;
@@ -1216,13 +1285,6 @@ section.campaigns {
                 align-items: center;
                 gap: var(--space-2);
                 max-width: 16ch;
-
-                .avatar span {
-                    width: 20px;
-                    height: 20px;
-                    font-size: 0.5rem;
-                    font-weight: var(--font-medium);
-                }
 
                 a {
                     min-width: 0;
@@ -1527,12 +1589,6 @@ section.users {
     .role-name {
         align-items: center;
         gap: var(--space-2);
-
-        .avatar span {
-            width: 20px;
-            height: 20px;
-            font-size: 10px;
-        }
     }
 
     td .badge {

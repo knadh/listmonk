@@ -55,7 +55,7 @@
 					{{ with .Data.Profile }}
 						<ot-dropdown>
 							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
-								{{ template "avatar" dict "Kind" "user" "Seed" (printf "%d" .ID) "Name" (or .Name .Username) "URL" .Avatar.String }}
+								{{ template "avatar" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
 								<span class="user-label">{{ .Username }}</span>
 							</button>
 							<menu popover id="user-menu">

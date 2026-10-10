@@ -75,7 +75,7 @@
 							{{- end }}
 							<td>
 								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "user" "Seed" (printf "%d" .ID) "Name" (or .Name .Username) "URL" .Avatar.String }}
+									{{ template "avatar" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
 									<div>
 										{{- if $d.Can "users:manage" }}
 											<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="unstyled{{ if eq .Status "disabled" }} text-light{{ end }}">{{ .Username }}</a>
@@ -91,14 +91,14 @@
 							<td data-label="{{ $.L.T "subscribers.email" }}" class="text-light">{{ if .Email.Valid }}{{ .Email.String }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
 							<td data-label="{{ $.L.Tc "users.userRole" 1 }}">
 								<div class="name-stack role-name">
-									{{ template "avatar" dict "Kind" "user-role" "Seed" (printf "%d" .UserRole.ID) "Name" .UserRole.Name }}
+									{{ template "avatar" dict "Size" "small" "Kind" "user-role" "Name" .UserRole.Name }}
 									<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .UserRole.Name }}">{{ .UserRole.Name }}</a>
 								</div>
 							</td>
 							<td data-label="{{ $.L.Tc "users.listRole" 2 }}">
 								{{- with .ListRole }}
 									<div class="name-stack role-name">
-										{{ template "avatar" dict "Kind" "list-role" "Seed" (printf "%d" .ID) "Name" .Name }}
+										{{ template "avatar" dict "Size" "small" "Kind" "list-role" "Name" .Name }}
 										<a href="{{ $base }}?list_role_id={{ .ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
 									</div>
 								{{- else }}

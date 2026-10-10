@@ -46,7 +46,7 @@
 								{{- $kind := "campaign-template" -}}
 								{{- if eq .Type "tx" }}{{ $kind = "tx-template" }}{{ else if eq .Type "campaign_visual" }}{{ $kind = "campaign-visual-template" }}{{ end -}}
 								<div class="name-stack">
-									{{ template "avatar" dict "Kind" $kind "Seed" (printf "%d" .ID) "Name" .Name }}
+									{{ template "avatar" dict "Kind" $kind "Name" .Name }}
 									<div>
 										<a href="{{ $base }}/{{ .ID }}" class="unstyled {{ if .IsDefault }}default{{ end }}" data-testid="btn-edit">{{ .Name }}</a>
 										{{ if .IsDefault }}{{ Badge ($.L.T "templates.default") }}{{ end }}

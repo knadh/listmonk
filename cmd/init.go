@@ -1263,7 +1263,7 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			return template.HTML(fmt.Sprintf(`<svg class="icon"><use href="%sadmin/static/%s#icon-%s"></use></svg>`, u.RootPath, f, name))
 		},
 		// Auto-generated colour gradient CSS avatar.
-		"Avatar": makeAvatar,
+		"Initials": makeInitials,
 		// '●' that is printed inside some badges.
 		"Dot": func() template.HTML {
 			return template.HTML(`<span class="dot">&#9679;</span>`)

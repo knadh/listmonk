@@ -80,7 +80,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="name">
 								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "campaign" "Seed" (printf "%d" .ID) "Name" .Name }}
+									{{ template "avatar" dict "Kind" "campaign" "Name" .Name }}
 									<div class="vstack gap-1">
 										<div>
 											<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
@@ -119,7 +119,7 @@
 								<ul>
 									{{- range .ParsedLists }}
 										<li class="name-stack">
-											{{ template "avatar" dict "Kind" "list" "Seed" (printf "%d" .ID) "Name" .Name }}
+											{{ template "avatar" dict "Size" "small" "Kind" "list" "Name" .Name }}
 											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}" class="unstyled">{{ .Name }}</a>
 										</li>
 									{{- end }}
