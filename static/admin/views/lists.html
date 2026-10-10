@@ -95,7 +95,7 @@
 							<td>
 								<div class="hstack">
 									{{- $typeIcon := "eye-off" }}{{ if eq .Type "public" }}{{ $typeIcon = "eye" }}{{ end }}
-									<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "lists.types.%s" .Type) }}">{{ Badge (list (Icon $typeIcon) ($.L.T (printf "lists.types.%s" .Type))) "enum" }}</a>
+									<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "lists.types.%s" .Type) }}">{{ Badge (list (Icon $typeIcon) ($.L.T (printf "lists.types.%s" .Type))) (printf "enum type-%s" .Type) }}</a>
 									{{- $icon := "user-x" }}{{ if eq .Optin "double" }}{{ $icon = "user-check" }}{{ end }}
 									<a href="{{ $base }}?optin={{ .Optin }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "lists.optins.%s" .Optin) }}">{{ Badge (list (Icon $icon) ($.L.T (printf "lists.optins.%s" .Optin))) "enum" }}</a>
 								</div>

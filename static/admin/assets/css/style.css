@@ -302,6 +302,7 @@ a:has(> .badge:only-child) {
     &.status-scheduled,
     &.bounce-soft,
     &.status-unconfirmed,
+    &.type-private,
     &[data-variant="warning"] {
         --badge-fg: var(--tone-amber);
         --badge-bg: var(--tone-amber-bg);
