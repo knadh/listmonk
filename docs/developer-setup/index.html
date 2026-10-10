@@ -1337,10 +1337,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-the-dev-environment" class="md-nav__link">
+  <a href="#running-the-docker-dev-environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running the dev environment
+        Running the Docker dev environment
       
     </span>
   </a>
@@ -1440,10 +1440,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-the-dev-environment" class="md-nav__link">
+  <a href="#running-the-docker-dev-environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running the dev environment
+        Running the Docker dev environment
       
     </span>
   </a>
@@ -1484,32 +1484,14 @@
 <blockquote>
 <p><a href="https://github.com/mailhog/MailHog">mailhog</a> is an excellent standalone mock SMTP server (with a UI) for testing and dev.</p>
 </blockquote>
-<h3 id="running-the-dev-environment">Running the dev environment<a class="headerlink" href="#running-the-dev-environment" title="Permanent link">&para;</a></h3>
-<p>You can run your dev environment locally or inside containers.</p>
-<p>After setting up the dev environment, you can visit <code>http://localhost:9000</code>.</p>
-<ol>
-<li>
-<p>Locally</p>
+<h3 id="running-the-docker-dev-environment">Running the Docker dev environment<a class="headerlink" href="#running-the-docker-dev-environment" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Run <code>make run</code> to start the listmonk dev server on <code>:9000</code>. It builds the SSR admin assets (from <code>static/admin/</code>) and serves the admin at <code>/admin</code>. To rebuild admin assets on change while developing, run <code>cd static/admin &amp;&amp; bun run watch</code> in a separate terminal.</li>
+<li>Run <code>make build-dev-docker</code> once to build the dev container which bundles Go, Postgres, Bun etc.</li>
+<li>Run <code>make run-dev-docker</code> to start it and enter its shell.</li>
+<li>Inside the shell, run <code>make run</code> which builds static assets, initializes a fresh DB, and starts listmonk on <code>:9000</code>.</li>
+<li>For subsequent changes, simply Ctrl-C and re-run <code>make run</code> for changes to Go and static files to be picked up.</li>
 </ul>
-</li>
-<li>
-<p>Inside containers (Using Makefile)</p>
-<ul>
-<li>Run <code>make init-dev-docker</code> to setup container for db.</li>
-<li>Run <code>make dev-docker</code> to setup docker container suite.</li>
-<li>Run <code>make rm-dev-docker</code> to clean up docker container suite.</li>
-</ul>
-</li>
-<li>
-<p>Inside containers (Using devcontainer)</p>
-<ul>
-<li>Open repo in vscode, open command palette, and select "Dev Containers: Rebuild and Reopen in Container".</li>
-</ul>
-</li>
-</ol>
-<p>It will set up db, and start frontend/backend for you.</p>
+<p>Run <code>make stop-dev-docker</code> to stop the container and <code>make rm-dev-docker</code> to completely remove it.</p>
 <h1 id="production-build">Production build<a class="headerlink" href="#production-build" title="Permanent link">&para;</a></h1>
 <p>Run <code>make dist</code> to build the SSR admin frontend and the Go binary, embedding the static assets into a single self-contained binary, <code>listmonk</code>.</p>
 
