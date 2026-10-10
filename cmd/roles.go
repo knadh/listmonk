@@ -350,6 +350,20 @@ func (a *App) DeleteRole(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
+	// Ensure that the role is not referenced in OIDC settings.
+	set, err := a.core.GetSettings()
+	if err != nil {
+		return err
+	}
+	if set.OIDC.DefaultUserRoleID.Int == id || set.OIDC.DefaultListRoleID.Int == id {
+		return echo.NewHTTPError(http.StatusBadRequest, "Role is referenced in OIDC settings")
+	}
+	for _, m := range set.OIDC.Roles {
+		if (m.UserRoleID != nil && *m.UserRoleID == id) || (m.ListRoleID != nil && *m.ListRoleID == id) {
+			return echo.NewHTTPError(http.StatusBadRequest, "Role is referenced in OIDC settings")
+		}
+	}
+
 	// Delete the role from the DB.
 	if err := a.core.DeleteRole(int(id)); err != nil {
 		return err

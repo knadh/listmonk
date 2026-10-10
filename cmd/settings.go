@@ -323,15 +323,7 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
 	}
 
-	// OIDC user auto-creation is enabled. Validate.
-	if set.OIDC.AutoCreateUsers {
-		if set.OIDC.DefaultUserRoleID.Int < auth.SuperAdminRoleID {
-			return echo.NewHTTPError(http.StatusBadRequest,
-				a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultUserRole")))
-		}
-	}
-
-	if err := a.validateOIDCRoles(set.OIDC.Roles); err != nil {
+	if err := a.validateOIDCSettings(set); err != nil {
 		return err
 	}
 
@@ -404,14 +396,14 @@ func (a *App) UpdateSettingsByKey(c echo.Context) error {
 		return err
 	}
 
-	// The raw settings endpoint must validate role mapping too.
+	// Validate OIDC defaults and mappings on both settings endpoints.
 	if key == "security.oidc" {
 		var set models.Settings
 		if err := json.Unmarshal(b, &set.OIDC); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 		}
 
-		if err := a.validateOIDCRoles(set.OIDC.Roles); err != nil {
+		if err := a.validateOIDCSettings(set); err != nil {
 			return err
 		}
 	}
@@ -424,11 +416,8 @@ func (a *App) UpdateSettingsByKey(c echo.Context) error {
 	return a.handleSettingsRestart(c)
 }
 
-// validateOIDCRoles loads roles only when the mapping needs validation.
-func (a *App) validateOIDCRoles(roles []models.OIDCRoleMapping) error {
-	if len(roles) == 0 {
-		return nil
-	}
+// validateOIDCSettings validates default roles and claim mapping.
+func (a *App) validateOIDCSettings(set models.Settings) error {
 	userRoles, err := a.core.GetRoles("", "", "")
 	if err != nil {
 		return err
@@ -437,7 +426,7 @@ func (a *App) validateOIDCRoles(roles []models.OIDCRoleMapping) error {
 	if err != nil {
 		return err
 	}
-	if err := validateOIDCRoles(roles, userRoles, listRoles); err != nil {
+	if err := validateOIDCSettings(set, userRoles, listRoles); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return nil

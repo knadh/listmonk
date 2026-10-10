@@ -258,6 +258,11 @@ func (a *App) OIDCFinish(c echo.Context) error {
 		}
 	}
 
+	// Disallow disabld users from logging in via OIDC.
+	if user.Status != auth.UserStatusEnabled {
+		return a.renderLoginPage(c, echo.NewHTTPError(http.StatusForbidden, a.i18n.T("users.invalidLogin")))
+	}
+
 	// Update the user login state (avatar, logged in date) in the DB.
 	if err := a.core.UpdateUserLogin(user.ID, claims.Picture); err != nil {
 		return a.renderLoginPage(c, err)
