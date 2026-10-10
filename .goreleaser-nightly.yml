@@ -43,7 +43,7 @@ builds:
       post: make pack-bin BIN={{ .Path }}
 
 archives:
-  - format: tar.gz
+  - formats: [tar.gz]
     name_template: "listmonk_nightly_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     files:
       - README.md

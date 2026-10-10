@@ -14,14 +14,16 @@ STUFFBIN ?= $(GOPATH)/bin/stuffbin
 FRONTEND = static/admin
 FRONTEND_DIST = $(FRONTEND)/dist
 FRONTEND_NODE_MODULES = $(FRONTEND)/node_modules
+FRONTEND_DEPS_STAMP = $(FRONTEND_NODE_MODULES)/.installed
 
 # Feather icons SVG sprite generated from icons.txt.
 FRONTEND_ICONS_LIST = $(FRONTEND)/icons.txt
 FRONTEND_ICONS = $(FRONTEND)/assets/static/icons.svg
 
 FRONTEND_DEPS = \
-	$(FRONTEND_NODE_MODULES) \
+	$(FRONTEND_DEPS_STAMP) \
 	$(FRONTEND)/package.json \
+	$(FRONTEND)/bun.lock \
 	$(FRONTEND)/build.mjs \
 	$(shell find $(FRONTEND)/assets -type f)
 
@@ -56,9 +58,9 @@ run: $(FRONTEND_DIST)
 	CGO_ENABLED=0 go run -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
 
 # Install SSR admin frontend deps.
-$(FRONTEND_NODE_MODULES): $(FRONTEND)/package.json
-	cd $(FRONTEND) && bun install
-	touch -c $(FRONTEND_NODE_MODULES)
+$(FRONTEND_DEPS_STAMP): $(FRONTEND)/package.json $(FRONTEND)/bun.lock
+	cd $(FRONTEND) && bun install --frozen-lockfile
+	touch $@
 
 # Generate svg icon sprite.
 $(FRONTEND_ICONS): $(FRONTEND_ICONS_LIST) scripts/build-icons.py
@@ -80,12 +82,12 @@ build-frontend: $(FRONTEND_DIST)
 test:
 	go test ./...
 
-# Bundle all static assets including the JS frontends into the ./listmonk binary
-# using stuffbin (installed with make deps).
+# Bundle all static assets including the SSR admin frontend into the ./listmonk binary
+# using stuffbin.
 .PHONY: dist
 dist: $(STUFFBIN) build build-frontend pack-bin
 
-# pack-releases runns stuffbin packing on the given binary. This is used
+# pack-bin runs stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.
 .PHONY: pack-bin
 pack-bin: build-frontend $(BIN) $(STUFFBIN)

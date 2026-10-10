@@ -4,6 +4,8 @@ on:
     pull_request:
       types:
         - opened
+        - synchronize
+        - reopened
   
 jobs:
   build:
@@ -17,6 +19,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "1.26.1"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.14"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
       - name: Prepare Dependencies and Build
         run: make dist
