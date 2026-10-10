@@ -19,6 +19,7 @@ There are several template functions and expressions that can be used in campaig
 
 - Campaign body and alt body
 - Campaign subject
+- Campaign From address (for example, `{{ .Subscriber.Attribs.sender_name }} <newsletter@example.com>`)
 - Campaign headers
 - Transactional message body and alt body
 - Transactional message subject
