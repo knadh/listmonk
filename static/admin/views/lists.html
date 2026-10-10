@@ -82,7 +82,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
 								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "list" "Seed" (printf "%d" .ID) "Name" .Name }}
+									{{ template "avatar" dict "Kind" "list" "Name" .Name }}
 									<div>
 										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
 										<div class="hstack gap-2 text-8">

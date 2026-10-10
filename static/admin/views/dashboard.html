@@ -84,7 +84,7 @@
 									<tr>
 										<td width="55%">
 											<div class="name-stack">
-												{{ template "avatar" dict "Kind" "campaign" "Seed" (printf "%d" .ID) "Name" .Name }}
+												{{ template "avatar" dict "Kind" "campaign" "Name" .Name }}
 												<div><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
 											</div>
 										</td>
