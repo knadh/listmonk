@@ -788,17 +788,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#oidc-role-mapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OIDC role mapping
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1596,17 +1585,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#oidc-role-mapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OIDC role mapping
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1788,31 +1766,7 @@
 <h2 id="oidc-single-sign-on">OIDC Single Sign On<a class="headerlink" href="#oidc-single-sign-on" title="Permanent link">&para;</a></h2>
 <p>Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -&gt; Security -&gt; OIDC</p>
 <h3 id="user-auto-creation">User auto-creation<a class="headerlink" href="#user-auto-creation" title="Permanent link">&para;</a></h3>
-<p>If <code>Settings -&gt; Security -&gt; OIDC -&gt; Auto-create users</code> is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID).</p>
-<h3 id="oidc-role-mapping">OIDC role mapping<a class="headerlink" href="#oidc-role-mapping" title="Permanent link">&para;</a></h3>
-<p>Auto-created users can receive user and list roles based on top-level claims in the
-verified OIDC ID token. Roles are assigned only when the user is created; subsequent
-logins do not change an existing user's roles. Claims from the UserInfo endpoint
-are not used for role mapping.</p>
-<p>Configure mappings under <code>Settings -&gt; Security -&gt; OIDC -&gt; Role mapping</code>, or set
-the <code>roles</code> array in <code>security.oidc</code> using the settings API. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span><span class="nt">"claim"</span><span class="p">:</span><span class="w"> </span><span class="s2">"groups"</span><span class="p">,</span><span class="w"> </span><span class="nt">"match"</span><span class="p">:</span><span class="w"> </span><span class="s2">"editors"</span><span class="p">,</span><span class="w"> </span><span class="nt">"user_role_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"list_role_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="nt">"claim"</span><span class="p">:</span><span class="w"> </span><span class="s2">"department"</span><span class="p">,</span><span class="w"> </span><span class="nt">"match"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marketing"</span><span class="p">,</span><span class="w"> </span><span class="nt">"user_role_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">}</span>
-<span class="p">]</span>
-</code></pre></div>
-<p>Replace the example role IDs with existing user and list role IDs. Each mapping
-requires a non-empty <code>claim</code> and <code>match</code>; both role IDs are optional. A claim must be
-a string equal to <code>match</code>, or an array containing only strings with at least one
-equal to <code>match</code>. Matching is exact and case-sensitive; nested claim paths are not
-supported.</p>
-<p>Mappings are evaluated in order and the first match wins. Omitted role IDs retain
-their configured defaults. If no mapping matches, both defaults apply. A default
-user role is still required when auto-creation is enabled.</p>
-<p><code>PUT /api/settings</code> preserves mappings when <code>roles</code> is omitted or <code>null</code>; send
-<code>"roles": []</code> to clear them. <code>PUT /api/settings/security.oidc</code> replaces the entire
-OIDC configuration, so include all its settings, including the client secret and
-any mappings to retain. Both endpoints validate mapping role IDs.</p>
+<p>If <code>Settings -&gt; Security -&gt; OIDC -&gt; Auto-create users</code> is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID). If role mapping is enabled, newly created users (on first OIDC login) can be auto-assigned roles mapped to OIDC claims.</p>
 <h1 id="tutorials">Tutorials<a class="headerlink" href="#tutorials" title="Permanent link">&para;</a></h1>
 <p>Tutorials for configuring listmonk SSO with popular OIDC providers.</p>
 <h2 id="keycloak">Keycloak<a class="headerlink" href="#keycloak" title="Permanent link">&para;</a></h2>
