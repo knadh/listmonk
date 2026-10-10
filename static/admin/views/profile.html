@@ -7,7 +7,10 @@
 <section class="user-profile" x-data="profileView()">
 	<header class="page-header">
 		<div class="hstack gap-1">
-			<h1 class="page-title">{{ .L.T "users.profile" }}</h1>
+			<div class="avatar avatar-title">
+				{{ template "avatar-icon" dict "Kind" "user" "Name" (or $u.Name $u.Username) "URL" $u.Avatar.String }}
+				<h1 class="page-title avatar-label">{{ .L.T "users.profile" }}</h1>
+			</div>
 			{{- if $u.UserRole.Name }}{{ Badge $u.UserRole.Name }}{{ end }}
 		</div>
 	</header>

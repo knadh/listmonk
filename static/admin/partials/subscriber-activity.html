@@ -11,6 +11,14 @@
 	<div class="card float page-content has-table mt-8">
 		<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
 		<div class="table-wrapper">
+			{{- if $d.Can "subscribers:manage" }}
+				<ot-dropdown class="bulk-actions">
+					<button popovertarget="views-actions" type="button" class="small" aria-label="{{ .L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
+					<menu popover id="views-actions">
+						<button type="button" role="menuitem" class="ghost" data-variant="danger" :disabled="isLoading('subscribers')" @click.prevent="onClearActivity('campaign_views')">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.clear" }}</button>
+					</menu>
+				</ot-dropdown>
+			{{- end }}
 			<table>
 				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th width="10%" class="align-center">{{ .L.T "campaigns.views" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
 				<tbody>
@@ -43,6 +51,14 @@
 	<div class="card float page-content has-table mt-8">
 		<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
 		<div class="table-wrapper">
+			{{- if $d.Can "subscribers:manage" }}
+				<ot-dropdown class="bulk-actions">
+					<button popovertarget="clicks-actions" type="button" class="small" aria-label="{{ .L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
+					<menu popover id="clicks-actions">
+						<button type="button" role="menuitem" class="ghost" data-variant="danger" :disabled="isLoading('subscribers')" @click.prevent="onClearActivity('link_clicks')">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.clear" }}</button>
+					</menu>
+				</ot-dropdown>
+			{{- end }}
 			<table>
 				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th>{{ .L.T "globals.terms.url" }}</th><th width="10%" class="align-center">{{ .L.T "campaigns.clicks" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
 				<tbody>

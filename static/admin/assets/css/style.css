@@ -384,7 +384,8 @@ a:has(> .badge:only-child) {
         gap: var(--space-1);
         white-space: nowrap;
 
-        .avatar {
+        > .avatar {
+            align-items: center;
             gap: var(--space-1);
         }
     }
@@ -744,6 +745,18 @@ main {
     }
 }
 
+/* Title avatars are independent of the compact avatars in filter badges. */
+.avatar.avatar-title {
+    --avatar-size: 2rem;
+    --avatar-font-size: var(--text-7);
+    align-items: center;
+
+    > .page-title {
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+}
+
 .avatar-initials {
     background-color: var(--avatar-light);
     color: var(--avatar-dark);
@@ -940,6 +953,16 @@ td > .empty-state {
             right: var(--space-6);
             top: var(--space-2);
             z-index: 1;
+
+            &:not([data-variant="primary"]) > button {
+                background-color: transparent;
+                color: var(--foreground);
+                border-color: var(--border);
+
+                &:hover:not(:disabled) {
+                    background-color: var(--accent);
+                }
+            }
         }
 
         .actions button.more {

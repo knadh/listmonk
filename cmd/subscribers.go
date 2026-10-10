@@ -364,6 +364,20 @@ func (a *App) GetSubscriberActivity(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{out})
 }
 
+// DeleteSubscriberActivity deletes a subscriber's campaign views or link clicks.
+func (a *App) DeleteSubscriberActivity(c echo.Context) error {
+	id := getID(c)
+	if err := a.hasSubPerm(auth.GetUser(c), []int{id}); err != nil {
+		return err
+	}
+
+	if err := a.core.DeleteSubscriberActivity(id, c.Param("type")); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
 // QuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
 func (a *App) QuerySubscribers(c echo.Context) error {
 	// Get the authenticated user.
