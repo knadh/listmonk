@@ -161,6 +161,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		return err
 	}
 
+	// Preserve the OIDC role mapping when older clients do not send the field.
+	// An explicit empty array still clears the mapping.
+	if set.OIDC.Roles == nil {
+		set.OIDC.Roles = cur.OIDC.Roles
+	}
+
 	// Validate and sanitize postback Messenger names along with SMTP names
 	// (where each SMTP is also considered as a standalone messenger).
 	// Duplicates are disallowed and "email" is a reserved name.
@@ -321,8 +327,12 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	if set.OIDC.AutoCreateUsers {
 		if set.OIDC.DefaultUserRoleID.Int < auth.SuperAdminRoleID {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultRole")))
+				a.i18n.Ts("globals.messages.invalidFields", "name", a.i18n.T("settings.security.OIDCDefaultUserRole")))
 		}
+	}
+
+	if err := a.validateOIDCRoles(set.OIDC.Roles); err != nil {
+		return err
 	}
 
 	for n, v := range set.UploadExtensions {
@@ -394,12 +404,43 @@ func (a *App) UpdateSettingsByKey(c echo.Context) error {
 		return err
 	}
 
+	// The raw settings endpoint must validate role mapping too.
+	if key == "security.oidc" {
+		var set models.Settings
+		if err := json.Unmarshal(b, &set.OIDC); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+
+		if err := a.validateOIDCRoles(set.OIDC.Roles); err != nil {
+			return err
+		}
+	}
+
 	// Update the value in the DB.
 	if err := a.core.UpdateSettingsByKey(key, b); err != nil {
 		return err
 	}
 
 	return a.handleSettingsRestart(c)
+}
+
+// validateOIDCRoles loads roles only when the mapping needs validation.
+func (a *App) validateOIDCRoles(roles []models.OIDCRoleMapping) error {
+	if len(roles) == 0 {
+		return nil
+	}
+	userRoles, err := a.core.GetRoles("", "", "")
+	if err != nil {
+		return err
+	}
+	listRoles, err := a.core.GetListRoles("", "", "")
+	if err != nil {
+		return err
+	}
+	if err := validateOIDCRoles(roles, userRoles, listRoles); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return nil
 }
 
 // handleSettingsRestart checks for running campaigns and either triggers an

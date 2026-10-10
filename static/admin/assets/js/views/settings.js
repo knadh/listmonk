@@ -50,6 +50,11 @@ function component(settings, userRoles, listRoles) {
   // Normalize the raw settings into a display-friendly form (mirrors the old getSettings()).
   const normalize = (data) => {
     const d = JSON.parse(JSON.stringify(data));
+    d['security.oidc'].default_user_role_id ||= '';
+    d['security.oidc'].default_list_role_id ||= '';
+    d['security.oidc'].roles = (d['security.oidc'].roles || []).map((r) => ({
+      ...r, user_role_id: r.user_role_id ?? '', list_role_id: r.list_role_id ?? '',
+    }));
 
     // Serialize the email_headers map to a display string.
     for (let i = 0; i < d.smtp.length; i += 1) {
@@ -417,6 +422,10 @@ function component(settings, userRoles, listRoles) {
         ? parseInt(form['security.oidc'].default_user_role_id, 10) : null;
       form['security.oidc'].default_list_role_id = form['security.oidc'].default_list_role_id
         ? parseInt(form['security.oidc'].default_list_role_id, 10) : null;
+      form['security.oidc'].roles.forEach((r) => {
+        r.user_role_id = r.user_role_id ? parseInt(r.user_role_id, 10) : null;
+        r.list_role_id = r.list_role_id ? parseInt(r.list_role_id, 10) : null;
+      });
 
       // Strip display-only fields.
       form.smtp.forEach((s) => { delete s.strEmailHeaders; delete s.showHeaders; });

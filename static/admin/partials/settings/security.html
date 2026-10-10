@@ -1,7 +1,7 @@
 {{ define "settings-security" -}}
 {{- $d := .Data -}}
 <div class="settings-items">
-	<fieldset class="card" data-keywords="oidc sso single sign-on openid connect authentication login provider identity">
+	<fieldset class="card" data-keywords="oidc sso single sign-on openid connect authentication login provider identity roles mapping claims groups">
 		<legend>{{ .L.T "settings.security.enableOIDC" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['security.oidc'].enabled" />
@@ -60,9 +60,11 @@
 
 
 				<fieldset :disabled="!form['security.oidc'].auto_create_users">
+					<legend>{{ .L.T "users.roles" }}</legend>
 					<div data-field>
 						<label for="oidc-user-role">{{ .L.T "settings.security.OIDCDefaultUserRole" }}</label>
-						<select id="oidc-user-role" x-model="form['security.oidc'].default_user_role_id">
+						<select id="oidc-user-role" required x-model="form['security.oidc'].default_user_role_id">
+							<option value="" disabled>&mdash;</option>
 							{{- range $d.UserRoles }}
 								<option value="{{ .ID }}">{{ .Name }}</option>
 							{{- end }}
@@ -80,6 +82,53 @@
 						</select>
 						<small data-hint>{{ .L.T "settings.security.OIDCDefaultRoleHelp" }}</small>
 					</div>
+
+				</fieldset>
+
+				<fieldset class="card" :disabled="!form['security.oidc'].auto_create_users">
+					<legend>{{ .L.T "settings.security.OIDCRoleMapping" }}</legend>
+					<p data-hint>{{ .L.T "settings.security.OIDCRoleMappingHelp" }}</p>
+					<template x-for="(mapping, n) in form['security.oidc'].roles" :key="n">
+						<fieldset class="card">
+							<legend x-text="`#${n + 1}`"></legend>
+							<div class="row">
+								<label class="col-6" data-field>
+									{{ .L.T "settings.security.OIDCClaim" }}
+									<input required placeholder="groups" x-model="mapping.claim" />
+								</label>
+								<label class="col-6" data-field>
+									{{ .L.T "globals.terms.value" }}
+									<input required placeholder="editors" x-model="mapping.match" />
+								</label>
+							</div>
+							<div class="row">
+								<label class="col-6" data-field>
+									{{ .L.Tc "users.userRole" 1 }}
+									<select x-model="mapping.user_role_id">
+										<option value="">&mdash; {{ .L.T "globals.terms.default" }} &mdash;</option>
+										{{- range $d.UserRoles }}
+											<option value="{{ .ID }}">{{ .Name }}</option>
+										{{- end }}
+									</select>
+								</label>
+								<label class="col-6" data-field>
+									{{ .L.Tc "users.listRole" 2 }}
+									<select x-model="mapping.list_role_id">
+										<option value="">&mdash; {{ .L.T "globals.terms.default" }} &mdash;</option>
+										{{- range $d.ListRoles }}
+											<option value="{{ .ID }}">{{ .Name }}</option>
+										{{- end }}
+									</select>
+								</label>
+							</div>
+							<button type="button" class="outline small" data-variant="danger" @click="form['security.oidc'].roles.splice(n, 1)">
+								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.remove" }}
+							</button>
+						</fieldset>
+					</template>
+					<button type="button" class="outline small" @click="form['security.oidc'].roles.push({ claim: '', match: '', user_role_id: '', list_role_id: '' })">
+						{{ Icon "plus" }} {{ .L.T "globals.buttons.addNew" }}
+					</button>
 				</fieldset>
 			</div>
 		</template>
