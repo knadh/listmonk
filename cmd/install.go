@@ -45,10 +45,8 @@ func install(lastVer string, db *sqlx.DB, fs stuffbin.FileSystem, prompt, idempo
 	// If idempotence is on, check if the DB is already setup.
 	if idempotent {
 		if _, err := db.Exec("SELECT count(*) FROM settings"); err != nil {
-			// Only a missing "settings" table (42P01) indicates a fresh install.
-			// Abort on every other error (network failures, permissions etc.),
-			// as proceeding would run the destructive schema install against a
-			// database whose state is unknown.
+			// Treat missing "settings" table (42P01) as a fresh install.
+			// Abort on all other errors to not end up in a half-baked state.
 			if !isTableNotExistErr(err) {
 				lo.Fatalf("error checking existing DB schema: %v", err)
 			}
