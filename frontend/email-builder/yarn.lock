@@ -729,6 +729,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.8.tgz#958b91c991b1867ced318bedea0e215ee050726e"
   integrity sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==
 
+"@types/insane@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/insane/-/insane-1.0.0.tgz#b10f3ece16aabc48b0b0d56a961455fd011001d1"
+  integrity sha512-9FNbmwdaQezEszc5B/w4kRSpMJMOVj+gX7CKSbBCFO4WPiUqKO3HJlUNXzjtus0w5tF2BOJoKTbyps/Envlg/Q==
+
 "@types/json-schema@^7.0.12":
   version "7.0.15"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
