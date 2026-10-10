@@ -299,7 +299,9 @@ SELECT DISTINCT subscribers.* FROM subscribers
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
     AND ($2 = '' OR subscriber_lists.subscriber_id IS NOT NULL)
-    AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND (CASE WHEN $3 != '' THEN
+        name ~* ('***=' || $3) OR email ~* ('***=' || $3)
+        ELSE TRUE END)
     AND ($6 = '' OR subscribers.status = $6::subscriber_status)
     AND (%query%)
     ORDER BY %order% OFFSET $4 LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END);
@@ -316,7 +318,9 @@ SELECT COUNT(DISTINCT subscribers.id) AS total FROM subscribers
     )
     WHERE (CARDINALITY($1) = 0 OR subscriber_lists.list_id = ANY($1::INT[]))
     AND ($2 = '' OR subscriber_lists.subscriber_id IS NOT NULL)
-    AND (CASE WHEN $3 != '' THEN name ~* $3 OR email ~* $3 ELSE TRUE END)
+    AND (CASE WHEN $3 != '' THEN
+        name ~* ('***=' || $3) OR email ~* ('***=' || $3)
+        ELSE TRUE END)
     AND ($4 = '' OR subscribers.status = $4::subscriber_status)
     AND (%query%);
 
@@ -349,7 +353,9 @@ SELECT DISTINCT subscribers.id,
     WHERE (CARDINALITY($1::INT[]) = 0 OR subscriber_lists.list_id = ANY($1)) AND id > $2
     AND ($4 = '' OR subscriber_lists.subscriber_id IS NOT NULL)
     AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id=ANY($3) ELSE true END)
-    AND (CASE WHEN $5 != '' THEN name ~* $5 OR email ~* $5 ELSE TRUE END)
+    AND (CASE WHEN $5 != '' THEN
+        name ~* ('***=' || $5) OR email ~* ('***=' || $5)
+        ELSE TRUE END)
     AND ($7 = '' OR subscribers.status = $7::subscriber_status)
     AND (%query%)
     ORDER BY subscribers.id ASC LIMIT (CASE WHEN $6 < 1 THEN NULL ELSE $6 END);
@@ -373,7 +379,9 @@ ON (
 )
 WHERE (CARDINALITY($2::INT[]) = 0 OR subscriber_lists.list_id = ANY($2))
     AND ($3 = '' OR subscriber_lists.subscriber_id IS NOT NULL)
-    AND (CASE WHEN $4 != '' THEN name ~* $4 OR email ~* $4 ELSE TRUE END)
+    AND (CASE WHEN $4 != '' THEN
+        name ~* ('***=' || $4) OR email ~* ('***=' || $4)
+        ELSE TRUE END)
     AND ($5 = '' OR subscribers.status = $5::subscriber_status)
     AND (%query%)
 LIMIT (CASE WHEN $1 THEN 1 END)
