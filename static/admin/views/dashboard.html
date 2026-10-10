@@ -57,15 +57,15 @@
 
 		<section class="row">
 			<div class="col-6">
-				<article class="card">
-					<header class="mb-4"><h5><a href="{{ URI "/admin/campaigns/analytics" }}" class="unstyled">{{ .L.T "dashboard.campaignViews" }}</a></h5></header>
+				<article class="card float">
+					<h5 class="title"><a href="{{ URI "/admin/campaigns/analytics" }}" class="unstyled">{{ .L.T "dashboard.campaignViews" }}</a></h5>
 					<div class="chart-box"><canvas id="chart-views"></canvas></div>
 				</article>
 			</div>
 
 			<div class="col-6">
-				<article class="card">
-					<header class="mb-4"><h5><a href="{{ URI "/admin/campaigns/analytics" }}" class="unstyled">{{ .L.T "dashboard.linkClicks" }}</a></h5></header>
+				<article class="card float">
+					<h5 class="title"><a href="{{ URI "/admin/campaigns/analytics" }}" class="unstyled">{{ .L.T "dashboard.linkClicks" }}</a></h5>
 					<div class="chart-box"><canvas id="chart-clicks"></canvas></div>
 				</article>
 			</div>
@@ -73,10 +73,8 @@
 
 		<section class="row">
 			<div class="col-8">
-				<article class="card page-content has-table">
-					<header class="mt-6">
-						<h5>{{ .L.Ts "globals.terms.recent" "name" ((.L.T "globals.terms.campaigns") | lower) }}</h5>
-					</header>
+				<article class="card float">
+					<h5 class="title">{{ .L.Ts "globals.terms.recent" "name" ((.L.T "globals.terms.campaigns") | lower) }}</h5>
 					<div class="table-wrapper">
 						<table>
 							<tbody>
@@ -109,10 +107,8 @@
 
 			<div class="col-4">
 				{{- $s := $d.System -}}
-				<article class="card">
-					<header class="mb-4">
-						<h5>{{ Icon "activity" }} {{ .L.T "dashboard.system" }}</h5>
-					</header>
+				<article class="card float">
+					<h5 class="title">{{ Icon "activity" }} {{ .L.T "dashboard.system" }}</h5>
 					<dl class="vstack gap-4">
 						<div class="hstack justify-between"><dt>Uptime</dt><dd class="text-light">{{ $s.Uptime }}</dd></div>
 						<div class="hstack justify-between"><dt>App memory</dt><dd class="text-light">{{ FormatNumber (int $s.AppMemMB) }} MB</dd></div>
