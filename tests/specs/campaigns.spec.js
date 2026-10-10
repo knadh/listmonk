@@ -348,10 +348,38 @@ test('searches, filters and sorts campaigns through SSR navigation', async ({ pa
   }
 });
 
-for (const all of [false, true]) {
-  test(`bulk deletes ${all ? 'all matching pages' : 'selected IDs'} and preserves other campaigns`, async ({ page }) => {
-    for (let i = 0; i < (all ? 25 : 3); i += 1) await create(page, { name: `Bulk ${i}` });
-    await page.goto(`${CAMPAIGNS}?query=Bulk`);
+for (const { label, all, filter, unrelated } of [
+  { label: 'selected IDs', all: false, filter: 'query=Bulk' },
+  { label: 'all matching pages', all: true, filter: 'query=Bulk' },
+  { label: 'all tagged campaigns', all: true, filter: 'tag=target', unrelated: [{ tags: ['other'] }] },
+  { label: 'all campaigns with a status', all: true, filter: 'status=draft', unrelated: [{ status: 'scheduled' }] },
+  { label: 'all campaigns of a type', all: true, filter: 'type=regular', unrelated: [{ type: 'optin', lists: [2] }] },
+  {
+    label: 'all campaigns matching combined filters', all: true,
+    filter: 'query=Bulk&tag=target&tag=news&status=draft&type=regular',
+    unrelated: [
+      { name: 'Other' }, { tags: ['target'] }, { status: 'scheduled' }, { type: 'optin', lists: [2] },
+    ],
+  },
+]) {
+  test(`bulk deletes ${label} and preserves other campaigns`, async ({ page }) => {
+    const preserved = [];
+    if (unrelated) {
+      await data(await page.request.delete('/api/campaigns?all=true'));
+      for (const { status, ...overrides } of unrelated) {
+        const c = await create(page, {
+          name: 'Bulk unrelated', tags: ['target', 'news'],
+          ...(status ? { send_at: new Date(Date.now() + 86400000).toISOString() } : {}),
+          ...overrides,
+        });
+        if (status) await data(await page.request.put(`/api/campaigns/${c.id}/status`, { data: { status } }));
+        preserved.push(c.id);
+      }
+    }
+    for (let i = 0; i < (all ? 22 : 3); i += 1) {
+      await create(page, { name: `Bulk ${i}`, tags: ['target', 'news'] });
+    }
+    await page.goto(`${CAMPAIGNS}?${filter}`);
     await page.locator('thead input[type="checkbox"]').check();
     await page.locator('button[popovertarget="camp-bulk-actions"]').click();
     if (all) await page.getByRole('menuitem', { name: /Select all/ }).click();
@@ -360,9 +388,53 @@ for (const all of [false, true]) {
     await expect(rows(page)).toHaveCount(0);
     await expect(page.locator('.empty-state')).toBeVisible();
     await page.goto(CAMPAIGNS);
-    await expect(rows(page)).toHaveCount(1);
+    await expect(rows(page)).toHaveCount(unrelated ? preserved.length : 1);
+    if (unrelated) {
+      expect(await rows(page).evaluateAll((els) => els.map((el) => Number(el.dataset.campaignId)).sort((a, b) => a - b)))
+        .toEqual(preserved.sort((a, b) => a - b));
+    }
   });
 }
+
+test('bulk deletion handles no matches, explicit IDs and unfiltered requests', async ({ page }) => {
+  const c = await create(page, { tags: ['target'] });
+  const ids = async () => (await data(await page.request.get('/api/campaigns'))).results.map((r) => r.id).sort((a, b) => a - b);
+  const before = await ids();
+  await data(await page.request.delete('/api/campaigns?all=true&tag=missing'));
+  expect(await ids()).toEqual(before);
+  await data(await page.request.delete(`/api/campaigns?id=${c.id}&tag=missing&status=paused&type=optin`));
+  expect(await ids()).toEqual(before.filter((id) => id !== c.id));
+  await data(await page.request.delete('/api/campaigns?all=true'));
+  expect(await ids()).toEqual([]);
+});
+
+test('bulk deletion respects list permissions as well as filters', async ({ page, browser }) => {
+  const permitted = await create(page, { tags: ['target'], lists: [1] });
+  const forbidden = await create(page, { tags: ['target'], lists: [2] });
+  const unrelated = await create(page, { tags: ['other'], lists: [1] });
+  const role = await data(await page.request.post('/api/roles/users', { data: {
+    name: 'Campaign manager', permissions: ['campaigns:get', 'campaigns:manage'],
+  } }));
+  const listRole = await data(await page.request.post('/api/roles/lists', { data: {
+    name: 'Default list manager', lists: [{ id: 1, permissions: ['list:get', 'list:manage'] }],
+  } }));
+  const user = await data(await page.request.post('/api/users', { data: {
+    username: 'bulk-manager', type: 'api', status: 'enabled', user_role_id: role.id, list_role_id: listRole.id,
+  } }));
+  const context = await browser.newContext({
+    storageState: { cookies: [], origins: [] },
+    extraHTTPHeaders: { Authorization: `Basic ${Buffer.from(`${user.username}:${user.password}`).toString('base64')}` },
+  });
+  try {
+    await data(await context.request.delete('/api/campaigns?all=true&tag=target'));
+  } finally {
+    await context.close();
+  }
+  const remaining = (await data(await page.request.get('/api/campaigns'))).results.map((c) => c.id);
+  expect(remaining).not.toContain(permitted.id);
+  expect(remaining).toContain(forbidden.id);
+  expect(remaining).toContain(unrelated.id);
+});
 
 test('uploads an attachment, persists it and delivers it when starting from the editor', async ({ page }) => {
   const c = await create(page, { subject: 'Attachment delivery' });

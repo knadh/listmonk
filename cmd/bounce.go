@@ -122,7 +122,7 @@ func (a *App) DeleteBounces(c echo.Context) error {
 	all, _ := strconv.ParseBool(c.QueryParam("all"))
 
 	var ids []int
-	if !all {
+	if !all || len(c.QueryParams()["id"]) > 0 {
 		// There are multiple IDs in the query string.
 		res, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
@@ -133,10 +133,16 @@ func (a *App) DeleteBounces(c echo.Context) error {
 		}
 
 		ids = res
+		all = false
+	}
+
+	campID, err := strconv.Atoi(c.QueryParam("campaign_id"))
+	if c.QueryParam("campaign_id") != "" && (err != nil || campID < 1) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Delete bounces from the DB.
-	if err := a.core.DeleteBounces(ids, all); err != nil {
+	if err := a.core.DeleteBounces(ids, all, campID, c.QueryParam("source"), c.QueryParam("type")); err != nil {
 		return err
 	}
 
@@ -147,16 +153,26 @@ func (a *App) DeleteBounces(c echo.Context) error {
 func (a *App) DeleteBounce(c echo.Context) error {
 	// Delete bounces from the DB.
 	id := getID(c)
-	if err := a.core.DeleteBounces([]int{id}, false); err != nil {
+	if err := a.core.DeleteBounces([]int{id}, false, 0, "", ""); err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// BlocklistBouncedSubscribers handles blocklisting of all bounced subscribers.
+// BlocklistBouncedSubscribers blocklists subscribers matching bounce IDs or filters.
 func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
-	if err := a.core.BlocklistBouncedSubscribers(); err != nil {
+	ids, err := parseStringIDs(c.QueryParams()["id"])
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
+	}
+
+	campID, err := strconv.Atoi(c.QueryParam("campaign_id"))
+	if c.QueryParam("campaign_id") != "" && (err != nil || campID < 1) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
+	}
+
+	if err := a.core.BlocklistBouncedSubscribers(ids, campID, c.QueryParam("source"), c.QueryParam("type")); err != nil {
 		return err
 	}
 

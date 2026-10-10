@@ -10,10 +10,11 @@
 <script>
 	window._lists = {{ ToJSON $d.AllLists }};
 	window._filters = {
-		listID: {{ if $d.CurrentList }}{{ $d.CurrentList.ID }}{{ else }}null{{ end }},
+		listIDs: {{ if $d.CurrentList }}[{{ $d.CurrentList.ID }}]{{ else }}{{ ToJSON (index $d.Page.QueryParams "list_id") }}{{ end }},
 		search: {{ ToJSON $d.Page.Search }},
 		query: {{ ToJSON $d.Page.Query }},
-		subStatus: {{ ToJSON $subStatus }}
+		subStatus: {{ ToJSON $subStatus }},
+		status: {{ ToJSON $status }}
 	};
 </script>
 

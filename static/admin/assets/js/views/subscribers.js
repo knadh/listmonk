@@ -10,6 +10,7 @@ import * as u from '../utils.js';
 function component(sub = null) {
   // The current view's filters are injected by the template.
   const filters = window._filters || {};
+  filters.listIDs = (filters.listIDs || []).filter((id) => id !== '').map(Number);
 
   // Init a fresh form payload.
   const makeForm = () => ({
@@ -30,7 +31,7 @@ function component(sub = null) {
   });
 
   return {
-    filters,
+    subscriberFilters: filters,
     query: filters.query || '',
     isSqlOpen: false,
     get advanced() {
@@ -189,16 +190,18 @@ function component(sub = null) {
         }
 
         const q = new URLSearchParams();
-        if (this.filters.search) {
-          q.append('search', this.filters.search);
-        } else if (this.filters.query) {
-          q.append('query', this.filters.query);
+        if (this.subscriberFilters.search) {
+          q.append('search', this.subscriberFilters.search);
         }
-        if (this.filters.listID) {
-          q.append('list_id', this.filters.listID);
+        if (this.subscriberFilters.query) {
+          q.append('query', this.subscriberFilters.query);
         }
-        if (this.filters.subStatus) {
-          q.append('subscription_status', this.filters.subStatus);
+        this.subscriberFilters.listIDs.forEach((id) => q.append('list_id', id));
+        if (this.subscriberFilters.status) {
+          q.append('status', this.subscriberFilters.status);
+        }
+        if (this.subscriberFilters.subStatus) {
+          q.append('subscription_status', this.subscriberFilters.subStatus);
         }
         if (!allSelected && selected.length > 0) {
           selected.forEach((id) => q.append('id', id));
@@ -303,14 +306,15 @@ function component(sub = null) {
     // Private functions.
     // Body for the "by query" bulk endpoints.
     _queryBody() {
-      const search = this.filters.search || '';
-      const query = this.filters.query || '';
+      const search = this.subscriberFilters.search || '';
+      const query = this.subscriberFilters.query || '';
       return {
         all: query.trim() === '' && search.trim() === '',
         search,
         query,
-        list_ids: this.filters.listID ? [this.filters.listID] : null,
-        subscription_status: this.filters.subStatus || null,
+        list_ids: this.subscriberFilters.listIDs,
+        subscription_status: this.subscriberFilters.subStatus || null,
+        subscriber_status: this.subscriberFilters.status || '',
       };
     },
 

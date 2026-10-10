@@ -124,7 +124,7 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	}
 
 	// Handle the special "none" subscription status for orphan subscribers.
-	cond, subStatus = applyOrphanFilter(cond, subStatus)
+	cond, subStatus = models.ApplyOrphanFilter(cond, subStatus)
 
 	// stmt is the raw SQL query.
 	stmt := strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
@@ -256,7 +256,7 @@ func (c *Core) DeleteSubscriberActivity(id int, activityType string) error {
 // on the given criteria in an exportable form. The iterator function returned can be called
 // repeatedly until there are nil subscribers. It's an iterator because exports can be extremely
 // large and may have to be fetched in batches from the DB and streamed somewhere.
-func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int, subStatus string, batchSize int) (func() ([]models.SubscriberExport, error), error) {
+func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int, subStatus, subscriberStatus string, batchSize int) (func() ([]models.SubscriberExport, error), error) {
 	if subIDs == nil {
 		subIDs = []int{}
 	}
@@ -271,13 +271,13 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 	}
 
 	// Handle the special "none" subscription status for orphan subscribers.
-	cond, subStatus = applyOrphanFilter(cond, subStatus)
+	cond, subStatus = models.ApplyOrphanFilter(cond, subStatus)
 
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersForExport, "%query%", cond)
 
 	// Validate the tables used in the query.
 	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables,
-		pq.Array(listIDs), 0, pq.Array(subIDs), subStatus, searchStr, batchSize); err != nil {
+		pq.Array(listIDs), 0, pq.Array(subIDs), subStatus, searchStr, batchSize, subscriberStatus); err != nil {
 		c.log.Printf("error validating query tables: %v", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest,
 			c.i18n.Ts("subscribers.errorPreparingQuery", "error", err.Error()))
@@ -285,7 +285,7 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
-	if _, err := c.getSubscriberCount(searchStr, cond, subStatus, "", listIDs); err != nil {
+	if _, err := c.getSubscriberCount(searchStr, cond, subStatus, subscriberStatus, listIDs); err != nil {
 		c.log.Printf("error getting subscriber count: %v", err)
 		return nil, err
 	}
@@ -301,7 +301,7 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 	id := 0
 	return func() ([]models.SubscriberExport, error) {
 		var out []models.SubscriberExport
-		if err := tx.Select(&out, pq.Array(listIDs), id, pq.Array(subIDs), subStatus, searchStr, batchSize); err != nil {
+		if err := tx.Select(&out, pq.Array(listIDs), id, pq.Array(subIDs), subStatus, searchStr, batchSize, subscriberStatus); err != nil {
 			c.log.Printf("error exporting subscribers by query: %v", err)
 			return nil, echo.NewHTTPError(http.StatusInternalServerError,
 				c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -485,8 +485,8 @@ func (c *Core) BlocklistSubscribers(subIDs []int) error {
 }
 
 // BlocklistSubscribersByQuery blocklists the given list of subscribers.
-func (c *Core) BlocklistSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus string) error {
-	if err := c.q.ExecSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.BlocklistSubscribersByQuery, listIDs, c.db, subStatus); err != nil {
+func (c *Core) BlocklistSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) error {
+	if err := c.q.ExecSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.BlocklistSubscribersByQuery, listIDs, c.db, subStatus, subscriberStatus); err != nil {
 		c.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("subscribers.errorBlocklisting", "error", pqErrMsg(err)))
@@ -514,8 +514,8 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
 }
 
 // DeleteSubscribersByQuery deletes subscribers by a given arbitrary query expression.
-func (c *Core) DeleteSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus string) error {
-	err := c.q.ExecSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.DeleteSubscribersByQuery, listIDs, c.db, subStatus)
+func (c *Core) DeleteSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) error {
+	err := c.q.ExecSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.DeleteSubscribersByQuery, listIDs, c.db, subStatus, subscriberStatus)
 	if err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -697,15 +697,4 @@ func traverseQueryPlan(node map[string]any, tables map[string]struct{}) {
 			}
 		}
 	}
-}
-
-// applyOrphanFilter handles the special subscription_status value "none", which
-// filters orphan subscribers (no list subscriptions).
-func applyOrphanFilter(cond, subStatus string) (string, string) {
-	const orphanSubCond = "NOT EXISTS (SELECT 1 FROM subscriber_lists WHERE subscriber_id = subscribers.id)"
-	if subStatus == "none" {
-		return "(" + cond + ") AND " + orphanSubCond, ""
-	}
-
-	return cond, subStatus
 }

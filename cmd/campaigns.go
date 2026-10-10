@@ -661,7 +661,7 @@ func (a *App) DeleteCampaigns(c echo.Context) error {
 	}
 
 	// Delete the campaigns from the DB.
-	if err := a.core.DeleteCampaigns(ids, query, hasAllPerm, permittedLists); err != nil {
+	if err := a.core.DeleteCampaigns(ids, query, c.QueryParams()["status"], c.QueryParams()["tag"], c.QueryParam("type"), hasAllPerm, permittedLists); err != nil {
 		return err
 	}
 

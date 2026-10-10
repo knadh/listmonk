@@ -32,6 +32,7 @@ var subscribersQueryDefaults = map[string]string{
 	"order_by":            "",
 	"order":               "",
 	"subscription_status": "",
+	"list_id":             "",
 	"status":              "",
 }
 
@@ -46,6 +47,7 @@ type subQueryReq struct {
 	Action             string `json:"action"`
 	Status             string `json:"status"`
 	SubscriptionStatus string `json:"subscription_status"`
+	SubscriberStatus   string `json:"subscriber_status"`
 	All                bool   `json:"all"`
 }
 
@@ -464,7 +466,7 @@ func (a *App) ExportSubscribers(c echo.Context) error {
 	}
 
 	// Get the batched export iterator.
-	exp, err := a.core.ExportSubscribers(searchStr, query, subIDs, listIDs, subStatus, a.cfg.DBBatchSize)
+	exp, err := a.core.ExportSubscribers(searchStr, query, subIDs, listIDs, subStatus, c.QueryParam("status"), a.cfg.DBBatchSize)
 	if err != nil {
 		return err
 	}
@@ -859,11 +861,7 @@ func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
 
 	req.Search = strings.TrimSpace(req.Search)
 	req.Query = formatSQLExp(req.Query)
-	if req.All {
-		// If the "all" flag is set, ignore any subquery that may be present.
-		req.Search = ""
-		req.Query = ""
-	} else if req.Search == "" && req.Query == "" {
+	if !req.All && req.Search == "" && req.Query == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 
@@ -879,7 +877,7 @@ func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
 	listIDs := user.GetPermittedListIDs(req.ListIDs)
 
 	// Delete the subscribers from the DB.
-	if err := a.core.DeleteSubscribersByQuery(req.Search, req.Query, listIDs, req.SubscriptionStatus); err != nil {
+	if err := a.core.DeleteSubscribersByQuery(req.Search, req.Query, listIDs, req.SubscriptionStatus, req.SubscriberStatus); err != nil {
 		return err
 	}
 
@@ -899,11 +897,7 @@ func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 
 	req.Search = strings.TrimSpace(req.Search)
 	req.Query = formatSQLExp(req.Query)
-	if req.All {
-		// If the "all" flag is set, ignore any subquery that may be present.
-		req.Search = ""
-		req.Query = ""
-	} else if req.Search == "" && req.Query == "" {
+	if !req.All && req.Search == "" && req.Query == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
 	}
 	// Does the user have the subscribers:sql_query permission?
@@ -918,7 +912,7 @@ func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 	listIDs := user.GetPermittedListIDs(req.ListIDs)
 
 	// Update the subscribers in the DB.
-	if err := a.core.BlocklistSubscribersByQuery(req.Search, req.Query, listIDs, req.SubscriptionStatus); err != nil {
+	if err := a.core.BlocklistSubscribersByQuery(req.Search, req.Query, listIDs, req.SubscriptionStatus, req.SubscriberStatus); err != nil {
 		return err
 	}
 
@@ -942,6 +936,9 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 
 	req.Search = strings.TrimSpace(req.Search)
 	req.Query = formatSQLExp(req.Query)
+	if !req.All && req.Search == "" && req.Query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "query"))
+	}
 
 	// Does the user have the subscribers:sql_query permission?
 	if req.Query != "" {
@@ -959,11 +956,11 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case "add":
-		err = a.core.AddSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus)
+		err = a.core.AddSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus, req.SubscriberStatus)
 	case "remove":
-		err = a.core.DeleteSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
+		err = a.core.DeleteSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus, req.SubscriberStatus)
 	case "unsubscribe":
-		err = a.core.UnsubscribeListsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus)
+		err = a.core.UnsubscribeListsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus, req.SubscriberStatus)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
 	}

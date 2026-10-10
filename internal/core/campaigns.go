@@ -333,7 +333,7 @@ func (c *Core) DeleteCampaign(id int) error {
 }
 
 // DeleteCampaigns deletes multiple campaigns by IDs or by query.
-func (c *Core) DeleteCampaigns(ids []int, query string, hasAllPerm bool, permittedLists []int) error {
+func (c *Core) DeleteCampaigns(ids []int, query string, statuses, tags []string, typ string, hasAllPerm bool, permittedLists []int) error {
 	var queryStr string
 
 	if len(ids) > 0 {
@@ -342,7 +342,7 @@ func (c *Core) DeleteCampaigns(ids []int, query string, hasAllPerm bool, permitt
 		queryStr = makeSearchString(query)
 	}
 
-	if _, err := c.q.DeleteCampaigns.Exec(pq.Array(ids), queryStr, hasAllPerm, pq.Array(permittedLists)); err != nil {
+	if _, err := c.q.DeleteCampaigns.Exec(pq.Array(ids), queryStr, hasAllPerm, pq.Array(permittedLists), pq.Array(statuses), pq.Array(tags), typ); err != nil {
 		c.log.Printf("error deleting campaigns: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.campaigns}", "error", pqErrMsg(err)))

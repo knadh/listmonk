@@ -86,9 +86,9 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 	return err
 }
 
-// BlocklistBouncedSubscribers blocklists all bounced subscribers.
-func (c *Core) BlocklistBouncedSubscribers() error {
-	if _, err := c.q.BlocklistBouncedSubscribers.Exec(); err != nil {
+// BlocklistBouncedSubscribers blocklists subscribers matching bounce IDs or filters.
+func (c *Core) BlocklistBouncedSubscribers(ids []int, campID int, source, typ string) error {
+	if _, err := c.q.BlocklistBouncedSubscribers.Exec(pq.Array(ids), campID, source, typ); err != nil {
 		c.log.Printf("error blocklisting bounced subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
 	}
@@ -96,14 +96,14 @@ func (c *Core) BlocklistBouncedSubscribers() error {
 	return nil
 }
 
-// DeleteBounce deletes a list.
+// DeleteBounce deletes a bounce record.
 func (c *Core) DeleteBounce(id int) error {
-	return c.DeleteBounces([]int{id}, false)
+	return c.DeleteBounces([]int{id}, false, 0, "", "")
 }
 
-// DeleteBounces deletes multiple lists.
-func (c *Core) DeleteBounces(ids []int, all bool) error {
-	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids), all); err != nil {
+// DeleteBounces deletes bounce records by IDs or filters.
+func (c *Core) DeleteBounces(ids []int, all bool, campID int, source, typ string) error {
+	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids), all, campID, source, typ); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))

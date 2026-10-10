@@ -28,8 +28,7 @@ function component() {
 
     // ===============
     // Bulk actions.
-    async onDeleteSelected(allSelected, selected, total) {
-      const num = allSelected ? total : selected.length;
+    async onDeleteSelected(num, params) {
       if (num === 0 || !(await u.confirm(i18n.ts('globals.messages.confirmDelete', {
         num,
         name: i18n.tc('globals.terms.bounce', num).toLowerCase(),
@@ -37,13 +36,7 @@ function component() {
         return;
       }
 
-      if (allSelected) {
-        await api('bounces', '/bounces?all=true', 'DELETE');
-      } else {
-        const q = new URLSearchParams();
-        selected.forEach((id) => q.append('id', id));
-        await api('bounces', `/bounces?${q.toString()}`, 'DELETE');
-      }
+      await api('bounces', `/bounces?${params}`, 'DELETE');
 
       u.reload({
         message: i18n.ts('globals.messages.deletedCount', {
@@ -53,22 +46,20 @@ function component() {
       });
     },
 
-    async onBlocklistSelected(allSelected, total) {
-      const subIDs = Array.from(document.querySelectorAll('input[name="id"]:checked'))
+    async onBlocklistSelected(allSelected, total, params) {
+      const subIDs = [...new Set(Array.from(this.root.querySelectorAll('input[name="id"]:checked'))
         .map((el) => Number(el.dataset.subscriberId))
-        .filter((id) => id > 0);
+        .filter((id) => id > 0))];
 
       const num = allSelected ? total : subIDs.length;
-      if (num === 0 || !(await u.confirm(i18n.ts('subscribers.confirmBlocklist', { num })))) {
+      const message = i18n.ts('subscribers.confirmBlocklist', {
+        num: allSelected ? i18n.t('globals.terms.all') : num,
+      });
+      if (num === 0 || !(await u.confirm(message))) {
         return;
       }
 
-      // "Select all" blocklists every bounced subscriber or blocklist selected rows.
-      if (allSelected) {
-        await api('bounces', '/bounces/blocklist', 'PUT');
-      } else {
-        await api('bounces', '/subscribers/blocklist', 'PUT', { ids: subIDs });
-      }
+      await api('bounces', `/bounces/blocklist?${params}`, 'PUT');
 
       u.reload({ message: i18n.t('globals.messages.done') });
     },

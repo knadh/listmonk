@@ -303,3 +303,39 @@ test.describe('Users, roles & login', () => {
     await context.close();
   });
 });
+
+test.describe('Users: bulk deletion', () => {
+  test.beforeEach(async ({ browser }) => {
+    await resetDB(browser);
+  });
+
+  test('deletes only checked users in the filtered view and protects the last admin', async ({ page }) => {
+    const data = async (res) => {
+      expect(res.ok(), await res.text()).toBeTruthy();
+      return (await res.json()).data;
+    };
+    const users = [];
+    for (let i = 0; i < 3; i += 1) {
+      users.push(await data(await page.request.post('/api/users', { data: {
+        username: `bulk-${i}`, type: 'api', status: i < 2 ? 'disabled' : 'enabled', user_role_id: 1,
+      } })));
+    }
+    await page.goto(`${USERS}?status=disabled`);
+    await expect(userRow(page)).toHaveCount(2);
+    await page.locator('thead input[type=checkbox]').check();
+    await userRow(page, users[1].username).locator('input[name=id]').uncheck();
+    await page.getByTestId('btn-bulk-actions').click();
+    await page.getByTestId('btn-delete-users').click();
+    await confirm(page);
+    await expect(userRow(page)).toHaveCount(1);
+    await page.goto(USERS);
+    await expect(userRow(page)).toHaveCount(3);
+    await expect(userRow(page, users[0].username)).toHaveCount(0);
+    await expect(userRow(page, users[1].username)).toBeVisible();
+    await expect(userRow(page, users[2].username)).toBeVisible();
+    const res = await page.request.delete('/api/users?id=1');
+    expect(res.ok()).toBe(false);
+    await page.reload();
+    await expect(userRow(page).filter({ has: page.getByRole('link', { name: 'admin', exact: true }) })).toBeVisible();
+  });
+});

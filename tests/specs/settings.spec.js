@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { resetDB, getMail } from '../helpers.js';
+import { resetDB, getMail, confirm } from '../helpers.js';
 
 const SETTINGS = '/admin/settings';
 const smtpServers = (page) => page.locator('.mail-servers details');
@@ -287,4 +287,46 @@ test.describe('Settings', () => {
     await expect(js).toHaveText('// public settings test');
   });
 
+});
+
+test.describe('Maintenance: bulk deletion', () => {
+  test.beforeEach(async ({ browser }) => { await resetDB(browser); });
+
+  test('limits subscriber cleanup to its selected type and subscription cleanup to its cutoff', async ({ page }) => {
+    const data = async (res) => {
+      expect(res.ok(), await res.text()).toBeTruthy();
+      return (await res.json()).data;
+    };
+    const original = (await data(await page.request.get('/api/subscribers'))).results;
+    const blocked = await data(await page.request.post('/api/subscribers', { data: {
+      email: 'blocked@example.com', name: 'Blocked', status: 'blocklisted', lists: [1],
+    } }));
+    const orphan = await data(await page.request.post('/api/subscribers', { data: {
+      email: 'orphan@example.com', name: 'Orphan', status: 'enabled', lists: [],
+    } }));
+    await page.goto('/admin/settings/maintenance');
+    for (const type of ['blocklisted', 'orphan']) {
+      await page.locator('select[x-model=subscriberType]').selectOption(type);
+      await page.locator('[data-cy=btn-delete-subscribers]').click();
+      const [res] = await Promise.all([
+        page.waitForResponse((r) => r.url().endsWith(`/api/maintenance/subscribers/${type}`)), confirm(page),
+      ]);
+      expect(res.ok()).toBeTruthy();
+      const remaining = (await data(await page.request.get('/api/subscribers'))).results;
+      expect(remaining.some((s) => s.id === blocked.id)).toBe(false);
+      expect(remaining.some((s) => s.id === orphan.id)).toBe(type !== 'orphan');
+      expect(remaining.filter((s) => original.some((o) => o.id === s.id))).toEqual(original);
+    }
+    expect((await page.request.delete('/api/maintenance/subscriptions/unconfirmed?before_date=invalid')).status()).toBe(400);
+    await data(await page.request.delete('/api/maintenance/subscriptions/unconfirmed?before_date=1970-01-01T00:00:00Z'));
+    expect((await data(await page.request.get('/api/subscribers'))).results).toEqual(original);
+    const future = new Date(Date.now() + 86400000).toISOString();
+    await data(await page.request.delete(`/api/maintenance/subscriptions/unconfirmed?before_date=${encodeURIComponent(future)}`));
+    const remaining = (await data(await page.request.get('/api/subscribers'))).results;
+    expect(remaining.map((s) => s.id)).toEqual(original.map((s) => s.id));
+    for (const sub of remaining) {
+      const before = original.find((s) => s.id === sub.id);
+      expect(sub.lists.map((l) => l.id)).toEqual(before.lists.filter((l) => !(l.optin === 'double' && l.subscription_status === 'unconfirmed')).map((l) => l.id));
+    }
+  });
 });

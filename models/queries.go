@@ -147,7 +147,7 @@ type Queries struct {
 // out of it using the raw `query-subscribers-template` query template.
 // While doing this, a readonly transaction is created and the query is
 // dry run on it to ensure that it is indeed readonly.
-func (q *Queries) compileSubscriberQueryTpl(searchStr, queryExp string, db *sqlx.DB, subStatus string) (string, error) {
+func (q *Queries) compileSubscriberQueryTpl(searchStr, queryExp string, db *sqlx.DB, subStatus, subscriberStatus string) (string, error) {
 	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return "", err
@@ -162,7 +162,7 @@ func (q *Queries) compileSubscriberQueryTpl(searchStr, queryExp string, db *sqlx
 
 	// Perform the dry run.
 	stmt := strings.ReplaceAll(q.QuerySubscribersTpl, "%query%", cond)
-	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus, searchStr); err != nil {
+	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
 		return "", err
 	}
 
@@ -172,9 +172,11 @@ func (q *Queries) compileSubscriberQueryTpl(searchStr, queryExp string, db *sqlx
 // compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
 // query template that depends on the filter (eg: delete by query, blocklist by query etc.)
 // combines and executes them.
-func (q *Queries) ExecSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs []int, db *sqlx.DB, subStatus string, args ...any) error {
+func (q *Queries) ExecSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs []int, db *sqlx.DB, subStatus, subscriberStatus string, args ...any) error {
+	queryExp, subStatus = ApplyOrphanFilter(queryExp, subStatus)
+
 	// Perform a dry run.
-	filterExp, err := q.compileSubscriberQueryTpl(searchStr, queryExp, db, subStatus)
+	filterExp, err := q.compileSubscriberQueryTpl(searchStr, queryExp, db, subStatus, subscriberStatus)
 	if err != nil {
 		return err
 	}
@@ -187,11 +189,25 @@ func (q *Queries) ExecSubQueryTpl(searchStr, queryExp, baseQueryTpl string, list
 	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", filterExp)
 
 	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]any{false, pq.Array(listIDs), subStatus, searchStr}, args...)
+	a := append([]any{false, pq.Array(listIDs), subStatus, searchStr, subscriberStatus}, args...)
 
 	// Execute the query on the DB.
 	if _, err := db.Exec(stmt, a...); err != nil {
 		return err
 	}
 	return nil
+}
+
+// ApplyOrphanFilter handles the special subscription_status value "none", which
+// filters orphan subscribers (no list subscriptions).
+func ApplyOrphanFilter(cond, subStatus string) (string, string) {
+	const orphanSubCond = "NOT EXISTS (SELECT 1 FROM subscriber_lists WHERE subscriber_id = subscribers.id)"
+	if subStatus == "none" {
+		if cond == "" {
+			cond = "TRUE"
+		}
+		return "(" + cond + ") AND " + orphanSubCond, ""
+	}
+
+	return cond, subStatus
 }

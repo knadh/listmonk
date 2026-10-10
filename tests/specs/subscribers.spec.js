@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import { setTimeout as sleep } from 'node:timers/promises';
 import {
   openMenu, confirm, resetDB, selectList, getMail, clearMail,
@@ -467,6 +468,93 @@ test.describe('Subscribers: bulk actions', () => {
   });
 });
 
+test.describe('Subscribers: filtered bulk actions', () => {
+  test.beforeEach(async ({ browser }) => {
+    await resetDB(browser);
+  });
+
+  for (const scope of ['status', 'list', 'orphan', 'search', 'query', 'subscription', 'list query params']) {
+    for (const action of ['delete', 'blocklist', 'export', 'add', 'remove', 'unsubscribe']) {
+      test(`${action} applies only to subscribers matching the ${scope} filter`, async ({ page }) => {
+        expect((await page.request.post('/api/subscribers/query/delete', { data: { all: true } })).ok()).toBeTruthy();
+        const status = scope === 'status' && ['delete', 'export'].includes(action) ? 'blocklisted' : 'disabled';
+        const sourceList = scope === 'subscription' ? LIST_OPTIN : LIST_DEFAULT;
+        const targetList = sourceList === LIST_DEFAULT ? LIST_OPTIN : LIST_DEFAULT;
+        await seedSubscribers(page, 22, { prefix: 'target', status, lists: scope === 'orphan' ? [] : [sourceList] });
+        await seedSubscribers(page, 3, { prefix: 'unrelated', lists: ['list', 'list query params', 'orphan', 'query'].includes(scope) ? [LIST_OPTIN] : [sourceList] });
+        const getSubscribers = async () => {
+          const res = await page.request.get('/api/subscribers?per_page=100');
+          expect(res.ok()).toBeTruthy();
+          return (await res.json()).data.results;
+        };
+        if (scope === 'subscription') {
+          const ids = (await getSubscribers()).filter((s) => s.status === 'enabled').map((s) => s.id);
+          expect((await page.request.put('/api/subscribers/lists', { data: {
+            ids, action: 'add', target_list_ids: [sourceList], status: 'confirmed',
+          } })).ok()).toBeTruthy();
+        }
+        const before = await getSubscribers();
+        const unrelated = before.filter((s) => s.status === 'enabled');
+        expect(unrelated).toHaveLength(3);
+        const url = {
+          status: `?status=${status}`,
+          list: `/lists/${sourceList}`,
+          orphan: '?subscription_status=none',
+          search: '?search=target',
+          query: `/lists/${sourceList}?query=${encodeURIComponent("subscribers.email LIKE 'target%' OR subscribers.status = 'enabled'")}`,
+          subscription: '?subscription_status=unconfirmed',
+          'list query params': `?list_id=${sourceList}`,
+        }[scope];
+        await page.goto(`${SUBSCRIBERS}${url}`);
+        expect(await readTotal(page)).toBe(22);
+
+        if (action === 'delete' || action === 'blocklist') {
+          await bulkConfirm(page, {
+            testid: action === 'delete' ? 'btn-delete-subscribers' : 'btn-manage-blocklist',
+            selectAll: true,
+            match: (r) => r.url().endsWith(`/api/subscribers/query/${action}`)
+              && r.request().method() === (action === 'delete' ? 'POST' : 'PUT'),
+          });
+          if (action === 'delete' || scope === 'status') await expect(page.locator('.empty-state')).toBeVisible();
+        } else if (action === 'export') {
+          await openBulkMenu(page, { selectAll: true });
+          const [download] = await Promise.all([
+            page.waitForEvent('download'),
+            (async () => {
+              await page.getByTestId('btn-export-subscribers').click();
+              await confirm(page);
+            })(),
+          ]);
+          const csv = await readFile(await download.path(), 'utf8');
+          expect(csv.trim().split('\n')).toHaveLength(23);
+          for (const sub of before) expect(csv.includes(sub.email)).toBe(sub.email.startsWith('target'));
+        } else {
+          await bulkManageLists(page, {
+            action, lists: [(action === 'add' ? targetList : sourceList) === LIST_DEFAULT ? 'Default list' : 'Opt-in list'],
+            preconfirm: action === 'add' && targetList === LIST_OPTIN, selectAll: true,
+          });
+          await page.waitForLoadState('load');
+        }
+
+        const after = await getSubscribers();
+        expect(after.filter((s) => unrelated.some((u) => u.id === s.id))).toEqual(unrelated);
+        const targets = after.filter((s) => s.email.startsWith('target'));
+        expect(targets).toHaveLength(action === 'delete' ? 0 : 22);
+        for (const sub of targets) {
+          if (action === 'blocklist') expect(sub.status).toBe('blocklisted');
+          if (action === 'add') {
+            expect(sub.lists.find((l) => l.id === targetList)?.subscription_status).toBe(targetList === LIST_OPTIN ? 'confirmed' : 'unconfirmed');
+          } else if (action === 'remove') {
+            expect(sub.lists.some((l) => l.id === sourceList)).toBe(false);
+          } else if (action === 'unsubscribe' && scope !== 'orphan') {
+            expect(sub.lists.find((l) => l.id === sourceList)?.subscription_status).toBe('unsubscribed');
+          }
+        }
+      });
+    }
+  }
+});
+
 test.describe('Subscriber detail: lists & subscriptions', () => {
   const listRow = (page, name) => page.locator('.subscriptions tbody tr').filter({ hasText: name });
 
@@ -613,5 +701,100 @@ test.describe('Domain blocklist', () => {
       data: { email: 'nope@ban.org', name: 'test', lists: [1], status: 'enabled' },
     });
     expect(res.status()).toBe(400);
+  });
+});
+
+test.describe('Subscribers: bulk scope safeguards', () => {
+  test.beforeEach(async ({ browser }) => {
+    await resetDB(browser);
+  });
+
+  test('exports the intersection of search and SQL filters', async ({ page }) => {
+    await seedSubscribers(page, 22, { prefix: 'target', status: 'disabled' });
+    await seedSubscribers(page, 1, { prefix: 'target-other', status: 'enabled' });
+    await seedSubscribers(page, 1, { prefix: 'other', status: 'disabled' });
+    await page.goto(`${SUBSCRIBERS}?search=target&query=${encodeURIComponent("subscribers.status = 'disabled'")}`);
+    expect(await readTotal(page)).toBe(22);
+    await openBulkMenu(page, { selectAll: true });
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      (async () => {
+        await page.getByTestId('btn-export-subscribers').click();
+        await confirm(page);
+      })(),
+    ]);
+    const csv = await readFile(await download.path(), 'utf8');
+    expect(csv.trim().split('\n')).toHaveLength(23);
+    expect(csv).not.toContain('other0@example.com');
+  });
+
+  test('all does not discard search or SQL filters, and empty list actions are rejected', async ({ page }) => {
+    const data = async (res) => {
+      expect(res.ok(), await res.text()).toBeTruthy();
+      return (await res.json()).data;
+    };
+    const original = (await data(await page.request.get('/api/subscribers'))).results;
+    for (const body of [{ all: true, search: 'no-such-subscriber' }, { all: true, query: 'FALSE' }]) {
+      await data(await page.request.post('/api/subscribers/query/delete', { data: body }));
+      await data(await page.request.put('/api/subscribers/query/blocklist', { data: body }));
+    }
+    for (const action of ['add', 'remove', 'unsubscribe']) {
+      const res = await page.request.put('/api/subscribers/query/lists', { data: { action, target_list_ids: [1] } });
+      expect(res.status()).toBe(400);
+    }
+    expect((await data(await page.request.get('/api/subscribers'))).results).toEqual(original);
+  });
+
+  test('multiple source lists form a union without duplicate exports or omitted subscribers', async ({ page }) => {
+    expect((await page.request.post('/api/subscribers/query/delete', { data: { all: true } })).ok()).toBeTruthy();
+    for (const [prefix, lists] of [['first', [1]], ['second', [2]], ['both', [1, 2]], ['orphan', []]]) {
+      await seedSubscribers(page, 1, { prefix, lists, status: 'disabled' });
+    }
+    const listed = await page.request.get('/api/subscribers?list_id=1&list_id=2');
+    expect(listed.ok()).toBeTruthy();
+    expect((await listed.json()).data.results).toHaveLength(3);
+    const exported = await page.request.get('/api/subscribers/export?list_id=1&list_id=2');
+    expect(exported.ok()).toBeTruthy();
+    expect((await exported.text()).trim().split('\n')).toHaveLength(4);
+    const deleted = await page.request.post('/api/subscribers/query/delete', { data: { all: true, list_ids: [1, 2] } });
+    expect(deleted.ok()).toBeTruthy();
+    const remaining = (await (await page.request.get('/api/subscribers')).json()).data.results;
+    expect(remaining.map((s) => s.email)).toEqual(['orphan0@example.com']);
+  });
+
+  test('inaccessible source lists never fall back to other permitted lists', async ({ page, browser }) => {
+    const data = async (res) => {
+      expect(res.ok(), await res.text()).toBeTruthy();
+      return (await res.json()).data;
+    };
+    const role = await data(await page.request.post('/api/roles/users', { data: {
+      name: 'Subscriber manager', permissions: ['subscribers:get', 'subscribers:manage'],
+    } }));
+    const listRole = await data(await page.request.post('/api/roles/lists', { data: {
+      name: 'Default list manager', lists: [{ id: 1, permissions: ['list:get', 'list:manage'] }],
+    } }));
+    const user = await data(await page.request.post('/api/users', { data: {
+      username: 'bulk-manager', type: 'api', status: 'enabled', user_role_id: role.id, list_role_id: listRole.id,
+    } }));
+    const before = (await data(await page.request.get('/api/subscribers'))).results;
+    const context = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+      extraHTTPHeaders: { Authorization: `Basic ${Buffer.from(`${user.username}:${user.password}`).toString('base64')}` },
+    });
+    try {
+      await data(await context.request.post('/api/subscribers/query/delete', { data: { all: true, list_ids: [2] } }));
+      await data(await context.request.put('/api/subscribers/query/blocklist', { data: { all: true, list_ids: [2] } }));
+      for (const action of ['add', 'remove', 'unsubscribe']) {
+        await data(await context.request.put('/api/subscribers/query/lists', { data: {
+          all: true, action, list_ids: [2], target_list_ids: [1], status: 'confirmed',
+        } }));
+      }
+      const exported = await context.request.get('/api/subscribers/export?list_id=2');
+      expect(exported.ok()).toBeTruthy();
+      expect((await exported.text()).trim().split('\n')).toHaveLength(1);
+    } finally {
+      await context.close();
+    }
+    expect((await data(await page.request.get('/api/subscribers'))).results).toEqual(before);
   });
 });

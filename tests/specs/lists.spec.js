@@ -319,3 +319,53 @@ test.describe('Lists', () => {
     await expect(page.locator('.empty-state')).toBeVisible();
   });
 });
+
+test.describe('Lists: filtered bulk deletion', () => {
+  test.beforeEach(async ({ browser }) => {
+    await resetDB(browser);
+  });
+
+  for (const { filter, unrelated } of [
+    { filter: '', unrelated: [{ status: 'archived' }] },
+    { filter: 'tag=target', unrelated: [{ tags: ['other'] }] },
+    { filter: 'type=private', unrelated: [{ type: 'public' }] },
+    { filter: 'optin=single', unrelated: [{ optin: 'double' }] },
+    { filter: 'status=archived', unrelated: [{ status: 'active' }] },
+    { filter: 'query=Bulk', unrelated: [{ name: 'Other' }] },
+    {
+      filter: 'query=Bulk&tag=target&tag=news&type=private&optin=single',
+      unrelated: [{ name: 'Other' }, { tags: ['target'] }, { type: 'public' }, { optin: 'double' }, { status: 'archived' }],
+    },
+  ]) {
+    test(`preserves unrelated lists when deleting all with ${filter || 'default active status'}`, async ({ page }) => {
+      const data = async (res) => {
+        expect(res.ok(), await res.text()).toBeTruthy();
+        return (await res.json()).data;
+      };
+      await data(await page.request.delete('/api/lists?all=true'));
+      const preserved = [];
+      for (const overrides of [...unrelated, ...Array.from({ length: 22 }, () => ({}))]) {
+        const list = await data(await page.request.post('/api/lists', { data: {
+          name: 'Bulk list', type: 'private', optin: 'single', status: filter === 'status=archived' ? 'archived' : 'active',
+          tags: ['target', 'news'], ...overrides,
+        } }));
+        if (Object.keys(overrides).length) preserved.push(list.id);
+      }
+      await page.goto(`${LISTS}?${filter}`);
+      await page.locator('thead input[type=checkbox]').check();
+      await page.getByTestId('btn-bulk-actions').click();
+      await page.getByTestId('select-all-lists').click();
+      await withListAPI(page, 'DELETE', async () => {
+        await page.getByTestId('btn-delete-lists').click();
+        await confirm(page);
+      });
+      await expect(page.locator('.empty-state')).toBeVisible();
+      const remaining = [];
+      for (const status of ['active', 'archived']) {
+        remaining.push(...(await data(await page.request.get(`/api/lists?status=${status}&per_page=100`))).results);
+      }
+      expect(remaining.map((l) => l.id).sort((a, b) => a - b)).toEqual(preserved.sort((a, b) => a - b));
+      expect((await data(await page.request.get('/api/subscribers'))).results).toHaveLength(2);
+    });
+  }
+});

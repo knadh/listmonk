@@ -1,6 +1,7 @@
 # List of i18n keys whose translated strings are rendered on admin HTML pages as a map for JS to use.
 
 # Globals.
+globals.terms.all
 globals.buttons.back
 globals.buttons.cancel
 globals.buttons.ok

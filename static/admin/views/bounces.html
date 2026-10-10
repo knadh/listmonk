@@ -36,9 +36,9 @@
 							</button>
 						{{- end }}
 						{{- if $d.Can "bounces:manage" }}
-							<button type="button" role="menuitem" class="ghost" data-testid="btn-manage-blocklist" @click.prevent="onBlocklistSelected(allSelected, total)">{{ Icon "user-x" }} {{ .L.T "import.blocklist" }}</button>
+							<button type="button" role="menuitem" class="ghost" data-testid="btn-manage-blocklist" @click.prevent="onBlocklistSelected(allSelected, total, selectedQueryParams().toString())">{{ Icon "user-x" }} {{ .L.T "import.blocklist" }}</button>
 							<hr />
-							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete-bounces" :disabled="isLoading('bounces')" @click.prevent="onDeleteSelected(allSelected, selected, total)">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span></button>
+							<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete-bounces" :disabled="isLoading('bounces')" @click.prevent="onDeleteSelected(numSelected, selectedQueryParams().toString())">{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }} <span x-text="numSelected"></span></button>
 						{{- end }}
 					</menu>
 				</ot-dropdown>

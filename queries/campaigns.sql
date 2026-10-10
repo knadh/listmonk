@@ -469,7 +469,10 @@ DELETE FROM campaigns c
 WHERE (
     CASE
         WHEN CARDINALITY($1::INT[]) > 0 THEN id = ANY($1)
-        ELSE $2 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ PLAINTO_TSQUERY($2) OR CONCAT(c.name, ' ', c.subject) ILIKE ('%' || $2 || '%')
+        ELSE ($2 = '' OR TO_TSVECTOR(CONCAT(name, ' ', subject)) @@ PLAINTO_TSQUERY($2) OR CONCAT(c.name, ' ', c.subject) ILIKE ('%' || $2 || '%'))
+            AND (COALESCE(CARDINALITY($5::campaign_status[]), 0) = 0 OR status = ANY($5))
+            AND (COALESCE(CARDINALITY($6::VARCHAR(100)[]), 0) = 0 OR $6 <@ tags)
+            AND ($7 = '' OR type = $7::campaign_type)
     END
 )
 -- Get all campaigns or filter by permitted list IDs.
