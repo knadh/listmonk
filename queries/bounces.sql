@@ -39,6 +39,7 @@ SELECT COUNT(*) OVER () AS total,
     bounces.subscriber_id,
     subscribers.uuid AS subscriber_uuid,
     subscribers.email AS email,
+    subscribers.name AS subscriber_name,
     subscribers.status as subscriber_status,
     (
         CASE WHEN bounces.campaign_id IS NOT NULL

@@ -61,11 +61,22 @@
 						<tr data-testid="bounce-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}" data-subscriber-id="{{ .SubscriberID }}"></td>
 							<td>
-								<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" class="unstyled{{ if eq .SubscriberStatus "blocklisted" }} blocklisted{{ end }}">{{ .Email }}</a>
-								{{ if ne .SubscriberStatus "enabled" }}{{ Badge (list (Dot) ($.L.T (printf "subscribers.status.%s" .SubscriberStatus))) (printf "status-%s" .SubscriberStatus) }}{{ end }}
+								<div class="avatar{{ if eq .SubscriberStatus "blocklisted" }} disabled{{ end }}">
+									{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or .SubscriberName .Email) }}
+									<div class="avatar-label">
+										<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" class="unstyled{{ if eq .SubscriberStatus "blocklisted" }} blocklisted{{ end }}">{{ .Email }}</a>
+										{{ if ne .SubscriberStatus "enabled" }}{{ Badge (list (Dot) ($.L.T (printf "subscribers.status.%s" .SubscriberStatus))) (printf "status-%s" .SubscriberStatus) }}{{ end }}
+										<div class="text-8 text-light">{{ .SubscriberName }}</div>
+									</div>
+								</div>
 							</td>
 							<td data-label="{{ $.L.T "globals.terms.campaign" }}">
-								{{- with .ParsedCampaign }}<a href="{{ $base }}?campaign_id={{ .ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>{{ else }}-{{ end }}
+								{{- with .Campaigns }}
+									<div class="avatar">
+										{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+										<a href="{{ $base }}?campaign_id={{ .ID }}" class="avatar-label unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
+									</div>
+								{{- else }}-{{ end }}
 							</td>
 							<td data-label="{{ $.L.T "bounces.source" }}"><a href="{{ $base }}?source={{ .Source }}" class="unstyled text-light" title="{{ $.L.T "globals.buttons.filter" }} {{ .Source }}">{{ .Source }}</a></td>
 							<td data-label="{{ $.L.T "globals.fields.type" }}"><a href="{{ $base }}?type={{ .Type }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "bounces.%s" .Type) }}">{{ Badge ($.L.T (printf "bounces.%s" .Type)) (printf "enum bounce-%s" .Type) }}</a></td>
