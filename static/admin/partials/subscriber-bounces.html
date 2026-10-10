@@ -12,7 +12,7 @@
 				{{- range $d.Bounces }}
 					<tr>
 						<td>
-							{{- with .ParsedCampaign }}
+							{{- with .Campaigns }}
 								<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}">{{ .Name }}</a>
 							{{- end }}
 						</td>
