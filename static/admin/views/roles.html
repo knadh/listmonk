@@ -15,6 +15,13 @@
 			</div>
 		</div>
 		<div class="col-8 hstack justify-end buttons">
+			<form method="get" action="{{ $base }}" class="search-form">
+				{{- $d.Page.FormFields "query" -}}
+				<fieldset class="group">
+					<input name="query" aria-label="Search" data-testid="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline external" data-testid="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+				</fieldset>
+			</form>
 			{{- if $d.Can "roles:manage" }}
 				<a href="{{ $base }}/new" class="button" data-variant="primary" data-testid="btn-new">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
@@ -28,9 +35,9 @@
 			<table>
 				<thead>
 					<tr>
-						<th>{{ .L.Tc "users.role" 1 }}</th>
-						<th>{{ .L.T "globals.fields.createdAt" }}</th>
-						<th>{{ .L.T "globals.fields.updatedAt" }}</th>
+						<th>{{ $d.Page.SortLink $base "name" (.L.Tc "users.role" 1) }}</th>
+						<th>{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
+						<th>{{ $d.Page.SortLink $base "updated_at" (.L.T "globals.fields.updatedAt") }}</th>
 						<th class="actions align-right"></th>
 					</tr>
 				</thead>

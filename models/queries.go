@@ -132,8 +132,8 @@ type Queries struct {
 	DeleteUserSessions *sqlx.Stmt `query:"delete-user-sessions"`
 
 	CreateRole            *sqlx.Stmt `query:"create-role"`
-	GetUserRoles          *sqlx.Stmt `query:"get-user-roles"`
-	GetListRoles          *sqlx.Stmt `query:"get-list-roles"`
+	GetUserRoles          string     `query:"get-user-roles"`
+	GetListRoles          string     `query:"get-list-roles"`
 	UpdateRole            *sqlx.Stmt `query:"update-role"`
 	DeleteRole            *sqlx.Stmt `query:"delete-role"`
 	UpsertListPermissions *sqlx.Stmt `query:"upsert-list-permissions"`

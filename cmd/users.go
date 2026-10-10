@@ -173,11 +173,11 @@ func (a *App) ViewProfile(c echo.Context) error {
 
 // getRoles fetches user and list roles for the user-form role selectors.
 func (a *App) getRoles() ([]auth.Role, []auth.ListRole, error) {
-	userRoles, err := a.core.GetRoles()
+	userRoles, err := a.core.GetRoles("", "", "")
 	if err != nil {
 		return nil, nil, err
 	}
-	listRoles, err := a.core.GetListRoles()
+	listRoles, err := a.core.GetListRoles("", "", "")
 	if err != nil {
 		return nil, nil, err
 	}
