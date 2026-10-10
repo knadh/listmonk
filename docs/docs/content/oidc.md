@@ -4,39 +4,7 @@
 Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -> Security -> OIDC
 
 ### User auto-creation
-If `Settings -> Security -> OIDC -> Auto-create users` is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID).
-
-### OIDC role mapping
-
-Auto-created users can receive user and list roles based on top-level claims in the
-verified OIDC ID token. Roles are assigned only when the user is created; subsequent
-logins do not change an existing user's roles. Claims from the UserInfo endpoint
-are not used for role mapping.
-
-Configure mappings under `Settings -> Security -> OIDC -> Role mapping`, or set
-the `roles` array in `security.oidc` using the settings API. For example:
-
-```json
-"roles": [
-    {"claim": "groups", "match": "editors", "user_role_id": 2, "list_role_id": 3},
-    {"claim": "department", "match": "marketing", "user_role_id": 4}
-]
-```
-
-Replace the example role IDs with existing user and list role IDs. Each mapping
-requires a non-empty `claim` and `match`; both role IDs are optional. A claim must be
-a string equal to `match`, or an array containing only strings with at least one
-equal to `match`. Matching is exact and case-sensitive; nested claim paths are not
-supported.
-
-Mappings are evaluated in order and the first match wins. Omitted role IDs retain
-their configured defaults. If no mapping matches, both defaults apply. A default
-user role is still required when auto-creation is enabled.
-
-`PUT /api/settings` preserves mappings when `roles` is omitted or `null`; send
-`"roles": []` to clear them. `PUT /api/settings/security.oidc` replaces the entire
-OIDC configuration, so include all its settings, including the client secret and
-any mappings to retain. Both endpoints validate mapping role IDs.
+If `Settings -> Security -> OIDC -> Auto-create users` is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID). If role mapping is enabled, newly created users (on first OIDC login) can be auto-assigned roles mapped to OIDC claims.
 
 # Tutorials
 
