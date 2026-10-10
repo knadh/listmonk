@@ -21,7 +21,7 @@
 		<div class="{{ if $showRight }}col-6{{ else }}col-12{{ end }}">
 			<div class="hstack">
 				<a href="{{ URI "/admin/campaigns" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
-				<div class="avatar">
+				<div class="avatar{{ if eq $c.Status "cancelled" }} disabled{{ end }}">
 					{{- if not $isNew }}
 						{{ template "avatar-icon" dict "Kind" "campaign" "Name" $c.Name }}
 					{{- end }}

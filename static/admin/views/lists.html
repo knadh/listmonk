@@ -81,7 +81,7 @@
 						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
-								<div class="avatar">
+								<div class="avatar{{ if eq .Status "archived" }} disabled{{ end }}">
 									{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
 									<div class="avatar-label">
 										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>

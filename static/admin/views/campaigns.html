@@ -79,7 +79,7 @@
 						<tr data-campaign-id="{{ .ID }}" class="status-{{ .Status }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="name">
-								<div class="avatar">
+								<div class="avatar{{ if eq .Status "cancelled" }} disabled{{ end }}">
 									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
 									<div class="avatar-label vstack gap-1">
 										<div>
