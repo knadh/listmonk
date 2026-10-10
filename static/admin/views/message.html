@@ -1,0 +1,10 @@
+{{ define "admin-message" }}
+{{ template "admin-header" .}}
+
+<article class="card">
+    <h2>{{ .Data.Title }}</h2>
+    <div>{{ .Data.Description }}</div>
+</article>
+
+{{ template "admin-footer" .}}
+{{ end }}
