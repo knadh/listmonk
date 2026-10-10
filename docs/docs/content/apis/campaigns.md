@@ -202,12 +202,13 @@ Retrieve stats of specified campaigns.
 
 ##### Parameters
 
-| Name | Type       | Required | Description                                   |
-| :--- | :--------- | :------- | :-------------------------------------------- |
-| id   | number\[\] | Yes      | Campaign IDs to get stats for.                |
-| type | string     | Yes      | Analytics type: views, links, clicks, bounces |
-| from | string     | Yes      | Start value of date range.                    |
-| to   | string     | Yes      | End value of date range.                      |
+| Name     | Type       | Required | Description                                                        |
+| :------- | :--------- | :------- | :----------------------------------------------------------------- |
+| id       | number\[\] | Yes      | Campaign IDs to get stats for.                                     |
+| type     | string     | Yes      | Analytics type: views, links, clicks, bounces.                     |
+| from     | string     | Yes      | Start value of date range.                                         |
+| to       | string     | Yes      | End value of date range.                                           |
+| interval | string     |          | Interval for views, clicks, and bounces: `hour`, `day`, `week`, or `month`. Default is `day` when empty. |
 
 
 ##### Example Request
@@ -289,23 +290,23 @@ Create a new campaign.
 
 ##### Parameters
 
-| Name         | Type       | Required | Description                                                                                                            |
-| :----------- | :--------- | :------- | :--------------------------------------------------------------------------------------------------------------------- |
-| name         | string     | Yes      | Campaign name.                                                                                                         |
-| subject      | string     | Yes      | Campaign email subject.                                                                                                |
-| lists        | number\[\] | Yes      | List IDs to send campaign to.                                                                                          |
-| from_email   | string     |          | 'From' email in campaign emails. Defaults to value from settings if not provided.                                      |
-| type         | string     | Yes      | Campaign type: 'regular' or 'optin'.                                                                                   |
-| content_type | string     | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain', 'visual'.                                                       |
-| body         | string     | Yes      | Content body of campaign.                                                                                              |
-| body_source  | string     |          | If content_type is `visual`, the JSON block source of the body.                                                        |
-| altbody      | string     |          | Alternate plain text body for HTML (and richtext) emails.                                                              |
-| send_at      | string     |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                                                        |
-| messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided.                                |
-| template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                                                      |
-| tags         | string\[\] |          | Tags to mark campaign.                                                                                                 |
+| Name         | Type       | Required | Description                                                                                                                                                                                     |
+| :----------- | :--------- | :------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name         | string     | Yes      | Campaign name.                                                                                                                                                                                  |
+| subject      | string     | Yes      | Campaign email subject.                                                                                                                                                                         |
+| lists        | number\[\] | Yes      | List IDs to send campaign to.                                                                                                                                                                   |
+| from_email   | string     |          | 'From' email in campaign emails. Defaults to value from settings if not provided.                                                                                                               |
+| type         | string     | Yes      | Campaign type: 'regular' or 'optin'.                                                                                                                                                            |
+| content_type | string     | Yes      | Content type: 'richtext', 'html', 'markdown', 'plain', 'visual'.                                                                                                                                |
+| body         | string     | Yes      | Content body of campaign.                                                                                                                                                                       |
+| body_source  | string     |          | If content_type is `visual`, the JSON block source of the body.                                                                                                                                 |
+| altbody      | string     |          | Alternate plain text body for HTML (and richtext) emails.                                                                                                                                       |
+| send_at      | string     |          | Timestamp to schedule campaign. Format: 'YYYY-MM-DDTHH:MM:SSZ'.                                                                                                                                 |
+| messenger    | string     |          | 'email' or a custom messenger defined in settings. Defaults to 'email' if not provided.                                                                                                         |
+| template_id  | number     |          | Template ID to use. Defaults to default template if not provided.                                                                                                                               |
+| tags         | string\[\] |          | Tags to mark campaign.                                                                                                                                                                          |
 | headers      | JSON       |          | Key-value pairs to send as SMTP headers. Supports template expressions (e.g., `{{ .Subscriber.UUID }}`). Example: \[{"x-custom-header": "value"}, {"x-subscriber": "{{ .Subscriber.UUID }}"}\]. |
-| attribs      | JSON       |          | Optional JSON object attributes that can be used in the campaign message template. Example `{"location": "Somewhere"}` |
+| attribs      | JSON       |          | Optional JSON object attributes that can be used in the campaign message template. Example `{"location": "Somewhere"}`                                                                          |
 
 ##### Example request
 

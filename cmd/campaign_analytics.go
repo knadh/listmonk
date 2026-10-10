@@ -31,6 +31,7 @@ type campaignAnalyticsView struct {
 	Campaigns          []analyticsCampaign
 	FromInput          string
 	ToInput            string
+	Interval           string
 	DisableTracking    bool
 	IndividualTracking bool
 
@@ -77,8 +78,13 @@ func (a *App) ViewCampaignAnalytics(c echo.Context) error {
 		Campaigns:          campaigns,
 		FromInput:          from.Format("2006-01-02T15:04"),
 		ToInput:            to.Format("2006-01-02T15:04"),
+		Interval:           c.QueryParam("interval"),
 		DisableTracking:    a.cfg.Privacy.DisableTracking,
 		IndividualTracking: a.cfg.Privacy.IndividualTracking,
+	}
+
+	if data.Interval == "" {
+		data.Interval = "day"
 	}
 
 	// Pull analytics for the selected campaigns.
@@ -92,17 +98,17 @@ func (a *App) ViewCampaignAnalytics(c echo.Context) error {
 			ids[i] = camp.ID
 		}
 
-		views, err := a.core.GetCampaignAnalyticsCounts(ids, "views", fromStr, toStr)
+		views, err := a.core.GetCampaignAnalyticsCounts(ids, "views", fromStr, toStr, data.Interval)
 		if err != nil {
 			return err
 		}
 
-		clicks, err := a.core.GetCampaignAnalyticsCounts(ids, "clicks", fromStr, toStr)
+		clicks, err := a.core.GetCampaignAnalyticsCounts(ids, "clicks", fromStr, toStr, data.Interval)
 		if err != nil {
 			return err
 		}
 
-		bounces, err := a.core.GetCampaignAnalyticsCounts(ids, "bounces", fromStr, toStr)
+		bounces, err := a.core.GetCampaignAnalyticsCounts(ids, "bounces", fromStr, toStr, data.Interval)
 		if err != nil {
 			return err
 		}
@@ -161,8 +167,13 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{out})
 	}
 
+	interval := c.QueryParam("interval")
+	if interval == "" {
+		interval = "day"
+	}
+
 	// Get the analytics numbers from the DB for the campaigns.
-	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to)
+	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to, interval)
 	if err != nil {
 		return err
 	}
