@@ -29,6 +29,14 @@ const (
 
 var (
 	regexpTplTag = regexp.MustCompile(`{{(\s+)?template\s+?"content"(\s+)?\.(\s+)?}}`)
+
+	// templatesQueryDefaults is the allow list of filter query params.
+	templatesQueryDefaults = map[string]string{
+		"type":     "",
+		"query":    "",
+		"order_by": "created_at",
+		"order":    "asc",
+	}
 )
 
 // templatesView is the admin page view for the templates list page.
@@ -36,6 +44,7 @@ type templatesView struct {
 	adminView
 
 	Templates []models.Template
+	Page      models.PageProps
 	Type      string
 }
 
@@ -49,9 +58,10 @@ type templateView struct {
 
 // ViewTemplates renders the HTML list view for templates.
 func (a *App) ViewTemplates(c echo.Context) error {
-	typ := c.QueryParam("type")
+	q := makeQuery(c.Request().URL.Query(), templatesQueryDefaults)
+	typ := q.Get("type")
 
-	out, err := a.core.GetTemplates(typ, true)
+	out, err := a.core.GetTemplates(q.Get("query"), typ, true, q.Get("order_by"), q.Get("order"))
 	if err != nil {
 		return err
 	}
@@ -59,6 +69,7 @@ func (a *App) ViewTemplates(c echo.Context) error {
 	data := templatesView{
 		adminView: newAdminView(c, a.i18n.T("globals.terms.templates"), "", "campaigns.templates"),
 		Templates: out,
+		Page:      models.NewPageProps(q, len(out), 1, 0),
 		Type:      typ,
 	}
 
@@ -113,7 +124,7 @@ func (a *App) GetTemplates(c echo.Context) error {
 	noBody, _ := strconv.ParseBool(c.QueryParam("no_body"))
 
 	// Fetch templates from the DB.
-	out, err := a.core.GetTemplates("", noBody)
+	out, err := a.core.GetTemplates(c.QueryParam("query"), "", noBody, c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
 		return err
 	}

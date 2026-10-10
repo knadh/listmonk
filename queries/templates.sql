@@ -6,7 +6,8 @@ SELECT id, name, type, subject,
     (CASE WHEN $2 = false THEN body_source ELSE NULL END) as body_source,
     is_default, created_at, updated_at
     FROM templates WHERE ($1 = 0 OR id = $1) AND ($3 = '' OR type = $3::template_type)
-    ORDER BY created_at;
+    AND ($4 = '' OR TO_TSVECTOR(name) @@ PLAINTO_TSQUERY($4) OR name ILIKE ('%' || $4 || '%'))
+    ORDER BY %order%;
 
 -- name: create-template
 INSERT INTO templates (name, type, subject, body, body_source) VALUES($1, $2, $3, $4, $5) RETURNING id;

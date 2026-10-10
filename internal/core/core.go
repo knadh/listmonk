@@ -68,11 +68,12 @@ var (
 )
 
 var (
-	regexpSpaces        = regexp.MustCompile(`[\s]+`)
-	campQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
-	subQuerySortFields  = []string{"email", "status", "name", "created_at", "updated_at"}
-	userQuerySortFields = []string{"username", "email", "created_at", "loggedin_at"}
-	listQuerySortFields = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
+	regexpSpaces            = regexp.MustCompile(`[\s]+`)
+	campQuerySortFields     = []string{"name", "status", "created_at", "updated_at"}
+	subQuerySortFields      = []string{"email", "status", "name", "created_at", "updated_at"}
+	userQuerySortFields     = []string{"username", "email", "created_at", "loggedin_at"}
+	templateQuerySortFields = []string{"name", "type", "created_at", "updated_at"}
+	listQuerySortFields     = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
 )
 
 // New returns a new instance of the core.

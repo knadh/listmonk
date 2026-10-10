@@ -15,11 +15,18 @@
 					{{- if eq $d.Type "tx" }}{{ $label = .L.Tc "globals.terms.tx" 1 }}
 					{{- else if eq $d.Type "campaign_visual" }}{{ $label = .L.T "campaigns.contentType.visual" }}
 					{{- else if eq $d.Type "campaign" }}{{ $label = .L.Tc "globals.terms.campaign" 1 }}{{ end }}
-					{{ template "filter-badge" dict "Label" $label "Class" "enum" "URL" $base }}
+					{{ template "filter-badge" dict "Label" $label "Class" "enum" "URL" ($d.Page.FilterURL $base "type") }}
 				{{- end }}
 			</h1>
 		</div>
 		<div class="col-8 hstack justify-end buttons">
+			<form method="get" action="{{ URI "/admin/templates" }}" class="search-form">
+				{{- $d.Page.FormFields "query" -}}
+				<fieldset class="group">
+					<input name="query" aria-label="Search" data-testid="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline external" data-testid="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+				</fieldset>
+			</form>
 			{{- if $canManage }}
 				<a href="{{ $base }}/new" class="button" data-variant="primary" data-testid="btn-new">
 					{{ Icon "plus" }} {{ .L.T "globals.buttons.new" }}
@@ -33,9 +40,9 @@
 			<table>
 				<thead>
 					<tr>
-						<th>{{ .L.T "globals.fields.name" }}</th>
-						<th>{{ .L.T "globals.fields.type" }}</th>
-						<th>{{ .L.T "globals.fields.createdAt" }}</th>
+						<th>{{ $d.Page.SortLink $base "name" (.L.T "globals.fields.name") }}</th>
+						<th>{{ $d.Page.SortLink $base "type" (.L.T "globals.fields.type") }}</th>
+						<th>{{ $d.Page.SortLink $base "created_at" (.L.T "globals.fields.createdAt") }}</th>
 						<th class="actions align-right"></th>
 					</tr>
 				</thead>
@@ -57,13 +64,13 @@
 							<td>
 								<div class="hstack">
 									{{- if eq .Type "tx" }}
-										<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.Tc "globals.terms.tx" 1 }}">{{ Badge (list (Icon "terminal") ($.L.Tc "globals.terms.tx" 1)) "enum" }}</a>
+										<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.Tc "globals.terms.tx" 1 }}">{{ Badge (list (Icon "terminal") ($.L.Tc "globals.terms.tx" 1)) "enum" }}</a>
 									{{- else }}
-										<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.Tc "globals.terms.campaign" 1 }}">{{ Badge (list (Icon "send") ($.L.Tc "globals.terms.campaign" 1)) "enum" }}</a>
+										<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.Tc "globals.terms.campaign" 1 }}">{{ Badge (list (Icon "send") ($.L.Tc "globals.terms.campaign" 1)) "enum" }}</a>
 										{{- if eq .Type "campaign_visual" }}
-											<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "campaigns.contentType.visual" }}">{{ Badge (list (Icon "eye") ($.L.T "campaigns.contentType.visual")) "enum" }}</a>
+											<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "campaigns.contentType.visual" }}">{{ Badge (list (Icon "eye") ($.L.T "campaigns.contentType.visual")) "enum" }}</a>
 										{{- else }}
-											<a href="{{ $base }}?type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} HTML">{{ Badge (list (Icon "code") "HTML") "enum" }}</a>
+											<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} HTML">{{ Badge (list (Icon "code") "HTML") "enum" }}</a>
 										{{- end }}
 									{{- end }}
 								</div>
