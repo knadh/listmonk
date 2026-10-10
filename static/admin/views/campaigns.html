@@ -79,9 +79,9 @@
 						<tr data-campaign-id="{{ .ID }}" class="status-{{ .Status }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="name">
-								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "campaign" "Name" .Name }}
-									<div class="vstack gap-1">
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+									<div class="avatar-label vstack gap-1">
 										<div>
 											<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
 											{{- if eq .Type "optin" }}
@@ -118,9 +118,9 @@
 							<td class="lists">
 								<ul>
 									{{- range .ParsedLists }}
-										<li class="name-stack">
-											{{ template "avatar" dict "Size" "small" "Kind" "list" "Name" .Name }}
-											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}" class="unstyled">{{ .Name }}</a>
+										<li class="avatar small">
+											{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
+											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}" class="avatar-label unstyled">{{ .Name }}</a>
 										</li>
 									{{- end }}
 								</ul>

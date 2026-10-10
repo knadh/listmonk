@@ -83,9 +83,9 @@
 								{{- range $d.Campaigns }}
 									<tr>
 										<td width="55%">
-											<div class="name-stack">
-												{{ template "avatar" dict "Kind" "campaign" "Name" .Name }}
-												<div><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
+											<div class="avatar">
+												{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+												<div class="avatar-label"><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
 											</div>
 										</td>
 										<td width="20%">{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}</td>

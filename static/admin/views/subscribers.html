@@ -103,9 +103,9 @@
 						<tr data-testid="sub-row" data-id="{{ .ID }}" {{ if eq .Status "blocklisted" }}class="blocklisted"{{ end }}>
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="email">
-								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "subscriber" "Name" (or .Name .Email) }}
-									<div>
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or .Name .Email) }}
+									<div class="avatar-label">
 										<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 										{{- if ne .Status "enabled" }}
 											{{- $label := $.L.T (printf "subscribers.status.%s" .Status) }}
@@ -114,10 +114,10 @@
 										<div class="hstack lists">
 											{{- range $i, $l := .ParsedLists }}
 												{{- if lt $i 3 }}
-													<div class="name-stack">
+													<div class="avatar xsmall">
 														{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
-														<a class="unstyled avatar avatar-list xsmall" href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ $label }}" aria-label="{{ $l.Name }}: {{ $label }}"><span class="badge enum status-{{ $l.SubscriptionStatus }}" aria-hidden="true">{{ if eq $l.SubscriptionStatus "unconfirmed" }}?{{ else }}{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}{{ end }}</span></a>
-														<a class="unstyled" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $l.Name }}">{{ $l.Name }}</a>
+														<a class="unstyled avatar-icon avatar-list" href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ $label }}" aria-label="{{ $l.Name }}: {{ $label }}"><span class="badge enum status-{{ $l.SubscriptionStatus }}" aria-hidden="true">{{ if eq $l.SubscriptionStatus "unconfirmed" }}?{{ else }}{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}{{ end }}</span></a>
+														<a class="unstyled text-light avatar-label" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $l.Name }}">{{ $l.Name }}</a>
 													</div>
 												{{- end }}
 											{{- end }}
