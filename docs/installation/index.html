@@ -1738,9 +1738,9 @@ If you would like to remove those and mount a config.toml instead:</p>
 <h2 id="compiling-from-source">Compiling from source<a class="headerlink" href="#compiling-from-source" title="Permanent link">&para;</a></h2>
 <p>To compile the latest unreleased version (<code>master</code> branch):</p>
 <ol>
-<li>Make sure <code>go</code>, <code>nodejs</code>, and <code>yarn</code> are installed on your system.</li>
+<li>Make sure <code>go</code> and <code>bun</code> are installed on your system.</li>
 <li><code>git clone git@github.com:knadh/listmonk.git</code></li>
-<li><code>cd listmonk &amp;&amp; make dist</code>. This will generate the <code>listmonk</code> binary.</li>
+<li><code>cd listmonk &amp;&amp; make dist</code>. This will build the SSR admin frontend and generate the <code>listmonk</code> binary.</li>
 </ol>
 <h2 id="helm-chart-for-kubernetes">Helm chart for Kubernetes<a class="headerlink" href="#helm-chart-for-kubernetes" title="Permanent link">&para;</a></h2>
 <p>A Helm chart for installing listmonk on a Kubernetes cluster is maintained by the community in the <a href="https://github.com/helmforgedev/charts/tree/main/charts/listmonk">HelmForge charts repository</a>.</p>

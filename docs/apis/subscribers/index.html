@@ -1724,6 +1724,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#delete-apisubscriberssubscriber_idactivitytype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/subscribers/{subscriber_id}/activity/{type}
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/subscribers/{subscriber_id}/activity/{type}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-request_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#delete-apisubscribers" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1747,7 +1786,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-request_13" class="md-nav__link">
+  <a href="#example-request_14" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Request
@@ -1758,7 +1797,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-response_15" class="md-nav__link">
+  <a href="#example-response_16" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Response
@@ -1797,7 +1836,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-request_14" class="md-nav__link">
+  <a href="#example-request_15" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Request
@@ -1808,7 +1847,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-response_16" class="md-nav__link">
+  <a href="#example-response_17" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Response
@@ -3063,6 +3102,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#delete-apisubscriberssubscriber_idactivitytype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /api/subscribers/{subscriber_id}/activity/{type}
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DELETE /api/subscribers/{subscriber_id}/activity/{type}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-request_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-response_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#delete-apisubscribers" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3086,7 +3164,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-request_13" class="md-nav__link">
+  <a href="#example-request_14" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Request
@@ -3097,7 +3175,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-response_15" class="md-nav__link">
+  <a href="#example-response_16" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Response
@@ -3136,7 +3214,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-request_14" class="md-nav__link">
+  <a href="#example-request_15" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Request
@@ -3147,7 +3225,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-response_16" class="md-nav__link">
+  <a href="#example-response_17" class="md-nav__link">
     <span class="md-ellipsis">
       
         Example Response
@@ -3268,6 +3346,11 @@
 <td>DELETE</td>
 <td><a href="#delete-apisubscriberssubscriber_idbounces">/api/subscribers/{subscriber_id}/bounces</a></td>
 <td>Delete a specific subscriber's bounce records.</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><a href="#delete-apisubscriberssubscriber_idactivitytype">/api/subscribers/{subscriber_id}/activity/{type}</a></td>
+<td>Clear a subscriber's campaign views or link clicks.</td>
 </tr>
 <tr>
 <td>DELETE</td>
@@ -4114,6 +4197,18 @@
 <span class="p">}</span>
 </code></pre></div>
 <hr />
+<h4 id="delete-apisubscriberssubscriber_idactivitytype">DELETE /api/subscribers/{subscriber_id}/activity/{type}<a class="headerlink" href="#delete-apisubscriberssubscriber_idactivitytype" title="Permanent link">&para;</a></h4>
+<p>Clear a subscriber's activity. <code>type</code> must be <code>campaign_views</code> or <code>link_clicks</code>.
+Only the selected activity type is deleted. Requires <code>subscribers:manage</code> and access to the subscriber.</p>
+<h5 id="example-request_13">Example Request<a class="headerlink" href="#example-request_13" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/1/activity/campaign_views'</span>
+</code></pre></div>
+<h5 id="example-response_15">Example Response<a class="headerlink" href="#example-response_15" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
 <h4 id="delete-apisubscribers">DELETE /api/subscribers<a class="headerlink" href="#delete-apisubscribers" title="Permanent link">&para;</a></h4>
 <p>Delete one or more subscribers.</p>
 <h5 id="parameters_13">Parameters<a class="headerlink" href="#parameters_13" title="Permanent link">&para;</a></h5>
@@ -4135,10 +4230,10 @@
 </tr>
 </tbody>
 </table>
-<h5 id="example-request_13">Example Request<a class="headerlink" href="#example-request_13" title="Permanent link">&para;</a></h5>
+<h5 id="example-request_14">Example Request<a class="headerlink" href="#example-request_14" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers?id=10&amp;id=11'</span>
 </code></pre></div>
-<h5 id="example-response_15">Example Response<a class="headerlink" href="#example-response_15" title="Permanent link">&para;</a></h5>
+<h5 id="example-response_16">Example Response<a class="headerlink" href="#example-response_16" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
@@ -4177,12 +4272,12 @@
 </tr>
 </tbody>
 </table>
-<h5 id="example-request_14">Example Request<a class="headerlink" href="#example-request_14" title="Permanent link">&para;</a></h5>
+<h5 id="example-request_15">Example Request<a class="headerlink" href="#example-request_15" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-u<span class="w"> </span><span class="s1">'api_username:access_token'</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s1">'http://localhost:9000/api/subscribers/query/delete'</span><span class="w"> </span><span class="se">\</span>
 -H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
 --data-raw<span class="w"> </span><span class="s1">'{"query":"subscribers.name LIKE \'</span>John<span class="w"> </span>Doe<span class="se">\'</span><span class="w"> </span>AND<span class="w"> </span>subscribers.attribs-&gt;&gt;<span class="s1">'\''city'</span><span class="se">\'</span><span class="s1">' = '</span><span class="se">\'</span><span class="s1">'Bengaluru'</span><span class="se">\'</span><span class="s1">'"}'</span>
 </code></pre></div>
-<h5 id="example-response_16">Example Response<a class="headerlink" href="#example-response_16" title="Permanent link">&para;</a></h5>
+<h5 id="example-response_17">Example Response<a class="headerlink" href="#example-response_17" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>

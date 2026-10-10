@@ -1468,31 +1468,30 @@
 
 
 <h1 id="developer-setup">Developer setup<a class="headerlink" href="#developer-setup" title="Permanent link">&para;</a></h1>
-<p>The app has two distinct components, the Go backend and the VueJS frontend. In the dev environment, both are run independently.</p>
+<p>The app is a Go backend that server-renders the admin UI (HTML templates with JS, built with <a href="https://bun.sh">bun</a>). </p>
 <h3 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>go</code></li>
-<li><code>nodejs</code> (if you are working on the frontend) and <code>yarn</code></li>
+<li><code>bun</code> (if you are working on the admin frontend)</li>
 <li>Postgres database. If there is no local installation, the demo docker DB can be used for development (<code>docker compose up demo-db</code>)</li>
 </ul>
 <h3 id="first-time-setup">First time setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h3>
 <p><code>git clone https://github.com/knadh/listmonk.git</code>. The project uses go.mod, so it's best to clone it outside the Go src path.</p>
 <ol>
 <li>Copy <code>config.toml.sample</code> as <code>config.toml</code> and add your config.</li>
-<li><code>make dist</code> to build the listmonk binary. Once the binary is built, run <code>./listmonk --install</code> to run the DB setup. For subsequent dev runs, use <code>make run</code>.</li>
+<li>Build the frontend and the binary: <code>make dist</code> (builds the SSR admin and the Go binary, embedding the assets). Once the binary is built, run <code>./listmonk --install</code> to run the DB setup. For subsequent dev runs, use <code>make run</code>.</li>
 </ol>
 <blockquote>
 <p><a href="https://github.com/mailhog/MailHog">mailhog</a> is an excellent standalone mock SMTP server (with a UI) for testing and dev.</p>
 </blockquote>
 <h3 id="running-the-dev-environment">Running the dev environment<a class="headerlink" href="#running-the-dev-environment" title="Permanent link">&para;</a></h3>
 <p>You can run your dev environment locally or inside containers.</p>
-<p>After setting up the dev environment, you can visit <code>http://localhost:8080</code>.</p>
+<p>After setting up the dev environment, you can visit <code>http://localhost:9000</code>.</p>
 <ol>
 <li>
 <p>Locally</p>
 <ul>
-<li>Run <code>make run</code> to start the listmonk dev server on <code>:9000</code>.</li>
-<li>Run <code>make run-frontend</code> to start the Vue frontend in dev mode using yarn on <code>:8080</code>. All <code>/api/*</code> calls are proxied to the app running on <code>:9000</code>. Refer to the <a href="https://github.com/knadh/listmonk/blob/master/frontend/README.md">frontend README</a> for an overview on how the frontend is structured.</li>
+<li>Run <code>make run</code> to start the listmonk dev server on <code>:9000</code>. It builds the SSR admin assets (from <code>static/admin/</code>) and serves the admin at <code>/admin</code>. To rebuild admin assets on change while developing, run <code>cd static/admin &amp;&amp; bun run watch</code> in a separate terminal.</li>
 </ul>
 </li>
 <li>
@@ -1512,7 +1511,7 @@
 </ol>
 <p>It will set up db, and start frontend/backend for you.</p>
 <h1 id="production-build">Production build<a class="headerlink" href="#production-build" title="Permanent link">&para;</a></h1>
-<p>Run <code>make dist</code> to build the Go binary, build the Javascript frontend, and embed the static assets producing a single self-contained binary, <code>listmonk</code></p>
+<p>Run <code>make dist</code> to build the SSR admin frontend and the Go binary, embedding the static assets into a single self-contained binary, <code>listmonk</code>.</p>
 
 
 
