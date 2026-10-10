@@ -648,6 +648,18 @@ main {
         vertical-align: middle;
     }
 
+    &.disabled > .avatar-icon {
+        > .avatar-initials,
+        > .badge {
+            background: var(--muted);
+            color: var(--muted-foreground);
+        }
+
+        > img {
+            filter: grayscale(1);
+        }
+    }
+
     &.small {
         --avatar-size: 1.25rem;
         --avatar-font-size: 0.5rem;

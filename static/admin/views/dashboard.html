@@ -83,7 +83,7 @@
 								{{- range $d.Campaigns }}
 									<tr>
 										<td width="55%">
-											<div class="avatar">
+											<div class="avatar{{ if eq .Status "cancelled" }} disabled{{ end }}">
 												{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
 												<div class="avatar-label"><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
 											</div>

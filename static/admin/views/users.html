@@ -74,7 +74,7 @@
 								<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							{{- end }}
 							<td>
-								<div class="avatar">
+								<div class="avatar{{ if eq .Status "disabled" }} disabled{{ end }}">
 									{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
 									<div class="avatar-label">
 										{{- if $d.Can "users:manage" }}
