@@ -45,7 +45,7 @@ func (m *CampaignMessage) render() error {
 	// Render the From header if it's a template.
 	if m.Campaign.FromEmailTpl != nil {
 		if err := m.Campaign.FromEmailTpl.ExecuteTemplate(&out, models.ContentTpl, m); err != nil {
-			return err
+			return fmt.Errorf("error rendering from: %w", err)
 		}
 		m.from = out.String()
 		out.Reset()

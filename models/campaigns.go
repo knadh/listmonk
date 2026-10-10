@@ -68,7 +68,7 @@ type Campaign struct {
 	FromEmailTpl        *txttpl.Template   `json:"-"`
 	AltBodyTpl          *template.Template `json:"-"`
 
-	// HeaderTpls is holds optionally {{ templated }} campaign headers.
+	// HeaderTpls holds optionally {{ templated }} campaign headers.
 	HeaderTpls []map[string]*txttpl.Template `json:"-"`
 
 	// List of media (attachment) IDs obtained from the next-campaign query
@@ -206,15 +206,16 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		c.AltBodyTpl = bTpl
 	}
 
+	// Rebuild header templates in case the campaign is being recompiled.
+	c.HeaderTpls = nil
 	for i, set := range c.Headers {
 		for hdr, val := range set {
-			if !HasTplExpr(val) {
-				continue
-			}
-
 			tpl, err := compileTxtTpl(fmt.Sprintf("header %q", hdr), val, f)
 			if err != nil {
 				return err
+			}
+			if tpl == nil {
+				continue
 			}
 
 			if c.HeaderTpls == nil {
