@@ -14,8 +14,8 @@
 
 	<div class="vstack gap-6">
 		<form method="get" action="{{ URI "/admin/campaigns/analytics" }}" x-data="analyticsForm()" @submit="submitting = true">
-			<fieldset class="card">
-				<legend>{{ .L.T "analytics.title" }}</legend>
+			<div class="card float">
+				<h4 class="title">{{ .L.T "analytics.title" }}</h4>
 				<div class="row">
 					<div class="col-5">
 						<label data-field>
@@ -48,7 +48,7 @@
 						</data>
 					</div>
 				</div>
-			</fieldset>
+			</div>
 		</form>
 
 		{{- if $d.HasData }}
@@ -56,8 +56,8 @@
 			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" }}
 			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" }}
 
-			<article class="card">
-				<h4>{{ .L.T "analytics.links" }}</h4>
+			<article class="card float">
+				<h4 class="title">{{ .L.T "analytics.links" }}</h4>
 				{{- if $d.Data.Links }}
 					<div class="chart-box"><canvas id="chart-links"></canvas></div>
 				{{- else }}
@@ -75,8 +75,8 @@
 
 {{ define "analytics-chart" -}}
 {{- $key := .Key -}}
-<article class="card">
-	<h4>{{ .Title }}{{ if gt .Count 0 }} <span class="text-lighter">({{ FormatNumber .Count }})</span>{{ end }}</h4>
+<article class="card float">
+	<h4 class="title">{{ .Title }}{{ if gt .Count 0 }} <span class="text-lighter">({{ FormatNumber .Count }})</span>{{ end }}</h4>
 	{{- if gt .Count 0 }}
 		<div class="row">
 			<div class="col-9"><div class="chart-box"><canvas id="chart-{{ $key }}"></canvas></div></div>

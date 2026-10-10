@@ -194,6 +194,34 @@ ot-tabs:not(:defined) {
     background-color: light-dark(#ededee, var(--muted));
 }
 
+/* Fieldset-style cards. */
+@layer components {
+    .card.float {
+        margin-block-start: 0.75em;
+    }
+}
+
+.card.float {
+    padding: var(--space-4);
+    box-shadow: none;
+
+    > .title {
+        width: fit-content;
+        max-width: 100%;
+        margin: -26px 0 var(--space-4) 0;
+        padding: 0 var(--space-2);
+        font-size: var(--text-7);
+        font-weight: var(--font-medium);
+        line-height: var(--leading-normal);
+    }
+
+    &.has-table {
+        .title {
+            margin-bottom: 0;
+        }
+    }
+}
+
 fieldset {
     &.card {
         padding-block-start: var(--space-4);
@@ -835,6 +863,11 @@ td > .empty-state {
     &.card.has-table {
         padding-block-start: 0;
         padding-block-end: 0;
+
+        &:where(.float) {
+            padding-block-start: var(--space-4);
+            padding-inline: var(--space-6);
+        }
     }
 
     .col-bleed {
