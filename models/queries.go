@@ -98,7 +98,7 @@ type Queries struct {
 	DeleteMedia *sqlx.Stmt `query:"delete-media"`
 
 	CreateTemplate     *sqlx.Stmt `query:"create-template"`
-	GetTemplates       *sqlx.Stmt `query:"get-templates"`
+	GetTemplates       string     `query:"get-templates"`
 	UpdateTemplate     *sqlx.Stmt `query:"update-template"`
 	SetDefaultTemplate *sqlx.Stmt `query:"set-default-template"`
 	DeleteTemplate     *sqlx.Stmt `query:"delete-template"`
