@@ -352,6 +352,23 @@ a:has(> .badge:only-child) {
         border: 1px solid var(--border);
     }
 
+    .badge-avatar {
+        gap: var(--space-1);
+        white-space: nowrap;
+
+        .avatar {
+            display: inline-flex;
+            margin: 0;
+
+            img,
+            span {
+                height: 18px;
+                width: 18px;
+                font-size: 8px;
+            }
+        }
+    }
+
     a {
         display: inline-flex;
         align-items: center;
@@ -1094,9 +1111,57 @@ section.lists {
 }
 
 /* Subscribers */
+.subscribers td.email .lists {
+    list-style-type: none;
+    margin: 0;
+    padding-inline-start: 0;
+
+    li,
+    > .name-stack {
+        align-items: center;
+        gap: 0.2rem;
+        max-width: 16ch;
+        font-size: var(--text-8);
+
+        .avatar span {
+            width: 16px;
+            height: 16px;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        a {
+            min-width: 0;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--muted-foreground);
+        }
+    }
+
+}
+
 .subscribers {
-    .list-names {
-        row-gap: var(--space-1);
+    td.email .lists {
+        margin-top: var(--space-1);
+
+        .avatar .badge {
+            margin: 0;
+            padding: 0;
+
+            .icon {
+                margin: 0;
+            }
+        }
+
+        > a {
+            white-space: nowrap;
+        }
+
+        .status-icon {
+            flex-shrink: 0;
+        }
     }
 
     .blocklisted {
@@ -1108,7 +1173,7 @@ section.lists {
 
     td {
         &.email {
-            width: 30%;
+            width: 48%;
         }
 
         &.link-click-url {

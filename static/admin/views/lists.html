@@ -117,7 +117,7 @@
 									{{- $count := index $counts . -}}
 									{{- $label := $.L.T (printf "subscribers.status.%s" .) -}}
 									{{- $percent := mulf (divf $count $total) 100 -}}
-									{{- $title := printf "%s %s (%.2f%%)" $label (FormatNumber $count) $percent -}}
+									{{- $title := printf "%s %s (%.0f%%)" $label (FormatNumber $count) $percent -}}
 									{{- $stats = append $stats (dict "Status" . "Count" $count "Label" $label "Percent" $percent "Title" $title) -}}
 								{{- end }}
 								<div class="subscriber-breakdown">
@@ -128,7 +128,7 @@
 									</div>
 									<div class="subscriber-legend text-8">
 										{{- range $stats }}
-											<a class="unstyled text-grey" href="{{ URI "/admin/subscribers/lists" }}/{{ $listID }}?subscription_status={{ .Status }}" title="{{ .Title }}" aria-label="{{ .Title }}"><span class="status-icon status-{{ .Status }}" aria-hidden="true">{{ if eq .Status "unconfirmed" }}?{{ else }}{{ Icon (index $statusIcons .Status) }}{{ end }}</span> {{ printf "%.2f%%" .Percent }}</a>
+											<a class="unstyled text-grey" href="{{ URI "/admin/subscribers/lists" }}/{{ $listID }}?subscription_status={{ .Status }}" title="{{ .Title }}" aria-label="{{ .Title }}"><span class="status-icon status-{{ .Status }}" aria-hidden="true">{{ if eq .Status "unconfirmed" }}?{{ else }}{{ Icon (index $statusIcons .Status) }}{{ end }}</span> {{ printf "%.0f%%" .Percent }}</a>
 										{{- end }}
 									</div>
 								</div>
