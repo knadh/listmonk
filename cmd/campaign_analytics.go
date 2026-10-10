@@ -13,6 +13,7 @@ import (
 type analyticsCampaign struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
+	Sent int    `json:"sent"`
 }
 
 // analyticsData is the chart data embedded into the analytics page for the Chart.js renderer.
@@ -59,7 +60,7 @@ func (a *App) ViewCampaignAnalytics(c echo.Context) error {
 				continue
 			}
 
-			campaigns = append(campaigns, analyticsCampaign{ID: camp.ID, Name: camp.Name})
+			campaigns = append(campaigns, analyticsCampaign{ID: camp.ID, Name: camp.Name, Sent: camp.Sent})
 		}
 	}
 

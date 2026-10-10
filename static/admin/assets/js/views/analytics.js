@@ -35,10 +35,7 @@ const DEFAULT_DONUT = {
         callbacks: {
           label: (item) => {
             const data = item.chart.data.datasets[item.datasetIndex];
-            const total = data.data.reduce((acc, val) => acc + val, 0);
-            const val = data.data[item.dataIndex];
-            const percentage = ((val / total) * 100).toFixed(2);
-            return `${val} (${percentage}%)`;
+            return formatCount(data.data[item.dataIndex], data.sent[item.dataIndex]);
           },
         },
       },
@@ -64,6 +61,12 @@ const DEFAULT_LINE = {
         bodyFont: { size: 15 },
         bodySpacing: 10,
         padding: 10,
+        callbacks: {
+          labelColor: (item) => ({
+            backgroundColor: item.dataset.borderColor,
+            borderColor: 'transparent',
+          }),
+        },
       },
     },
     scales: {
@@ -167,12 +170,16 @@ function draw(id, def, data, extraOptions) {
     return;
   }
 
-  // eslint-disable-next-line no-new
-  new Chart(canvas, {
+  return new Chart(canvas, {
     type: def.type,
     data,
     options: { ...def.options, ...(extraOptions || {}) },
   });
+}
+
+// Use the campaign's sent count instead of the chart total.
+function formatCount(count, sent) {
+  return sent > 0 ? `${count} (${((count / sent) * 100).toFixed(2)}%)` : `${count}`;
 }
 
 // Render a line chart (time series per campaign) and its donut (totals per campaign).
@@ -182,6 +189,7 @@ function renderCounts(key, camps, rows) {
     data: rows.filter((item) => item.campaign_id === c.id)
       .map((item) => ({ x: toLabel(item.timestamp), y: item.count })),
     borderColor: chartColors[n % chartColors.length],
+    backgroundColor: chartColors[n % chartColors.length],
     borderWidth: 2,
     pointHoverBorderWidth: 5,
     pointBorderWidth: 0.5,
@@ -194,10 +202,32 @@ function renderCounts(key, camps, rows) {
   });
 
   draw(`chart-${key}`, DEFAULT_LINE, { datasets });
-  draw(`chart-${key}-donut`, DEFAULT_DONUT, {
+  const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, {
     labels,
-    datasets: [{ data: totals, backgroundColor: chartColors, borderWidth: 6 }],
+    datasets: [{
+      data: totals,
+      sent: camps.map((c) => c.sent),
+      backgroundColor: chartColors,
+      borderWidth: 6,
+    }],
   });
+
+  const legend = document.getElementById(`chart-${key}-legend`);
+  if (legend) {
+    legend.querySelectorAll('[data-index]').forEach((item) => {
+      const n = Number(item.dataset.index);
+      item.querySelector('[data-marker]').style.color = datasets[n].borderColor;
+      item.querySelector('[data-count]').textContent = formatCount(totals[n], camps[n].sent);
+
+      const highlight = () => {
+        donut.setActiveElements(item.matches(':hover, :focus-within') ? [{ datasetIndex: 0, index: n }] : []);
+        donut.update('none');
+      };
+      ['mouseenter', 'mouseleave', 'focusin', 'focusout'].forEach((event) => {
+        item.addEventListener(event, highlight);
+      });
+    });
+  }
 }
 
 // Render the link-clicks bar chart.

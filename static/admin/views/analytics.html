@@ -70,9 +70,9 @@
 		</form>
 
 		{{- if $d.HasData }}
-			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" }}
-			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" }}
-			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" }}
+			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Campaigns" $d.Campaigns }}
+			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Campaigns" $d.Campaigns }}
+			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Campaigns" $d.Campaigns }}
 
 			<article class="card float">
 				<h4 class="title">{{ .L.T "analytics.links" }}</h4>
@@ -99,6 +99,14 @@
 		<div class="row">
 			<div class="col-9"><div class="chart-box"><canvas id="chart-{{ $key }}"></canvas></div></div>
 			<div class="col-3 donut-container"><canvas id="chart-{{ $key }}-donut"></canvas></div>
+		</div>
+		<div id="chart-{{ $key }}-legend" class="hstack text-8 mt-2">
+			{{- range $n, $c := .Campaigns }}
+				<span data-index="{{ $n }}">
+					<span data-marker aria-hidden="true">●</span>
+					<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">#{{ .ID }}: {{ .Name }}</a>: <span data-count></span>
+				</span>
+			{{- end }}
 		</div>
 	{{- else }}
 		{{- template "empty-state" }}
