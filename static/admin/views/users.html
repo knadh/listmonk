@@ -74,9 +74,9 @@
 								<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							{{- end }}
 							<td>
-								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
-									<div>
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
+									<div class="avatar-label">
 										{{- if $d.Can "users:manage" }}
 											<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="unstyled{{ if eq .Status "disabled" }} text-light{{ end }}">{{ .Username }}</a>
 										{{- else }}
@@ -90,16 +90,16 @@
 							</td>
 							<td data-label="{{ $.L.T "subscribers.email" }}" class="text-light">{{ if .Email.Valid }}{{ .Email.String }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
 							<td data-label="{{ $.L.Tc "users.userRole" 1 }}">
-								<div class="name-stack role-name">
-									{{ template "avatar" dict "Size" "small" "Kind" "user-role" "Name" .UserRole.Name }}
-									<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .UserRole.Name }}">{{ .UserRole.Name }}</a>
+								<div class="avatar small role-name">
+									{{ template "avatar-icon" dict "Kind" "user-role" "Name" .UserRole.Name }}
+									<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}" class="avatar-label unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .UserRole.Name }}">{{ .UserRole.Name }}</a>
 								</div>
 							</td>
 							<td data-label="{{ $.L.Tc "users.listRole" 2 }}">
 								{{- with .ListRole }}
-									<div class="name-stack role-name">
-										{{ template "avatar" dict "Size" "small" "Kind" "list-role" "Name" .Name }}
-										<a href="{{ $base }}?list_role_id={{ .ID }}" class="unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
+									<div class="avatar small role-name">
+										{{ template "avatar-icon" dict "Kind" "list-role" "Name" .Name }}
+										<a href="{{ $base }}?list_role_id={{ .ID }}" class="avatar-label unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
 									</div>
 								{{- else }}
 									<span class="text-light">&mdash;</span>

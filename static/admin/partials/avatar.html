@@ -1,3 +1,3 @@
-{{ define "avatar" -}}
-<span class="avatar avatar-{{ .Kind }}{{ if .Size }} {{ .Size }}{{ end }}">{{ if .URL }}<img src="{{ .URL }}" alt="" loading="lazy" />{{ else }}<span class="avatar-initials" aria-hidden="true">{{ Initials .Name }}</span>{{ end }}</span>
+{{ define "avatar-icon" -}}
+<span class="avatar-icon avatar-{{ .Kind }}">{{ if .URL }}<img src="{{ .URL }}" alt="" loading="lazy" />{{ else }}<span class="avatar-initials" aria-hidden="true">{{ Initials .Name }}</span>{{ end }}</span>
 {{- end }}

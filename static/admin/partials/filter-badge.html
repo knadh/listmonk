@@ -2,7 +2,7 @@
 <span class="filter-tag">
        {{- if .LabelURL }}<a href="{{ .LabelURL }}" class="unstyled">{{ end }}
        {{- if .Avatar }}
-       <span class="badge badge-avatar {{ default "" .Class }}"{{ if .Variant }} data-variant="{{ .Variant }}"{{ end }}>{{ template "avatar" .Avatar }} {{ .Label }}</span>
+       <span class="badge badge-avatar {{ default "" .Class }}"{{ if .Variant }} data-variant="{{ .Variant }}"{{ end }}><span class="avatar{{ if .Avatar.Size }} {{ .Avatar.Size }}{{ end }}">{{ template "avatar-icon" .Avatar }}<span class="avatar-label">{{ .Label }}</span></span></span>
        {{- else }}
        {{ Badge .Label (default "" .Class) (default "" .Variant) }}
        {{- end }}

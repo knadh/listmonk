@@ -55,8 +55,8 @@
 					{{ with .Data.Profile }}
 						<ot-dropdown>
 							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
-								{{ template "avatar" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
-								<span class="user-label">{{ .Username }}</span>
+								<span class="avatar">{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
+								<span class="avatar-label user-label">{{ .Username }}</span></span>
 							</button>
 							<menu popover id="user-menu">
 								<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>

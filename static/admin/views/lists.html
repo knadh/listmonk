@@ -81,10 +81,11 @@
 						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td>
-								<div class="name-stack">
-									{{ template "avatar" dict "Kind" "list" "Name" .Name }}
-									<div>
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
+									<div class="avatar-label">
 										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+										{{- if .Description }}<div class="text-light text-8">{{ .Description }}</div>{{ end }}
 										<div class="hstack gap-2 text-8">
 											{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a>{{ end }}
 										</div>
@@ -101,7 +102,7 @@
 							</td>
 							<td class="subscribers" data-label="{{ $.L.T "globals.terms.subscribers" }}">
 								{{- if $d.Can "subscribers:get" "subscribers:get_all" }}
-									<a class="subscriber-total" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ FormatNumber .SubscriberCount }}</a>
+									<a class="subscriber-total" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.view" }} {{ $.L.T "globals.terms.subscribers" }}">{{ FormatNumber .SubscriberCount }}</a>
 								{{- else }}
 									<span class="subscriber-total">{{ FormatNumber .SubscriberCount }}</span>
 								{{- end }}
