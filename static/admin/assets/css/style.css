@@ -500,22 +500,29 @@ body[data-sidebar-layout] {
 
 #app[data-sidebar-layout] {
     grid-template-columns: 12rem minmax(0, var(--container-max));
+    grid-template-rows: 1fr;
     column-gap: var(--space-10);
     height: auto;
     justify-content: center;
     min-height: 100dvh;
     padding-inline: var(--space-5);
 
+    > aside,
     > main {
+        grid-row: 1;
+    }
+
+    > main {
+        padding-block-start: 0;
         overflow-y: visible;
     }
 }
 
-nav[data-topnav] {
-    background: transparent;
-    border-bottom: 0;
+.main-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     padding: var(--space-4) 0 var(--space-2);
-    box-shadow: none;
 
     button[data-sidebar-toggle] {
         border: 0;
@@ -557,36 +564,8 @@ nav[data-topnav] {
         width: auto;
     }
 
-    .branding {
-        align-items: center;
-        display: flex;
-        gap: var(--space-2);
-
-        img {
-            max-height: 17px;
-        }
-    }
-
-    .favicon {
+    .mobile-branding {
         display: none;
-        line-height: 1;
-    }
-
-    .logo {
-        display: inline-block;
-    }
-
-    .hstack {
-        gap: var(--space-3);
-    }
-
-    > .row {
-        grid-template-columns: minmax(0, 1fr) auto;
-
-        > .branding,
-        > .hstack {
-            grid-column: auto;
-        }
     }
 
     .theme-switch {
@@ -608,9 +587,26 @@ aside[data-sidebar] {
     background: transparent;
     border-inline-end: 0;
     box-shadow: none;
-    height: calc(100dvh - 4.5rem);
+    height: 100dvh;
     position: sticky;
-    top: 4.5rem;
+    top: 0;
+
+    > .sidebar-branding {
+        display: flex;
+        align-items: center;
+        padding: var(--space-4) 0 var(--space-2);
+
+        a {
+            padding: 0;
+            background: transparent;
+        }
+
+        img {
+            display: block;
+            height: 17px;
+            width: auto;
+        }
+    }
 
     > nav {
         margin-block-start: var(--space-3);
@@ -640,9 +636,8 @@ aside[data-sidebar] {
 }
 
 main {
-    padding-block-start: var(--space-8);
-
     > .container {
+        padding-block-start: var(--space-8);
         padding-inline: 0;
         margin-bottom: var(--space-6);
     }
@@ -1756,7 +1751,7 @@ section.users {
 
 /* Responsive */
 @media (max-width: 769px) {
-    main {
+    main > .container {
         padding-block-start: var(--space-6);
     }
 
@@ -1772,10 +1767,12 @@ section.users {
         }
     }
 
-    nav[data-topnav] {
+    .main-bar {
         background: var(--background);
         box-shadow: var(--shadow-medium);
         height: var(--topnav-height);
+        min-height: 0;
+        justify-content: space-between;
         inset-block-start: 0;
         inset-inline: 0;
         padding-block: 0;
@@ -1783,19 +1780,12 @@ section.users {
         position: fixed;
         z-index: 10;
 
-        > .row {
+        .mobile-branding {
+            display: flex;
             align-items: center;
-        }
-
-        .hstack {
             gap: var(--space-2);
         }
 
-        .favicon {
-            display: inline-block;
-        }
-
-        .logo,
         .user-label {
             display: none;
         }
@@ -1809,6 +1799,10 @@ section.users {
         margin-inline-start: calc(-1 * var(--space-4));
         max-width: calc(100vw - var(--space-4));
         position: static;
+
+        > .sidebar-branding {
+            display: none;
+        }
 
         > nav {
             margin-block-start: 0;

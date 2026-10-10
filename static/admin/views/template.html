@@ -67,7 +67,8 @@
 
 			</fieldset>
 
-			<section class="card">
+			<fieldset class="card">
+				<legend>{{ .L.T "campaigns.content" }}</legend>
 				<div class="editor-body">
 					<template x-if="form.type === 'campaign_visual'">
 						<visual-editor base="{{ URI "/admin/static/email-builder" }}" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source"><textarea>{{ $t.BodySource.String }}</textarea></visual-editor>
@@ -83,7 +84,7 @@
 					</template>
 					<a href="https://listmonk.app/docs/templating" target="_blank" rel="noopener noreferrer">{{ Icon "link-2" }} {{ .L.T "globals.buttons.learnMore" }}</a>
 				</p>
-			</section>
+			</fieldset>
 			<footer class="hstack justify-between mt-6">
 				<div class="hstack gap-1">
 					{{- if not $isNew }}

@@ -42,41 +42,10 @@
 </head>
 <body x-data="adminApp"{{ if .Data.Can "settings:get" }} data-error-events{{ end }}>
 	<div id="app" data-sidebar-layout>
-		<nav data-topnav>
-			<div class="row">
-				<div class="col-4 branding">
-					<button data-sidebar-toggle type="button" aria-label="Toggle sidebar menu" class="small">
-						{{ Icon "menu" }}
-					</button>
-					<a href="{{ URI "/admin" }}" class="favicon"><img src="{{ URI "/admin/static/favicon.png" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
-					<a href="{{ URI "/admin" }}" class="logo"><img src="{{ URI "/admin/static/logo.svg" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
-				</div>
-				<div class="col-8 justify-end hstack">
-					{{ with .Data.Profile }}
-						<ot-dropdown>
-							<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
-								<span class="avatar">{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
-								<span class="avatar-label user-label">{{ .Username }}</span></span>
-							</button>
-							<menu popover id="user-menu">
-								<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
-								<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
-									{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
-								</button>
-								<hr />
-								<div class="theme-switch" role="group" aria-label="Theme">
-									<button type="button" class="ghost small" title="{{ $.L.T "globals.terms.system" }}" @click="setTheme('auto')" :class="{ 'is-active': theme === 'auto' }" :aria-pressed="theme === 'auto'">{{ Icon "monitor" }}</button>
-									<button type="button" class="ghost small" title="{{ $.L.T "users.themeLight" }}" @click="setTheme('light')" :class="{ 'is-active': theme === 'light' }" :aria-pressed="theme === 'light'">{{ Icon "sun" }}</button>
-									<button type="button" class="ghost small" title="{{ $.L.T "users.themeDark" }}" @click="setTheme('dark')" :class="{ 'is-active': theme === 'dark' }" :aria-pressed="theme === 'dark'">{{ Icon "moon" }}</button>
-								</div>
-							</menu>
-						</ot-dropdown>
-					{{ end }}
-				</div>
-			</div>
-		</nav>
-
 		<aside data-sidebar>
+			<header class="sidebar-branding">
+				<a href="{{ URI "/admin" }}"><img src="{{ URI "/admin/static/logo.svg" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
+			</header>
 			{{ template "admin-sidebar" . }}
 
 			<footer id="footer">
@@ -85,6 +54,34 @@
 		</aside>
 
 		<main>
+			<header class="main-bar">
+				<div class="mobile-branding">
+					<button data-sidebar-toggle type="button" aria-label="Toggle sidebar menu" class="small">
+						{{ Icon "menu" }}
+					</button>
+					<a href="{{ URI "/admin" }}"><img src="{{ URI "/admin/static/favicon.png" }}?v={{ .AssetVersion }}" alt="listmonk" /></a>
+				</div>
+				{{ with .Data.Profile }}
+					<ot-dropdown>
+						<button popovertarget="user-menu" type="button" class="user-nav-button ghost small user-trigger">
+							<span class="avatar">{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
+							<span class="avatar-label user-label">{{ .Username }}</span></span>
+						</button>
+						<menu popover id="user-menu">
+							<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
+							<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
+								{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
+							</button>
+							<hr />
+							<div class="theme-switch" role="group" aria-label="Theme">
+								<button type="button" class="ghost small" title="{{ $.L.T "globals.terms.system" }}" @click="setTheme('auto')" :class="{ 'is-active': theme === 'auto' }" :aria-pressed="theme === 'auto'">{{ Icon "monitor" }}</button>
+								<button type="button" class="ghost small" title="{{ $.L.T "users.themeLight" }}" @click="setTheme('light')" :class="{ 'is-active': theme === 'light' }" :aria-pressed="theme === 'light'">{{ Icon "sun" }}</button>
+								<button type="button" class="ghost small" title="{{ $.L.T "users.themeDark" }}" @click="setTheme('dark')" :class="{ 'is-active': theme === 'dark' }" :aria-pressed="theme === 'dark'">{{ Icon "moon" }}</button>
+							</div>
+						</menu>
+					</ot-dropdown>
+				{{ end }}
+			</header>
 			<div class="container">
 				{{ template "admin-global-notices" . }}
 {{ end }}
