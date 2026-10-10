@@ -119,7 +119,7 @@ func (a *App) ViewSettings(c echo.Context) error {
 	// Roles for the OIDC default-role dropdowns (security tab).
 	var userRoles, listRoles []roleOption
 	if can(auth.GetUser(c), auth.PermRolesGet) {
-		ur, err := a.core.GetRoles()
+		ur, err := a.core.GetRoles("", "", "")
 		if err != nil {
 			return err
 		}
@@ -127,7 +127,7 @@ func (a *App) ViewSettings(c echo.Context) error {
 			userRoles = append(userRoles, roleOption{ID: r.ID, Name: r.Name.String})
 		}
 
-		lr, err := a.core.GetListRoles()
+		lr, err := a.core.GetListRoles("", "", "")
 		if err != nil {
 			return err
 		}

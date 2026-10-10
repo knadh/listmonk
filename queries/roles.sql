@@ -2,6 +2,7 @@
 WITH mainroles AS (
     SELECT ur.* FROM roles ur WHERE type = 'user' AND ur.parent_id IS NULL AND
     CASE WHEN $1::INT != 0 THEN ur.id = $1 ELSE TRUE END
+    AND ($2 = '' OR TO_TSVECTOR(ur.name) @@ PLAINTO_TSQUERY($2) OR ur.name ILIKE ('%' || $2 || '%'))
 ),
 listPerms AS (
     SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
@@ -10,11 +11,12 @@ listPerms AS (
     WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
 )
 SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
-    LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY p.created_at;
+    LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY %order%;
 
 -- name: get-list-roles
 WITH mainroles AS (
     SELECT ur.* FROM roles ur WHERE type = 'list' AND ur.parent_id IS NULL
+    AND ($1 = '' OR TO_TSVECTOR(ur.name) @@ PLAINTO_TSQUERY($1) OR ur.name ILIKE ('%' || $1 || '%'))
 ),
 listPerms AS (
     SELECT ur.parent_id, JSONB_AGG(JSONB_BUILD_OBJECT('id', ur.list_id, 'name', lists.name, 'permissions', ur.permissions)) AS listPerms
@@ -23,7 +25,7 @@ listPerms AS (
     WHERE ur.parent_id IS NOT NULL GROUP BY ur.parent_id
 )
 SELECT p.*, COALESCE(l.listPerms, '[]'::JSONB) AS "list_permissions" FROM mainroles p
-    LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY p.created_at;
+    LEFT JOIN listPerms l ON p.id = l.parent_id ORDER BY %order%;
 
 
 -- name: create-role
@@ -46,7 +48,7 @@ INSERT INTO roles (parent_id, list_id, permissions, type)
 DELETE FROM roles WHERE parent_id=$1 AND list_id=$2;
 
 -- name: update-role
-UPDATE roles SET name=$2, permissions=$3 WHERE id=$1 and parent_id IS NULL RETURNING *;
+UPDATE roles SET name=$2, permissions=$3, updated_at=NOW() WHERE id=$1 and parent_id IS NULL RETURNING *;
 
 -- name: delete-role
 DELETE FROM roles WHERE id=$1;

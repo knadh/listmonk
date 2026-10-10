@@ -72,6 +72,7 @@ var (
 	campQuerySortFields     = []string{"name", "status", "created_at", "updated_at"}
 	subQuerySortFields      = []string{"email", "status", "name", "created_at", "updated_at"}
 	userQuerySortFields     = []string{"username", "email", "created_at", "loggedin_at"}
+	roleQuerySortFields     = []string{"name", "created_at", "updated_at"}
 	templateQuerySortFields = []string{"name", "type", "created_at", "updated_at"}
 	listQuerySortFields     = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
 )

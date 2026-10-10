@@ -10,9 +10,16 @@ import (
 )
 
 // GetRoles retrieves all roles.
-func (c *Core) GetRoles() ([]auth.Role, error) {
-	out := []auth.Role{}
-	if err := c.q.GetUserRoles.Select(&out, nil); err != nil {
+func (c *Core) GetRoles(searchStr, orderBy, order string) ([]auth.Role, error) {
+	if order == "" {
+		order = SortAsc
+	}
+
+	var (
+		out            = []auth.Role{}
+		queryStr, stmt = makeSearchQuery(searchStr, orderBy, order, c.q.GetUserRoles, roleQuerySortFields)
+	)
+	if err := c.db.Select(&out, stmt, 0, queryStr); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
 	}
@@ -23,7 +30,8 @@ func (c *Core) GetRoles() ([]auth.Role, error) {
 // GetRole retrieves a role.
 func (c *Core) GetRole(id int) (auth.Role, error) {
 	out := []auth.Role{}
-	if err := c.q.GetUserRoles.Select(&out, id); err != nil {
+	_, stmt := makeSearchQuery("", "", SortAsc, c.q.GetUserRoles, roleQuerySortFields)
+	if err := c.db.Select(&out, stmt, id, ""); err != nil {
 		return auth.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
 	}
@@ -38,9 +46,16 @@ func (c *Core) GetRole(id int) (auth.Role, error) {
 }
 
 // GetListRoles retrieves all list roles.
-func (c *Core) GetListRoles() ([]auth.ListRole, error) {
-	out := []auth.ListRole{}
-	if err := c.q.GetListRoles.Select(&out); err != nil {
+func (c *Core) GetListRoles(searchStr, orderBy, order string) ([]auth.ListRole, error) {
+	if order == "" {
+		order = SortAsc
+	}
+
+	var (
+		out            = []auth.ListRole{}
+		queryStr, stmt = makeSearchQuery(searchStr, orderBy, order, c.q.GetListRoles, roleQuerySortFields)
+	)
+	if err := c.db.Select(&out, stmt, queryStr); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
 	}

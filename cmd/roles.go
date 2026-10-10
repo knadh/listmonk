@@ -12,6 +12,13 @@ import (
 	"gopkg.in/volatiletech/null.v6"
 )
 
+// rolesQueryDefaults is the allow list of filter query params.
+var rolesQueryDefaults = map[string]string{
+	"query":    "",
+	"order_by": "created_at",
+	"order":    "asc",
+}
+
 // roleRow is the normalized shape of a user/list role for the roles table view.
 type roleRow struct {
 	ID        int
@@ -26,6 +33,7 @@ type rolesView struct {
 
 	Type  string
 	Roles []roleRow
+	Page  models.PageProps
 }
 
 // permGroup is a group of granular permissions as defined in permissions.json.
@@ -50,7 +58,8 @@ func (a *App) ViewUserRoles(c echo.Context) error {
 		return auth.ErrPermDenied
 	}
 
-	roles, err := a.core.GetRoles()
+	q := makeQuery(c.Request().URL.Query(), rolesQueryDefaults)
+	roles, err := a.core.GetRoles(q.Get("query"), q.Get("order_by"), q.Get("order"))
 	if err != nil {
 		return err
 	}
@@ -64,6 +73,7 @@ func (a *App) ViewUserRoles(c echo.Context) error {
 		adminView: newAdminView(c, a.i18n.T("users.userRoles"), "", "users.user-roles"),
 		Type:      "user",
 		Roles:     rows,
+		Page:      models.NewPageProps(q, len(rows), 1, 0),
 	}
 
 	return c.Render(http.StatusOK, "admin-roles", data)
@@ -75,7 +85,8 @@ func (a *App) ViewListRoles(c echo.Context) error {
 		return auth.ErrPermDenied
 	}
 
-	roles, err := a.core.GetListRoles()
+	q := makeQuery(c.Request().URL.Query(), rolesQueryDefaults)
+	roles, err := a.core.GetListRoles(q.Get("query"), q.Get("order_by"), q.Get("order"))
 	if err != nil {
 		return err
 	}
@@ -89,6 +100,7 @@ func (a *App) ViewListRoles(c echo.Context) error {
 		adminView: newAdminView(c, a.i18n.T("users.listRoles"), "", "users.list-roles"),
 		Type:      "list",
 		Roles:     rows,
+		Page:      models.NewPageProps(q, len(rows), 1, 0),
 	}
 
 	return c.Render(http.StatusOK, "admin-roles", data)
@@ -147,7 +159,7 @@ func (a *App) ViewListRole(c echo.Context) error {
 	if c.Get("id") != nil {
 		// There's no core getter for a single list role, so fetch all and pick the one.
 		id := getID(c)
-		roles, err := a.core.GetListRoles()
+		roles, err := a.core.GetListRoles("", "", "")
 		if err != nil {
 			return err
 		}
@@ -199,7 +211,7 @@ func (a *App) parsePermGroups() ([]permGroup, error) {
 // GetUserRoles retrieves roles.
 func (a *App) GetUserRoles(c echo.Context) error {
 	// Get all roles.
-	out, err := a.core.GetRoles()
+	out, err := a.core.GetRoles(c.QueryParam("query"), c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
 		return err
 	}
@@ -210,7 +222,7 @@ func (a *App) GetUserRoles(c echo.Context) error {
 // GeListRoles retrieves roles.
 func (a *App) GeListRoles(c echo.Context) error {
 	// Get all roles.
-	out, err := a.core.GetListRoles()
+	out, err := a.core.GetListRoles(c.QueryParam("query"), c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
 		return err
 	}
