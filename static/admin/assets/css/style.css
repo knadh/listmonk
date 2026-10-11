@@ -522,7 +522,7 @@ body[data-sidebar-layout] {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: var(--space-4) 0 var(--space-2);
+    padding: var(--space-6) 0 var(--space-2);
 
     button[data-sidebar-toggle] {
         border: 0;
@@ -594,7 +594,7 @@ aside[data-sidebar] {
     > .sidebar-branding {
         display: flex;
         align-items: center;
-        padding: var(--space-4) 0 var(--space-2);
+        padding: var(--space-6) 0 var(--space-2);
 
         a {
             padding: 0;
@@ -609,7 +609,7 @@ aside[data-sidebar] {
     }
 
     > nav {
-        margin-block-start: var(--space-3);
+        margin-block-start: var(--space-10);
         max-height: calc(100dvh - 5.75rem);
         padding: 0;
 
@@ -637,7 +637,7 @@ aside[data-sidebar] {
 
 main {
     > .container {
-        padding-block-start: var(--space-8);
+        padding-block-start: var(--space-6);
         padding-inline: 0;
         margin-bottom: var(--space-6);
     }
