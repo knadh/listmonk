@@ -280,13 +280,9 @@ func installCampaign(campTplID, archiveTplID int, q *models.Queries) {
 // recordMigrationVersion inserts the given version (of DB migration) into the
 // `migrations` array in the settings table.
 func recordMigrationVersion(ver string, db *sqlx.DB) error {
-	verJSON, err := json.Marshal([]string{ver})
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec(`INSERT INTO settings (key, value)
-	VALUES('migrations', $1::JSONB)
-	ON CONFLICT (key) DO UPDATE SET value = settings.value || EXCLUDED.value`, string(verJSON))
+	_, err := db.Exec(`INSERT INTO settings (key, value)
+					   VALUES('migrations', JSON_BUILD_ARRAY($1::TEXT))
+					   ON CONFLICT (key) DO UPDATE SET value = settings.value || EXCLUDED.value`, ver)
 	return err
 }
 
