@@ -116,7 +116,7 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 
 		// Parse the message.
 		m, err := message.Read(b)
-		if err != nil {
+		if err != nil && !message.IsUnknownCharset(err) {
 			p.lo.Printf("error parsing bounce message %d: %v", id, err)
 			continue
 		}
@@ -129,7 +129,7 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 				part, err := mr.NextPart()
 				if err == io.EOF {
 					break
-				} else if err != nil {
+				} else if err != nil && !message.IsUnknownCharset(err) {
 					p.lo.Printf("error reading multipart bounce message %d: %v", id, err)
 					continue
 				}
