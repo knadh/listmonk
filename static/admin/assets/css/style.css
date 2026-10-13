@@ -1028,6 +1028,10 @@ td > .empty-state {
 }
 
 /* Dialogs / modals */
+.confirm-dialog {
+    width: min(100% - 2rem, 24rem);
+}
+
 .preview-modal {
     padding: 0;
     position: fixed;

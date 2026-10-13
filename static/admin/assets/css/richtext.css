@@ -238,6 +238,10 @@ richtext-editor {
     width: min(920px, 95vw);
 }
 
+.rte-dialog[data-rte-dialog="image"] label[data-field] {
+    margin-block-start: var(--space-4);
+}
+
 .rte-dialog [data-rte-code],
 .rte-dialog [data-rte-code] .code-editor {
     min-height: 50vh;
