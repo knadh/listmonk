@@ -1,7 +1,9 @@
 {{ define "admin-user" -}}
 {{ template "admin-header" . }}
+{{- $crumbTitle := .L.T "users.newUser" -}}
+{{- if not .Data.IsNew }}{{ $crumbTitle = (or .Data.User.Name .Data.User.Username) }}{{ end -}}
+{{ template "breadcrumbs" dict "Root" . "Current" $crumbTitle "Parents" (list (dict "Label" (.L.T "globals.terms.users") "URL" (URI "/admin/users") "CanLink" (.Data.Can "users:get"))) }}
 {{- $d := .Data -}}
-{{- $base := URI "/admin/users" -}}
 {{- $canSave := $d.Can "users:manage" -}}
 
 <script>
@@ -11,7 +13,6 @@
 <section class="users" x-data="userForm({ isNew: {{ $d.IsNew }}, canSave: {{ $canSave }} })">
 	<header class="page-header">
 		<div class="hstack gap-1">
-			<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
 			<div class="avatar avatar-title{{ if eq $d.User.Status "disabled" }} disabled{{ end }}">
 				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "user" "Name" (or $d.User.Name $d.User.Username) "URL" $d.User.Avatar.String }}{{ end }}
 				<h1 class="page-title avatar-label">
@@ -110,7 +111,6 @@
 					{{- end }}
 				</div>
 				<div class="hstack gap-3 justify-end">
-					<a href="{{ $base }}" class="button outline external">{{ .L.T "globals.buttons.back" }}</a>
 					{{- if $canSave }}
 						<button type="submit" data-variant="primary" data-testid="btn-save" :disabled="isLoading('users.save')" :aria-busy="isLoading('users.save')">{{ .L.T "globals.buttons.save" }}</button>
 					{{- end }}

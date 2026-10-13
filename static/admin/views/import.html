@@ -1,5 +1,6 @@
 {{ define "admin-import" -}}
 {{ template "admin-header" . }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.subscribers") "URL" (URI "/admin/subscribers") "CanLink" (.Data.Can "subscribers:get" "subscribers:get_all"))) }}
 {{- $d := .Data -}}
 {{- $show := or (eq $d.Status.Status "none") (eq $d.Status.Status "") -}}
 

@@ -818,19 +818,40 @@ main {
     --avatar-accent: #e5b56f;
 }
 /* Components */
+.breadcrumbs {
+    margin-block-end: var(--space-3);
+    color: var(--muted-foreground);
+    font-size: var(--text-8);
+
+    ol {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: var(--space-1) var(--space-2);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        display: flex;
+        gap: var(--space-2);
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    a {
+        color: inherit;
+    }
+
+    a:hover {
+        color: var(--foreground);
+    }
+}
+
 .page-header {
     min-height: calc(1lh + 2 * var(--space-2) + 2px);
     margin-bottom: var(--space-6);
-
-    .back {
-        display: inline-flex;
-        align-items: center;
-
-        .icon {
-            font-size: var(--text-1);
-            margin: 0;
-        }
-    }
 
     h1,
     h4 {

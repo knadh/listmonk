@@ -1,5 +1,6 @@
 {{ define "admin-bounces" -}}
 {{ template "admin-header" . }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.subscribers") "URL" (URI "/admin/subscribers") "CanLink" (.Data.Can "subscribers:get" "subscribers:get_all"))) }}
 {{- $d := .Data -}}
 {{- $base := URI "/admin/subscribers/bounces" -}}
 {{- $source := $d.Page.Param "source" -}}

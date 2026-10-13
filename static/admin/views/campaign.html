@@ -1,5 +1,8 @@
 {{ define "admin-campaign" -}}
 {{ template "admin-header" . }}
+{{- $crumbTitle := .L.T "campaigns.newCampaign" -}}
+{{- if not .Data.IsNew }}{{ $crumbTitle = .Data.Campaign.Name }}{{ end -}}
+{{ template "breadcrumbs" dict "Root" . "Current" $crumbTitle "Parents" (list (dict "Label" (.L.T "globals.terms.campaigns") "URL" (URI "/admin/campaigns") "CanLink" (.Data.Can "campaigns:get" "campaigns:get_all"))) }}
 {{- $d := .Data -}}
 {{- $c := $d.Campaign -}}
 {{- $isNew := $d.IsNew -}}
@@ -20,7 +23,6 @@
 	<header class="row page-header">
 		<div class="{{ if $showRight }}col-6{{ else }}col-12{{ end }}">
 			<div class="hstack">
-				<a href="{{ URI "/admin/campaigns" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
 				<div class="avatar avatar-title{{ if eq $c.Status "cancelled" }} disabled{{ end }}">
 					{{- if not $isNew }}
 						{{ template "avatar-icon" dict "Kind" "campaign" "Name" $c.Name }}

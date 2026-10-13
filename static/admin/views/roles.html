@@ -1,5 +1,6 @@
 {{ define "admin-roles" -}}
 {{ template "admin-header" . }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.users") "URL" (URI "/admin/users") "CanLink" (.Data.Can "users:get"))) }}
 {{- $d := .Data -}}
 {{- $base := URI "/admin/users/roles" -}}
 {{- if eq $d.Type "list" }}{{ $base = URI "/admin/users/roles/lists" }}{{ end -}}

@@ -1,5 +1,6 @@
 {{ define "admin-templates" -}}
 {{ template "admin-header" . }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.campaigns") "URL" (URI "/admin/campaigns") "CanLink" (.Data.Can "campaigns:get" "campaigns:get_all"))) }}
 {{- $d := .Data -}}
 {{- $base := URI "/admin/templates" -}}
 {{- $canManage := $d.Can "templates:manage" -}}

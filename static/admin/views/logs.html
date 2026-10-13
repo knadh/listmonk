@@ -1,5 +1,6 @@
 {{ define "admin-logs" -}}
 {{ template "admin-header" . }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "menu.settings") "URL" (URI "/admin/settings") "CanLink" (.Data.Can "settings:get"))) }}
 {{- $d := .Data -}}
 
 <section class="logs relative" x-data="logsView">

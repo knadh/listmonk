@@ -1,8 +1,10 @@
 {{ define "admin-list-role" -}}
 {{ template "admin-header" . }}
+{{- $crumbTitle := .L.T "users.newListRole" -}}
+{{- if not .Data.IsNew }}{{ $crumbTitle = .Data.Role.Name.String }}{{ end -}}
+{{ template "breadcrumbs" dict "Root" . "Current" $crumbTitle "Parents" (list (dict "Label" (.L.T "globals.terms.users") "URL" (URI "/admin/users") "CanLink" (.Data.Can "users:get")) (dict "Label" (.L.T "users.listRoles") "URL" (URI "/admin/users/roles/lists") "CanLink" (.Data.Can "roles:get"))) }}
 {{- $d := .Data -}}
 {{- $canManage := $d.Can "roles:manage" -}}
-{{- $base := URI "/admin/users/roles/lists" -}}
 
 <script>
 	window._role = {{ ToJSON $d.Role }};
@@ -11,7 +13,6 @@
 <section class="roles" x-data="roleForm({ type: 'list', isNew: {{ $d.IsNew }}, canManage: {{ $canManage }} })">
 	<header class="page-header">
 		<div class="hstack gap-1">
-			<a href="{{ $base }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
 			<div class="avatar avatar-title">
 				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list-role" "Name" $d.Role.Name.String }}{{ end }}
 				<h1 class="page-title avatar-label">
@@ -83,7 +84,6 @@
 					</a>
 				</div>
 				<div class="hstack gap-3 justify-end">
-					<a href="{{ $base }}" class="button outline external">{{ .L.T "globals.buttons.back" }}</a>
 					<button type="submit" data-variant="primary" data-testid="btn-save" x-show="!disabled" :disabled="isLoading('roles.save')" :aria-busy="isLoading('roles.save')">{{ .L.T "globals.buttons.save" }}</button>
 				</div>
 			</footer>

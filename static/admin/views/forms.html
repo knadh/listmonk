@@ -1,5 +1,6 @@
 {{ define "admin-forms" -}}
 {{ template "admin-header" . }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.lists") "URL" (URI "/admin/lists") "CanLink" true)) }}
 {{- $d := .Data -}}
 
 <script>const _lists = {{ ToJSON $d.PublicLists }};</script>

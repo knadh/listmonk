@@ -1,5 +1,8 @@
 {{ define "admin-subscriber" -}}
 {{ template "admin-header" . }}
+{{- $crumbTitle := .L.T "subscribers.newSubscriber" -}}
+{{- if not .Data.IsNew }}{{ $crumbTitle = .Data.Subscriber.Email }}{{ end -}}
+{{ template "breadcrumbs" dict "Root" . "Current" $crumbTitle "Parents" (list (dict "Label" (.L.T "globals.terms.subscribers") "URL" (URI "/admin/subscribers") "CanLink" (.Data.Can "subscribers:get" "subscribers:get_all"))) }}
 {{- $d := .Data -}}
 {{- $sub := $d.Subscriber -}}
 {{- $base := printf "%s/%d" (URI "/admin/subscribers") $sub.ID -}}
@@ -12,7 +15,6 @@
 	<header class="row page-header">
 		<div class="col-6">
 			<div class="hstack gap-1">
-				<a href="{{ URI "/admin/subscribers" }}" class="back" aria-label="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
 				<div class="avatar avatar-title{{ if eq $sub.Status "blocklisted" }} disabled{{ end }}">
 					{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or $sub.Name $sub.Email) }}{{ end }}
 					<h1 class="page-title avatar-label">
