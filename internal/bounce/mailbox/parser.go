@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/emersion/go-message"
+	_ "github.com/emersion/go-message/charset"
 	"github.com/emersion/go-message/textproto"
 	"github.com/knadh/listmonk/models"
 )
@@ -57,7 +58,6 @@ type bounceMeta struct {
 	ClassifyReason string   `json:"classify_reason"`
 	BounceDetails  []string `json:"bounce_details,omitempty"`
 }
-
 
 // parseTime attempt to parse a timestamp in the RFC822 and RFC822Z format then
 // tries other commonly found non-standard compliant formats used in email
@@ -109,7 +109,7 @@ func parseDSN(b io.Reader) (bounce models.Bounce, err error) {
 
 	// Parse the message.
 	m, err := message.Read(bBuff)
-	if err != nil {
+	if err != nil && !message.IsUnknownCharset(err) {
 		return bounce, fmt.Errorf("error parsing: %v", err)
 	}
 
@@ -131,7 +131,7 @@ func parseDSN(b io.Reader) (bounce models.Bounce, err error) {
 	}
 
 	mr := m.MultipartReader()
-	if mr == nil {
+	if mr == nil && !message.IsUnknownCharset(err) {
 		// Mallformed DSN that isn't a MIME multipart message
 		return bounce, fmt.Errorf("malformed Delivery Status Notification")
 	}
@@ -299,7 +299,6 @@ func parseDSN(b io.Reader) (bounce models.Bounce, err error) {
 	bounce.Meta, _ = json.Marshal(meta)
 	return bounce, nil
 }
-
 
 // regexParser uses regex to attempt to extract key headers expected in a bounce
 // message to populate `models.Bounce`.
