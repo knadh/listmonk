@@ -119,7 +119,7 @@
 								<ul>
 									{{- range .ParsedLists }}
 										<li class="avatar small">
-											{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
+											{{ template "avatar-icon" dict "Kind" "list" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/lists") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 											<a href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}" class="avatar-label unstyled">{{ .Name }}</a>
 										</li>
 									{{- end }}

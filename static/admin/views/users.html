@@ -91,14 +91,14 @@
 							<td data-label="{{ $.L.T "subscribers.email" }}" class="text-light">{{ if .Email.Valid }}{{ .Email.String }}{{ else }}<span class="text-light">&mdash;</span>{{ end }}</td>
 							<td data-label="{{ $.L.Tc "users.userRole" 1 }}">
 								<div class="avatar small role-name">
-									{{ template "avatar-icon" dict "Kind" "user-role" "Name" .UserRole.Name }}
+									{{ template "avatar-icon" dict "Kind" "user-role" "Name" .UserRole.Name "Href" (printf "%s/%d" (URI "/admin/users/roles") .UserRole.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .UserRole.Name) }}
 									<a href="{{ $base }}?user_role_id={{ .UserRole.ID }}" class="avatar-label unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .UserRole.Name }}">{{ .UserRole.Name }}</a>
 								</div>
 							</td>
 							<td data-label="{{ $.L.Tc "users.listRole" 2 }}">
 								{{- with .ListRole }}
 									<div class="avatar small role-name">
-										{{ template "avatar-icon" dict "Kind" "list-role" "Name" .Name }}
+										{{ template "avatar-icon" dict "Kind" "list-role" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/users/roles/lists") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 										<a href="{{ $base }}?list_role_id={{ .ID }}" class="avatar-label unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
 									</div>
 								{{- else }}

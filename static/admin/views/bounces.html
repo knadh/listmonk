@@ -73,7 +73,7 @@
 							<td data-label="{{ $.L.T "globals.terms.campaign" }}">
 								{{- with .Campaigns }}
 									<div class="avatar">
-										{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+										{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/campaigns") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 										<a href="{{ $base }}?campaign_id={{ .ID }}" class="avatar-label unstyled" title="{{ $.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
 									</div>
 								{{- else }}-{{ end }}

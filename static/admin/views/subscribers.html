@@ -117,7 +117,7 @@
 												{{- if lt $i 3 }}
 													<div class="avatar xsmall">
 														{{- $label := $.L.T (printf "subscribers.status.%s" $l.SubscriptionStatus) }}
-														<a class="unstyled avatar-icon avatar-list" href="{{ URI "/admin/subscribers" }}/{{ $sub.ID }}/lists" title="{{ $label }}" aria-label="{{ $l.Name }}: {{ $label }}"><span class="badge enum status-{{ $l.SubscriptionStatus }}" aria-hidden="true">{{ if eq $l.SubscriptionStatus "unconfirmed" }}?{{ else }}{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}{{ end }}</span></a>
+														<a class="unstyled avatar-icon avatar-list" href="{{ URI "/admin/lists" }}/{{ $l.ID }}" title="{{ $.L.T "globals.buttons.view" }} {{ $l.Name }}: {{ $label }}" aria-label="{{ $.L.T "globals.buttons.view" }} {{ $l.Name }}: {{ $label }}"><span class="badge enum status-{{ $l.SubscriptionStatus }}" aria-hidden="true">{{ if eq $l.SubscriptionStatus "unconfirmed" }}?{{ else }}{{ Icon (or (index $statusIcons $l.SubscriptionStatus) "help-circle") }}{{ end }}</span></a>
 														<a class="unstyled text-light avatar-label" href="{{ URI "/admin/subscribers/lists" }}/{{ $l.ID }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $l.Name }}">{{ $l.Name }}</a>
 													</div>
 												{{- end }}
