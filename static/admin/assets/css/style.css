@@ -145,6 +145,11 @@ table {
             border-bottom: 1px solid light-dark(#ccc, #3c4048);
         }
     }
+
+    tbody tr:last-of-type,
+    tbody tr:last-of-type td {
+        border: 0;
+    }
 }
 
 

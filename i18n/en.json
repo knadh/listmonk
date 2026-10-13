@@ -688,7 +688,7 @@
     "users.invalidLogin": "Invalid login or password",
     "users.invalidRequest": "Invalid auth request",
     "users.lastLogin": "Last login",
-    "users.listRole": "List roles | List role",
+    "users.listRole": "List role | List roles",
     "users.listRoles": "List roles",
     "users.login": "Login",
     "users.loginOIDC": "Login with {name}",

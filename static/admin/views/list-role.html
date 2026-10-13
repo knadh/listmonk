@@ -5,6 +5,9 @@
 {{ template "breadcrumbs" dict "Root" . "Current" $crumbTitle "Parents" (list (dict "Label" (.L.T "globals.terms.users") "URL" (URI "/admin/users") "CanLink" (.Data.Can "users:get")) (dict "Label" (.L.T "users.listRoles") "URL" (URI "/admin/users/roles/lists") "CanLink" (.Data.Can "roles:get"))) }}
 {{- $d := .Data -}}
 {{- $canManage := $d.Can "roles:manage" -}}
+{{- $listInitials := dict -}}
+{{- range $d.AllLists }}{{ $_ := set $listInitials (printf "%d" .ID) (Initials .Name) }}{{ end -}}
+{{- range $d.Role.Lists }}{{ $_ := set $listInitials (printf "%d" .ID) (Initials .Name) }}{{ end -}}
 
 <script>
 	window._role = {{ ToJSON $d.Role }};
@@ -24,12 +27,16 @@
 
 	<form method="post" @submit.prevent="onSubmit">
 		<div class="page-content content">
-			<section class="card">
+			<fieldset class="card">
+				<legend>{{ .L.Tc "users.listRole" 1 }}</legend>
 				<label data-field>
 					{{ .L.T "globals.fields.name" }}
 					<input name="name" maxlength="200" autofocus required :disabled="disabled" x-model="form.name" />
 				</label>
+			</fieldset>
 
+			<fieldset class="card">
+				<legend>{{ .L.T "globals.terms.lists" }}</legend>
 				<div data-field>
 					<label>{{ .L.T "globals.terms.list" }}</label>
 					<fieldset class="group">
@@ -42,7 +49,7 @@
 					</fieldset>
 				</div>
 
-				<table>
+				<table x-data="{ listInitials: {{ ToJSON $listInitials }} }">
 					<thead>
 						<tr>
 							<th width="50%">{{ .L.Tc "globals.terms.list" 1 }}</th>
@@ -53,7 +60,14 @@
 					<tbody>
 						<template x-for="l in form.lists" :key="l.id">
 							<tr>
-								<td><a :href="`{{ URI "/admin/lists" }}/${l.id}`" x-text="l.name"></a></td>
+								<td>
+									<div class="avatar">
+										<a :href="`{{ URI "/admin/lists" }}/${l.id}`" class="unstyled avatar-icon avatar-list" :title="l.name" :aria-label="l.name"><span class="avatar-initials" aria-hidden="true" x-text="listInitials[l.id]"></span></a>
+										<div class="avatar-label">
+											<a :href="`{{ URI "/admin/lists" }}/${l.id}`" class="unstyled" x-text="l.name"></a>
+										</div>
+									</div>
+								</td>
 								<td>
 									<div class="hstack gap-3">
 										<label><input type="checkbox" value="list:get" x-model="l.permissions" :disabled="disabled" /> {{ .L.T "globals.buttons.view" }}</label>
@@ -70,7 +84,7 @@
 						</template>
 					</tbody>
 				</table>
-			</section>
+			</fieldset>
 
 			<footer class="hstack justify-between mt-6">
 				<div class="hstack gap-3">
