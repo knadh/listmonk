@@ -1,0 +1,16 @@
+{{ define "breadcrumbs" -}}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+	<ol>
+		{{- range $index, $parent := .Parents }}
+			<li>
+				{{- if $index }}<span aria-hidden="true">/</span>{{ end }}
+				{{- if .CanLink }}<a href="{{ .URL }}">{{ .Label }}</a>{{ else }}<span>{{ .Label }}</span>{{ end }}
+			</li>
+		{{- end }}
+		<li>
+			{{- if .Parents }}<span aria-hidden="true">/</span>{{ end }}
+			<a href="" aria-current="page">{{ .Current }}</a>
+		</li>
+	</ol>
+</nav>
+{{- end }}

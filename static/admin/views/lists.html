@@ -11,25 +11,25 @@
 {{- $tags := $d.Page.Param "tag" -}}
 
 <section class="lists" x-data="listsView">
-	<header class="row page-header">
-		<div class="col-4">
+	<header class="hstack justify-between page-header">
+		<div class="hstack page-heading">
 			<h1 class="page-title">
 				{{ .L.T "globals.terms.lists" }}
 				<span>({{ $d.Page.Total }})</span>
-				{{- if eq $status "archived" }} {{ template "filter-badge" dict "Label" (.L.T "lists.archived") "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
-				{{- if $type }}
-					{{- $typeIcon := "eye-off" }}{{ if eq $type "public" }}{{ $typeIcon = "eye" }}{{ end }}
-					{{ template "filter-badge" dict "Label" (list (Icon $typeIcon) (.L.T (printf "lists.types.%s" $type))) "Class" "enum" "URL" ($d.Page.FilterURL $base "type") }}
-				{{- end }}
-				{{- if $optin }}
-					{{- $optinIcon := "user-x" }}{{ if eq $optin "double" }}{{ $optinIcon = "user-check" }}{{ end }}
-					{{ template "filter-badge" dict "Label" (list (Icon $optinIcon) (.L.T (printf "lists.optins.%s" $optin))) "Class" "enum" "URL" ($d.Page.FilterURL $base "optin") }}
-				{{- end }}
-				{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
-				{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 			</h1>
+			{{- if eq $status "archived" }} {{ template "filter-badge" dict "Label" (.L.T "lists.archived") "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
+			{{- if $type }}
+				{{- $typeIcon := "eye-off" }}{{ if eq $type "public" }}{{ $typeIcon = "eye" }}{{ end }}
+				{{ template "filter-badge" dict "Label" (list (Icon $typeIcon) (.L.T (printf "lists.types.%s" $type))) "Class" "enum" "URL" ($d.Page.FilterURL $base "type") }}
+			{{- end }}
+			{{- if $optin }}
+				{{- $optinIcon := "user-x" }}{{ if eq $optin "double" }}{{ $optinIcon = "user-check" }}{{ end }}
+				{{ template "filter-badge" dict "Label" (list (Icon $optinIcon) (.L.T (printf "lists.optins.%s" $optin))) "Class" "enum" "URL" ($d.Page.FilterURL $base "optin") }}
+			{{- end }}
+			{{- if $tags }} {{ template "filter-badge" dict "Label" (printf "#%s" $tags) "Class" "tag" "URL" ($d.Page.FilterURL $base "tag") }}{{ end }}
+			{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
 		</div>
-		<div class="col-8 hstack justify-end buttons">
+		<div class="hstack justify-end buttons">
 			<form method="get" action="{{ URI "/admin/lists" }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">

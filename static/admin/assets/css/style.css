@@ -865,6 +865,17 @@ main {
 
 }
 
+.page-heading {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+
+    > * {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+}
+
 /* Placeholder for empty tables, lists and cards ({{ template "empty-state" }}). */
 .empty-state {
     align-items: center;
