@@ -181,18 +181,21 @@ func parseDSN(b io.Reader) (bounce models.Bounce, err error) {
 			}
 
 			finalRecipient := strings.Split(dsnFirstRecipientFields.Get("Final-Recipient"), ";")
-			if len(finalRecipient) > 0 && strings.ToLower(finalRecipient[0]) == "rfc822" {
+			if len(finalRecipient) > 1 && strings.ToLower(finalRecipient[0]) == "rfc822" {
 				bounce.Email = strings.TrimSpace(finalRecipient[1])
 			}
 
-			status := strings.Fields(dsnFirstRecipientFields.Get("Status"))[0]
-			switch status[0] {
-			case '5':
-				bounce.Type = models.BounceTypeHard
-				meta.ClassifyReason = fmt.Sprintf("smtp_status=%s", status)
-			case '4':
-				bounce.Type = models.BounceTypeHard
-				meta.ClassifyReason = fmt.Sprintf("smtp_status=%s", status)
+			status := dsnFirstRecipientFields.Get("Status")
+			if status != "" {
+				status = strings.Fields(status)[0]
+				switch status[0] {
+				case '5':
+					bounce.Type = models.BounceTypeHard
+					meta.ClassifyReason = fmt.Sprintf("smtp_status=%s", status)
+				case '4':
+					bounce.Type = models.BounceTypeSoft
+					meta.ClassifyReason = fmt.Sprintf("smtp_status=%s", status)
+				}
 			}
 
 			// Status is a mandatory field in message/delivery-status so we
