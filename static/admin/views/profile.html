@@ -8,7 +8,7 @@
 	<header class="page-header">
 		<div class="hstack gap-1">
 			<div class="avatar avatar-title">
-				{{ template "avatar-icon" dict "Kind" "user" "Name" (or $u.Name $u.Username) "URL" $u.Avatar.String }}
+				{{ template "avatar-icon" dict "Kind" "user" "Name" (or $u.Name $u.Username) "URL" $u.Avatar.String "Href" (URI "/admin/user/profile") "Title" (printf "%s %s" ($.L.T "globals.buttons.view") (or $u.Name $u.Username)) }}
 				<h1 class="page-title avatar-label">{{ .L.T "users.profile" }}</h1>
 			</div>
 			{{- if $u.UserRole.Name }}{{ Badge $u.UserRole.Name }}{{ end }}

@@ -17,7 +17,7 @@
 	<header class="page-header">
 		<div class="hstack gap-1">
 			<div class="avatar avatar-title">
-				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list-role" "Name" $d.Role.Name.String }}{{ end }}
+				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list-role" "Name" $d.Role.Name.String "Href" (printf "%s/%d" (URI "/admin/users/roles/lists") $d.Role.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") $d.Role.Name.String) }}{{ end }}
 				<h1 class="page-title avatar-label">
 					{{- if not $d.IsNew }}{{ $d.Role.Name.String }}{{ else }}{{ .L.T "users.newListRole" }}{{ end -}}
 				</h1>

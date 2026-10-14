@@ -105,7 +105,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="email">
 								<div class="avatar{{ if eq .Status "blocklisted" }} disabled{{ end }}">
-									{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or .Name .Email) }}
+									{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or .Name .Email) "Href" (printf "%s/%d" (URI "/admin/subscribers") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") (or .Name .Email)) }}
 									<div class="avatar-label">
 										<a class="unstyled" href="{{ URI "/admin/subscribers" }}/{{ .ID }}">{{ .Email }}</a>
 										{{- if ne .Status "enabled" }}

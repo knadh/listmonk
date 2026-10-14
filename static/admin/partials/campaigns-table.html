@@ -50,7 +50,7 @@
 					{{ if not $readonly }}<td><input name="id" type="checkbox" value="{{ .ID }}"></td>{{ end }}
 					<td class="name">
 						<div class="avatar{{ if eq .Status "cancelled" }} disabled{{ end }}">
-							{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+							{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name "Href" (printf "%s/%d" $base .ID) "Title" (printf "%s %s" ($root.L.T "globals.buttons.view") .Name) }}
 							<div class="avatar-label vstack gap-1">
 								<div>
 									<a href="{{ $base }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>

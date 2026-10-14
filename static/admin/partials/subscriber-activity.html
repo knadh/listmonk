@@ -26,7 +26,7 @@
 						<tr>
 							<td class="name">
 								<div class="avatar">
-									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/campaigns") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 									<div class="avatar-label vstack gap-1">
 										<div>
 											<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
@@ -67,7 +67,7 @@
 							<td class="name">
 								{{- if .CampaignID }}
 								<div class="avatar">
-									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .CampaignName }}
+									{{ template "avatar-icon" dict "Kind" "campaign" "Name" .CampaignName "Href" (printf "%s/%d" (URI "/admin/campaigns") .CampaignID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .CampaignName) }}
 									<div class="avatar-label vstack gap-1">
 										<div>
 											<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}" class="unstyled">{{ .CampaignName }}</a>

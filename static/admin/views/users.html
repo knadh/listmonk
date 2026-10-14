@@ -75,7 +75,7 @@
 							{{- end }}
 							<td>
 								<div class="avatar{{ if eq .Status "disabled" }} disabled{{ end }}">
-									{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String }}
+									{{ template "avatar-icon" dict "Kind" "user" "Name" (or .Name .Username) "URL" .Avatar.String "Href" (printf "%s/%d" (URI "/admin/users") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") (or .Name .Username)) }}
 									<div class="avatar-label">
 										{{- if $d.Can "users:manage" }}
 											<a href="{{ URI "/admin/users" }}/{{ .ID }}" class="unstyled{{ if eq .Status "disabled" }} text-light{{ end }}">{{ .Username }}</a>

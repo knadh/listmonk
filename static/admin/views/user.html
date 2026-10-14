@@ -14,7 +14,7 @@
 	<header class="page-header">
 		<div class="hstack gap-1">
 			<div class="avatar avatar-title{{ if eq $d.User.Status "disabled" }} disabled{{ end }}">
-				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "user" "Name" (or $d.User.Name $d.User.Username) "URL" $d.User.Avatar.String }}{{ end }}
+				{{- if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "user" "Name" (or $d.User.Name $d.User.Username) "URL" $d.User.Avatar.String "Href" (printf "%s/%d" (URI "/admin/users") $d.User.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") (or $d.User.Name $d.User.Username)) }}{{ end }}
 				<h1 class="page-title avatar-label">
 					{{- if not $d.IsNew }}{{ or $d.User.Name $d.User.Username }}{{ else }}{{ .L.T "users.newUser" }}{{ end -}}
 				</h1>

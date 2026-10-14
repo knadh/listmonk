@@ -22,7 +22,7 @@
 					{{- if not $isNew }}
 						{{- $kind := "campaign-template" -}}
 						{{- if eq $t.Type "tx" }}{{ $kind = "tx-template" }}{{ else if eq $t.Type "campaign_visual" }}{{ $kind = "campaign-visual-template" }}{{ end -}}
-						{{ template "avatar-icon" dict "Kind" $kind "Name" $t.Name }}
+						{{ template "avatar-icon" dict "Kind" $kind "Name" $t.Name "Href" (printf "%s/%d" (URI "/admin/templates") $t.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") $t.Name) }}
 					{{- end }}
 					<h1 class="page-title avatar-label">
 						{{- if $isNew }}{{ .L.T "templates.newTemplate" }}{{ else }}{{ $t.Name }}{{ end -}}

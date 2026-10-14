@@ -45,7 +45,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}" data-subscriber-id="{{ .SubscriberID }}"></td>
 							<td>
 								<div class="avatar{{ if eq .SubscriberStatus "blocklisted" }} disabled{{ end }}">
-									{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or .SubscriberName .Email) }}
+									{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or .SubscriberName .Email) "Href" (printf "%s/%d" (URI "/admin/subscribers") .SubscriberID) "Title" (printf "%s %s" ($root.L.T "globals.buttons.view") (or .SubscriberName .Email)) }}
 									<div class="avatar-label">
 										<a href="{{ URI "/admin/subscribers" }}/{{ .SubscriberID }}" class="unstyled{{ if eq .SubscriberStatus "blocklisted" }} blocklisted{{ end }}">{{ .Email }}</a>
 										{{ if ne .SubscriberStatus "enabled" }}{{ Badge (list (Dot) ($root.L.T (printf "subscribers.status.%s" .SubscriberStatus))) (printf "status-%s" .SubscriberStatus) }}{{ end }}

@@ -54,7 +54,7 @@
 								{{- $kind := "campaign-template" -}}
 								{{- if eq .Type "tx" }}{{ $kind = "tx-template" }}{{ else if eq .Type "campaign_visual" }}{{ $kind = "campaign-visual-template" }}{{ end -}}
 								<div class="avatar">
-									{{ template "avatar-icon" dict "Kind" $kind "Name" .Name }}
+									{{ template "avatar-icon" dict "Kind" $kind "Name" .Name "Href" (printf "%s/%d" $base .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 									<div class="avatar-label">
 										<a href="{{ $base }}/{{ .ID }}" class="unstyled {{ if .IsDefault }}default{{ end }}" data-testid="btn-edit">{{ .Name }}</a>
 										{{ if .IsDefault }}{{ Badge ($.L.T "templates.default") }}{{ end }}

@@ -82,7 +82,7 @@
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
 							<td class="list-name">
 								<div class="avatar{{ if eq .Status "archived" }} disabled{{ end }}">
-									{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
+									{{ template "avatar-icon" dict "Kind" "list" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/lists") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 									<div class="avatar-label">
 										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
 										{{- if .Description }}<div class="description text-light text-8" title="{{ .Description }}">{{ .Description }}</div>{{ end }}

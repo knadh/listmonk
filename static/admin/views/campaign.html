@@ -25,7 +25,7 @@
 			<div class="hstack">
 				<div class="avatar avatar-title{{ if eq $c.Status "cancelled" }} disabled{{ end }}">
 					{{- if not $isNew }}
-						{{ template "avatar-icon" dict "Kind" "campaign" "Name" $c.Name }}
+						{{ template "avatar-icon" dict "Kind" "campaign" "Name" $c.Name "Href" (printf "%s/%d" (URI "/admin/campaigns") $c.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") $c.Name) }}
 					{{- end }}
 					<h1 class="page-title avatar-label">
 						{{- if $isNew }}{{ .L.T "campaigns.newCampaign" }}

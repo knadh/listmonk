@@ -10,7 +10,7 @@
 	<header class="page-header">
 		<div class="hstack gap-3">
 			<div class="avatar avatar-title{{ if eq $d.List.Status "archived" }} disabled{{ end }}">
-				{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list" "Name" $d.List.Name }}{{ end }}
+				{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list" "Name" $d.List.Name "Href" (printf "%s/%d" (URI "/admin/lists") $d.List.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") $d.List.Name) }}{{ end }}
 				<h1 class="page-title avatar-label">{{ if $d.IsNew }}{{ .L.T "lists.newList" }}{{ else }}{{ $d.List.Name }}{{ end }}</h1>
 			</div>
 		</div>

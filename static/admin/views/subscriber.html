@@ -16,7 +16,7 @@
 		<div class="col-6">
 			<div class="hstack gap-1">
 				<div class="avatar avatar-title{{ if eq $sub.Status "blocklisted" }} disabled{{ end }}">
-					{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or $sub.Name $sub.Email) }}{{ end }}
+					{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or $sub.Name $sub.Email) "Href" (printf "%s/%d" (URI "/admin/subscribers") $sub.ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") (or $sub.Name $sub.Email)) }}{{ end }}
 					<h1 class="page-title avatar-label">
 						{{- if $d.IsNew }}
 							{{ .L.T "subscribers.newSubscriber" }}
