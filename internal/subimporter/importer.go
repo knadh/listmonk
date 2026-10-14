@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"unicode/utf8"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/i18n"
@@ -548,8 +549,20 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		// Iterate the key map and based on the indices mapped earlier,
 		// form a map of key: csv_value, eg: email: user@user.com.
 		row := make(map[string]string, lnCols)
+		valid := true
 		for key := range hdrKeys {
-			row[key] = cols[hdrKeys[key]]
+			v := cols[hdrKeys[key]]
+
+			// Skip lines with invalid UTF-8 or NUL chars.
+			if !utf8.ValidString(v) || strings.ContainsRune(v, 0) {
+				valid = false
+				break
+			}
+			row[key] = v
+		}
+		if !valid {
+			s.log.Printf("skipping line %d: %s: %v", i, s.im.i18n.Ts("globals.messages.invalidFields", "name", "non-UTF8 encoding"), cols)
+			continue
 		}
 
 		sub := SubReq{}
