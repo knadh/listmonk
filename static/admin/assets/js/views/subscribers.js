@@ -52,9 +52,6 @@ function component(sub = null) {
       action: 'add', lists: [], preconfirm: false, allSelected: false, selected: [],
     },
 
-    // Bounces tab: controls the per-row meta JSON toggle (the rows are SSR-rendered).
-    visibleMeta: {},
-
     // ===============
     // New / edit form.
     async onSubmitNew() {
@@ -290,10 +287,6 @@ function component(sub = null) {
 
     // ===============
     // Bounces tab.
-    toggleMeta(id) {
-      this.visibleMeta[id] = !this.visibleMeta[id];
-    },
-
     async onDeleteBounces() {
       if (!(await u.confirm())) {
         return;

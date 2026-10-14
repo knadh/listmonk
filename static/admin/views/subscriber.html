@@ -59,7 +59,7 @@
 	{{- else if eq $d.Tab "lists" }}
 		{{ template "subscriber-lists" dict "Root" . "CanSave" ($d.Can "subscribers:manage") }}
 	{{- else if eq $d.Tab "bounces" }}
-		{{ template "subscriber-bounces" . }}
+		{{ template "bounces-table" dict "Root" . }}
 	{{- else if eq $d.Tab "activity" }}
 		{{ template "subscriber-activity" . }}
 	{{- end }}
