@@ -75,7 +75,7 @@ test.describe('Import', () => {
       await page.locator('input[type=file]').setInputFiles(CSV);
       await page.getByTestId('btn-upload').click();
 
-      await expect(page.locator('.stat-value')).toContainText('failed');
+      await expect(page.locator('.status .title').first()).toContainText('failed');
     });
   });
 });

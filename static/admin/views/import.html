@@ -15,7 +15,7 @@
 		<h1 class="page-title">{{ .L.T "import.title" }}</h1>
 	</header>
 
-	<div class="page-content{{ if not $show }} card{{ end }}">
+	<div class="page-content">
 		<!-- Upload form. -->
 		{{ if $show }}
 			<form @submit.prevent="onUpload">
@@ -105,7 +105,8 @@
 		<!-- Running / done status. -->
 		{{ if not $show }}
 			<section class="status">
-				<article class="card stat-card">
+				<article class="card float">
+					<h5 class="title capitalize" :class="{ 'text-danger': status.status === 'failed' || status.status === 'stopped' }" x-text="status.status">{{ $d.Status.Status }}</h5>
 					<div class="row">
 						<header class="col-8">
 							<small class="text-light hstack">
@@ -113,7 +114,6 @@
 								<span class="badge" :data-variant="statusVariant" x-text="progress + '%'"></span>
 								<span x-show="isRunning" aria-busy="true" data-spinner="small"></span>
 							</small>
-							<div class="stat-value capitalize" :class="{ 'text-danger': status.status === 'failed' || status.status === 'stopped' }" x-text="status.status">{{ $d.Status.Status }}</div>
 						</header>
 						<div class="col-4 hstack justify-end items-center">
 							<button type="button" data-variant="danger" data-testid="btn-stop" x-show="!isDone" @click="stopImport" :disabled="isProcessing || status.status === 'stopping'" :aria-busy="isProcessing">{{ .L.T "import.stopImport" }}</button>
@@ -126,7 +126,8 @@
 					</footer>
 				</article>
 
-				<div class="import-logs log-view mt-6">
+				<article class="card float import-logs log-view mt-6">
+					<h5 class="title">{{ .L.T "menu.logs" }}</h5>
 					<div class="lines" x-ref="logLines">
 						<template x-for="(l, i) in logLines" :key="i">
 							<span class="line">
@@ -136,7 +137,7 @@
 							</span>
 						</template>
 					</div>
-				</div>
+				</article>
 			</section>
 		{{ end }}
 

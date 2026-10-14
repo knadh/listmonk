@@ -1521,10 +1521,6 @@ section.import {
         max-width: 100px;
     }
 
-    .status {
-        padding: var(--space-12);
-    }
-
     .log-view .lines {
         max-height: 240px;
         text-align: start;
