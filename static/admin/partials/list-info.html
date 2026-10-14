@@ -83,10 +83,8 @@
 					</fieldset>
 				</form>
 			</header> -->
-			{{ if or ($d.Page.Param "status") ($d.Page.Param "type") ($d.Page.Param "tag") $d.Page.Query }}
-				<p><a href="{{ $base }}">{{ .L.T "globals.buttons.clear" }}</a></p>
-			{{ end }}
-			{{ template "campaigns-table" dict "Root" . "Base" $base "Readonly" true }}
+			{{- $clearFilters := or ($d.Page.Param "status") ($d.Page.Param "type") ($d.Page.Param "tag") $d.Page.Query -}}
+			{{ template "campaigns-table" dict "Root" . "Base" $base "Readonly" true "ClearFilters" $clearFilters }}
 		</article>
 		{{ template "campaign-preview" . }}
 	</section>
