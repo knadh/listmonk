@@ -1769,6 +1769,33 @@ section.users {
 
 /* Forms */
 .forms {
+    fieldset.group {
+        display: block;
+        margin-block-start: 0.75em;
+        padding: var(--space-4);
+        border: 1px solid var(--border);
+        background-color: var(--card);
+        color: var(--card-foreground);
+
+        &:first-child {
+            margin-block-start: 0;
+        }
+
+        > legend {
+            float: none;
+            display: block;
+            max-width: 100%;
+            padding: 0 var(--space-2);
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: inherit;
+            font-size: var(--text-7);
+            font-weight: var(--font-medium);
+            line-height: var(--leading-normal);
+        }
+    }
+
     code-editor {
         font-size: var(--text-8);
         height: auto;
@@ -1778,6 +1805,7 @@ section.users {
     .lists {
         max-height: 30vh;
         overflow-y: auto;
+        padding: var(--space-1);
     }
 }
 

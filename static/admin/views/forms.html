@@ -18,50 +18,57 @@
 		</div>
 	</header>
 
-	<div class="card page-content">
+	<div class="page-content">
 		{{- if not $d.PublicLists }}
-			<p class="text-light">{{ .L.T "forms.noPublicLists" }}</p>
+			<p class="card text-light">{{ .L.T "forms.noPublicLists" }}</p>
 		{{- else }}
 			<div class="row">
-				<div class="col-4 col-bleed">
-					<p class="text-light">{{ .L.T "forms.selectHelp" }}</p>
+				<div class="col-4">
+					<fieldset class="group mt-0">
+						<legend>{{ .L.T "globals.terms.lists" }}</legend>
+						<p class="text-light">{{ .L.T "forms.selectHelp" }}</p>
 
-					<ul class="no lists" data-testid="lists">
-						{{- range $i, $list := $d.PublicLists }}
-							<li>
-								<label><input type="checkbox" value="{{ $list.UUID }}" x-model="checked" {{- if eq $i 0 }} autofocus{{- end }} /> {{ $list.Name }}</label>
-							</li>
-						{{- end }}
-					</ul>
-
-					<hr />
-					<h4>{{ .L.T "forms.redirectURL" }}</h4>
-					<p class="text-light">{{ .L.T "forms.redirectURLHelp" }}</p>
-					{{- if $.ConfigJS.PublicSubscription.RedirectURLs }}
-						<ul class="no" data-testid="redirect-urls">
-							<li>
-								<label><input type="radio" name="redirect-url" value="" x-model="redirectURL" /> {{ .L.T "globals.terms.none" }}</label>
-							</li>
-							{{- range $.ConfigJS.PublicSubscription.RedirectURLs }}
+						<ul class="no lists" data-testid="lists">
+							{{- range $i, $list := $d.PublicLists }}
 								<li>
-									<label><input type="radio" name="redirect-url" value="{{ . }}" x-model="redirectURL" /> {{ . }}</label>
+									<label><input type="checkbox" value="{{ $list.UUID }}" x-model="checked" {{- if eq $i 0 }} autofocus{{- end }} /> {{ $list.Name }}</label>
 								</li>
 							{{- end }}
 						</ul>
-					{{- end }}
+					</fieldset>
+
+					<fieldset class="group">
+						<legend>{{ .L.T "forms.redirectURL" }}</legend>
+						<p class="text-light">{{ .L.T "forms.redirectURLHelp" }}</p>
+						{{- if $.ConfigJS.PublicSubscription.RedirectURLs }}
+							<ul class="no" data-testid="redirect-urls">
+								<li>
+									<label><input type="radio" name="redirect-url" value="" x-model="redirectURL" /> {{ .L.T "globals.terms.none" }}</label>
+								</li>
+								{{- range $.ConfigJS.PublicSubscription.RedirectURLs }}
+									<li>
+										<label><input type="radio" name="redirect-url" value="{{ . }}" x-model="redirectURL" /> {{ . }}</label>
+									</li>
+								{{- end }}
+							</ul>
+						{{- end }}
+					</fieldset>
 				</div>
 
-				<div class="col-8 col-end" data-testid="form" aria-label="{{ .L.T "forms.formHTML" }}">
-					<p class="text-light">{{ .L.T "forms.formHTMLHelp" }}</p>
+				<div class="col-8">
+					<article class="card float" data-testid="form" aria-label="{{ .L.T "forms.formHTML" }}">
+						<h5 class="title">{{ .L.T "forms.formHTML" }}</h5>
+						<p class="text-light">{{ .L.T "forms.formHTMLHelp" }}</p>
 
-					<div x-show="checked.length > 0" x-cloak>
-						<div class="align-right mb-2">
-							<button type="button" class="small outline" @click="copyHTML" title="{{ .L.T "globals.messages.clickToCopy" }}">
-								{{ Icon "copy" }} {{ .L.T "globals.buttons.copy" }}
-							</button>
+						<div x-show="checked.length > 0" x-cloak>
+							<div class="align-right mb-2">
+								<button type="button" class="small" @click="copyHTML" title="{{ .L.T "globals.messages.clickToCopy" }}">
+									{{ Icon "copy" }} {{ .L.T "globals.buttons.copy" }}
+								</button>
+							</div>
+							<code-editor lang="html" disabled x-effect="$el.value = html"></code-editor>
 						</div>
-						<code-editor lang="html" disabled x-effect="$el.value = html"></code-editor>
-					</div>
+					</article>
 				</div>
 			</div><!-- row -->
 		{{- end }}
