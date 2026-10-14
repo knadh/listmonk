@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -228,6 +229,16 @@ func (c *Core) GetSubscriberActivity(id int) (models.SubscriberActivity, error) 
 			c.i18n.Ts("globals.messages.errorFetching", "name", "activity", "error", err.Error()))
 	}
 
+	return out, nil
+}
+
+// GetSubscriberCharts returns subscriber views and clicks.
+func (c *Core) GetSubscriberCharts(id int) (types.JSONText, error) {
+	var out types.JSONText
+	if err := c.q.GetSubscriberCharts.Get(&out, id); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "subscriber charts", "error", pqErrMsg(err)))
+	}
 	return out, nil
 }
 

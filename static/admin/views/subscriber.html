@@ -43,9 +43,9 @@
 
 	{{- if not $d.IsNew }}
 		<div role="tablist" data-variant="primary">
-			<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "profile" }}aria-selected="true"{{ end }}>{{ Icon "user" }} {{ .L.Tc "globals.terms.subscriber" 1 }}</a>
+			<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "activity" }}aria-selected="true"{{ end }}>{{ Icon "user" }} {{ .L.T "globals.buttons.view" }}</a>
+			<a role="tab" href="{{ $base }}/edit" {{ if eq $d.Tab "edit" }}aria-selected="true"{{ end }}>{{ Icon "edit-2" }} {{ .L.T "globals.buttons.edit" }}</a>
 			<a role="tab" href="{{ $base }}/lists" {{ if eq $d.Tab "lists" }}aria-selected="true"{{ end }}>{{ Icon "list" }} {{ .L.Tc "globals.terms.lists" 2 }} ({{ len $sub.ParsedLists }})</a>
-			<a role="tab" href="{{ $base }}/activity" {{ if eq $d.Tab "activity" }}aria-selected="true"{{ end }}>{{ Icon "activity" }} {{ .L.T "subscribers.activity" }}</a>
 			{{- if $d.Can "bounces:get" }}
 				<a role="tab" href="{{ $base }}/bounces" {{ if eq $d.Tab "bounces" }}aria-selected="true"{{ end }}>{{ Icon "corner-right-down" }} {{ .L.T "globals.terms.bounces" }}</a>
 			{{- end }}
@@ -54,14 +54,14 @@
 
 	{{- if $d.IsNew }}
 		{{ template "subscriber-form" dict "Root" . "Submit" "onSubmitNew" "IsNew" true "CanSave" ($d.Can "subscribers:manage") }}
-	{{- else if eq $d.Tab "profile" }}
+	{{- else if eq $d.Tab "edit" }}
 		{{ template "subscriber-form" dict "Root" . "Submit" "onSubmitUpdate" "CanSave" ($d.Can "subscribers:manage") }}
 	{{- else if eq $d.Tab "lists" }}
 		{{ template "subscriber-lists" dict "Root" . "CanSave" ($d.Can "subscribers:manage") }}
 	{{- else if eq $d.Tab "bounces" }}
 		{{ template "bounces-table" dict "Root" . }}
 	{{- else if eq $d.Tab "activity" }}
-		{{ template "subscriber-activity" . }}
+		{{ template "subscriber-info" . }}
 	{{- end }}
 </section>
 

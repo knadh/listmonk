@@ -19,7 +19,12 @@
 							{{- if .Restricted }}
 								<span class="text-light">{{ .Name }}</span>
 							{{- else }}
-								<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+								<div class="avatar">
+									{{ template "avatar-icon" dict "Kind" "list" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/lists") .ID) "Title" (printf "%s %s" ($root.L.T "globals.buttons.view") .Name) }}
+									<div class="avatar-label">
+										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
+									</div>
+								</div>
 							{{- end }}
 						</td>
 						<td data-label="{{ $root.L.T "lists.optin" }}">

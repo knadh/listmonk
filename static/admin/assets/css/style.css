@@ -1217,7 +1217,8 @@ visual-editor {
 /* Sections */
 
 section.dashboard,
-section.lists {
+section.lists,
+section.subscribers {
     .chart-box {
         position: relative;
         height: 18rem;

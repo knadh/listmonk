@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import { lineChart } from '../charts.js';
 import {
   api,
   urls,
@@ -349,3 +350,7 @@ function component(sub = null) {
 document.addEventListener('alpine:init', () => {
   Alpine.data('subscribersView', component);
 }, { once: true });
+
+const charts = window._subscriberCharts || {};
+lineChart('chart-subscriber-views', charts.campaign_views);
+lineChart('chart-subscriber-clicks', charts.link_clicks);

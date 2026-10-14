@@ -36,6 +36,7 @@ type Queries struct {
 	DeleteOrphanSubscribers         *sqlx.Stmt `query:"delete-orphan-subscribers"`
 	UnsubscribeByCampaign           *sqlx.Stmt `query:"unsubscribe-by-campaign"`
 	ExportSubscriberData            *sqlx.Stmt `query:"export-subscriber-data"`
+	GetSubscriberCharts             *sqlx.Stmt `query:"get-subscriber-charts"`
 	GetSubscriberActivity           *sqlx.Stmt `query:"get-subscriber-activity"`
 	DeleteSubscriberCampaignViews   *sqlx.Stmt `query:"delete-subscriber-campaign-views"`
 	DeleteSubscriberLinkClicks      *sqlx.Stmt `query:"delete-subscriber-link-clicks"`

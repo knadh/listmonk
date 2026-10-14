@@ -14,6 +14,7 @@
 					<a href="{{ URI "/admin/lists" }}?optin={{ $l.Optin }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "lists.optins.%s" $l.Optin) }}">{{ Badge (list (Icon $icon) (.L.T (printf "lists.optins.%s" $l.Optin))) "enum" }}</a>
 					{{ if eq $l.Status "archived" }}{{ Badge (.L.T "lists.archived") "enum status-archived" }}{{ end }}
 				</div>
+				<div class="text-small text-light mt-2">{{ NiceDate $l.CreatedAt }}</div>
 			</div>
 			<div class="col-9">
 				{{ if or $l.Description $l.Tags }}

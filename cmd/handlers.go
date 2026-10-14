@@ -104,11 +104,10 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), pm(hasID(a.ViewSubscribers), "subscribers:get_all", "subscribers:get"))
 		g.POST(path.Join(uriAdmin, "/subscribers/lists/:id"), pm(hasID(a.ViewSubscribers), "subscribers:get_all", "subscribers:get"))
 		g.GET(path.Join(uriAdmin, "/subscribers/new"), pm(a.ViewNewSubscriber, "subscribers:manage"))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id"), pm(hasID(a.ViewSubscriber), "subscribers:get_all", "subscribers:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/edit"), pm(hasID(a.ViewSubscriber), "subscribers:get_all", "subscribers:get"))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id"), pm(hasID(a.ViewSubscriberInfo), "subscribers:get_all", "subscribers:get"))
 		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), pm(hasID(a.ViewSubscriber), "subscribers:get_all", "subscribers:get"))
-		// This view renders both the subscriber profile and bounce records.
 		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), pm(pm(hasID(a.ViewSubscriberBounces), "bounces:get"), "subscribers:get_all", "subscribers:get"))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/activity"), pm(hasID(a.ViewSubscriberActivity), "subscribers:get_all", "subscribers:get"))
 
 		// Users and roles. Static segments are registered before the :id param routes.
 		g.GET(path.Join(uriAdmin, "/users"), pm(a.ViewUsers, "users:get"))

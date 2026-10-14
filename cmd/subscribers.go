@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/notifs"
@@ -92,6 +93,7 @@ type subscriberView struct {
 	CampaignViews []subCampaignView
 	LinkClicks    []subLinkClick
 	TotalViews    int
+	Charts        types.JSONText
 	TotalClicks   int
 }
 
@@ -182,7 +184,7 @@ func (a *App) ViewSubscriber(c echo.Context) error {
 		return err
 	}
 
-	tab := "profile"
+	tab := "edit"
 	if strings.HasSuffix(c.Path(), "/lists") {
 		tab = "lists"
 	}
@@ -219,8 +221,8 @@ func (a *App) ViewSubscriberBounces(c echo.Context) error {
 	return c.Render(http.StatusOK, "admin-subscriber", data)
 }
 
-// ViewSubscriberActivity renders the activity tab (campaign views and link clicks) of a subscriber.
-func (a *App) ViewSubscriberActivity(c echo.Context) error {
+// ViewSubscriberInfo renders the activity tab (campaign views and link clicks) of a subscriber.
+func (a *App) ViewSubscriberInfo(c echo.Context) error {
 	out, err := a.getViewSubscriber(c)
 	if err != nil {
 		return err
@@ -235,6 +237,11 @@ func (a *App) ViewSubscriberActivity(c echo.Context) error {
 		adminView:  newAdminView(c, out.Email+" / "+a.i18n.T("globals.terms.subscribers"), "", "subscribers.all"),
 		Tab:        "activity",
 		Subscriber: out,
+	}
+
+	data.Charts, err = a.core.GetSubscriberCharts(out.ID)
+	if err != nil {
+		return err
 	}
 
 	// Parse the JSON activity blobs.

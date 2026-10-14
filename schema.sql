@@ -447,8 +447,6 @@ DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list
 -- Weekly list charts for the latest twelve months.
 DROP MATERIALIZED VIEW IF EXISTS mat_list_charts;
 CREATE MATERIALIZED VIEW mat_list_charts AS
-    -- Aggregate campaign events before joining lists so multi-list campaigns do not
-    -- multiply the work over the raw events. Views belong to campaigns, not lists.
     WITH views AS (
         SELECT campaign_id, DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
         FROM campaign_views

@@ -234,7 +234,7 @@ test.describe('Subscribers: create, edit & delete', () => {
   });
 
   test('edits a subscriber and blocklists via the status field', async ({ page }) => {
-    await page.goto(`${SUBSCRIBERS}/1`);
+    await page.goto(`${SUBSCRIBERS}/1/edit`);
     await page.locator('input[name=email]').fill('edited@example.com');
     await page.locator('input[name=name]').fill('Edited Name');
     await page.locator('select[name=status]').selectOption('blocklisted');
@@ -254,13 +254,13 @@ test.describe('Subscribers: create, edit & delete', () => {
   });
 
   test('rejects invalid attribs JSON', async ({ page }) => {
-    await page.goto(`${SUBSCRIBERS}/1`);
+    await page.goto(`${SUBSCRIBERS}/1/edit`);
     await page.locator('textarea[name=attribs]').fill('{ not valid json');
     await page.getByTestId('btn-save').click();
 
     await expect(page.locator('.toast')).toBeVisible();
     // No navigation happened: still on the edit page.
-    expect(page.url()).toContain(`${SUBSCRIBERS}/1`);
+    expect(page.url()).toContain(`${SUBSCRIBERS}/1/edit`);
   });
 
   test('exposes a per-row data download link', async ({ page }) => {
@@ -632,8 +632,17 @@ test.describe('Subscriber detail: activity tab', () => {
     await resetDB(browser);
   });
 
-  test('shows the activity stat cards', async ({ page }) => {
-    await page.goto(`${SUBSCRIBERS}/1/activity`);
+  test('shows the overview and weekly charts by default', async ({ page }) => {
+    await page.goto(`${SUBSCRIBERS}/1`);
+    await expect(page.getByRole('tab').first()).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#chart-subscriber-views')).toBeVisible();
+    await expect(page.locator('#chart-subscriber-clicks')).toBeVisible();
+    const charts = await page.evaluate(() => window._subscriberCharts);
+    for (const rows of [charts.campaign_views, charts.link_clicks]) {
+      expect(rows.length).toBeGreaterThanOrEqual(52);
+      expect(rows.every((row) => row.count === 0)).toBeTruthy();
+      expect(rows.map((row) => row.date)).toEqual(rows.map((row) => row.date).sort());
+    }
     const stats = page.locator('.activity .stat-value');
     await expect(stats).toHaveCount(3);
     // No campaigns yet: campaigns, views and clicks are all zero.
@@ -641,6 +650,17 @@ test.describe('Subscriber detail: activity tab', () => {
       await expect(stats.nth(i)).toHaveText('0');
     }
   });
+});
+
+test('subscriber overview links to edit and preserves the activity URL', async ({ page }) => {
+  await page.goto(`${SUBSCRIBERS}/1/activity`);
+  await expect(page.locator('#chart-subscriber-views')).toBeVisible();
+  await page.getByRole('tab', { name: 'Edit', exact: true }).click();
+  await expect(page).toHaveURL(/\/subscribers\/1\/edit$/);
+  await expect(page.locator('input[name=email]')).toBeVisible();
+  await page.getByRole('tab', { name: 'View', exact: true }).click();
+  await expect(page).toHaveURL(/\/subscribers\/1$/);
+  await expect(page.locator('#chart-subscriber-clicks')).toBeVisible();
 });
 
 test.describe('Domain blocklist', () => {

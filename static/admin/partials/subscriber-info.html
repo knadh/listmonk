@@ -1,14 +1,46 @@
-{{ define "subscriber-activity" -}}
+{{ define "subscriber-info" -}}
 {{- $d := .Data -}}
-<div class="page-content content activity">
-	<div class="row mt-4">
+<div class="vstack gap-6 activity">
+	<div class="card">
+		<div class="row">
+			<div class="col-6">
+				<strong>{{ $d.Subscriber.Name }}</strong>
+				<div class="text-small text-light">{{ NiceDate $d.Subscriber.CreatedAt }}</div>
+			</div>
+			<div class="col-6 hstack gap-2 justify-end">
+				<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+				</button>
+				<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+					<strong>{{ .L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<div class="row">
 		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "globals.terms.campaigns" }}</small><div class="stat-value">{{ len $d.CampaignViews }}</div></div></div>
 		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "campaigns.views" }}</small><div class="stat-value">{{ $d.TotalViews }}</div></div></div>
 		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "campaigns.clicks" }}</small><div class="stat-value">{{ $d.TotalClicks }}</div></div></div>
 	</div>
 
+	<section class="row">
+		<div class="col-6">
+			<article class="card float">
+				<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
+				<div class="chart-box"><canvas id="chart-subscriber-views" role="img" aria-label="{{ .L.T "campaigns.views" }}"></canvas></div>
+			</article>
+		</div>
+		<div class="col-6">
+			<article class="card float">
+				<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
+				<div class="chart-box"><canvas id="chart-subscriber-clicks" role="img" aria-label="{{ .L.T "campaigns.clicks" }}"></canvas></div>
+			</article>
+		</div>
+	</section>
+	<script>window._subscriberCharts = {{ ToJSON $d.Charts }};</script>
+
 	{{- if $d.CampaignViews }}
-	<div class="card float page-content has-table mt-8">
+	<div class="card float page-content has-table">
 		<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
 		<div class="table-wrapper">
 			{{- if $d.Can "subscribers:manage" }}
@@ -48,7 +80,7 @@
 	{{- end }}
 
 	{{- if $d.LinkClicks }}
-	<div class="card float page-content has-table mt-8">
+	<div class="card float page-content has-table">
 		<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
 		<div class="table-wrapper">
 			{{- if $d.Can "subscribers:manage" }}

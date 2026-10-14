@@ -141,11 +141,11 @@
 									</button>
 									<menu popover id="sub-actions-{{ .ID }}">
 										{{- if $d.Can "subscribers:manage" }}
-										<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+										<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}/edit" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										{{- end }}
 										<hr />
 										<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}/lists" role="menuitem" class="button ghost">{{ Icon "list" }} {{ $.L.Tc "globals.terms.lists" 2 }}</a>
-										<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}/activity" role="menuitem" class="button ghost">{{ Icon "activity" }} {{ $.L.T "subscribers.activity" }}</a>
+										<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}" role="menuitem" class="button ghost">{{ Icon "activity" }} {{ $.L.T "subscribers.activity" }}</a>
 										{{- if $d.Can "bounces:get" }}
 										<a href="{{ URI "/admin/subscribers" }}/{{ .ID }}/bounces" role="menuitem" class="button ghost">{{ Icon "corner-right-down" }} {{ $.L.T "globals.terms.bounces" }}</a>
 										{{- end }}

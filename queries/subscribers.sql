@@ -496,3 +496,28 @@ clicks AS (
 SELECT
     COALESCE((SELECT JSON_AGG(v) FROM views v), '[]') as campaign_views,
     COALESCE((SELECT JSON_AGG(c) FROM clicks c), '[]') as link_clicks;
+
+
+-- name: get-subscriber-charts
+-- Aggregate each event type separately to avoid multiplying views by clicks.
+WITH weeks AS (
+    SELECT GENERATE_SERIES(DATE_TRUNC('week', CURRENT_DATE - INTERVAL '12 months'),
+                           DATE_TRUNC('week', CURRENT_DATE), INTERVAL '1 week')::DATE AS date
+), views AS (
+    SELECT DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
+    FROM campaign_views
+    WHERE subscriber_id = $1
+        AND created_at >= CURRENT_DATE - INTERVAL '12 months' AND created_at <= NOW()
+    GROUP BY date
+), clicks AS (
+    SELECT DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
+    FROM link_clicks
+    WHERE subscriber_id = $1
+        AND created_at >= CURRENT_DATE - INTERVAL '12 months' AND created_at <= NOW()
+    GROUP BY date
+)
+SELECT JSON_BUILD_OBJECT(
+    'campaign_views', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(v.count, 0)) ORDER BY w.date),
+    'link_clicks', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(c.count, 0)) ORDER BY w.date)
+)
+FROM weeks w LEFT JOIN views v ON v.date = w.date LEFT JOIN clicks c ON c.date = w.date;
