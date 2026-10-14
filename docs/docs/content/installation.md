@@ -129,7 +129,7 @@ $ helm upgrade \
 <br />
 <a href="https://console.hostim.dev/dashboard?preview=1&modal=1&template=listmonk"><img src="https://hostim.dev/img/deploy-button.svg" alt="Deploy on Hostim" style="max-width: 150px;"/></a>
 <br />
-<a href="https://console.pethost.dev/?template=listmonk"><img src="https://pethost.dev/button.svg" alt="Deploy on Pethost" style="max-width: 150px;"/></a>
+<a href="https://pethost.dev/templates/listmonk/"><img src="https://pethost.dev/button.svg" alt="Deploy on Pethost" style="max-width: 150px;"/></a>
 
 ## Tutorials
 * [Listmonk with Forward Email for Secure Newsletter Delivery](https://forwardemail.net/en/guides/newsletter-with-listmonk)
