@@ -25,6 +25,7 @@ const (
 
 	matDashboardCharts = "mat_dashboard_charts"
 	matDashboardCounts = "mat_dashboard_counts"
+	matListCharts      = "mat_list_charts"
 	matListSubStats    = "mat_list_subscriber_stats"
 )
 
@@ -91,7 +92,7 @@ func New(o *Opt, h *Hooks) *Core {
 
 // RefreshMatViews refreshes all materialized views.
 func (c *Core) RefreshMatViews(concurrent bool) error {
-	for _, v := range []string{matDashboardCharts, matDashboardCounts, matListSubStats} {
+	for _, v := range []string{matDashboardCharts, matDashboardCounts, matListSubStats, matListCharts} {
 		_ = c.RefreshMatView(v, true)
 	}
 	return nil

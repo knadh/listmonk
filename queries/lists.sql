@@ -100,3 +100,17 @@ AND CASE
     -- Optional list IDs based on user permission.
     WHEN $7 = TRUE THEN TRUE ELSE id = ANY($8::INT[])
 END;
+
+-- name: get-list-charts
+-- Fill missing weeks, including empty/new lists absent from the cached view.
+WITH weeks AS (
+    SELECT GENERATE_SERIES(DATE_TRUNC('week', CURRENT_DATE - INTERVAL '12 months'),
+                           DATE_TRUNC('week', CURRENT_DATE), INTERVAL '1 week')::DATE AS date
+)
+SELECT JSON_BUILD_OBJECT(
+    'subscriptions', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(c.subscriptions, 0)) ORDER BY w.date),
+    'campaign_views', CASE WHEN $2::BOOLEAN THEN
+        JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(c.campaign_views, 0)) ORDER BY w.date)
+        ELSE '[]'::JSON END
+)
+FROM weeks w LEFT JOIN mat_list_charts c ON c.list_id = $1 AND c.date = w.date;

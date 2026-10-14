@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid/v5"
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -221,4 +222,18 @@ func (c *Core) DeleteLists(ids []int, query, typ, optin, status string, tags []s
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
 	}
 	return nil
+}
+
+// GetListCharts returns weekly new subscriptions and and campaign view stats.
+func (c *Core) GetListCharts(id int, campaignViews bool) (types.JSONText, error) {
+	if err := c.refreshCache(matListCharts, false); err != nil {
+		return nil, err
+	}
+
+	var out types.JSONText
+	if err := c.q.GetListCharts.Get(&out, id, campaignViews); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "list charts", "error", pqErrMsg(err)))
+	}
+	return out, nil
 }

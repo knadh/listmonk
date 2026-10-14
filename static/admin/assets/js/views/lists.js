@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import { lineChart } from '../charts.js';
 import {
   api,
   urls,
@@ -111,3 +112,7 @@ function component(list = null) {
 document.addEventListener('alpine:init', () => {
   Alpine.data('listsView', component);
 }, { once: true });
+
+const charts = window._listCharts || {};
+lineChart('chart-subscriptions', charts.subscriptions);
+lineChart('chart-list-views', charts.campaign_views);

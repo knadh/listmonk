@@ -443,3 +443,31 @@ CREATE MATERIALIZED VIEW mat_list_subscriber_stats AS
     UNION ALL
     SELECT NOW() AS updated_at, 0 AS list_id, NULL AS status, COUNT(id) AS subscriber_count FROM subscribers;
 DROP INDEX IF EXISTS mat_list_subscriber_stats_idx; CREATE UNIQUE INDEX mat_list_subscriber_stats_idx ON mat_list_subscriber_stats (list_id, status);
+
+-- Weekly list charts for the latest twelve months.
+DROP MATERIALIZED VIEW IF EXISTS mat_list_charts;
+CREATE MATERIALIZED VIEW mat_list_charts AS
+    -- Aggregate campaign events before joining lists so multi-list campaigns do not
+    -- multiply the work over the raw events. Views belong to campaigns, not lists.
+    WITH views AS (
+        SELECT campaign_id, DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
+        FROM campaign_views
+        WHERE created_at >= CURRENT_DATE - INTERVAL '12 months' AND created_at <= NOW()
+        GROUP BY campaign_id, date
+    ), counts AS (
+        SELECT list_id, DATE_TRUNC('week', created_at)::DATE AS date,
+               COUNT(*) AS subscriptions, 0::BIGINT AS campaign_views
+        FROM subscriber_lists
+        WHERE created_at >= CURRENT_DATE - INTERVAL '12 months' AND created_at <= NOW()
+        GROUP BY list_id, date
+        UNION ALL
+        SELECT cl.list_id, v.date, 0::BIGINT, SUM(v.count)::BIGINT
+        FROM views v JOIN campaign_lists cl ON cl.campaign_id = v.campaign_id
+        WHERE cl.list_id IS NOT NULL
+        GROUP BY cl.list_id, v.date
+    )
+    SELECT list_id, date, SUM(subscriptions)::BIGINT AS subscriptions,
+           SUM(campaign_views)::BIGINT AS campaign_views
+    FROM counts
+    GROUP BY list_id, date;
+CREATE UNIQUE INDEX mat_list_charts_idx ON mat_list_charts (list_id, date);

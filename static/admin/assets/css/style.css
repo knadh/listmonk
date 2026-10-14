@@ -1216,12 +1216,16 @@ visual-editor {
 
 /* Sections */
 
-/* Dashboard */
-section.dashboard {
+section.dashboard,
+section.lists {
     .chart-box {
         position: relative;
         height: 18rem;
     }
+}
+
+/* Dashboard */
+section.dashboard {
     .stat-card {
         display: flex;
         flex-direction: column;

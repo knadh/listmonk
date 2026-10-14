@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -36,11 +37,14 @@ type listsView struct {
 type listView struct {
 	adminView
 
-	IsNew     bool
-	Tab       string
-	List      models.List
-	Campaigns []models.Campaign
-	Page      models.PageProps
+	Charts                types.JSONText
+	CanViewCampaignCharts bool
+	CacheSlowQueries      bool
+	IsNew                 bool
+	Tab                   string
+	List                  models.List
+	Campaigns             []models.Campaign
+	Page                  models.PageProps
 }
 
 // publicListForm is the minimal list representation used by the forms view.
@@ -123,6 +127,15 @@ func (a *App) ViewList(c echo.Context) error {
 		adminView: newAdminView(c, list.Name+" / "+a.i18n.T("globals.terms.lists"), "", "lists.all"),
 		List:      list,
 		Tab:       tab,
+	}
+
+	if tab == "list" {
+		data.CanViewCampaignCharts = data.Can("campaigns:get", "campaigns:get_all") && data.Can("campaigns:get_analytics")
+		data.CacheSlowQueries = ko.Bool("app.cache_slow_queries")
+		data.Charts, err = a.core.GetListCharts(id, data.CanViewCampaignCharts)
+		if err != nil {
+			return err
+		}
 	}
 
 	if tab == "list" && data.Can("campaigns:get", "campaigns:get_all") {
