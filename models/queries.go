@@ -53,7 +53,16 @@ type Queries struct {
 	DeleteSubscriptionsByQuery             string     `query:"delete-subscriptions-by-query"`
 	UnsubscribeSubscribersFromListsByQuery string     `query:"unsubscribe-subscribers-from-lists-by-query"`
 
-	GetListCharts *sqlx.Stmt `query:"get-list-charts"`
+	GetListAnalyticsItems       *sqlx.Stmt `query:"get-list-analytics-items"`
+	GetCampaignAnalyticsItems   *sqlx.Stmt `query:"get-campaign-analytics-items"`
+	GetListAnalyticsCounts      string     `query:"get-list-analytics-counts"`
+	GetListViewCounts           *sqlx.Stmt `query:"get-list-view-counts"`
+	GetListClickCounts          *sqlx.Stmt `query:"get-list-click-counts"`
+	GetListBounceCounts         *sqlx.Stmt `query:"get-list-bounce-counts"`
+	GetListSubscriptionCounts   *sqlx.Stmt `query:"get-list-subscription-counts"`
+	GetListUnsubscriptionCounts *sqlx.Stmt `query:"get-list-unsubscription-counts"`
+	GetListLinkCounts           *sqlx.Stmt `query:"get-list-link-counts"`
+	GetListCharts               *sqlx.Stmt `query:"get-list-charts"`
 
 	CreateList      *sqlx.Stmt `query:"create-list"`
 	QueryLists      string     `query:"query-lists"`

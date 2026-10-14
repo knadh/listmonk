@@ -9,59 +9,68 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// analyticsCampaign is used to render campaign items in the campaign analytics page selector.
-type analyticsCampaign struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Sent int    `json:"sent"`
-}
-
 // analyticsData is the chart data embedded into the analytics page for the Chart.js renderer.
 type analyticsData struct {
-	Campaigns []analyticsCampaign             `json:"campaigns"`
-	Views     []models.CampaignAnalyticsCount `json:"views"`
-	Clicks    []models.CampaignAnalyticsCount `json:"clicks"`
-	Bounces   []models.CampaignAnalyticsCount `json:"bounces"`
-	Links     []models.CampaignAnalyticsLink  `json:"links"`
+	Items           []models.AnalyticsItem          `json:"items"`
+	Subscriptions   []models.CampaignAnalyticsCount `json:"subscriptions"`
+	Unsubscriptions []models.CampaignAnalyticsCount `json:"unsubscriptions"`
+	Views           []models.CampaignAnalyticsCount `json:"views"`
+	Clicks          []models.CampaignAnalyticsCount `json:"clicks"`
+	Bounces         []models.CampaignAnalyticsCount `json:"bounces"`
+	Links           []models.CampaignAnalyticsLink  `json:"links"`
 }
 
-// campaignAnalyticsView is the admin view for the campaign analytics page.
-type campaignAnalyticsView struct {
+// analyticsView is the shared admin view for campaign and list analytics.
+type analyticsView struct {
 	adminView
 
-	Campaigns          []analyticsCampaign
-	FromInput          string
-	ToInput            string
-	Interval           string
-	DisableTracking    bool
-	IndividualTracking bool
+	Items                 []models.AnalyticsItem
+	Resource              string
+	CanViewCampaignCharts bool
+	FromInput             string
+	ToInput               string
+	Interval              string
+	DisableTracking       bool
+	IndividualTracking    bool
 
 	HasData bool
 	Counts  struct {
-		Views   int
-		Clicks  int
-		Bounces int
+		Subscriptions   int
+		Unsubscriptions int
+		Views           int
+		Clicks          int
+		Bounces         int
 	}
 	Data analyticsData
 }
 
 // ViewCampaignAnalytics renders the HTML view for campaign analytics.
 func (a *App) ViewCampaignAnalytics(c echo.Context) error {
-	var campaigns []analyticsCampaign
-	if ids, err := getQueryInts("id", c.QueryParams()); err == nil {
-		for _, id := range ids {
-			// Skip campaigns the user doesn't have access to.
-			if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
-				continue
-			}
+	return a.viewAnalytics(c, "campaigns")
+}
 
-			camp, err := a.core.GetCampaign(id, "", "")
-			if err != nil {
-				continue
-			}
+// ViewListAnalytics renders analytics for selected lists.
+func (a *App) ViewListAnalytics(c echo.Context) error {
+	return a.viewAnalytics(c, "lists")
+}
 
-			campaigns = append(campaigns, analyticsCampaign{ID: camp.ID, Name: camp.Name, Sent: camp.Sent})
-		}
+func (a *App) viewAnalytics(c echo.Context, resource string) error {
+	user := auth.GetUser(c)
+	ids, err := getQueryInts("id", c.QueryParams())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
+	}
+
+	getAll, permittedLists := user.GetPermittedLists(auth.PermTypeGet)
+	if resource == "campaigns" {
+		getAll, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+		getAll = getAll || user.HasPerm(auth.PermCampaignsGetAll)
+	}
+
+	items, err := a.core.GetAnalyticsItems(resource, ids, getAll, permittedLists)
+	if err != nil {
+		return err
 	}
 
 	// Resolve the date range, defaulting to the last 7 days.
@@ -74,9 +83,10 @@ func (a *App) ViewCampaignAnalytics(c echo.Context) error {
 		to = t
 	}
 
-	data := campaignAnalyticsView{
-		adminView:          newAdminView(c, a.i18n.T("analytics.title"), "", "campaigns.analytics"),
-		Campaigns:          campaigns,
+	data := analyticsView{
+		adminView:          newAdminView(c, a.i18n.T("analytics.title"), "", resource+".analytics"),
+		Items:              items,
+		Resource:           resource,
 		FromInput:          from.Format("2006-01-02T15:04"),
 		ToInput:            to.Format("2006-01-02T15:04"),
 		Interval:           c.QueryParam("interval"),
@@ -84,49 +94,75 @@ func (a *App) ViewCampaignAnalytics(c echo.Context) error {
 		IndividualTracking: a.cfg.Privacy.IndividualTracking,
 	}
 
+	data.CanViewCampaignCharts = resource == "campaigns" || (data.Can("campaigns:get", "campaigns:get_all") && data.Can("campaigns:get_analytics"))
+
 	if data.Interval == "" {
 		data.Interval = "day"
 	}
 
-	// Pull analytics for the selected campaigns.
-	if len(campaigns) > 0 {
+	// Pull analytics for the selected campaigns or lists.
+	if len(items) > 0 {
 		var (
 			fromStr = from.Format("2006-01-02 15:04:05")
 			toStr   = to.Format("2006-01-02 15:04:05")
-			ids     = make([]int, len(campaigns))
+			ids     = make([]int, len(items))
 		)
-		for i, camp := range campaigns {
-			ids[i] = camp.ID
-		}
-
-		views, err := a.core.GetCampaignAnalyticsCounts(ids, "views", fromStr, toStr, data.Interval)
-		if err != nil {
-			return err
-		}
-
-		clicks, err := a.core.GetCampaignAnalyticsCounts(ids, "clicks", fromStr, toStr, data.Interval)
-		if err != nil {
-			return err
-		}
-
-		bounces, err := a.core.GetCampaignAnalyticsCounts(ids, "bounces", fromStr, toStr, data.Interval)
-		if err != nil {
-			return err
-		}
-
-		links, err := a.core.GetCampaignAnalyticsLinks(ids, "links", fromStr, toStr)
-		if err != nil {
-			return err
+		for i, item := range items {
+			ids[i] = item.ID
 		}
 
 		data.HasData = true
-		data.Data = analyticsData{Campaigns: campaigns, Views: views, Clicks: clicks, Bounces: bounces, Links: links}
-		data.Counts.Views = sumAnalyticsCounts(views)
-		data.Counts.Clicks = sumAnalyticsCounts(clicks)
-		data.Counts.Bounces = sumAnalyticsCounts(bounces)
+		data.Data.Items = items
+		getCounts := a.core.GetCampaignAnalyticsCounts
+		getLinks := a.core.GetCampaignAnalyticsLinks
+
+		if resource == "lists" {
+			getCounts = a.core.GetListAnalyticsCounts
+			getLinks = a.core.GetListAnalyticsLinks
+			rows, err := getCounts(ids, "subscriptions", fromStr, toStr, data.Interval)
+			if err != nil {
+				return err
+			}
+
+			data.Data.Subscriptions = rows
+			data.Counts.Subscriptions = sumAnalyticsCounts(rows)
+			rows, err = getCounts(ids, "unsubscriptions", fromStr, toStr, data.Interval)
+			if err != nil {
+				return err
+			}
+
+			data.Data.Unsubscriptions = rows
+			data.Counts.Unsubscriptions = sumAnalyticsCounts(rows)
+		}
+		if data.CanViewCampaignCharts {
+			var err error
+			data.Data.Views, err = getCounts(ids, "views", fromStr, toStr, data.Interval)
+			if err != nil {
+				return err
+			}
+
+			data.Data.Clicks, err = getCounts(ids, "clicks", fromStr, toStr, data.Interval)
+			if err != nil {
+				return err
+			}
+
+			data.Data.Bounces, err = getCounts(ids, "bounces", fromStr, toStr, data.Interval)
+			if err != nil {
+				return err
+			}
+
+			data.Data.Links, err = getLinks(ids, fromStr, toStr)
+			if err != nil {
+				return err
+			}
+
+			data.Counts.Views = sumAnalyticsCounts(data.Data.Views)
+			data.Counts.Clicks = sumAnalyticsCounts(data.Data.Clicks)
+			data.Counts.Bounces = sumAnalyticsCounts(data.Data.Bounces)
+		}
 	}
 
-	return c.Render(http.StatusOK, "admin-campaign-analytics", data)
+	return c.Render(http.StatusOK, "admin-analytics", data)
 }
 
 // GetCampaignViewAnalytics retrieves view counts for a campaign.
@@ -160,7 +196,7 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 
 	// Campaign link stats.
 	if typ == "links" {
-		out, err := a.core.GetCampaignAnalyticsLinks(ids, typ, from, to)
+		out, err := a.core.GetCampaignAnalyticsLinks(ids, from, to)
 		if err != nil {
 			return err
 		}

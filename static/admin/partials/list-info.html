@@ -54,7 +54,7 @@
 		<div class="col-6">
 			<article class="card float">
 				<h5 class="title">{{ .L.Tc "globals.terms.subscriptions" 2 }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriptions" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas></div>
+				<div class="chart-box"><canvas id="chart-subscriptions" data-extra-label="{{ .L.T "subscribers.status.unsubscribed" }}" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas></div>
 			</article>
 		</div>
 		{{ if $d.CanViewCampaignCharts }}

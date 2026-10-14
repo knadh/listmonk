@@ -69,7 +69,15 @@ type CampaignStats struct {
 	NetRate   int       `json:"net_rate"`
 }
 
+// AnalyticsItem is the minimal campaign or list metadata used by analytics.
+type AnalyticsItem struct {
+	ID   int    `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
+	Sent int    `db:"sent" json:"sent"`
+}
+
 type CampaignAnalyticsCount struct {
+	ListID     int       `db:"list_id" json:"list_id,omitempty"`
 	CampaignID int       `db:"campaign_id" json:"campaign_id"`
 	Count      int       `db:"count" json:"count"`
 	Timestamp  time.Time `db:"timestamp" json:"timestamp"`

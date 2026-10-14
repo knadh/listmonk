@@ -112,8 +112,8 @@ function toLabel(s) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// CampaignTag is the object used in the <ot-taginput> campaign selector.
-class CampaignTag {
+// AnalyticsTag is the object used in the <ot-taginput> analytics selector.
+class AnalyticsTag {
   constructor(c) {
     this.id = c.id;
     this.name = c.name;
@@ -124,17 +124,17 @@ class CampaignTag {
   }
 }
 
-// analyticsForm is the Alpine component for the campaign analytics page.
+// analyticsForm is the Alpine component for the analytics page.
 function analyticsForm() {
   let queryTimer = null;
 
   return {
-    campaigns: (window._selectedCampaigns || []).map((c) => new CampaignTag(c)),
+    items: (window._selectedItems || []).map((c) => new AnalyticsTag(c)),
 
     // Set on submit to give feedback during the full-page reload.
     submitting: false,
 
-    // Populate the selector's suggestions with the campaigns API.
+    // Populate the selector's suggestions with the resource API.
     onQuery(el) {
       clearTimeout(queryTimer);
       queryTimer = setTimeout(async () => {
@@ -149,12 +149,12 @@ function analyticsForm() {
         });
 
         try {
-          const data = await api('analytics.campaigns', `/campaigns?${params.toString()}`, 'GET');
+          const data = await api(`analytics.${window._analyticsResource}`, `/${window._analyticsResource}?${params.toString()}`, 'GET');
           el.list.replaceChildren(...(data.results || [])
             .filter((c) => !chosen.has(c.id))
             .map((c) => {
               const o = new Option(`#${c.id}: ${c.name}`);
-              o.data = new CampaignTag(c);
+              o.data = new AnalyticsTag(c);
               return o;
             }));
         } catch (err) { /* api() shows a toast. */ }
@@ -182,12 +182,29 @@ function formatCount(count, sent) {
   return sent > 0 ? `${count} (${((count / sent) * 100).toFixed(2)}%)` : `${count}`;
 }
 
-// Render a line chart (time series per campaign) and its donut (totals per campaign).
-function renderCounts(key, camps, rows) {
-  const datasets = camps.map((c, n) => ({
+// Group each series once for chart points and legend totals.
+function groupCounts(rows, idKey) {
+  const groups = new Map();
+  rows.forEach((row) => {
+    const id = row[idKey];
+    if (!groups.has(id)) {
+      groups.set(id, { points: [], total: 0 });
+    }
+    const group = groups.get(id);
+    group.points.push({ x: toLabel(row.timestamp), y: row.count });
+    group.total += row.count;
+  });
+  return groups;
+}
+
+// Render per-item time series and totals, with optional unsubscription lines.
+function renderCounts(key, items, rows, unsubscriptions) {
+  const idKey = window._analyticsResource === 'lists' ? 'list_id' : 'campaign_id';
+  const counts = groupCounts(rows, idKey);
+  const unsubs = groupCounts(unsubscriptions || [], idKey);
+  const datasets = items.map((c, n) => ({
     label: `#${c.id}: ${c.name}`,
-    data: rows.filter((item) => item.campaign_id === c.id)
-      .map((item) => ({ x: toLabel(item.timestamp), y: item.count })),
+    data: counts.get(c.id)?.points || [],
     borderColor: chartColors[n % chartColors.length],
     backgroundColor: chartColors[n % chartColors.length],
     borderWidth: 2,
@@ -195,18 +212,25 @@ function renderCounts(key, camps, rows) {
     pointBorderWidth: 0.5,
   }));
 
-  const labels = [];
-  const totals = camps.map((c) => {
-    labels.push(`#${c.id}: ${c.name}`);
-    return rows.reduce((a, item) => (item.campaign_id === c.id ? a + item.count : a), 0);
-  });
+  const labels = datasets.map((d) => d.label);
+  const totals = items.map((c) => counts.get(c.id)?.total || 0);
+
+  if (unsubscriptions) {
+    const label = document.getElementById(`chart-${key}`)?.dataset.extraLabel;
+    datasets.push(...items.map((c, n) => ({
+      ...datasets[n],
+      label: `${datasets[n].label}: ${label}`,
+      data: unsubs.get(c.id)?.points || [],
+      borderDash: [6, 4],
+    })));
+  }
 
   draw(`chart-${key}`, DEFAULT_LINE, { datasets });
   const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, {
     labels,
     datasets: [{
       data: totals,
-      sent: camps.map((c) => c.sent),
+      sent: items.map((c) => c.sent),
       backgroundColor: chartColors,
       borderWidth: 6,
     }],
@@ -217,7 +241,11 @@ function renderCounts(key, camps, rows) {
     legend.querySelectorAll('[data-index]').forEach((item) => {
       const n = Number(item.dataset.index);
       item.querySelector('[data-marker]').style.color = datasets[n].borderColor;
-      item.querySelector('[data-count]').textContent = formatCount(totals[n], camps[n].sent);
+      item.querySelector('[data-count]').textContent = formatCount(totals[n], items[n].sent);
+      const unsubCount = item.querySelector('[data-unsubscription-count]');
+      if (unsubCount) {
+        unsubCount.textContent = unsubs.get(items[n].id)?.total || 0;
+      }
 
       const highlight = () => {
         donut.setActiveElements(item.matches(':hover, :focus-within') ? [{ datasetIndex: 0, index: n }] : []);
@@ -265,7 +293,8 @@ function renderCharts() {
     return;
   }
 
-  const camps = d.campaigns || [];
+  const camps = d.items || [];
+  renderCounts('subscriptions', camps, d.subscriptions || [], d.unsubscriptions || []);
   renderCounts('views', camps, d.views || []);
   renderCounts('clicks', camps, d.clicks || []);
   renderCounts('bounces', camps, d.bounces || []);

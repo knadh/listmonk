@@ -114,5 +114,5 @@ document.addEventListener('alpine:init', () => {
 }, { once: true });
 
 const charts = window._listCharts || {};
-lineChart('chart-subscriptions', charts.subscriptions);
+lineChart('chart-subscriptions', charts.subscriptions, charts.unsubscriptions);
 lineChart('chart-list-views', charts.campaign_views);

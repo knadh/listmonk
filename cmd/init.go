@@ -434,6 +434,20 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 	}
 	qMap["get-campaign-link-counts"].Query = fmt.Sprintf(qMap["get-campaign-link-counts"].Query, linkSel)
 
+	// List metrics use the same tracking semantics, grouped by campaign lists.
+	for typ, table := range map[string]string{"view": "campaign_views", "click": "link_clicks", "bounce": "bounces"} {
+		query := "get-list-analytics-counts"
+		if typ != "bounce" && ko.Bool("privacy.individual_tracking") {
+			query = "get-list-analytics-unique-counts"
+		}
+		name := "get-list-" + typ + "-counts"
+		qMap[name] = &goyesql.Query{
+			Query: fmt.Sprintf(qMap[query].Query, table),
+			Tags:  map[string]string{"name": name},
+		}
+	}
+	qMap["get-list-link-counts"].Query = fmt.Sprintf(qMap["get-list-link-counts"].Query, linkSel)
+
 	// Scan and prepare all queries.
 	var q models.Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db); err != nil {

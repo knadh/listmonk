@@ -1,10 +1,11 @@
-{{ define "admin-campaign-analytics" -}}
+{{ define "admin-analytics" -}}
 {{ template "admin-header" . }}
-{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.campaigns") "URL" (URI "/admin/campaigns") "CanLink" (.Data.Can "campaigns:get" "campaigns:get_all"))) }}
 {{- $d := .Data -}}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T (printf "globals.terms.%s" $d.Resource)) "URL" (URI (printf "/admin/%s" $d.Resource)) "CanLink" (or (eq $d.Resource "lists") ($d.Can "campaigns:get" "campaigns:get_all")))) }}
 
 <script>
-	window._selectedCampaigns = {{ ToJSON $d.Campaigns }};
+	window._analyticsResource = {{ $d.Resource }};
+	window._selectedItems = {{ ToJSON $d.Items }};
 	window._analytics = {{ if $d.HasData }}{{ ToJSON $d.Data }}{{ else }}null{{ end }};
 </script>
 
@@ -14,19 +15,19 @@
 	</header>
 
 	<div class="vstack gap-6">
-		<form method="get" action="{{ URI "/admin/campaigns/analytics" }}" x-data="analyticsForm()" @submit="submitting = true">
+		<form method="get" action="{{ URI (printf "/admin/%s/analytics" $d.Resource) }}" x-data="analyticsForm()" @submit="submitting = true">
 			<div class="card float">
 				<h4 class="title">{{ .L.T "analytics.title" }}</h4>
 				<div class="row">
 					<div class="col-4">
 						<label data-field>
-							{{ .L.T "globals.terms.campaigns" }}
-							<ot-taginput x-model="campaigns">
-								<input list="analytics-campaigns" placeholder="{{ .L.T "globals.terms.campaigns" }}" @input="onQuery($el)" @pointerdown="onQuery($el)" @focus="onQuery($el)" />
-								<datalist id="analytics-campaigns"></datalist>
+							{{ .L.T (printf "globals.terms.%s" $d.Resource) }}
+							<ot-taginput x-model="items">
+								<input list="analytics-items" placeholder="{{ .L.T (printf "globals.terms.%s" $d.Resource) }}" @input="onQuery($el)" @pointerdown="onQuery($el)" @focus="onQuery($el)" />
+								<datalist id="analytics-items"></datalist>
 							</ot-taginput>
 						</label>
-						<template x-for="c in campaigns" :key="c.id">
+						<template x-for="c in items" :key="c.id">
 							<input type="hidden" name="id" :value="c.id" />
 						</template>
 					</div>
@@ -61,7 +62,7 @@
 					<div class="col-1">
 						<data data-field>
 							<label aria-hidden="true">&nbsp;</label>
-							<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="campaigns.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
+							<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="items.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
 								{{ .L.T "globals.buttons.view" }}
 							</button>
 						</data>
@@ -71,18 +72,23 @@
 		</form>
 
 		{{- if $d.HasData }}
-			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Campaigns" $d.Campaigns }}
-			{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Campaigns" $d.Campaigns }}
-			{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Campaigns" $d.Campaigns }}
+			{{- if eq $d.Resource "lists" }}
+				{{ template "analytics-chart" dict "Title" (.L.Tc "globals.terms.subscriptions" 2) "Count" $d.Counts.Subscriptions "Key" "subscriptions" "ExtraCount" $d.Counts.Unsubscriptions "ExtraLabel" (.L.T "subscribers.status.unsubscribed") "Items" $d.Items "Resource" $d.Resource }}
+			{{- end }}
+			{{- if $d.CanViewCampaignCharts }}
+				{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Items" $d.Items "Resource" $d.Resource }}
+				{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Items" $d.Items "Resource" $d.Resource }}
+				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Items" $d.Items "Resource" $d.Resource }}
 
-			<article class="card float">
-				<h4 class="title">{{ .L.T "analytics.links" }}</h4>
-				{{- if $d.Data.Links }}
-					<div class="chart-box"><canvas id="chart-links"></canvas></div>
-				{{- else }}
-					{{- template "empty-state" }}
-				{{- end }}
-			</article>
+				<article class="card float">
+					<h4 class="title">{{ .L.T "analytics.links" }}</h4>
+					{{- if $d.Data.Links }}
+						<div class="chart-box"><canvas id="chart-links"></canvas></div>
+					{{- else }}
+						{{- template "empty-state" }}
+					{{- end }}
+				</article>
+			{{- end }}
 		{{- end }}
 	</div>
 </section>
@@ -96,16 +102,17 @@
 {{- $key := .Key -}}
 <article class="card float">
 	<h4 class="title">{{ .Title }}{{ if gt .Count 0 }} <span class="text-lighter">({{ FormatNumber .Count }})</span>{{ end }}</h4>
-	{{- if gt .Count 0 }}
+	{{- if or (gt .Count 0) (gt (.ExtraCount | default 0) 0) }}
 		<div class="row">
-			<div class="col-9"><div class="chart-box"><canvas id="chart-{{ $key }}"></canvas></div></div>
+			<div class="col-9"><div class="chart-box"><canvas id="chart-{{ $key }}"{{ if .ExtraLabel }} data-extra-label="{{ .ExtraLabel }}"{{ end }}></canvas></div></div>
 			<div class="col-3 donut-container"><canvas id="chart-{{ $key }}-donut"></canvas></div>
 		</div>
 		<div id="chart-{{ $key }}-legend" class="hstack text-8 mt-2">
-			{{- range $n, $c := .Campaigns }}
+			{{- range $n, $c := .Items }}
 				<span data-index="{{ $n }}">
 					<span data-marker aria-hidden="true">●</span>
-					<a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">#{{ .ID }}: {{ .Name }}</a>: <span data-count></span>
+					<a href="{{ URI (printf "/admin/%s" $.Resource) }}/{{ .ID }}" class="unstyled">#{{ .ID }}: {{ .Name }}</a>: <span data-count></span>
+					{{- if $.ExtraLabel }} <span class="text-lighter">({{ $.ExtraLabel }}: <span data-unsubscription-count></span>)</span>{{ end }}
 				</span>
 			{{- end }}
 		</div>

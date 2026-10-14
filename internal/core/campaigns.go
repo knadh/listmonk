@@ -395,35 +395,12 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate, 
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
 	}
 
-	if !strHasLen(fromDate, 10, 30) || !strHasLen(toDate, 10, 30) {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("analytics.invalidDates"))
-	}
-	switch interval {
-	case "hour", "day", "week", "month":
-	default:
-		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
-	}
-
-	out := []models.CampaignAnalyticsCount{}
-	if err := stmt.Select(&out, pq.Array(campIDs), fromDate, toDate, interval); err != nil {
-		c.log.Printf("error fetching campaign %s: %v", typ, err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
-	}
-
-	return out, nil
+	return c.getAnalyticsCounts(stmt, campIDs, fromDate, toDate, interval)
 }
 
 // GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.
-func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
-	out := []models.CampaignAnalyticsLink{}
-	if err := c.q.GetCampaignLinkCounts.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
-		c.log.Printf("error fetching campaign %s: %v", typ, err)
-		return nil, echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
-	}
-
-	return out, nil
+func (c *Core) GetCampaignAnalyticsLinks(ids []int, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
+	return c.getAnalyticsLinks(c.q.GetCampaignLinkCounts, ids, fromDate, toDate)
 }
 
 // RegisterCampaignView registers a subscriber's view on a campaign.

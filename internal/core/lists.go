@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid/v5"
+	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -236,4 +237,29 @@ func (c *Core) GetListCharts(id int, campaignViews bool) (types.JSONText, error)
 			c.i18n.Ts("globals.messages.errorFetching", "name", "list charts", "error", pqErrMsg(err)))
 	}
 	return out, nil
+}
+
+// GetListAnalyticsCounts returns subscriptions or campaign events grouped by list.
+func (c *Core) GetListAnalyticsCounts(ids []int, typ, fromDate, toDate, interval string) ([]models.CampaignAnalyticsCount, error) {
+	var stmt *sqlx.Stmt
+	switch typ {
+	case "subscriptions":
+		stmt = c.q.GetListSubscriptionCounts
+	case "unsubscriptions":
+		stmt = c.q.GetListUnsubscriptionCounts
+	case "views":
+		stmt = c.q.GetListViewCounts
+	case "clicks":
+		stmt = c.q.GetListClickCounts
+	case "bounces":
+		stmt = c.q.GetListBounceCounts
+	default:
+		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
+	}
+	return c.getAnalyticsCounts(stmt, ids, fromDate, toDate, interval)
+}
+
+// GetListAnalyticsLinks returns link counts across campaigns by lists.
+func (c *Core) GetListAnalyticsLinks(ids []int, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
+	return c.getAnalyticsLinks(c.q.GetListLinkCounts, ids, fromDate, toDate)
 }

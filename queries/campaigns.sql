@@ -478,3 +478,10 @@ WITH view AS (
 )
 INSERT INTO campaign_views (campaign_id, subscriber_id)
     VALUES((SELECT campaign_id FROM view), (SELECT subscriber_id FROM view));
+
+-- name: get-campaign-analytics-items
+SELECT id, name, sent FROM campaigns c
+WHERE id = ANY($1::INT[]) AND ($2 OR EXISTS (
+    SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND list_id = ANY($3::INT[])
+))
+ORDER BY ARRAY_POSITION($1::INT[], id);

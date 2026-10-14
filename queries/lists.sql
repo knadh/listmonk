@@ -104,13 +104,72 @@ END;
 -- name: get-list-charts
 -- Fill missing weeks, including empty/new lists absent from the cached view.
 WITH weeks AS (
-    SELECT GENERATE_SERIES(DATE_TRUNC('week', CURRENT_DATE - INTERVAL '12 months'),
+    SELECT GENERATE_SERIES(DATE_TRUNC('week', CURRENT_DATE - INTERVAL '3 months'),
                            DATE_TRUNC('week', CURRENT_DATE), INTERVAL '1 week')::DATE AS date
 )
 SELECT JSON_BUILD_OBJECT(
+    'unsubscriptions', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(c.unsubscriptions, 0)) ORDER BY w.date),
     'subscriptions', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(c.subscriptions, 0)) ORDER BY w.date),
     'campaign_views', CASE WHEN $2::BOOLEAN THEN
         JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(c.campaign_views, 0)) ORDER BY w.date)
         ELSE '[]'::JSON END
 )
 FROM weeks w LEFT JOIN mat_list_charts c ON c.list_id = $1 AND c.date = w.date;
+
+-- name: get-list-analytics-counts
+-- raw: true
+WITH counts AS (
+    SELECT campaign_id, COUNT(*) AS "count", DATE_TRUNC($4::TEXT, created_at) AS "timestamp"
+    FROM %s
+    WHERE campaign_id IN (SELECT campaign_id FROM campaign_lists WHERE list_id = ANY($1))
+        AND created_at >= $2 AND created_at <= $3
+    GROUP BY campaign_id, "timestamp"
+)
+SELECT cl.list_id, SUM(c.count)::BIGINT AS "count", c.timestamp
+FROM counts c JOIN campaign_lists cl ON cl.campaign_id = c.campaign_id
+WHERE cl.list_id = ANY($1)
+GROUP BY cl.list_id, c.timestamp ORDER BY c.timestamp;
+
+-- name: get-list-subscription-counts
+SELECT list_id, COUNT(*) AS "count", DATE_TRUNC($4::TEXT, created_at) AS "timestamp"
+FROM subscriber_lists
+WHERE list_id = ANY($1) AND created_at >= $2 AND created_at <= $3
+GROUP BY list_id, "timestamp" ORDER BY "timestamp" ASC;
+
+-- name: get-list-unsubscription-counts
+-- Memberships retain only their current status and last update, not event history.
+SELECT list_id, COUNT(*) AS "count", DATE_TRUNC($4::TEXT, updated_at) AS "timestamp"
+FROM subscriber_lists
+WHERE list_id = ANY($1) AND status = 'unsubscribed' AND updated_at >= $2 AND updated_at <= $3
+GROUP BY list_id, "timestamp" ORDER BY "timestamp" ASC;
+
+-- name: get-list-link-counts
+-- raw: true
+SELECT COUNT(%s) AS "count", url
+FROM link_clicks LEFT JOIN links ON link_clicks.link_id = links.id
+WHERE campaign_id IN (SELECT campaign_id FROM campaign_lists WHERE list_id = ANY($1))
+    AND link_clicks.created_at >= $2 AND link_clicks.created_at <= $3
+GROUP BY links.url ORDER BY "count" DESC LIMIT 50;
+
+-- name: get-list-analytics-unique-counts
+-- raw: true
+WITH uniq AS (
+    SELECT DISTINCT ON (subscriber_id, campaign_id)
+        campaign_id, DATE_TRUNC($4::TEXT, created_at) AS "timestamp"
+    FROM %s
+    WHERE campaign_id IN (SELECT campaign_id FROM campaign_lists WHERE list_id = ANY($1))
+        AND created_at >= $2 AND created_at <= $3
+    ORDER BY subscriber_id, campaign_id, "timestamp"
+), counts AS (
+    SELECT campaign_id, COUNT(*) AS "count", "timestamp"
+    FROM uniq GROUP BY campaign_id, "timestamp"
+)
+SELECT cl.list_id, SUM(c.count)::BIGINT AS "count", c.timestamp
+FROM counts c JOIN campaign_lists cl ON cl.campaign_id = c.campaign_id
+WHERE cl.list_id = ANY($1)
+GROUP BY cl.list_id, c.timestamp ORDER BY c.timestamp;
+
+-- name: get-list-analytics-items
+SELECT id, name FROM lists
+WHERE id = ANY($1::INT[]) AND ($2 OR id = ANY($3::INT[]))
+ORDER BY ARRAY_POSITION($1::INT[], id);

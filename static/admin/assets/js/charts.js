@@ -14,8 +14,8 @@ function label(iso) {
   return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
 }
 
-// Draw a filled line chart of {count, date} rows on the given canvas.
-export function lineChart(id, rows) {
+// Draw {count, date} rows, optionally adding a dashed comparison series.
+export function lineChart(id, rows, comparison) {
   const canvas = document.getElementById(id);
   if (!canvas) {
     return;
@@ -31,26 +31,36 @@ export function lineChart(id, rows) {
   const data = rows || [];
   Chart.defaults.font.family = FONT_FAMILY;
 
+  const datasets = [{
+    label: canvas.getAttribute('aria-label'),
+    data: data.map((d) => d.count),
+    borderColor: color,
+    backgroundColor: `${color.replace('rgb(', 'rgba(').replace(')', ', 0.0314)')}`,
+    borderWidth: 2,
+    fill: true,
+    tension: 0.35,
+    pointBorderWidth: 0.5,
+    pointHoverBorderWidth: 5,
+  }];
+  if (comparison) {
+    const counts = new Map(comparison.map((d) => [d.date, d.count]));
+    datasets.push({
+      ...datasets[0],
+      label: canvas.dataset.extraLabel,
+      data: data.map((d) => counts.get(d.date) || 0),
+      borderDash: [6, 4],
+      fill: false,
+    });
+  }
+
   // eslint-disable-next-line no-new
   new Chart(canvas, {
     type: 'line',
-    data: {
-      labels: data.map((d) => label(d.date)),
-      datasets: [{
-        data: data.map((d) => d.count),
-        borderColor: color,
-        backgroundColor: `${color.replace('rgb(', 'rgba(').replace(')', ', 0.0314)')}`,
-        borderWidth: 2,
-        fill: true,
-        tension: 0.35,
-        pointBorderWidth: 0.5,
-        pointHoverBorderWidth: 5,
-      }],
-    },
+    data: { labels: data.map((d) => label(d.date)), datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display: !!comparison } },
       scales: {
         x: { grid: { display: false }, border: { display: false } },
         y: { grid: { display: false }, border: { display: false }, ticks: { precision: 0 } },
