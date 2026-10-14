@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -155,4 +156,40 @@ func makeQuery(q url.Values, defaults map[string]string) url.Values {
 	}
 
 	return out
+}
+
+// compactDate, given a date, omits the current year and returns a date/time string.
+func compactDate(t, now time.Time, withTime bool, omitYear ...bool) string {
+	t = t.In(now.Location())
+	layout := "Mon, 2 Jan"
+	if t.Year() != now.Year() && !(len(omitYear) > 0 && omitYear[0]) {
+		layout += " 2006"
+	}
+	if withTime {
+		layout += ", 15:04"
+	}
+	return t.Format(layout)
+}
+
+// formatTimestamps takes 2 timestamps and returns an A - B formatted date
+// omitting shared components (same month etc.).
+func formatTimestamps(from, to, now time.Time) string {
+	from, to = from.In(now.Location()), to.In(now.Location())
+	if from.IsZero() || to.IsZero() || to.Before(from) {
+		return ""
+	}
+
+	endLayout := "Mon 02 Jan 2006"
+	if from.Year() == to.Year() && from.YearDay() == to.YearDay() {
+		return from.Format("15:04") + " - " + to.Format("15:04") + "\n" + to.Format(endLayout)
+	}
+
+	startLayout := "Mon 02"
+	if from.Month() != to.Month() || from.Year() != to.Year() {
+		startLayout += " Jan"
+	}
+	if from.Year() != to.Year() && from.Year() != now.Year() {
+		startLayout += " 2006"
+	}
+	return from.Format(startLayout) + " - " + to.Format(endLayout)
 }
