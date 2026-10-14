@@ -32,7 +32,7 @@ function component(list = null) {
     // Event handlers.
     async onSubmitNew() {
       const data = await api('lists.save', '/lists', 'POST', this._payload());
-      u.redirect(`${urls.admin}/lists`, { message: i18n.ts('globals.messages.created', { name: data.name }) });
+      u.redirect(`${urls.admin}/lists/${data.id}`, { message: i18n.ts('globals.messages.created', { name: data.name }) });
     },
 
     async onSubmitUpdate() {

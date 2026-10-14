@@ -36,8 +36,11 @@ type listsView struct {
 type listView struct {
 	adminView
 
-	IsNew bool
-	List  models.List
+	IsNew     bool
+	Tab       string
+	List      models.List
+	Campaigns []models.Campaign
+	Page      models.PageProps
 }
 
 // publicListForm is the minimal list representation used by the forms view.
@@ -96,7 +99,7 @@ func (a *App) ViewNewList(c echo.Context) error {
 	return c.Render(http.StatusOK, "admin-list", data)
 }
 
-// ViewList renders the HTML view for editing a list.
+// ViewList renders the list overview and editor.
 func (a *App) ViewList(c echo.Context) error {
 	user := auth.GetUser(c)
 
@@ -111,9 +114,22 @@ func (a *App) ViewList(c echo.Context) error {
 		return err
 	}
 
+	tab := "list"
+	if strings.HasSuffix(c.Path(), "/edit") {
+		tab = "edit"
+	}
+
 	data := listView{
 		adminView: newAdminView(c, list.Name+" / "+a.i18n.T("globals.terms.lists"), "", "lists.all"),
 		List:      list,
+		Tab:       tab,
+	}
+
+	if tab == "list" && data.Can("campaigns:get", "campaigns:get_all") {
+		data.Campaigns, data.Page, err = a.getViewCampaigns(c, id)
+		if err != nil {
+			return err
+		}
 	}
 
 	return c.Render(http.StatusOK, "admin-list", data)

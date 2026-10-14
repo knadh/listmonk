@@ -212,7 +212,7 @@ func (a *App) ViewCampaigns(c echo.Context) error {
 }
 
 // getViewCampaigns queries paginated campaigns for the HTML list view.
-func (a *App) getViewCampaigns(c echo.Context) ([]models.Campaign, models.PageProps, error) {
+func (a *App) getViewCampaigns(c echo.Context, listIDs ...int) ([]models.Campaign, models.PageProps, error) {
 	q := makeQuery(c.Request().URL.Query(), campaignsQueryDefaults)
 
 	// Get the authenticated user.
@@ -224,6 +224,10 @@ func (a *App) getViewCampaigns(c echo.Context) ([]models.Campaign, models.PagePr
 	var permittedLists []int
 	if !hasAllPerm {
 		hasAllPerm, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	}
+
+	if len(listIDs) > 0 {
+		hasAllPerm, permittedLists = false, listIDs
 	}
 
 	// Run the DB query.

@@ -80,12 +80,12 @@
 					{{- range $d.Lists }}
 						<tr class="list-main-row" data-testid="list-row" data-id="{{ .ID }}">
 							<td><input name="id" type="checkbox" value="{{ .ID }}"></td>
-							<td>
+							<td class="list-name">
 								<div class="avatar{{ if eq .Status "archived" }} disabled{{ end }}">
 									{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
 									<div class="avatar-label">
 										<a href="{{ URI "/admin/lists" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a>
-										{{- if .Description }}<div class="text-light text-8">{{ .Description }}</div>{{ end }}
+										{{- if .Description }}<div class="description text-light text-8" title="{{ .Description }}">{{ .Description }}</div>{{ end }}
 										<div class="hstack gap-2 text-8">
 											{{ range .Tags }}<a href="?{{ $d.Page.Encode "tag" }}&tag={{ . }}" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a>{{ end }}
 										</div>
@@ -139,14 +139,17 @@
 								<!-- <p class="text-lighter text-8">{{ NiceDate .UpdatedAt }}</p> -->
 							</td>
 							<td class="actions align-right">
-								{{- if or ($d.Can "campaigns:manage" "campaigns:manage_all") ($d.CanManageList .ID) ($d.Can "subscribers:import") }}
 									<ot-dropdown>
 										<button popovertarget="list-actions-{{ .ID }}" type="button" class="ghost more icon" aria-label="{{ $.L.T "globals.buttons.more" }}">
 											{{ Icon "more-vertical" }}
 										</button>
 										<menu popover id="list-actions-{{ .ID }}">
+											<a href="{{ URI "/admin/lists" }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-view">{{ Icon "eye" }} {{ $.L.T "globals.buttons.view" }}</a>
+											{{- if or ($d.Can "campaigns:manage" "campaigns:manage_all") ($d.CanManageList .ID) ($d.Can "subscribers:import") }}
+												<hr />
+											{{- end }}
 											{{- if $d.CanManageList .ID }}
-												<a href="{{ URI "/admin/lists" }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
+												<a href="{{ URI "/admin/lists" }}/{{ .ID }}/edit" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 											{{- end }}
 											{{- if $d.Can "subscribers:import" }}
 												<a href="{{ URI "/admin/import" }}?list_id={{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-import">{{ Icon "upload" }} {{ $.L.T "globals.terms.import" }}</a>
@@ -154,7 +157,7 @@
 											{{- if $d.CanManageList .ID }}
 												<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete" :disabled="isLoading('lists')" @click.prevent="onDeleteList({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "trash-2" }} {{ $.L.T "globals.buttons.delete" }}</button>
 											{{- end }}
-											<hr />
+											{{- if and ($d.Can "campaigns:manage" "campaigns:manage_all") (or ($d.CanManageList .ID) ($d.Can "subscribers:import")) }}<hr />{{ end }}
 											{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}
 												<a href="{{ URI "/admin/campaigns/new" }}?list_id={{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-campaign">{{ Icon "send" }} {{ $.L.T "campaigns.newCampaign" }}</a>
 											{{- end }}
@@ -165,7 +168,6 @@
 											{{- end }}
 										</menu>
 									</ot-dropdown>
-								{{- end }}
 							</td>
 						</tr>
 					{{- else }}

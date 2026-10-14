@@ -8,7 +8,7 @@
 <script>const _form = {{ if $d.IsNew }}null{{ else }}{{ ToJSON $d.List }}{{ end }};</script>
 <section class="lists" x-data="listsView(_form)">
 	<header class="page-header">
-		<div class="hstack gap-1">
+		<div class="hstack gap-3">
 			<div class="avatar avatar-title{{ if eq $d.List.Status "archived" }} disabled{{ end }}">
 				{{ if not $d.IsNew }}{{ template "avatar-icon" dict "Kind" "list" "Name" $d.List.Name }}{{ end }}
 				<h1 class="page-title avatar-label">{{ if $d.IsNew }}{{ .L.T "lists.newList" }}{{ else }}{{ $d.List.Name }}{{ end }}</h1>
@@ -19,11 +19,24 @@
 	{{ if $d.IsNew }}
 		{{ template "list-form" dict "Root" . "Submit" "onSubmitNew" "IsNew" true "CanSave" ($d.Can "lists:manage_all") }}
 	{{ else }}
-		{{ template "list-form" dict "Root" . "Submit" "onSubmitUpdate" "CanSave" ($d.CanManageList $d.List.ID) }}
+		{{- $base := printf "%s/%d" (URI "/admin/lists") $d.List.ID -}}
+		<div role="tablist" data-variant="primary">
+			<a role="tab" href="{{ $base }}" {{ if eq $d.Tab "list" }}aria-selected="true"{{ end }}>{{ Icon "list" }} {{ .L.T "globals.buttons.view" }}</a>
+			<a role="tab" href="{{ $base }}/edit" {{ if eq $d.Tab "edit" }}aria-selected="true"{{ end }}>{{ Icon "edit-2" }} {{ .L.T "globals.buttons.edit" }}</a>
+		</div>
+		{{ if eq $d.Tab "edit" }}
+			{{ template "list-form" dict "Root" . "Submit" "onSubmitUpdate" "CanSave" ($d.CanManageList $d.List.ID) }}
+		{{ else }}
+			{{ template "list-info" . }}
+		{{ end }}
 	{{ end }}
 </section>
 
 <script type="module" src="{{ URI "/admin/static/js/views/lists.js" }}?v={{ .AssetVersion }}" defer></script>
+
+{{ if and (eq $d.Tab "list") ($d.Can "campaigns:get" "campaigns:get_all") }}
+<script type="module" src="{{ URI "/admin/static/js/views/campaigns.js" }}?v={{ .AssetVersion }}" defer></script>
+{{ end }}
 
 {{ template "admin-footer" . -}}
 {{ end }}

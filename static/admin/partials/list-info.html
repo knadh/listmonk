@@ -1,0 +1,94 @@
+{{ define "list-info" -}}
+{{- $d := .Data -}}
+{{- $l := $d.List -}}
+{{- $base := printf "%s/%d" (URI "/admin/lists") $l.ID -}}
+{{- $subs := printf "%s/%d" (URI "/admin/subscribers/lists") $l.ID -}}
+<div class="vstack gap-6">
+	<div class="card">
+		<div class="row">
+			<div class="col-3">
+				<div class="hstack gap-2">
+					{{- $typeIcon := "eye-off" }}{{ if eq $l.Type "public" }}{{ $typeIcon = "eye" }}{{ end }}
+					<a href="{{ URI "/admin/lists" }}?type={{ $l.Type }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "lists.types.%s" $l.Type) }}">{{ Badge (list (Icon $typeIcon) (.L.T (printf "lists.types.%s" $l.Type))) (printf "enum type-%s" $l.Type) }}</a>
+					{{- $icon := "user-x" }}{{ if eq $l.Optin "double" }}{{ $icon = "user-check" }}{{ end }}
+					<a href="{{ URI "/admin/lists" }}?optin={{ $l.Optin }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "lists.optins.%s" $l.Optin) }}">{{ Badge (list (Icon $icon) (.L.T (printf "lists.optins.%s" $l.Optin))) "enum" }}</a>
+					{{ if eq $l.Status "archived" }}{{ Badge (.L.T "lists.archived") "enum status-archived" }}{{ end }}
+				</div>
+			</div>
+			<div class="col-9">
+				{{ if or $l.Description $l.Tags }}
+				<p class="text-small text-light mb-2">
+					{{ $l.Description }}
+					{{ range $l.Tags }} <a href="{{ URI "/admin/lists" }}?tag={{ . }}" class="tag" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a>{{ end }}
+				</p>
+				{{ end }}
+				<div class="hstack gap-2 justify-end">
+					<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+						<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
+					</button>
+					<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+						<strong>{{ .L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<section class="row">
+		<div class="col-3">
+			<article class="card float stat-card">
+				<h4 class="title text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</h4>
+				<div class="stat-value"><a href="{{ $subs }}" class="unstyled">{{ FormatNumber $l.SubscriberCount }}</a></div>
+			</article>
+		</div>
+		{{ range list "confirmed" "unconfirmed" "unsubscribed" }}
+			<div class="col-3">
+				<article class="card float stat-card">
+					<h4 class="title text-light">{{ $.L.T (printf "subscribers.status.%s" .) }}</h4>
+					<div class="stat-value"><a href="{{ $subs }}?subscription_status={{ . }}" class="unstyled">{{ FormatNumber (index $l.SubscriberCounts .) }}</a></div>
+				</article>
+			</div>
+		{{ end }}
+	</section>
+	<section class="row">
+		<div class="col-6">
+			<article class="card float">
+				<h5 class="title">{{ .L.Tc "globals.terms.subscriptions" 2 }}</h5>
+				<div class="chart-box"><canvas id="chart-subscriptions" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas></div>
+			</article>
+		</div>
+		{{ if $d.CanViewCampaignCharts }}
+		<div class="col-6">
+			<article class="card float">
+				<h5 class="title">{{ .L.T "dashboard.campaignViews" }}</h5>
+				<div class="chart-box"><canvas id="chart-list-views" role="img" aria-label="{{ .L.T "dashboard.campaignViews" }}"></canvas></div>
+			</article>
+		</div>
+		{{ end }}
+	</section>
+	{{ if $d.CacheSlowQueries }}
+	<p class="text-small text-light">{{ .L.T "globals.messages.slowQueriesCached" }}</p>
+	{{ end }}
+	<script>window._listCharts = {{ ToJSON $d.Charts }};</script>
+	{{ if $d.Can "campaigns:get" "campaigns:get_all" }}
+	<section class="campaigns" x-data="campaignsView">
+		<article class="card float page-content has-table">
+			<h5 class="title">{{ .L.T "globals.terms.campaigns" }} ({{ $d.Page.Total }})</h5>
+			<!-- <header class="align-right">
+				<form method="get" action="{{ $base }}" class="search-form">
+					{{ $d.Page.FormFields "query" "page" }}
+					<fieldset class="group">
+						<input name="query" aria-label="{{ .L.T "globals.buttons.search" }}" placeholder="{{ .L.T "campaigns.queryPlaceholder" }}" value="{{ $d.Page.Query }}" />
+						<button type="submit" class="outline external" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
+					</fieldset>
+				</form>
+			</header> -->
+			{{ if or ($d.Page.Param "status") ($d.Page.Param "type") ($d.Page.Param "tag") $d.Page.Query }}
+				<p><a href="{{ $base }}">{{ .L.T "globals.buttons.clear" }}</a></p>
+			{{ end }}
+			{{ template "campaigns-table" dict "Root" . "Base" $base "Readonly" true }}
+		</article>
+		{{ template "campaign-preview" . }}
+	</section>
+	{{ end }}
+</div>
+{{ end }}

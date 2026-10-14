@@ -195,7 +195,7 @@ ot-tabs:not(:defined) {
 }
 
 [role="tablist"][data-variant="primary"] {
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
     background-color: light-dark(#ededee, var(--muted));
 }
 
@@ -1239,6 +1239,20 @@ section.dashboard {
 
 /* Lists */
 section.lists {
+    td.list-name {
+        max-width: 0;
+
+        > .avatar {
+            display: flex;
+        }
+
+        .description {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
     .subscriber-breakdown {
         margin-top: var(--space-2);
 
