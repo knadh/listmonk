@@ -82,11 +82,15 @@
 									<tr>
 										<td width="55%">
 											<div class="avatar{{ if eq .Status "cancelled" }} disabled{{ end }}">
-												{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name }}
+												{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/campaigns") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 												<div class="avatar-label"><a href="{{ URI "/admin/campaigns" }}/{{ .ID }}" class="unstyled">{{ .Name }}</a></div>
 											</div>
 										</td>
-										<td width="20%">{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}</td>
+										<td width="20%">
+											<a href="{{ URI "/admin/campaigns" }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "campaigns.status.%s" .Status) }}">
+												{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}
+											</a>
+										</td>
 										<td width="20%"class="text-light">
 											{{- if and (eq .Status "scheduled") .SendAt.Valid }}{{ NiceDate .SendAt }}{{ else }}{{ NiceDate .CreatedAt }}{{ end -}}
 										</td>
