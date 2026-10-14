@@ -1308,7 +1308,8 @@ section.lists {
 }
 
 /* Subscribers */
-.subscribers td.email .lists {
+.subscribers td.email .lists,
+.campaigns td.name .lists {
     list-style-type: none;
     margin: 0;
     padding-inline-start: 0;
@@ -1374,6 +1375,29 @@ section.lists {
 
 /* Campaigns */
 section.campaigns {
+    td.name .lists {
+        margin-top: var(--space-2);
+        row-gap: var(--space-1);
+    }
+
+    .ot-tooltip::after {
+        white-space: pre-line;
+        line-height: 1.5;
+        width: max-content;
+        max-width: min(36rem, calc(100vw - 2rem));
+        text-align: start;
+    }
+
+    .campaign-progress {
+        white-space: nowrap;
+
+        progress {
+            width: 4rem;
+            margin: 0;
+            height: .2rem;
+        }
+    }
+
     tbody {
         .spinner {
             display: inline-flex;
@@ -1389,39 +1413,10 @@ section.campaigns {
             }
         }
 
-        td.counts {
-            border-left: 1px solid var(--border);
-            padding-left: var(--space-4);
-        }
-
-        td.lists ul {
-            list-style-type: none;
-            margin: 0;
-            padding-inline-start: 0;
-
-            li {
-                align-items: center;
-                gap: var(--space-2);
-                max-width: 16ch;
-
-                a {
-                    min-width: 0;
-                    display: block;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-            }
-
-        }
-
         td.draft {
             color: var(--faint-foreground);
         }
 
-        td.stats dt {
-            min-width: 75px;
-        }
     }
 }
 
@@ -1992,10 +1987,6 @@ section.users {
         }
 
         td.stats {
-            &:not(:has(dd)) {
-                display: none;
-            }
-
             dl {
                 row-gap: var(--space-3);
             }
@@ -2111,6 +2102,11 @@ section.users {
         .subscriber-legend {
             flex-wrap: wrap;
         }
+    }
+
+    section.campaigns td.analytics > div {
+        flex-direction: row;
+        column-gap: var(--space-4);
     }
 
     section.campaign {

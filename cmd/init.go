@@ -1316,6 +1316,28 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 
 			return niceDate(t, layout)
 		},
+		"CompactDate": func(v any, withTime ...bool) string {
+			t, ok := toTime(v)
+			if !ok {
+				return ""
+			}
+			return compactDate(t, time.Now(), len(withTime) > 0 && withTime[0], len(withTime) > 1 && withTime[1])
+		},
+		"FormatTimestamps": func(from, to any) string {
+			f, fok := toTime(from)
+			t, tok := toTime(to)
+			if !fok || !tok {
+				return ""
+			}
+			return formatTimestamps(f, t, time.Now())
+		},
+		"ExactDate": func(v any) string {
+			t, ok := toTime(v)
+			if !ok {
+				return ""
+			}
+			return t.In(time.Local).Format("Mon, 2 Jan 2006, 15:04:05 MST (UTC Z07:00)")
+		},
 		"Duration": func(from, to any) string {
 			f, ok := toTime(from)
 			if !ok {
@@ -1466,7 +1488,6 @@ func parseTextTemplatesGlob(f txttpl.FuncMap, fs stuffbin.FileSystem, pattern st
 	return tpl, nil
 }
 
-// niceDate formats the given date for template rendering.
 // toTime extracts a non-zero time.Time out of a time.Time or null.Time value.
 func toTime(t any) (time.Time, bool) {
 	switch v := t.(type) {
@@ -1479,21 +1500,13 @@ func toTime(t any) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-func niceDate(t any, layout string) string {
-	switch v := t.(type) {
-	case time.Time:
-		if v.IsZero() {
-			return ""
-		}
-		return v.Format(layout)
-	case null.Time:
-		if !v.Valid {
-			return ""
-		}
-		return v.Time.Format(layout)
+// niceDate formats the given date for template rendering.
+func niceDate(v any, layout string) string {
+	t, ok := toTime(v)
+	if !ok {
+		return ""
 	}
-
-	return ""
+	return t.Format(layout)
 }
 
 // badgeContent renders the content of a badge. Pre-rendered markup (eg: Icon())

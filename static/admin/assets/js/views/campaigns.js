@@ -152,18 +152,21 @@ function component() {
 
       const set = (name, val) => {
         const el = row.querySelector(`[data-stat="${name}"]`);
-        if (el) {
-          el.textContent = val;
-        }
+        if (el) el.textContent = val;
       };
       set('sent', u.formatNumber(c.sent));
+      const sentCount = row.querySelector('[data-sent-count]');
+      if (sentCount) {
+        sentCount.hidden = c.sent === 0;
+      }
       set('to_send', u.formatNumber(c.to_send));
       set('rate', Math.round(c.rate || 0));
+      set('percent', `${c.to_send > 0 ? Math.floor((c.sent / c.to_send) * 100) : 0}%`);
 
       const prog = row.querySelector('[data-stat="progress"]');
       if (prog) {
         prog.value = c.sent;
-        prog.max = c.to_send;
+        prog.max = c.to_send || 1;
       }
     },
   };
