@@ -108,6 +108,10 @@ CREATE TABLE campaigns (
     status           campaign_status NOT NULL DEFAULT 'draft',
     tags             VARCHAR(100)[],
 
+    -- Optional SQL expression (on the subscribers table) that narrows down
+    -- the subscribers of the campaign's lists to a segment.
+    segment_query    TEXT NOT NULL DEFAULT '',
+
     -- The subscription statuses of subscribers to which a campaign will be sent.
     -- For opt-in campaigns, this will be 'unsubscribed'.
     type campaign_type DEFAULT 'regular',

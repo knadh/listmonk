@@ -1656,6 +1656,76 @@ paths:
                   data:
                     type: boolean
 
+  "/campaigns/segment/preview":
+    post:
+      description: dry-runs a campaign segment query against the given lists without saving or sending anything. A non-empty segment_query requires the subscribers:sql_query permission.
+      operationId: previewCampaignSegment
+      tags:
+        - Campaigns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - lists
+              properties:
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: List IDs to run the segment against.
+                segment_query:
+                  type: string
+                  description: SQL expression to segment subscribers. If empty, all subscribers in the lists match.
+                type:
+                  type: string
+                  enum: [regular, optin]
+                  description: Campaign type. Defaults to regular.
+                limit:
+                  type: integer
+                  description: Number of sample subscribers to return (max 50).
+      responses:
+        "200":
+          description: segment dry-run result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CampaignSegmentPreview"
+
+  "/campaigns/{id}/segment/preview":
+    get:
+      description: dry-runs an existing campaign's saved segment against its lists without sending anything.
+      operationId: previewCampaignSegmentById
+      tags:
+        - Campaigns
+      parameters:
+        - in: path
+          name: id
+          description: campaign id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: Number of sample subscribers to return (max 50).
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: segment dry-run result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CampaignSegmentPreview"
+
   "/media":
     get:
       description: handles retrieval of uploaded media.
@@ -3918,6 +3988,9 @@ components:
           type: integer
         messenger:
           type: string
+        segment_query:
+          type: string
+          description: Optional SQL expression (eg. subscribers.attribs->>'lang' = 'tr') to send the campaign only to the subscribers in its lists that match it. Setting or changing it requires the subscribers:sql_query permission. If omitted on update, the existing segment is retained.
 
     CampaignContentRequest:
       type: object
@@ -4016,6 +4089,9 @@ components:
                 type: object
             template_id:
               type: number
+        segment_query:
+          type: string
+          description: Optional SQL expression (eg. subscribers.attribs->>'lang' = 'tr') to send the campaign only to the subscribers in its lists that match it. Setting or changing it requires the subscribers:sql_query permission. If omitted on update, the existing segment is retained.
 
     CampaignUpdate:
       type: object
@@ -4060,6 +4136,37 @@ components:
           type: integer
         archive_meta:
           type: object
+        segment_query:
+          type: string
+          description: Optional SQL expression (eg. subscribers.attribs->>'lang' = 'tr') to send the campaign only to the subscribers in its lists that match it. Setting or changing it requires the subscribers:sql_query permission. If omitted on update, the existing segment is retained.
+
+    CampaignSegmentPreview:
+      type: object
+      properties:
+        matched:
+          type: integer
+          description: Number of subscribers in the lists that match the segment.
+        total:
+          type: integer
+          description: Number of subscribers the campaign would be sent to without the segment.
+        results:
+          type: array
+          description: Sample of the matching subscribers. Empty if the user doesn't have the subscribers:get or subscribers:get_all permission.
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              uuid:
+                type: string
+              email:
+                type: string
+              name:
+                type: string
+              status:
+                type: string
+              attribs:
+                type: object
 
     CampaignStats:
       type: object

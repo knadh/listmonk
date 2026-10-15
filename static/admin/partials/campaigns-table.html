@@ -98,6 +98,9 @@
 									{{- end }}
 								</div>
 								{{- end }}
+								{{- if .SegmentQuery }}
+									<div class="segment text-8 text-light" title="{{ $root.L.T "campaigns.segment" }}: {{ .SegmentQuery }}" data-cy="campaign-segment">{{ Icon "users" }} <code>{{ .SegmentQuery }}</code></div>
+								{{- end }}
 							</div>
 						</div>
 					</td>

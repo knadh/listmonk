@@ -46,5 +46,13 @@ bun playwright install --with-deps chromium
 bun run test
 ```
 
+### Go tests
+
+Run `make test` (`go test ./...`) to run the Go tests. Tests that need a Postgres database are skipped unless the `LISTMONK_TEST_DB` environment variable is set to a Postgres URL of a server where the user can create databases. Every such test creates a new, uniquely named database and drops it once done. Existing databases are not touched.
+
+```sh
+LISTMONK_TEST_DB='postgres://listmonk:listmonk@localhost:5432/postgres?sslmode=disable' make test
+```
+
 # Production build
 Run `make dist` to build the SSR admin frontend and the Go binary, embedding the static assets into a single self-contained binary, `listmonk`.

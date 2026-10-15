@@ -52,5 +52,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS mat_list_charts_idx ON mat_list_charts (list_i
 		return err
 	}
 
+	// Campaign segmentation.
+	if _, err := db.Exec(`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS segment_query TEXT NOT NULL DEFAULT ''`); err != nil {
+		return err
+	}
+
 	return nil
 }

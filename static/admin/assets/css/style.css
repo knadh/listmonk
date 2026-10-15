@@ -1399,6 +1399,13 @@ section.campaigns {
         row-gap: var(--space-1);
     }
 
+    td.name .segment {
+        max-width: 40ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .ot-tooltip::after {
         white-space: pre-line;
         line-height: 1.5;

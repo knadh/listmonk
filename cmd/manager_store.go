@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/manager"
@@ -15,6 +17,7 @@ type store struct {
 	queries *models.Queries
 	core    *core.Core
 	media   media.Store
+	log     *log.Logger
 }
 
 type runningCamp struct {
@@ -22,14 +25,16 @@ type runningCamp struct {
 	CampaignType     string `db:"campaign_type"`
 	LastSubscriberID int    `db:"last_subscriber_id"`
 	MaxSubscriberID  int    `db:"max_subscriber_id"`
+	SegmentQuery     string `db:"segment_query"`
 	ListID           int    `db:"list_id"`
 }
 
-func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
+func newManagerStore(q *models.Queries, c *core.Core, m media.Store, lo *log.Logger) *store {
 	return &store{
 		queries: q,
 		core:    c,
 		media:   m,
+		log:     lo,
 	}
 }
 
@@ -38,8 +43,61 @@ func newManagerStore(q *models.Queries, c *core.Core, m media.Store) *store {
 // of campaigns that are being processed and updates them in the DB.
 func (s *store) NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error) {
 	var out []*models.Campaign
-	err := s.queries.NextCampaigns.Select(&out, pq.Int64Array(currentIDs), pq.Int64Array(sentCounts))
-	return out, err
+	if err := s.queries.NextCampaigns.Select(&out, pq.Int64Array(currentIDs), pq.Int64Array(sentCounts)); err != nil {
+		return nil, err
+	}
+
+	// next-campaigns computes to_send across all the subscribers in a campaign's lists.
+	// For segmented campaigns, recompute it with the segment applied.
+	res := out[:0]
+	for _, c := range out {
+		if c.SegmentQuery == "" {
+			res = append(res, c)
+			continue
+		}
+
+		if err := s.updateSegmentToSend(c); err != nil {
+			// Pause the campaign as the segment query can't be run.
+			s.log.Printf("error counting segment subscribers for campaign (%s). Pausing: %v", c.Name, err)
+			if _, err := s.queries.UpdateCampaignStatus.Exec(c.ID, models.CampaignStatusPaused); err != nil {
+				s.log.Printf("error pausing campaign (%s): %v", c.Name, err)
+			}
+			continue
+		}
+
+		res = append(res, c)
+	}
+
+	return res, nil
+}
+
+// updateSegmentToSend counts the subscribers matching a segmented campaign
+// and updates the campaign's to_send count.
+func (s *store) updateSegmentToSend(c *models.Campaign) error {
+	var camps []runningCamp
+	if err := s.queries.GetRunningCampaign.Select(&camps, c.ID); err != nil {
+		return err
+	}
+	if len(camps) == 0 {
+		return nil
+	}
+
+	listIDs := make([]int, 0, len(camps))
+	for _, rc := range camps {
+		listIDs = append(listIDs, rc.ListID)
+	}
+
+	n, err := s.core.CountCampaignSegment(listIDs, camps[0].CampaignType, camps[0].SegmentQuery, camps[0].MaxSubscriberID)
+	if err != nil {
+		return err
+	}
+
+	if _, err := s.queries.UpdateCampaignToSend.Exec(c.ID, n); err != nil {
+		return err
+	}
+	c.ToSend = n
+
+	return nil
 }
 
 // NextSubscribers retrieves a subset of subscribers of a given campaign.
@@ -59,6 +117,21 @@ func (s *store) NextSubscribers(campID, limit int) ([]models.Subscriber, error) 
 
 	if len(listIDs) == 0 {
 		return nil, nil
+	}
+
+	// Segmented campaign. Fetch the subscribers matching the segment (in a read-only transaction)
+	// and advance the last_subscriber_id checkpoint separately.
+	if c := camps[0]; c.SegmentQuery != "" {
+		out, err := s.core.GetCampaignSegmentSubscribers(listIDs, c.CampaignType, c.SegmentQuery, c.LastSubscriberID, c.MaxSubscriberID, limit)
+		if err != nil || len(out) == 0 {
+			return out, err
+		}
+
+		if _, err := s.queries.UpdateCampaignCounts.Exec(c.CampaignID, 0, 0, out[len(out)-1].ID); err != nil {
+			return nil, err
+		}
+
+		return out, nil
 	}
 
 	var out []models.Subscriber

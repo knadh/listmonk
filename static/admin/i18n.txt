@@ -37,6 +37,7 @@ campaigns.statusChanged
 campaigns.confirmSwitchFormat
 campaigns.confirmOverwriteContent
 campaigns.testSent
+campaigns.segmentMatches
 
 # Rich-text editor (strings used by JS in richtext-editor.js).
 globals.terms.none

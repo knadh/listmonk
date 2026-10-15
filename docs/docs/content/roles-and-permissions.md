@@ -47,6 +47,8 @@ A user account can be of two types, a regular user or an API user. API users are
 
 This permission allowers users to write and execute arbitrary SQL queries on the database. Although it is executed as a read-only transaction disallowing changing of data in the database tables, it allows querying of all lists, subscribers and other data directly from the database superceding individual list and subscriber permissions.
 
+This permission is also required to set or change a campaign's segment (`segment_query`), which is an SQL expression that narrows down the subscribers a campaign is sent to, and to dry-run arbitrary segments. See [segmenting campaigns](querying-and-segmentation.md#segmenting-campaigns).
+
 Raw SQL expressions also make it possible to obtain Postgres database configuration and potentially interact with other Postgres system features. Give this permission ONLY to trusted users.
 
 If this permission is being assigned to many users, it is highly recommended that you create a custom Postgres role disallowing any privileged operations. For example:

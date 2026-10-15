@@ -68,6 +68,7 @@
 		<div role="tablist" data-variant="primary">
 			<a role="tab" aria-selected="true">{{ Icon "mail" }} {{ .L.Tc "globals.terms.campaign" 1 }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "file-text" }} {{ .L.T "campaigns.content" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "users" }} {{ .L.T "campaigns.segment" }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "paperclip" }} {{ .L.T "campaigns.attachments" }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "archive" }} {{ .L.T "campaigns.archive" }}</a>
@@ -79,6 +80,7 @@
 			<div role="tablist" data-variant="primary">
 				<button type="button" role="tab" id="campaign">{{ Icon "send" }} {{ .L.Tc "globals.terms.campaign" 1 }}</button>
 				<button type="button" role="tab" id="content">{{ Icon "align-left" }} {{ .L.T "campaigns.content" }}</button>
+				<button type="button" role="tab" id="segment" data-cy="tab-segment">{{ Icon "users" }} {{ .L.T "campaigns.segment" }} <span x-cloak x-show="form.segment_query.trim() !== ''">{{ Icon "check-circle" }}</span></button>
 				<button type="button" role="tab" id="attribs">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }} <span x-cloak x-show="form.attribsStr.trim() !== '' && form.attribsStr.trim() !== '{}'">{{ Icon "check-circle" }}</span></button>
 				<button type="button" role="tab" id="attachments">{{ Icon "paperclip" }} {{ .L.T "campaigns.attachments" }} <span x-cloak x-show="form.media.length" x-text="`(${form.media.length})`"></span></button>
 				<button type="button" role="tab" id="archive">{{ Icon "archive" }} {{ .L.T "campaigns.archive" }} <span x-cloak x-show="form.archive">{{ Icon "check-circle" }}</span></button>
@@ -130,6 +132,7 @@
 
 			<div role="tabpanel">{{ template "campaign-form" dict "Root" . "IsNew" $isNew "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-content" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
+			<div role="tabpanel">{{ template "campaign-segment" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-attribs" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-attachments" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-archive" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>

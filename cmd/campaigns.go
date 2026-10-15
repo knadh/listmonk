@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -127,7 +128,7 @@ func (a *App) ViewCampaign(c echo.Context) error {
 	id := getID(c)
 
 	switch c.Param("tab") {
-	case "content", "attribs", "archive":
+	case "content", "segment", "attribs", "archive":
 		return c.Redirect(http.StatusFound, fmt.Sprintf("%s/campaigns/%d#tab=%s", uriAdmin, id, c.Param("tab")))
 	}
 
@@ -487,6 +488,13 @@ func (a *App) CreateCampaign(c echo.Context) error {
 		o.ArchiveTemplateID = o.TemplateID
 	}
 
+	// Validate the optional segment query.
+	if q, err := a.validateCampaignSegment(c, o.SegmentQuery, ""); err != nil {
+		return err
+	} else {
+		o.SegmentQuery = q
+	}
+
 	out, err := a.core.CreateCampaign(o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
@@ -539,9 +547,92 @@ func (a *App) UpdateCampaign(c echo.Context) error {
 		o = c
 	}
 
+	// Validate the optional segment query.
+	if q, err := a.validateCampaignSegment(c, o.SegmentQuery, cm.SegmentQuery); err != nil {
+		return err
+	} else {
+		o.SegmentQuery = q
+	}
+
 	out, err := a.core.UpdateCampaign(id, o.Campaign, o.ListIDs, o.MediaIDs)
 	if err != nil {
 		return err
+	}
+
+	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// PreviewCampaignSegment handles the dry-run of a campaign segment query. It returns the
+// number of subscribers in the given lists that match the segment, the total number of
+// subscribers in the lists, and a sample of the matching subscribers.
+func (a *App) PreviewCampaignSegment(c echo.Context) error {
+	var req struct {
+		ListIDs      []int  `json:"lists"`
+		Type         string `json:"type"`
+		SegmentQuery string `json:"segment_query"`
+		Limit        int    `json:"limit"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	query := formatSQLExp(req.SegmentQuery)
+	if user := auth.GetUser(c); query != "" && !user.HasPerm(auth.PermSubscribersSqlQuery) {
+		return echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+	}
+
+	return a.previewSegment(c, req.ListIDs, req.Type, query, req.Limit)
+}
+
+// PreviewCampaignSegmentByID handles the dry-run of an existing campaign's saved segment
+// against its lists, returning the same response as PreviewCampaignSegment.
+func (a *App) PreviewCampaignSegmentByID(c echo.Context) error {
+	id := getID(c)
+
+	// Check if the user has access to the campaign.
+	if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+		return err
+	}
+
+	camp, err := a.core.GetCampaign(id, "", "")
+	if err != nil {
+		return err
+	}
+
+	// Lists that have been deleted since have ID 0.
+	var listIDs []int
+	for _, l := range camp.ParsedLists() {
+		if l.ID > 0 {
+			listIDs = append(listIDs, l.ID)
+		}
+	}
+
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	return a.previewSegment(c, listIDs, camp.Type, camp.SegmentQuery, limit)
+}
+
+// previewSegment runs a segment dry-run on the lists the user has access to and
+// writes the response. The sample subscribers are only returned if the user can view subscribers.
+func (a *App) previewSegment(c echo.Context, listIDs []int, campType, query string, limit int) error {
+	// Filter lists against the current user's permitted lists.
+	user := auth.GetUser(c)
+	listIDs = user.FilterListsByPerm(auth.PermTypeGet|auth.PermTypeManage, listIDs)
+	if len(listIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("campaigns.fieldInvalidListIDs"))
+	}
+
+	if campType != models.CampaignTypeOptin {
+		campType = models.CampaignTypeRegular
+	}
+
+	out, err := a.core.PreviewCampaignSegment(listIDs, campType, query, limit)
+	if err != nil {
+		return err
+	}
+
+	if !user.HasPerm(auth.PermSubscribersGet) && !user.HasPerm(auth.PermSubscribersGetAll) {
+		out.Results = []core.SegmentSubscriber{}
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
@@ -912,6 +1003,28 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	}
 
 	return c, nil
+}
+
+// validateCampaignSegment sanitizes and validates an incoming campaign segment query.
+// Setting or changing a segment query requires the subscribers:sql_query permission as it's
+// an arbitrary SQL expression. oldQuery is the campaign's existing query (if any) which
+// may be retained by users without the permission.
+func (a *App) validateCampaignSegment(c echo.Context, query, oldQuery string) (string, error) {
+	query = formatSQLExp(query)
+	if query == "" || query == oldQuery {
+		return query, nil
+	}
+
+	if user := auth.GetUser(c); !user.HasPerm(auth.PermSubscribersSqlQuery) {
+		return "", echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersSqlQuery))
+	}
+
+	if err := a.core.ValidateCampaignSegment(query); err != nil {
+		return "", err
+	}
+
+	return query, nil
 }
 
 // makeOptinCampaignMessage makes a default opt-in campaign message body.

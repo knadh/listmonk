@@ -100,3 +100,20 @@ subscribers.status = 'blocklisted' AND
 ```
 
 To learn how to write SQL expressions to do advancd querying on JSON attributes, refer to the Postgres [JSONB documentation](https://www.postgresql.org/docs/11/functions-json.html).
+
+## Segmenting campaigns
+
+A campaign can be sent to a segment of the subscribers in its lists instead of all of them. On the campaign page, open the **Segmentation** tab and enter an SQL expression. When the campaign runs, only the subscribers in the campaign's lists that match the expression receive it. The usual rules still apply on top of the segment: blocklisted and unsubscribed subscribers (and unconfirmed subscribers on double opt-in lists) are never sent to.
+
+The segment uses the same partial SQL expressions as the advanced subscriber query documented above.
+
+```sql
+-- Send to Turkish-speaking subscribers of a particular tenant.
+subscribers.attribs->>'tenant_id' = 'tenant_x' AND subscribers.attribs->>'lang' = 'tr'
+```
+
+The **Dry run** button runs the segment against the selected lists without saving or sending anything. It shows the number of matching subscribers (e.g. "Matches 1,420 of 10,000 subscribers") along with a sample of them.
+
+Segments can also be managed over the API with the `segment_query` field of the [campaigns API](apis/campaigns.md), and dry-run with [POST /api/campaigns/segment/preview](apis/campaigns.md#post-apicampaignssegmentpreview) and [GET /api/campaigns/{campaign_id}/segment/preview](apis/campaigns.md#get-apicampaignscampaign_idsegmentpreview).
+
+Setting or changing a campaign's segment requires the `subscribers:sql_query` permission. The expression may only access the same tables as the advanced subscriber query and runs in a read-only transaction. It may not contain comments, semicolons, or unbalanced parentheses.

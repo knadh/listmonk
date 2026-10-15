@@ -1,0 +1,76 @@
+{{ define "campaign-segment" -}}
+{{- $root := .Root -}}
+{{- $canManage := .CanManage -}}
+{{- $canSql := $root.Data.Can "subscribers:sql_query" -}}
+<div class="page-content content campaign-segment">
+	<fieldset class="card">
+		<legend id="campaign-segment-label">{{ $root.L.T "campaigns.segment" }}</legend>
+		<div data-field>
+			<textarea name="segment_query" x-model="form.segment_query" rows="6" data-cy="segment-query" aria-labelledby="campaign-segment-label"
+				placeholder="subscribers.attribs->>'tenant_id' = 'acme_corp' AND subscribers.attribs->>'lang' = 'tr'"
+				{{ if $canSql }}:readonly="!canEdit"{{ else }}readonly{{ end }}></textarea>
+			<small data-hint>
+				{{ $root.L.T "campaigns.segmentHelp" }}.
+				<a href="https://listmonk.app/docs/querying-and-segmentation" target="_blank" rel="noopener noreferrer">{{ $root.L.T "globals.buttons.learnMore" }}.</a>
+			</small>
+			{{- if not $canSql }}
+				<small data-hint class="text-danger">{{ $root.L.T "campaigns.segmentNoPerm" }}</small>
+			{{- end }}
+		</div>
+
+		{{- if $canManage }}
+			<div class="hstack justify-end buttons">
+				{{- if $canSql }}
+					<button type="button" class="outline" data-cy="btn-segment-reset" @click="form.segment_query = ''; segment.result = null" :disabled="!canEdit || form.segment_query.trim() === ''">{{ $root.L.T "subscribers.reset" }}</button>
+				{{- end }}
+				<button type="button" data-variant="primary" data-cy="btn-segment-dry-run" @click="onSegmentDryRun" :disabled="form.lists.length === 0 || isLoading('campaigns.segment')" :aria-busy="isLoading('campaigns.segment')" data-spinner="small">{{ Icon "users" }} {{ $root.L.T "campaigns.segmentDryRun" }}</button>
+			</div>
+		{{- end }}
+
+		<template x-if="form.lists.length === 0">
+			<p class="text-light">{{ $root.L.T "campaigns.segmentNoLists" }}</p>
+		</template>
+	</fieldset>
+
+	<template x-if="segment.result">
+		<div>
+			<div class="card stat-card" data-cy="segment-result">
+				<span class="stat-value" x-text="segmentMatchesLabel"></span>
+				<progress :value="segment.result.matched" :max="Math.max(segment.result.total, 1)"></progress>
+			</div>
+
+			<template x-if="segment.result.matched === 0">
+				<p class="text-light">{{ $root.L.T "campaigns.segmentNoMatches" }}</p>
+			</template>
+
+			<template x-if="segment.result.results.length > 0">
+				<div class="card page-content has-table">
+					<h3 class="text-7 text-light">{{ $root.L.T "campaigns.segmentSample" }}</h3>
+					<div class="table-wrapper">
+						<table data-cy="segment-sample">
+							<thead><tr>
+								<th>{{ $root.L.T "globals.fields.id" }}</th>
+								<th>{{ $root.L.T "subscribers.email" }}</th>
+								<th>{{ $root.L.T "globals.fields.name" }}</th>
+								<th>{{ $root.L.T "globals.fields.status" }}</th>
+								<th>{{ $root.L.T "globals.terms.attribs" }}</th>
+							</tr></thead>
+							<tbody>
+								<template x-for="s in segment.result.results" :key="s.id">
+									<tr>
+										<td data-label="{{ $root.L.T "globals.fields.id" }}"><a :href="`${subscriberURL}/${s.id}`" x-text="s.id"></a></td>
+										<td data-label="{{ $root.L.T "subscribers.email" }}" x-text="s.email"></td>
+										<td data-label="{{ $root.L.T "globals.fields.name" }}" x-text="s.name"></td>
+										<td data-label="{{ $root.L.T "globals.fields.status" }}" x-text="s.status"></td>
+										<td data-label="{{ $root.L.T "globals.terms.attribs" }}"><code class="text-7" x-text="JSON.stringify(s.attribs)"></code></td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</template>
+		</div>
+	</template>
+</div>
+{{- end }}

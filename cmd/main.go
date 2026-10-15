@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"testing"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -97,6 +98,12 @@ var (
 )
 
 func init() {
+	// Skip the app initialisation (config, DB connection etc.) under `go test`
+	// so that the package's functions can be unit tested.
+	if testing.Testing() {
+		return
+	}
+
 	// Initialize commandline flags.
 	initFlags(ko)
 

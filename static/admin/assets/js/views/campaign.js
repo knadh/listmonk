@@ -51,6 +51,8 @@ function component(camp, sel) {
     _mediaTarget: null,
     _saved: false,
 
+    segment: { result: null },
+
     preview: {
       title: c.name || '', url: '', loading: true, templateID: null, contentType: '', archiveMeta: '', body: '',
     },
@@ -73,6 +75,7 @@ function component(camp, sel) {
       altbody: c.altbody === undefined ? null : c.altbody,
       media: (Array.isArray(c.media) ? c.media : []).map((m) => new MediaTag(m.id ? m : { ...m, filename: `❌ ${m.filename}` })),
       headersStr: JSON.stringify(c.headers || [], null, 4),
+      segment_query: c.segment_query || '',
       attribsStr: c.attribs ? JSON.stringify(c.attribs, null, 4) : '{}',
       archive: !!c.archive,
       archive_slug: c.archive_slug || '',
@@ -255,6 +258,7 @@ function component(camp, sel) {
         send_at: (this.form.sendLater && this.form.sendAtLocal) ? new Date(this.form.sendAtLocal).toISOString() : null,
         headers,
         attribs,
+        segment_query: this.form.segment_query,
         template_id: this.form.template_id,
         content_type: this.form.content_type,
         body: this.form.body,
@@ -372,6 +376,37 @@ function component(camp, sel) {
       this.form.archive_slug = d.archive_slug || this.form.archive_slug;
 
       u.toast(i18n.t('globals.messages.done'));
+    },
+
+    // ===============
+    // Segmentation.
+    get segmentMatchesLabel() {
+      const r = this.segment.result;
+      if (!r) {
+        return '';
+      }
+
+      const n = (v) => v.toLocaleString();
+      return i18n.ts('campaigns.segmentMatches', { matched: n(r.matched), total: n(r.total) });
+    },
+
+    get subscriberURL() {
+      return `${urls.admin}/subscribers`;
+    },
+
+    // Dry-run the segment query against the selected lists without saving or sending anything.
+    async onSegmentDryRun() {
+      if (this.form.lists.length === 0) {
+        return;
+      }
+
+      this.segment.result = null;
+      this.segment.result = await api('campaigns.segment', '/campaigns/segment/preview', 'POST', {
+        lists: this.form.lists.map((l) => l.id),
+        type: this.form.type,
+        segment_query: this.form.segment_query,
+        limit: 20,
+      });
     },
 
     // ===============

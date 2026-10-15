@@ -7,8 +7,10 @@
 | GET    | [/api/campaigns/{campaign_id}/preview](#get-apicampaignscampaign_idpreview) | Retrieve preview of a campaign.           |
 | GET    | [/api/campaigns/running/stats](#get-apicampaignsrunningstats)               | Retrieve stats of specified campaigns.    |
 | GET    | [/api/campaigns/analytics/{type}](#get-apicampaignsanalyticstype)           | Retrieve view counts for a  campaign.     |
+| GET    | [/api/campaigns/{campaign_id}/segment/preview](#get-apicampaignscampaign_idsegmentpreview) | Dry-run a campaign's saved segment. |
 | POST   | [/api/campaigns](#post-apicampaigns)                                        | Create a new campaign.                    |
 | POST   | [/api/campaigns/{campaign_id}/test](#post-apicampaignscampaign_idtest)      | Test campaign with arbitrary subscribers. |
+| POST   | [/api/campaigns/segment/preview](#post-apicampaignssegmentpreview)          | Dry-run a segment query on lists.         |
 | PUT    | [/api/campaigns/{campaign_id}](#put-apicampaignscampaign_id)                | Update a campaign.                        |
 | PUT    | [/api/campaigns/{campaign_id}/status](#put-apicampaignscampaign_idstatus)   | Change status of a campaign.              |
 | PUT    | [/api/campaigns/{campaign_id}/archive](#put-apicampaignscampaign_idarchive) | Publish campaign to public archive.       |
@@ -307,6 +309,7 @@ Create a new campaign.
 | tags         | string\[\] |          | Tags to mark campaign.                                                                                                                                                                          |
 | headers      | JSON       |          | Key-value pairs to send as SMTP headers. Supports template expressions (e.g., `{{ .Subscriber.UUID }}`). Example: \[{"x-custom-header": "value"}, {"x-subscriber": "{{ .Subscriber.UUID }}"}\]. |
 | attribs      | JSON       |          | Optional JSON object attributes that can be used in the campaign message template. Example `{"location": "Somewhere"}`                                                                          |
+| segment_query | string    |          | Optional SQL expression to send the campaign only to the subscribers in `lists` that match it. Requires the `subscribers:sql_query` permission. See [segmenting campaigns](../querying-and-segmentation.md#segmenting-campaigns). |
 
 ##### Example request
 
@@ -347,7 +350,8 @@ curl -u "api_user:token" 'http://localhost:9000/api/campaigns' -X POST -H 'Conte
         "template_id": 1,
         "messenger": "email",
         "headers": {},
-        "attribs": {}
+        "attribs": {},
+        "segment_query": ""
     }
 }
 ```
@@ -368,6 +372,68 @@ Use the same parameters in [POST /api/campaigns](#post-apicampaigns) in addition
 
 ______________________________________________________________________
 
+#### POST /api/campaigns/segment/preview
+
+Dry-run a campaign segment query against the given lists without saving or sending anything. Returns the number of subscribers in the lists that match the segment (`matched`), the number of subscribers the campaign would be sent to without the segment (`total`), and a sample of the matching subscribers. The sample is only returned if the user has the `subscribers:get` or `subscribers:get_all` permission.
+
+##### Parameters
+
+| Name          | Type       | Required | Description                                                                          |
+| :------------ | :--------- | :------- | :----------------------------------------------------------------------------------- |
+| lists         | number\[\] | Yes      | List IDs to run the segment against.                                                 |
+| segment_query | string     |          | SQL expression to segment subscribers. If empty, all subscribers in the lists match. |
+| type          | string     |          | Campaign type: 'regular' (default) or 'optin'.                                       |
+| limit         | number     |          | Number of sample subscribers to return (max 50).                                     |
+
+##### Example request
+
+```shell
+curl -u "api_user:token" 'http://localhost:9000/api/campaigns/segment/preview' -X POST -H 'Content-Type: application/json' \
+    --data-raw "{\"lists\":[1],\"segment_query\":\"subscribers.attribs->>'tenant_id' = 'tenant_x' AND subscribers.attribs->>'lang' = 'tr'\",\"limit\":1}"
+```
+
+##### Example response
+
+```json
+{
+    "data": {
+        "matched": 1420,
+        "total": 10000,
+        "results": [
+            {
+                "id": 11,
+                "uuid": "3c588ac6-3d5f-49ff-a043-f31586948a86",
+                "email": "user@example.com",
+                "name": "User",
+                "status": "enabled",
+                "attribs": {"lang": "tr", "tenant_id": "tenant_x"}
+            }
+        ]
+    }
+}
+```
+
+______________________________________________________________________
+
+#### GET /api/campaigns/{campaign_id}/segment/preview
+
+Dry-run an existing campaign's saved segment (`segment_query`) against the campaign's lists, without sending anything. The response is the same as [POST /api/campaigns/segment/preview](#post-apicampaignssegmentpreview). If the campaign has no segment, all the subscribers in its lists match. Running a saved segment doesn't require the `subscribers:sql_query` permission, as it was validated when it was saved.
+
+##### Parameters
+
+| Name        | Parameter type | Data type | Required | Description                                       |
+| :---------- | :------------- | :-------- | :------- | :------------------------------------------------ |
+| campaign_id | Path parameter | Number    | Yes      | Campaign ID.                                      |
+| limit       | Query parameter| Number    |          | Number of sample subscribers to return (max 50).  |
+
+##### Example request
+
+```shell
+curl -u "api_user:token" 'http://localhost:9000/api/campaigns/1/segment/preview?limit=10'
+```
+
+______________________________________________________________________
+
 #### PUT /api/campaigns/{campaign_id}
 
 Update a campaign.
@@ -378,7 +444,7 @@ ______________________________________________________________________
 
 #### PUT /api/campaigns/{campaign_id}
 
-Update a specific campaign.
+Update a specific campaign. Fields that are not in the request retain their existing values. For instance, omitting `segment_query` keeps the campaign's segment, while sending an empty `segment_query` removes it.
 
 > Refer to parameters from [POST /api/campaigns](#post-apicampaigns)
 

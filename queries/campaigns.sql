@@ -25,7 +25,7 @@ WITH tpl AS (
 camp AS (
     INSERT INTO campaigns (uuid, type, name, subject, from_email, body, altbody,
         content_type, send_at, headers, attribs, tags, messenger, template_id, to_send,
-        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source)
+        max_subscriber_id, archive, archive_slug, archive_template_id, archive_meta, body_source, segment_query)
         SELECT $1, $2, $3, $4, $5,
             -- body
             COALESCE(NULLIF($6, ''), (SELECT body FROM tpl), ''),
@@ -40,7 +40,8 @@ camp AS (
             $18,
             $19,
             -- body_source
-            COALESCE($21, (SELECT body_source FROM tpl))
+            COALESCE($21, (SELECT body_source FROM tpl)),
+            $22
         RETURNING id
 ),
 med AS (
@@ -298,7 +299,8 @@ SELECT link_clicks.campaign_id,
 -- name: get-running-campaign
 -- Returns the metadata for a running campaign that is required by next-campaign-subscribers to retrieve
 -- a batch of campaign subscribers for processing.
-SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id, lists.id AS list_id
+SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id,
+    campaigns.segment_query, lists.id AS list_id
     FROM campaigns
     JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
     JOIN lists ON (lists.id = campaign_lists.list_id)
@@ -360,6 +362,36 @@ u AS (
 )
 SELECT * FROM subs;
 
+-- name: query-campaign-segment
+-- raw: true
+-- Unprepared statement for fetching the subscribers of a campaign's lists that match
+-- an arbitrary segment expression (%query%). The subscription eligibility rules
+-- are identical to next-campaign-subscribers. This is used for previewing (dry-run)
+-- segments and for fetching batches of subscribers of a segmented campaign.
+-- $1 = list IDs, $2 = campaign type, $3 = last_subscriber_id, $4 = max_subscriber_id (0 for no limit),
+-- $5 = limit (0 for no limit).
+SELECT subscribers.* FROM subscribers
+WHERE subscribers.id IN (
+    SELECT sl.subscriber_id FROM subscriber_lists sl
+    JOIN lists ON (lists.id = sl.list_id)
+    WHERE sl.list_id = ANY($1::INT[])
+    AND (
+        CASE
+            WHEN $2 = 'optin' THEN sl.status = 'unconfirmed' AND lists.optin = 'double'
+            WHEN lists.optin = 'double' THEN sl.status = 'confirmed'
+            ELSE sl.status != 'unsubscribed'
+        END
+    )
+)
+AND subscribers.status != 'blocklisted'
+AND subscribers.id > $3
+AND ($4 = 0 OR subscribers.id <= $4)
+AND (%query%)
+ORDER BY subscribers.id LIMIT (CASE WHEN $5 < 1 THEN NULL ELSE $5 END)
+
+-- name: update-campaign-to-send
+UPDATE campaigns SET to_send=$2 WHERE id=$1;
+
 -- name: delete-campaign-views
 DELETE FROM campaign_views WHERE created_at < $1;
 
@@ -401,6 +433,7 @@ WITH camp AS (
         archive_template_id=(CASE WHEN $7::content_type = 'visual' THEN NULL ELSE $17::INT END),
         archive_meta=$18,
         body_source=$20,
+        segment_query=$21,
         updated_at=NOW()
     WHERE id = $1 RETURNING id
 ),
