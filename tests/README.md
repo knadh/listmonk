@@ -1,20 +1,35 @@
 # listmonk E2E tests
 
-Playwright UI E2E tests. Requires a built `./listmonk` binary in the repo root with a test Postgres instance (use docker-compose.yml) set in config.toml. Every spec wipes and reinstalls the DB schema (see `resetDB` in `helpers.js`).
+Playwright tests for the server-rendered admin UI. See
+[Frontend tests](../docs/docs/content/developer-setup.md#frontend-tests) for the
+Docker dev workflow, local prerequisites, and configuration options.
 
-`resetDB` also points listmonk's SMTP config at [MailHog](https://github.com/mailhog/MailHog) so mail is captured and testable via its API (`getMail`/`clearMail`). It needs `mailhog` and `psql` on `PATH`; DB credentials are read from the `LISTMONK_db__*` env (falling back to the config.toml defaults).
+The suite **wipes and reinstalls the configured database schema** and stops
+running listmonk processes. Use disposable data; in the Docker dev environment,
+this is the `listmonk-dev` database.
 
-## Setup
+From the repository root on the host:
 
 ```sh
+make build-dev-docker
+make run-dev-docker
+```
+
+Inside the dev container:
+
+```sh
+make build-frontend
+make build
 cd tests
 bun install
-bun playwright install chromium
+bun playwright install --with-deps chromium
+bun run test
 ```
 
-## Run
+Compose configures the database and existing MailHog service automatically.
+Rebuild the backend after Go or SQL changes, and reinstall the browser and its
+system dependencies when recreating the dev container.
 
-```sh
-bun run test      # runs tests in headless mode
-bun run test:ui   # Shows the Playwright UI
-```
+Outside Docker, install the dependencies described in the developer guide.
+From `tests/`, use `bun run test` for headless tests or `bun run test:ui` for the
+interactive UI.

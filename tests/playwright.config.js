@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { launchOptions } from './browser.js';
 
 // listmonk root address (see ../config.toml).
 const BASE_URL = process.env.LISTMONK_URL || 'http://localhost:9000';
@@ -17,15 +18,17 @@ export default defineConfig({
 
   webServer: [
     // Run mailhog local SMTP test server.
-    {
-      command: 'pkill -9 mailhog; mailhog',
+    ...(process.env.MAILHOG_EXTERNAL === '1' ? [] : [{
+      command: 'pkill -9 -- "${MAILHOG:-mailhog}"; "${MAILHOG:-mailhog}"',
       url: MAILHOG_URL,
       reuseExistingServer: false,
-    },
+    }]),
     // Create a fresh listmonk DB instance for every test run.
     {
-      command: 'pkill -9 listmonk; ./listmonk --install --yes && ./listmonk --static-dir static',
+      command: 'pkill -9 listmonk; ./listmonk --config "${LISTMONK_CONFIG:-${DEV_CONFIG:-config.toml}}" --install --yes && ./listmonk --config "${LISTMONK_CONFIG:-${DEV_CONFIG:-config.toml}}" --static-dir static',
       cwd: '..',
+      stdout: 'pipe',
+      stderr: 'pipe',
       url: `${BASE_URL}/health`,
       reuseExistingServer: false,
       env: { LISTMONK_ADMIN_USER: 'admin', LISTMONK_ADMIN_PASSWORD: 'listmonk' },
@@ -33,6 +36,7 @@ export default defineConfig({
   ],
 
   use: {
+    launchOptions,
     baseURL: BASE_URL,
     storageState: './.auth/admin.json',
     trace: 'retain-on-failure',

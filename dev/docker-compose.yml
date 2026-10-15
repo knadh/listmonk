@@ -35,6 +35,13 @@ services:
     init: true
     environment:
       DEV_CONFIG: dev/config.toml
+      LISTMONK_db__host: db
+      LISTMONK_db__user: listmonk-dev
+      LISTMONK_db__password: listmonk-dev
+      LISTMONK_db__database: listmonk-dev
+      MAILHOG_EXTERNAL: "1"
+      MAILHOG_URL: http://mailhog:8025
+      MAILHOG_SMTP_HOST: mailhog
     ports:
       - "127.0.0.1:9000:9000"
     depends_on:

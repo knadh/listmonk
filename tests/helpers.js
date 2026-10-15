@@ -5,12 +5,14 @@ import { expect } from '@playwright/test';
 const BASE_URL = process.env.LISTMONK_URL || 'http://localhost:9000';
 const MAILHOG_URL = process.env.MAILHOG_URL || 'http://localhost:8025';
 const ROOT = '..';
+const CONFIG = process.env.LISTMONK_CONFIG || process.env.DEV_CONFIG || 'config.toml';
 const AUTH_FILE = new URL('.auth/admin.json', import.meta.url).pathname;
 const ENV = { ...process.env, LISTMONK_ADMIN_USER: 'admin', LISTMONK_ADMIN_PASSWORD: 'listmonk' };
 
 // A single SMTP server pointing at MailHog so tests capture (and can assert on) mail.
 const MAILHOG_SMTP = JSON.stringify([{
-  enabled: true, host: 'localhost', port: 1025, auth_protocol: 'none',
+  enabled: true, host: process.env.MAILHOG_SMTP_HOST || 'localhost',
+  port: Number(process.env.MAILHOG_SMTP_PORT || 1025), auth_protocol: 'none',
   username: '', password: '', hello_hostname: '', max_conns: 10,
   idle_timeout: '15s', wait_timeout: '5s', max_msg_retries: 2, msg_retry_delay: '10ms',
   tls_type: 'none', tls_skip_verify: false, email_headers: [], from_addresses: [],
@@ -60,13 +62,20 @@ export async function getMail() {
 // Run a SQL statement against the listmonk DB. Credentials come from the
 // LISTMONK_db__* env, falling back to config.toml defaults.
 function psql(sql) {
-  execFileSync('psql', [
+  const args = [
     '-h', process.env.LISTMONK_db__host || 'localhost',
     '-p', process.env.LISTMONK_db__port || '5432',
     '-U', process.env.LISTMONK_db__user || 'listmonk',
     '-d', process.env.LISTMONK_db__database || 'listmonk',
-    '-c', sql,
-  ], { env: { ...process.env, PGPASSWORD: process.env.LISTMONK_db__password || 'listmonk' }, stdio: 'ignore' });
+    '-v', 'ON_ERROR_STOP=1', '-c', sql,
+  ];
+  const env = { ...process.env, PGPASSWORD: process.env.LISTMONK_db__password || 'listmonk' };
+  const options = { env, stdio: ['ignore', 'ignore', 'inherit'] };
+  if (process.env.PSQL_CONTAINER) {
+    execFileSync('docker', ['exec', '-e', 'PGPASSWORD', process.env.PSQL_CONTAINER, 'psql', ...args], options);
+  } else {
+    execFileSync('psql', args, options);
+  }
 }
 
 // Point listmonk's SMTP config at MailHog on the freshly installed DB.
@@ -92,12 +101,12 @@ function configureBounces() {
 // reinstalled under a running server, so the process is killed and relaunched.
 export async function resetDB(browser, { bounces = false } = {}) {
   try { execSync('pkill -9 listmonk', { stdio: 'ignore' }); } catch { /* none running */ }
-  execSync('./listmonk --install --yes', { cwd: ROOT, env: ENV, stdio: 'ignore' });
+  execFileSync('./listmonk', ['--config', CONFIG, '--install', '--yes'], { cwd: ROOT, env: ENV, stdio: 'inherit' });
   configureSMTP();
   if (bounces) {
     configureBounces();
   }
-  spawn('./listmonk', ['--static-dir', 'static'], {
+  spawn('./listmonk', ['--config', CONFIG, '--static-dir', 'static'], {
     cwd: ROOT, env: ENV, detached: true, stdio: 'ignore',
   }).unref();
 
@@ -124,9 +133,9 @@ export async function resetDBBlank() {
   delete env.LISTMONK_ADMIN_USER;
   delete env.LISTMONK_ADMIN_PASSWORD;
 
-  execSync('./listmonk --install --yes', { cwd: ROOT, env, stdio: 'ignore' });
+  execFileSync('./listmonk', ['--config', CONFIG, '--install', '--yes'], { cwd: ROOT, env, stdio: 'inherit' });
   configureSMTP();
-  spawn('./listmonk', ['--static-dir', 'static'], {
+  spawn('./listmonk', ['--config', CONFIG, '--static-dir', 'static'], {
     cwd: ROOT, env, detached: true, stdio: 'ignore',
   }).unref();
 

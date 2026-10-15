@@ -27,5 +27,24 @@ The app is a Go backend that server-renders the admin UI (HTML templates with JS
 
 Run `make stop-dev-docker` to stop the container and `make rm-dev-docker` to completely remove it.
 
+### Frontend tests
+
+listmonk maintains a Playwright suite in `tests/` for end-to-end testing the admin UI. It runs in the Docker dev environment that bundles all the necessary dependencies (Postgres, Mailhog, Bug etc.).
+
+#### Running
+
+Follow the steps described above to run and enter the Docker dev environment.
+
+Inside the dev container shell at `/app`:
+
+```sh
+make dist
+
+cd tests
+bun install
+bun playwright install --with-deps chromium
+bun run test
+```
+
 # Production build
 Run `make dist` to build the SSR admin frontend and the Go binary, embedding the static assets into a single self-contained binary, `listmonk`.
