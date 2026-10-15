@@ -47,8 +47,12 @@ build: $(BIN)
 $(STUFFBIN):
 	go install github.com/knadh/stuffbin/...
 
+# Hack to always trigger Go build so that changes to version/build linker flags are picked up.
+.PHONY: FORCE
+FORCE:
+
 # Build the backend to ./listmonk.
-$(BIN): $(SRC) go.mod go.sum schema.sql $(SQL) permissions.json
+$(BIN): FORCE $(SRC) go.mod go.sum schema.sql $(SQL) permissions.json
 	CGO_ENABLED=0 go build -o ${BIN} -ldflags="-s -w -X 'main.buildString=${BUILDSTR}' -X 'main.versionString=${VERSION}'" ./cmd
 
 # Run the backend in dev mode. DEV_CONFIG is set by the dev container to use
