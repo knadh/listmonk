@@ -145,7 +145,7 @@ for (const format of ['richtext', 'html', 'markdown', 'plain', 'visual']) {
       await preview(page, rendered);
       await page.goto(CAMPAIGNS);
       await expect(row(page, `New ${format}`)).toContainText(`Subject ${format}`);
-      await expect(row(page, `New ${format}`).locator('.lists li')).toHaveCount(lists.length);
+      await expect(row(page, `New ${format}`).locator('.lists a.avatar-label')).toHaveCount(lists.length);
     });
   }
 }
@@ -333,7 +333,7 @@ test('searches, filters and sorts campaigns through SSR navigation', async ({ pa
   await expect(page).not.toHaveURL(/[?&]tag=/);
   await expect(row(page, 'Alpha')).toBeVisible();
   await page.goto(CAMPAIGNS);
-  await row(page, 'Alpha').getByRole('link', { name: 'View Draft', exact: true }).click();
+  await row(page, 'Alpha').getByTitle('Filter Draft', { exact: true }).click();
   await expect(page).toHaveURL(/[?&]status=draft/);
   await expect(rows(page)).toHaveCount(3);
   for (const [field, orders] of [
@@ -342,7 +342,7 @@ test('searches, filters and sorts campaigns through SSR navigation', async ({ pa
   ]) {
     for (const names of orders) {
       await page.locator(`a[data-sort-field="${field}"]`).click();
-      await expect(rows(page).locator('td.name .name-stack > div > div > a.unstyled')).toHaveText(names);
+      await expect(rows(page).locator('td.name > .avatar > .avatar-label > div > a.unstyled')).toHaveText(names);
       await expect(page).toHaveURL(/[?&]status=draft/);
     }
   }
@@ -445,7 +445,7 @@ test('uploads an attachment, persists it and delivers it when starting from the 
   await picker.locator('button[popovertarget="media-upload"]').click();
   await picker.locator('input[type="file"]').setInputFiles({ name: 'campaign-example.json', mimeType: 'application/json', buffer: Buffer.from('{"hello":"attachment"}') });
   await picker.locator('button[type="submit"]').filter({ hasText: 'Upload' }).click();
-  await picker.getByRole('link', { name: 'campaign-example.json', exact: true }).click();
+  await picker.locator('a.thumb').and(picker.getByTitle('campaign-example.json', { exact: true })).click();
   await expect(page.locator('.media-picker-modal')).not.toBeVisible();
   await save(page, c.id);
   await page.reload();
@@ -574,7 +574,7 @@ for (const tracked of [true, false]) {
     await button(page, 'Link').click();
     await expect(checkbox).toBeChecked({ checked: tracked });
     await checkbox.setChecked(!tracked);
-    await button(dialog, 'Insert').click();
+    await button(dialog, 'Apply').click();
     await expect(link).toHaveAttribute('href', href(!tracked));
     await save(page, c.id);
     expect((await campaign(page, c.id)).body).toContain(`href="${href(!tracked)}"`);

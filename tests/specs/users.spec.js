@@ -237,7 +237,7 @@ test.describe('Users, roles & login', () => {
     // The listing renders each user's role badges. Read the rows and confirm the
     // roles match (usernames and role names overlap, so match on the username link).
     const rows = await userRow(page).evaluateAll((els) => els.map((el) => ({
-      username: el.querySelector('a[href*="/admin/users/"]').textContent.trim(),
+      username: el.querySelector('.avatar-label > a[href*="/admin/users/"]').textContent.trim(),
       userRole: el.querySelector('a[href*="user_role_id"]')?.textContent.trim(),
       listRole: el.querySelector('a[href*="list_role_id"]')?.textContent.trim(),
     })));

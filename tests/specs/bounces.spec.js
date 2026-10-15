@@ -45,12 +45,11 @@ test.describe('Bounces', () => {
     // Hard bounces blocklist.
     await postBounce(page, 'hard', a.email);
     await postBounce(page, 'hard', a.email);
-    expect(await subStatus(page, a.id)).toBe('blocklisted');
+    await expect.poll(() => subStatus(page, a.id)).toBe('blocklisted');
 
     // Complaints delete the subscriber outright.
     await postBounce(page, 'complaint', b.email);
-    const res = await page.request.get(`/api/subscribers/${b.id}`);
-    expect(res.status()).toBe(400);
+    await expect.poll(async () => (await page.request.get(`/api/subscribers/${b.id}`)).status()).toBe(400);
   });
 
   test('lists the recorded bounces', async ({ page }) => {
@@ -93,8 +92,11 @@ test.describe('Bounces: bulk actions', () => {
     };
     const subs = (await data(await page.request.get('/api/subscribers'))).results;
     for (const sub of subs) await postBounce(page, 'soft', sub.email);
-    const bounces = (await data(await page.request.get('/api/bounces'))).results;
-    expect(bounces).toHaveLength(2);
+    let bounces;
+    await expect.poll(async () => {
+      bounces = (await data(await page.request.get('/api/bounces'))).results;
+      return bounces.length;
+    }).toBe(2);
     for (const url of ['?all=true&campaign_id=invalid', '?all=true&id=invalid', '']) {
       expect((await page.request.delete(`/api/bounces${url}`)).status()).toBe(400);
     }
@@ -147,11 +149,15 @@ test.describe('Bounces: bulk actions', () => {
           await data(await page.request.post('/webhooks/bounce', { data: { email: sub.email, source, type, campaign_uuid: campaignUUID } }));
           // Hard-bounce processing blocklists automatically; restore the fixture so
           // accidental bulk blocklisting of an unrelated subscriber is observable.
-          if (type === 'hard') await data(await page.request.put(`/api/subscribers/${sub.id}`, { data: {
-            email: sub.email, name: sub.name, status: 'enabled', lists: [1],
-          } }));
+          if (type === 'hard') {
+            await expect.poll(() => subStatus(page, sub.id)).toBe('blocklisted');
+            await data(await page.request.put(`/api/subscribers/${sub.id}`, { data: {
+              email: sub.email, name: sub.name, status: 'enabled', lists: [1],
+            } }));
+          }
           (outside ? outsiders : targets).push(sub.id);
         }
+        await expect.poll(async () => (await data(await page.request.get('/api/bounces?per_page=100'))).results.length).toBe(25);
         const query = {
           source: 'source=target', type: 'type=soft', campaign_id: `campaign_id=${campaign.id}`,
           combined: `source=target&type=soft&campaign_id=${campaign.id}`,

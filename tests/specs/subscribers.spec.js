@@ -206,7 +206,7 @@ test.describe('Subscribers: create, edit & delete', () => {
     const row = subRow(page, 'created@example.com');
     await expect(row).toBeVisible();
     await expect(row).toContainText('Default list');
-    await expect(row.locator('td.align-center')).toContainText('1');
+    await expect(row.locator('.lists a.avatar-label')).toHaveText(['Default list']);
   });
 
   test('creates a pre-confirmed subscriber on a double opt-in list', async ({ page }) => {
@@ -230,7 +230,7 @@ test.describe('Subscribers: create, edit & delete', () => {
     await page.goto(SUBSCRIBERS);
     const row = subRow(page, 'confirmed@example.com');
     await expect(row).toContainText('Opt-in list');
-    await expect(row).toContainText('Confirmed');
+    await expect(row.getByRole('link', { name: 'View Opt-in list: Confirmed', exact: true })).toBeVisible();
   });
 
   test('edits a subscriber and blocklists via the status field', async ({ page }) => {
@@ -314,7 +314,7 @@ test.describe('Subscribers: filters & pagination', () => {
     await page.goto(`${SUBSCRIBERS}/lists/${LIST_OPTIN}`);
     await expect(subRow(page)).toHaveCount(1);
     await expect(subRow(page, 'anon@example.com')).toBeVisible();
-    await expect(page.locator('.page-title')).toContainText('Opt-in list');
+    await expect(page.locator('.page-heading')).toContainText('Opt-in list');
 
     // Clearing the filter badge returns to the full listing.
     await Promise.all([page.waitForLoadState(), page.getByTestId('btn-remove-filter').click()]);
@@ -327,7 +327,7 @@ test.describe('Subscribers: filters & pagination', () => {
     await page.goto(`${SUBSCRIBERS}?status=blocklisted`);
     await expect(subRow(page)).toHaveCount(1);
     await expect(subRow(page, 'john@example.com')).toBeVisible();
-    await expect(page.locator('.page-title')).toContainText('Blocklisted');
+    await expect(page.locator('.page-heading')).toContainText('Blocklisted');
   });
 
   test('filters a list by subscription status', async ({ page }) => {
@@ -338,11 +338,11 @@ test.describe('Subscribers: filters & pagination', () => {
       },
     });
 
-    // The confirmed filter shows only anon, with a Confirmed badge.
+    // The confirmed filter shows only anon, with a labeled status icon.
     await page.goto(`${SUBSCRIBERS}/lists/${LIST_OPTIN}?subscription_status=confirmed`);
-    await expect(page.locator('.page-title')).toContainText('Confirmed');
+    await expect(page.locator('.page-heading')).toContainText('Confirmed');
     await expect(subRow(page)).toHaveCount(1);
-    await expect(subRow(page, 'anon@example.com')).toContainText('Confirmed');
+    await expect(subRow(page, 'anon@example.com').getByRole('link', { name: 'View Opt-in list: Confirmed', exact: true })).toBeVisible();
   });
 });
 
@@ -650,17 +650,17 @@ test.describe('Subscriber detail: activity tab', () => {
       await expect(stats.nth(i)).toHaveText('0');
     }
   });
-});
 
-test('subscriber overview links to edit and preserves the activity URL', async ({ page }) => {
-  await page.goto(`${SUBSCRIBERS}/1/activity`);
-  await expect(page.locator('#chart-subscriber-views')).toBeVisible();
-  await page.getByRole('tab', { name: 'Edit', exact: true }).click();
-  await expect(page).toHaveURL(/\/subscribers\/1\/edit$/);
-  await expect(page.locator('input[name=email]')).toBeVisible();
-  await page.getByRole('tab', { name: 'View', exact: true }).click();
-  await expect(page).toHaveURL(/\/subscribers\/1$/);
-  await expect(page.locator('#chart-subscriber-clicks')).toBeVisible();
+  test('subscriber overview links to edit and back to the overview', async ({ page }) => {
+    await page.goto(`${SUBSCRIBERS}/1`);
+    await expect(page.locator('#chart-subscriber-views')).toBeVisible();
+    await page.getByRole('tab', { name: 'Edit', exact: true }).click();
+    await expect(page).toHaveURL(/\/subscribers\/1\/edit$/);
+    await expect(page.locator('input[name=email]')).toBeVisible();
+    await page.getByRole('tab', { name: 'View', exact: true }).click();
+    await expect(page).toHaveURL(/\/subscribers\/1$/);
+    await expect(page.locator('#chart-subscriber-clicks')).toBeVisible();
+  });
 });
 
 test.describe('Domain blocklist', () => {

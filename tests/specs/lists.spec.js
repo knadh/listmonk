@@ -110,6 +110,7 @@ test.describe('Lists', () => {
 
     for (const [n, id] of ids.entries()) {
       await page.goto(`${LISTS}/${id}`);
+      await page.getByRole('tab', { name: 'Edit', exact: true }).click();
       await fillListForm(page, {
         name: `list-${n}`,
         type: 'public',
@@ -133,6 +134,7 @@ test.describe('Lists', () => {
     // The description isn't on the listing; reopen each edit view to confirm it saved.
     for (const [n, id] of ids.entries()) {
       await page.goto(`${LISTS}/${id}`);
+      await page.getByRole('tab', { name: 'Edit', exact: true }).click();
       await expect(page.locator('textarea[name="description"]')).toHaveValue(`desc${n}`);
     }
   });
@@ -174,6 +176,9 @@ test.describe('Lists', () => {
         name, type: c.type, optin: c.optin, tag: `tag${n}`, description: `desc-${c.type}-${n}`,
       });
       await withListAPI(page, 'POST', () => form.getByTestId('btn-save').click());
+      await expect(page).toHaveURL(/\/admin\/lists\/\d+$/);
+      await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
+      await page.goto(LISTS);
 
       const row = listRow(page, name);
       await expect(row).toBeVisible();
@@ -205,7 +210,7 @@ test.describe('Lists', () => {
     await expect(listRow(page, 'list-private-double-1')).toBeVisible();
 
     // The active filter shows as a removable badge.
-    await expect(page.locator('.page-title')).toContainText('Private');
+    await expect(page.locator('.page-heading')).toContainText('Private');
     await page.getByTestId('btn-remove-filter').click();
     await expect(listRow(page)).toHaveCount(4);
   });
@@ -221,7 +226,7 @@ test.describe('Lists', () => {
     await expect(listRow(page, 'list-private-single-0')).toBeVisible();
     await expect(listRow(page, 'list-public-single-2')).toBeVisible();
 
-    await expect(page.locator('.page-title')).toContainText('Single opt-in');
+    await expect(page.locator('.page-heading')).toContainText('Single opt-in');
     await page.getByTestId('btn-remove-filter').click();
     await expect(listRow(page)).toHaveCount(4);
   });
@@ -236,7 +241,7 @@ test.describe('Lists', () => {
     await expect(listRow(page)).toHaveCount(1);
     await expect(listRow(page, 'list-private-single-0')).toBeVisible();
 
-    await expect(page.locator('.page-title')).toContainText('#tag0');
+    await expect(page.locator('.page-heading')).toContainText('#tag0');
     await page.getByTestId('btn-remove-filter').click();
     await expect(listRow(page)).toHaveCount(4);
   });
@@ -248,8 +253,8 @@ test.describe('Lists', () => {
     await expect(listRow(page, 'list-public-double-3')).toBeVisible();
 
     // Both active filters appear as badges in the header.
-    await expect(page.locator('.page-title')).toContainText('Public');
-    await expect(page.locator('.page-title')).toContainText('Double opt-in');
+    await expect(page.locator('.page-heading')).toContainText('Public');
+    await expect(page.locator('.page-heading')).toContainText('Double opt-in');
   });
 
   test('sorts lists by column', async ({ page }) => {
