@@ -1347,6 +1347,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#frontend-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend tests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1450,6 +1478,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#frontend-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend tests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1492,6 +1548,18 @@
 <li>For subsequent changes, simply Ctrl-C and re-run <code>make run</code> for changes to Go and static files to be picked up.</li>
 </ul>
 <p>Run <code>make stop-dev-docker</code> to stop the container and <code>make rm-dev-docker</code> to completely remove it.</p>
+<h3 id="frontend-tests">Frontend tests<a class="headerlink" href="#frontend-tests" title="Permanent link">&para;</a></h3>
+<p>listmonk maintains a Playwright suite in <code>tests/</code> for end-to-end testing the admin UI. It runs in the Docker dev environment that bundles all the necessary dependencies (Postgres, Mailhog, Bug etc.).</p>
+<h4 id="running">Running<a class="headerlink" href="#running" title="Permanent link">&para;</a></h4>
+<p>Follow the steps described above to run and enter the Docker dev environment.</p>
+<p>Inside the dev container shell at <code>/app</code>:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>dist
+
+<span class="nb">cd</span><span class="w"> </span>tests
+bun<span class="w"> </span>install
+bun<span class="w"> </span>playwright<span class="w"> </span>install<span class="w"> </span>--with-deps<span class="w"> </span>chromium
+bun<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
 <h1 id="production-build">Production build<a class="headerlink" href="#production-build" title="Permanent link">&para;</a></h1>
 <p>Run <code>make dist</code> to build the SSR admin frontend and the Go binary, embedding the static assets into a single self-contained binary, <code>listmonk</code>.</p>
 
