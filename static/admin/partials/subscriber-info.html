@@ -18,9 +18,9 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "globals.terms.campaigns" }}</small><div class="stat-value">{{ len $d.CampaignViews }}</div></div></div>
-		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "campaigns.views" }}</small><div class="stat-value">{{ $d.TotalViews }}</div></div></div>
-		<div class="col-4"><div class="card stat-card"><small class="text-light">{{ .L.T "campaigns.clicks" }}</small><div class="stat-value">{{ $d.TotalClicks }}</div></div></div>
+		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "globals.terms.campaigns" }}</h5><div class="stat-value">{{ len $d.CampaignViews }}</div></div></div>
+		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "campaigns.views" }}</h5><div class="stat-value">{{ $d.TotalViews }}</div></div></div>
+		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "campaigns.clicks" }}</h5><div class="stat-value">{{ $d.TotalClicks }}</div></div></div>
 	</div>
 
 	<section class="row">
@@ -40,7 +40,7 @@
 	<script>window._subscriberCharts = {{ ToJSON $d.Charts }};</script>
 
 	{{- if $d.CampaignViews }}
-	<div class="card float page-content has-table">
+	<div class="card float has-table">
 		<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
 		<div class="table-wrapper">
 			{{- if $d.Can "subscribers:manage" }}
@@ -80,7 +80,7 @@
 	{{- end }}
 
 	{{- if $d.LinkClicks }}
-	<div class="card float page-content has-table">
+	<div class="card float has-table">
 		<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
 		<div class="table-wrapper">
 			{{- if $d.Can "subscribers:manage" }}

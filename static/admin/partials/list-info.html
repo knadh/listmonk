@@ -37,14 +37,14 @@
 	<section class="row">
 		<div class="col-3">
 			<article class="card float stat-card">
-				<h4 class="title text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</h4>
+				<h4 class="title">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</h4>
 				<div class="stat-value"><a href="{{ $subs }}" class="unstyled">{{ FormatNumber $l.SubscriberCount }}</a></div>
 			</article>
 		</div>
 		{{ range list "confirmed" "unconfirmed" "unsubscribed" }}
 			<div class="col-3">
 				<article class="card float stat-card">
-					<h4 class="title text-light">{{ $.L.T (printf "subscribers.status.%s" .) }}</h4>
+					<h4 class="title">{{ $.L.T (printf "subscribers.status.%s" .) }}</h4>
 					<div class="stat-value"><a href="{{ $subs }}?subscription_status={{ . }}" class="unstyled">{{ FormatNumber (index $l.SubscriberCounts .) }}</a></div>
 				</article>
 			</div>
@@ -72,7 +72,7 @@
 	<script>window._listCharts = {{ ToJSON $d.Charts }};</script>
 	{{ if $d.Can "campaigns:get" "campaigns:get_all" }}
 	<section class="campaigns" x-data="campaignsView">
-		<article class="card float page-content has-table">
+		<article class="card float has-table">
 			<h5 class="title">{{ .L.T "globals.terms.campaigns" }} ({{ $d.Page.Total }})</h5>
 			<!-- <header class="align-right">
 				<form method="get" action="{{ $base }}" class="search-form">

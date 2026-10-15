@@ -906,16 +906,6 @@ td > .empty-state {
     margin-block-end: var(--space-6);
     min-height: 10vh;
 
-    &.card.has-table {
-        padding-block-start: 0;
-        padding-block-end: 0;
-
-        &:where(.float) {
-            padding-block-start: var(--space-4);
-            padding-inline: var(--space-6);
-        }
-    }
-
     .col-bleed {
         margin: calc(-1 * var(--space-6));
         margin-right: inherit;
@@ -925,6 +915,16 @@ td > .empty-state {
         > * {
             padding: 0 var(--space-6);
         }
+    }
+}
+
+.card.has-table {
+    padding-block-start: 0;
+    padding-block-end: 0;
+
+    &:where(.float) {
+        padding-block-start: var(--space-4);
+        padding-inline: var(--space-6);
     }
 
     /* Stick the table to the edges */
@@ -1926,7 +1926,8 @@ section.users {
     }
 
     /* Make table rows into cards. */
-    .page-content table:not(.rte-content table) {
+    .has-table table,
+    .content table:not(.rte-content table) {
         display: block;
 
         thead {
@@ -2068,14 +2069,14 @@ section.users {
         }
     }
 
-    .page-content.card.has-table {
+    .card.has-table {
         background: none;
         border: 0;
         box-shadow: none;
         padding-inline: 0;
     }
 
-    .page-content .table-wrapper {
+    .card.has-table .table-wrapper {
         margin-inline: 0;
 
         tr :is(th, td) {
