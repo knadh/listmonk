@@ -153,6 +153,7 @@ func parseBounce(raw []byte) ([]models.Bounce, error) {
 	var (
 		original   bool
 		dsn        bool
+		feedback   *textproto.Header
 		recipients []textproto.Header
 	)
 
@@ -168,6 +169,13 @@ func parseBounce(raw []byte) ([]models.Bounce, error) {
 
 		ct, _, _ := part.Header.ContentType()
 		switch ct {
+		case "message/feedback-report":
+			hdr, err := textproto.ReadHeader(bufio.NewReader(part.Body))
+			if err != nil && err != io.EOF {
+				return err
+			}
+
+			feedback = &hdr
 		case "message/rfc822", "message/global", "text/rfc822-headers":
 			hdr, err := textproto.ReadHeader(bufio.NewReader(part.Body))
 			if err != nil && err != io.EOF {
@@ -253,6 +261,38 @@ func parseBounce(raw []byte) ([]models.Bounce, error) {
 		Received:       received,
 		ClassifyReason: reason,
 	}
+
+	// There are ARF/feedback headers.
+	if feedback != nil {
+		if !strings.EqualFold(strings.TrimSpace(feedback.Get("Feedback-Type")), "abuse") {
+			return nil, nil
+		}
+
+		base.Type = models.BounceTypeComplaint
+		meta.ClassifyReason = "feedback_type=abuse"
+		base.Meta, _ = json.Marshal(meta)
+		if base.SubscriberUUID != "" {
+			return []models.Bounce{base}, nil
+		}
+
+		var out []models.Bounce
+		for fields := feedback.FieldsByKey("Original-Rcpt-To"); fields.Next(); {
+			a, err := mail.ParseAddress(strings.TrimSpace(fields.Value()))
+			if err != nil {
+				return nil, fmt.Errorf("invalid original recipient: %w", err)
+			}
+
+			b := base
+			b.Email = strings.ToLower(a.Address)
+			out = append(out, b)
+		}
+		if len(out) == 0 {
+			return nil, fmt.Errorf("missing subscriber UUID or original recipient")
+		}
+
+		return out, nil
+	}
+
 	if !dsn {
 		base.Meta, _ = json.Marshal(meta)
 		if base.SubscriberUUID == "" {
