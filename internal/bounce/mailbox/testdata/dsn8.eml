@@ -1,0 +1,682 @@
+Return-Path: <>
+Received: from CWXP265CU008.outbound.protection.outlook.com (mail-ukwestazhn15010017.outbound.protection.outlook.com [52.102.166.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (secp384r1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by example.com (Postfix) with ESMTPS id 9CE88150020C
+	for <hello@example.com>; Wed, 23 Sep 2026 05:15:54 -0400 (EDT)
+MIME-Version: 1.0
+From: <postmaster@acsemailuk2.onmicrosoft.com>
+To: <hello@example.com>
+Date: Wed, 23 Sep 2026 09:15:51 +0000
+Content-Type: multipart/alternative; differences=Content-Type;
+	boundary="51e17011-43a1-412f-80ac-295ed1fba71e"
+Content-Language: en-US
+Message-ID:
+ <b40e34f0-9c1a-42bb-a9fd-f6e0ef0521be@LOVP265MB8674.GBRP265.PROD.OUTLOOK.COM>
+In-Reply-To: <07WQFpqCuYqPnfRIyWPW3E4X@example.com>
+References: <07WQFpqCuYqPnfRIyWPW3E4X@example.com>
+Subject: Undeliverable: Confirm your email address
+Auto-Submitted: auto-replied
+
+--51e17011-43a1-412f-80ac-295ed1fba71e
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+[https://products.office.com/en-us/CMSImages/Office365Logo_Orange.png]
+Your message to bounce@icloud.com couldn't be delivered.
+Security or policy settings at icloud.com have rejected your message.
+hello   Office 365      icloud.com
+Sender          Action Required
+Security or policy violation
+
+How to Fix It
+The recipient's email server won't accept your message because it appears t=
+o violate their security or policy settings. Check the Reported error below=
+ to see if you can determine why it was blocked. Then try one or more of th=
+e following:
+
+  *   If the error mentions SPF, DKIM, or DMARC issues, forward this messag=
+e to your email admin for assistance.
+  *   The recipient's email server might suspect that your message is spam.=
+ Follow the guidance in this article: E-mailing Best Practices for Senders<=
+https://aka.ms/EmailingBestPractices>. Then resend your message.
+  *   If the error suggests your message is too large, try to reduce the si=
+ze of your attachment. If that isn't possible, place the file on a publicly=
+ accessible cloud storage location, like OneDrive. Then add a link to the f=
+ile in your message, and resend the message.
+  *   Contact the recipient (by phone, for example) and tell them to ask th=
+eir email admin to add you or your email domain to their allowed senders li=
+st.
+
+If the problem continues, forward this message to your email admin. If you'=
+re an email admin, refer to the More Info for Email Admins section below.
+
+Was this helpful? Send feedback to Microsoft<https://go.microsoft.com/fwlin=
+k/?LinkId=3D525928>.
+________________________________
+
+More Info for Email Admins
+Status code: 550 5.7.1
+
+This error occurs when the recipient's domain has security or policy settin=
+gs that reject the sender's message. However, we were unable to determine t=
+he specific setting that's causing this rejection. Usually the error is rep=
+orted by an email server outside of Office 365. Common issues include the f=
+ollowing: the receiving server suspects the message is malicious or spam; t=
+he Sender Policy Framework (SPF) record for example.com is incorrectly c=
+onfigured or doesn't exist; or the message includes an attachment larger th=
+an the receiving server will accept. Try one or more of the following:
+
+Review the reported error - Check the Reported error shown below to help de=
+termine what the issue might be. For example, if the issue is related to an=
+ SPF failure, the reported error will usually include the acronym "SPF" or =
+the phrase "Sender Policy Framework."
+
+Correctly configure your SPF records - If you're the sender's email admin, =
+make sure your domain's SPF records at your domain registrar are properly c=
+onfigured. Office 365 supports only one SPF record (a TXT record that defin=
+es SPF) for your domain. Include the following domain name: spf.protection.=
+outlook.com. If you have a hybrid configuration (some mailboxes in the clou=
+d and some mailboxes on premises) or if you're an Exchange Online Protectio=
+n standalone customer, add the outbound IP address of your on-premises serv=
+ers to the TXT record. To learn how, see Customize an SPF record to validat=
+e outbound email sent from your domain<https://technet.microsoft.com/librar=
+y/dn789058(v=3Dexchg.150).aspx> and External Domain Name System records for=
+ Office 365<https://support.office.com/article/External-Domain-Name-System-=
+records-for-Office-365-c0531a6f-9e25-4f2d-ad0e-a70bfef09ac0#BKMK_SPFrecords=
+>.
+
+Unable to relay - If the Reported error indicates a problem with relaying (=
+e.g. "unable to relay"), then the email server that reported the error like=
+ly isn't set up correctly to receive and relay messages from the sender's d=
+omain. This server will usually be one of your on-premises servers in a hyb=
+rid environment, a smart host email service that you're trying to route mes=
+sages through, or possibly even an email hosting service you used in the pa=
+st yet still have mail flow settings pointing to (e.g. your MX record at yo=
+ur domain registrar still points to your previous email service provider). =
+Check Error reported by shown below to determine what domain, service, or s=
+erver is reporting the error. The email server needs to be configured to ei=
+ther accept messages from anonymous users or to include the sending domain =
+or IP in its list of authenticated senders. On an Exchange server, you can =
+set this up in the server's receive connector. If it's a smart host managed=
+ by another service or partner, contact the service or partner to configure=
+ their servers to accept and relay messages from your senders. Also, work w=
+ith your domain registrar to make sure your MX records are properly configu=
+red.
+
+Contact the recipient's email admin - For some scenarios, you can fix the i=
+ssue by contacting the email admin at the recipient domain to ask them to a=
+dd the sender's email address or your domain to their allowed senders list,=
+ or to relax the setting that's causing the rejection.
+
+For more information and tips for fixing this issue, see Fix email delivery=
+ issues for error code 5.7.1 in Office 365<https://go.microsoft.com/fwlink/=
+?LinkId=3D389365>.
+
+Original Message Details
+Created Date:   9/23/2026 9:15:36 AM
+Sender Address: hello@example.com
+Recipient Address:      bounce@icloud.com
+Subject:        Confirm your email address
+
+Error Details
+Error:  554 5.7.1 [CS01] Message rejected due to local policy. Please visit=
+ https://support.apple.com/en-us/HT204137. Txn ID 00000000-0000-0000-0000-b=
+00000000000
+Message rejected by:    p00-iscream-smtp-7b95d6f6c9-64bmv
+
+Notification Details
+Sent by:        LOVP265MB8674.GBRP265.PROD.OUTLOOK.COM
+
+Message Hops
+HOP     TIME (UTC)      FROM    TO      WITH    RELAY TIME
+1       9/23/2026
+9:15:43 AM      substrate.office.com    LOVP265MB8674.GBRP265.PROD.OUTLOOK.=
+COM  HTTP    7 sec
+
+Original Message Headers
+
+Received: from substrate.office.com (2603:10a6:600:37c::19) by
+ LOVP265MB8674.GBRP265.PROD.OUTLOOK.COM with HTTP via
+ LO4P265CA0257.GBRP265.PROD.OUTLOOK.COM; Wed, 23 Sep 2026 09:15:43 +0000
+Message-ID: <07WQFpqCuYqPnfRIyWPW3E4X@example.com>
+Subject: Confirm your email address
+Date: Wed, 23 Sep 2026 10:15:36 +0100
+MIME-Version: 1.0
+X-Listmonk-Subscriber: a4eec08a-4c6e-4c49-ba0b-54bb2a96d768
+Content-Type: text/html; charset=3DUTF-8
+Content-Transfer-Encoding: quoted-printable
+To: bounce@icloud.com
+Reply-To: Test <hello@example.com>
+From: Test <hello@example.com>
+Sender: Test <hello@example.com>
+Return-Path: hello@example.com
+
+
+--51e17011-43a1-412f-80ac-295ed1fba71e
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+  <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D=
+1" />
+  <head>
+    <title>
+          DSN
+        </title>
+  </head>
+  <body style=3D"        background-color: white;      ">
+    <table style=3D"        background-color: white;         max-width: 548=
+px;         color: black;         border-spacing: 0px 0px;         padding-=
+top: 0px;         padding-bottom: 0px;        border-collapse: collapse;   =
+   " width=3D"548" cellspacing=3D"0" cellpadding=3D"0">
+      <tbody>
+        <tr>
+          <td style=3D"        text-align: left;        padding-bottom: 20p=
+x;      ">
+            <img height=3D"28" width=3D"126" style=3D"        max-width: 10=
+0%;      " src=3D"https://products.office.com/en-us/CMSImages/Office365Logo=
+_Orange.png" />
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        font-size: 16px;         padding-bottom: 10px;         -ms=
+-text-size-adjust: 100%;        text-align: left;      ">Your message to <s=
+pan style=3D"        color: #0072c6;      ">bounce@icloud.com</span> co=
+uldn't be delivered.<br /></td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;         font-size: 24px;         padding-top: 0px;         paddin=
+g-bottom: 20px;         text-align: center;         -ms-text-size-adjust: 1=
+00%;      ">Security or policy settings at <span style=3D"        color: #0=
+072c6;      ">icloud.com</span> have rejected your message.<br /></td>
+        </tr>
+        <tr>
+          <td style=3D"        padding-bottom: 15px;         padding-left: =
+0px;         padding-right: 0px;         border-spacing: 0px 0px;      ">
+            <table style=3D"        max-width: 548px;         font-weight: =
+600;        border-spacing: 0px 0px;         padding-top: 0px;         padd=
+ing-bottom: 0px;        border-collapse: collapse;      ">
+              <tbody>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        font-size: 15px;        font-weight: 600;        t=
+ext-align: left;        width: 181px;        -ms-text-size-adjust: 100%;   =
+     vertical-align: bottom;      ">
+                    <font color=3D"#ffffff">
+                      <span style=3D"color:#000000">hello</span>
+                    </font>
+                  </td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        font-size: 15px;        font-weight: 600;        t=
+ext-align: center;        width: 186px;        -ms-text-size-adjust: 100%; =
+       vertical-align: bottom;      ">
+                    <font color=3D"#ffffff">
+                      <span style=3D"color:#000000">Office 365</span>
+                    </font>
+                  </td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;         -ms-text-size-adjust: 100%;         font-size: 15=
+px;         font-weight: 600;        text-align: right;         width: 181p=
+x;         vertical-align: bottom;      ">
+                    <font color=3D"#ffffff">
+                      <span style=3D"color:#000000">icloud.com</span>
+                    </font>
+                  </td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;        text-align: left;        padding-top: 0px=
+;        padding-bottom: 0px;        vertical-align: middle;        width: =
+181px;      ">
+                    <font color=3D"#ffffff">
+                      <span style=3D"color:#000000">Sender</span>
+                    </font>
+                  </td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;        text-align: center;        padding-top: 0=
+px;        padding-bottom: 0px;        vertical-align: middle;        width=
+: 186px;      " />
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;        text-align: right;        padding-top: 0p=
+x;        padding-bottom: 0px;        vertical-align: middle;        width:=
+ 181px;      ">
+                    <font color=3D"#ffffff">
+                      <span style=3D"        color: #c00000;      ">
+                        <b>Action Required</b>
+                      </span>
+                    </font>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan=3D"3" style=3D"        padding-top:0;        =
+padding-bottom:0;        padding-left:0;        padding-right:0      ">
+                    <table cellspacing=3D"0" cellpadding=3D"0" style=3D"   =
+     border-spacing: 0px 0px;        padding-top: 0px;        padding-botto=
+m: 0px;        padding-left: 0px;        padding-right: 0px;        border-=
+collapse: collapse;      ">
+                      <tbody>
+                        <tr height=3D"10">
+                          <td width=3D"180" height=3D"10" bgcolor=3D"#ccccc=
+c" style=3D"        width: 180px;        line-height: 10px;        height: =
+10px;        font-size: 6px;        padding-top: 0;        padding-bottom: =
+0;        padding-left: 0;        padding-right: 0;      "><!--[if gte mso =
+15]>&nbsp;<![endif]--></td>
+                          <td width=3D"4" height=3D"10" bgcolor=3D"#ffffff"=
+ style=3D"        width: 4px;        line-height: 10px;        height: 10px=
+;        font-size: 6px;        padding-top: 0;        padding-bottom: 0;  =
+      padding-left: 0;        padding-right: 0;      "><!--[if gte mso 15]>=
+&nbsp;<![endif]--></td>
+                          <td width=3D"180" height=3D"10" bgcolor=3D"#ccccc=
+c" style=3D"        width: 180px;        line-height: 10px;        height: =
+10px;        font-size: 6px;        padding-top: 0;        padding-bottom: =
+0;        padding-left: 0;        padding-right: 0;      "><!--[if gte mso =
+15]>&nbsp;<![endif]--></td>
+                          <td width=3D"4" height=3D"10" bgcolor=3D"#ffffff"=
+ style=3D"        width: 4px;        line-height: 10px;        height: 10px=
+;        font-size: 6px;        padding-top: 0;        padding-bottom: 0;  =
+      padding-left: 0;        padding-right: 0;      "><!--[if gte mso 15]>=
+&nbsp;<![endif]--></td>
+                          <td width=3D"180" height=3D"10" bgcolor=3D"#c0000=
+0" style=3D"        width: 180px;        line-height: 10px;        height: =
+10px;        font-size: 6px;        padding-top: 0;        padding-bottom: =
+0;        padding-left: 0;        padding-right: 0;      "><!--[if gte mso =
+15]>&nbsp;<![endif]--></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        text-align: left;        width: 181px;        line-height: 20px;  =
+      font-weight: 400;        padding-top: 0px;        padding-left: 0px; =
+       padding-right: 0px;        padding-bottom: 0px;      " />
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        text-align: center;        width: 186px;        line-height: 20px;=
+        font-weight: 400;        padding-top: 0px;        padding-left: 0px=
+;        padding-right: 0px;        padding-bottom: 0px;      " />
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        text-align: right;        width: 181px;        line-height: 20px; =
+       font-weight: 400;        padding-top: 0px;        padding-left: 0px;=
+        padding-right: 0px;        padding-bottom: 0px;      ">
+                    <font color=3D"#ffffff">
+                      <span style=3D"        color: #c00000;      ">Securit=
+y or policy violation</span>
+                    </font>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        width: 100%;        padding-top: 0px;       =
+ padding-right: 10px;        padding-left: 10px;      ">
+            <br />
+            <table style=3D"        width: 100%;        padding-right: 0px;=
+        padding-left: 0px;        padding-top: 0px;        padding-bottom: =
+0px;        background-color: #f2f5fa;        margin-left: 0px;      ">
+              <tbody>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 21px=
+;        font-weight: 500;        background-color: #f2f5fa;        padding=
+-top: 0px;        padding-bottom: 0px;        padding-left: 10px;        pa=
+dding-right: 10px;      ">How to Fix It</td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 16px=
+;        font-weight: 400;        padding-top: 0px;        padding-bottom: =
+6px;        padding-left: 10px;        padding-right: 10px;        backgrou=
+nd-color: #f2f5fa;      ">The recipient's email server won't accept your me=
+ssage because it appears to violate their security or policy settings. Chec=
+k the <b>Reported error</b> below to see if you can determine why it was bl=
+ocked. Then try one or more of the following:</td>
+                </tr>
+                <tr>
+                  <td style=3D"         padding-top: 0px;         padding-b=
+ottom: 0px;         padding-left: 0px;         padding-right: 0px;        b=
+order-spacing: 0px 0px;      ">
+                    <ul style=3D"        font-family: 'Segoe UI', Frutiger,=
+ Arial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 16=
+px;        font-weight: 400;        margin-left: 40px;        margin-bottom=
+: 5px;        background-color: #f2f5fa;        padding-top: 0px;        pa=
+dding-bottom: 0px;        padding-left: 6px;        padding-right: 6px;    =
+  ">
+                      <li>If the error mentions SPF, DKIM, or DMARC issues,=
+ forward this message to your email admin for assistance.</li>
+                      <li>The recipient's email server might suspect that y=
+our message is spam. Follow the guidance in this article: <a href=3D"https:=
+//aka.ms/EmailingBestPractices">E-mailing Best Practices for Senders</a>. T=
+hen resend your message.</li>
+                      <li>If the error suggests your message is too large, =
+try to reduce the size of your attachment. If that isn't possible, place th=
+e file on a publicly accessible cloud storage location, like OneDrive. Then=
+ add a link to the file in your message, and resend the message.</li>
+                      <li>Contact the recipient (by phone, for example) and=
+ tell them to ask their email admin to add you or your email domain to thei=
+r allowed senders list.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 16px=
+;        font-weight: 400;        padding-top: 0px;        padding-bottom: =
+6px;        padding-left: 10px;        padding-right: 10px;        backgrou=
+nd-color: #f2f5fa;      ">If the problem continues, forward this message to=
+ your email admin. If you're an email admin, refer to the <b>More Info for =
+Email Admins</b> section below.</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        -ms-text-size-adjust: 100%;        font-size: 14px;       =
+ font-weight: 400;        padding-top: 10px;        padding-bottom: 0px;   =
+     padding-bottom: 4px;      ">
+            <br />
+            <em>Was this helpful? <a href=3D"https://go.microsoft.com/fwlin=
+k/?LinkId=3D525928">Send feedback to Microsoft</a>.</em>
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        -ms-text-size-adjust: 100%;        font-size=
+: 0px;        line-height: 0px;        padding-top: 0px;        padding-bot=
+tom: 0px;      ">
+            <hr />
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        -ms-text-size-adjust: 100%;        font-size: 21px;       =
+ font-weight: 500;      ">
+            <br />More Info for Email Admins</td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        -ms-text-size-adjust: 100%;        font-size: 14px;      "=
+>
+            <em>Status code: 550 5.7.1</em>
+            <br />
+            <br />This error occurs when the recipient's domain has securit=
+y or policy settings that reject the sender's message. However, we were una=
+ble to determine the specific setting that's causing this rejection. Usuall=
+y the error is reported by an email server outside of Office 365. Common is=
+sues include the following: the receiving server suspects the message is ma=
+licious or spam; the Sender Policy Framework (SPF) record for nhshackday.co=
+m is incorrectly configured or doesn't exist; or the message includes an at=
+tachment larger than the receiving server will accept. Try one or more of t=
+he following:<br /><br /><b>Review the reported error</b> - Check the <b>Re=
+ported error</b> shown below to help determine what the issue might be. For=
+ example, if the issue is related to an SPF failure, the reported error wil=
+l usually include the acronym "SPF" or the phrase "Sender Policy Framework.=
+"<br /><br /><b>Correctly configure your SPF records</b> - If you're the se=
+nder's email admin, make sure your domain's SPF records at your domain regi=
+strar are properly configured. Office 365 supports only one SPF record (a T=
+XT record that defines SPF) for your domain. Include the following domain n=
+ame: <b>spf.protection.outlook.com</b>. If you have a hybrid configuration =
+(some mailboxes in the cloud and some mailboxes on premises) or if you're a=
+n Exchange Online Protection standalone customer, add the outbound IP addre=
+ss of your on-premises servers to the TXT record. To learn how, see <a href=
+=3D"https://technet.microsoft.com/library/dn789058(v=3Dexchg.150).aspx">Cus=
+tomize an SPF record to validate outbound email sent from your domain</a> a=
+nd <a href=3D"https://support.office.com/article/External-Domain-Name-Syste=
+m-records-for-Office-365-c0531a6f-9e25-4f2d-ad0e-a70bfef09ac0#BKMK_SPFrecor=
+ds">External Domain Name System records for Office 365</a>.<br /><br /><b>U=
+nable to relay</b> - If the <b>Reported error</b> indicates a problem with =
+relaying (e.g. "unable to relay"), then the email server that reported the =
+error likely isn't set up correctly to receive and relay messages from the =
+sender's domain. This server will usually be one of your on-premises server=
+s in a hybrid environment, a smart host email service that you're trying to=
+ route messages through, or possibly even an email hosting service you used=
+ in the past yet still have mail flow settings pointing to (e.g. your MX re=
+cord at your domain registrar still points to your previous email service p=
+rovider). Check <b>Error reported by</b> shown below to determine what doma=
+in, service, or server is reporting the error. The email server needs to be=
+ configured to either accept messages from anonymous users or to include th=
+e sending domain or IP in its list of authenticated senders. On an Exchange=
+ server, you can set this up in the server's receive connector. If it's a s=
+mart host managed by another service or partner, contact the service or par=
+tner to configure their servers to accept and relay messages from your send=
+ers. Also, work with your domain registrar to make sure your MX records are=
+ properly configured.<br /><br /><b>Contact the recipient's email admin</b>=
+ - For some scenarios, you can fix the issue by contacting the email admin =
+at the recipient domain to ask them to add the sender's email address or yo=
+ur domain to their allowed senders list, or to relax the setting that's cau=
+sing the rejection.<br /><br />For more information and tips for fixing thi=
+s issue, see <a href=3D"https://go.microsoft.com/fwlink/?LinkId=3D389365">F=
+ix email delivery issues for error code 5.7.1 in Office 365</a>.<br /><br /=
+></td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        -ms-text-size-adjust: 100%;        font-size: 17px;       =
+ font-weight: 500;      ">Original Message Details</td>
+        </tr>
+        <tr>
+          <td style=3D"        font-size: 14px;        line-height: 20px;  =
+      font-family: 'Segoe UI', Frutiger, Arial, sans-serif;        -ms-text=
+-size-adjust: 100%;        font-weight: 500;      ">
+            <table style=3D"        width: 100%;        border-collapse: co=
+llapse;        margin-left: 10px;      ">
+              <tbody>
+                <tr>
+                  <td valign=3D"top" style=3D"        font-family: 'Segoe U=
+I', Frutiger, Arial, sans-serif;        font-size: 14px;        -ms-text-si=
+ze-adjust: 100%;        white-space: nowrap;        font-weight: 500;      =
+  width: 140px;      ">Created Date:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">9/23/2026 9:15:36 AM</td>
+                </tr>
+                <tr>
+                  <td valign=3D"top" style=3D"        font-family: 'Segoe U=
+I', Frutiger, Arial, sans-serif;        font-size: 14px;        -ms-text-si=
+ze-adjust: 100%;        white-space: nowrap;        font-weight: 500;      =
+  width: 140px;      ">Sender Address:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">hello@example.com</td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        font-size: 14px;        -ms-text-size-adjust: 100%=
+;        white-space: nowrap;        font-weight: 500;        width: 140px;=
+      ">Recipient Address:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">bounce@icloud.com</td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        font-size: 14px;        -ms-text-size-adjust: 100%=
+;        white-space: nowrap;        font-weight: 500;        width: 140px;=
+      ">Subject:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">Confirm your email address</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        -ms-text-size-adjust: 100%;        font-size: 17px;       =
+ font-weight: 500;      ">
+            <br />Error Details</td>
+        </tr>
+        <tr>
+          <td style=3D"        font-size: 14px;        line-height: 20px;  =
+      font-family: 'Segoe UI', Frutiger, Arial, sans-serif;        -ms-text=
+-size-adjust: 100%;        font-weight: 500;      ">
+            <table style=3D"        width: 100%;        border-collapse: co=
+llapse;        margin-left: 10px;      ">
+              <tbody>
+                <tr>
+                  <td valign=3D"top" style=3D"        font-family: 'Segoe U=
+I', Frutiger, Arial, sans-serif;        font-size: 14px;        -ms-text-si=
+ze-adjust: 100%;        white-space: nowrap;        font-weight: 500;      =
+  width: 140px;      ">Error:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">
+                    <em>554 5.7.1 [CS01] Message rejected due to local poli=
+cy. Please visit https://support.apple.com/en-us/HT204137. Txn ID 00000000-=
+0000-0000-0000-000000000000</em>
+                  </td>
+                </tr>
+                <tr>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        font-size: 14px;        -ms-text-size-adjust: 100%=
+;        white-space: nowrap;        font-weight: 500;        width: 140px;=
+      ">Message rejected by:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">p00-iscream-smtp-7b95d6f6c9-64bmv</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sa=
+ns-serif;        -ms-text-size-adjust: 100%;        font-size: 17px;       =
+ font-weight: 500;      ">
+            <br />Notification Details</td>
+        </tr>
+        <tr>
+          <td style=3D"        font-size: 14px;        line-height: 20px;  =
+      font-family: 'Segoe UI', Frutiger, Arial, sans-serif;        -ms-text=
+-size-adjust: 100%;        font-weight: 500;      ">
+            <table style=3D"        width: 100%;        border-collapse: co=
+llapse;        margin-left: 10px;      ">
+              <tbody>
+                <tr>
+                  <td valign=3D"top" style=3D"        font-family: 'Segoe U=
+I', Frutiger, Arial, sans-serif;        font-size: 14px;        -ms-text-si=
+ze-adjust: 100%;        white-space: nowrap;        font-weight: 500;      =
+  width: 140px;      ">Sent by:</td>
+                  <td style=3D"        font-family: 'Segoe UI', Frutiger, A=
+rial, sans-serif;        -ms-text-size-adjust: 100%;        font-size: 14px=
+;        font-weight: 400;      ">
+                    <em>LOVP265MB8674.GBRP265.PROD.OUTLOOK.COM</em>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <table style=3D"width: 880px;" cellspacing=3D"0">
+      <tr>
+        <td colspan=3D"6" style=3D"        padding-top: 4px;        border-=
+bottom: 1px solid #999999;        padding-bottom: 4px;        line-height: =
+120%;        font-size: 17px;        font-family: 'Segoe UI', Frutiger, Ari=
+al, sans-serif;        -ms-text-size-adjust: 100%;        font-weight: 500;=
+      ">Message Hops</td>
+      </tr>
+      <tr>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        background-color: #f2f5fa;        border-bottom: 1p=
+x solid #999999;        white-space: nowrap;        padding: 8px;      ">HO=
+P</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        background-color: #f2f5fa;        border-bottom: 1p=
+x solid #999999;        white-space: nowrap;        padding: 8px;        wi=
+dth: 80px;      ">TIME (UTC)</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        background-color: #f2f5fa;        border-bottom: 1p=
+x solid #999999;        white-space: nowrap;        padding: 8px;      ">FR=
+OM</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        background-color: #f2f5fa;        border-bottom: 1p=
+x solid #999999;        white-space: nowrap;        padding: 8px;      ">TO=
+</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        background-color: #f2f5fa;        border-bottom: 1p=
+x solid #999999;        white-space: nowrap;        padding: 8px;      ">WI=
+TH</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        background-color: #f2f5fa;        border-bottom: 1p=
+x solid #999999;        white-space: nowrap;        padding: 8px;      ">RE=
+LAY TIME</td>
+      </tr>
+      <tr>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        border-bottom: 1px solid #999999;        padding: 8=
+px;        text-align: center;      ">1</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        border-bottom: 1px solid #999999;        padding: 8=
+px;        text-align: left;        width: 80px;      ">9/23/2026<br />9:15=
+:43 AM</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        border-bottom: 1px solid #999999;        padding: 8=
+px;        text-align: left;      ">substrate.office.com</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        border-bottom: 1px solid #999999;        padding: 8=
+px;        text-align: left;      ">LOVP265MB8674.GBRP265.PROD.OUTLOOK.COM<=
+/td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        border-bottom: 1px solid #999999;        padding: 8=
+px;        text-align: left;      ">HTTP</td>
+        <td style=3D"        font-size: 12px;        font-family: 'Segoe UI=
+', Frutiger, Arial, sans-serif;        -ms-text-size-adjust: 100%;        f=
+ont-weight: 500;        border-bottom: 1px solid #999999;        padding: 8=
+px;        text-align: left;      ">7&nbsp;sec</td>
+      </tr>
+    </table>
+    <p style=3D"        font-family: 'Segoe UI', Frutiger, Arial, sans-seri=
+f;        -ms-text-size-adjust: 100%;        font-size: 17px;        font-w=
+eight: 500;        padding-top: 4px;        padding-bottom: 0;        margi=
+n-top: 19px;        margin-bottom: 5px;      ">Original Message Headers</p>
+    <pre style=3D"        color: gray;        white-space: pre;        padd=
+ing-top: 0;        margin-top: 5px;      ">
+Received: from substrate.office.com (2603:10a6:600:37c::19) by
+ LOVP265MB8674.GBRP265.PROD.OUTLOOK.COM with HTTP via
+ LO4P265CA0257.GBRP265.PROD.OUTLOOK.COM; Wed, 23 Sep 2026 09:15:43 +0000
+Message-ID: &lt;07WQFpqCuYqPnfRIyWPW3E4X@example.com&gt;
+Subject: Confirm your email address
+Date: Wed, 23 Sep 2026 10:15:36 +0100
+MIME-Version: 1.0
+X-Listmonk-Subscriber: a4eec08a-4c6e-4c49-ba0b-54bb2a96d768
+Content-Type: text/html; charset=3DUTF-8
+Content-Transfer-Encoding: quoted-printable
+To: bounce@icloud.com
+Reply-To: Test &lt;hello@example.com&gt;
+From: Test &lt;hello@example.com&gt;
+Sender: Test &lt;hello@example.com&gt;
+Return-Path: hello@example.com
+
+</pre>
+  </body>
+</html>=
+
+--51e17011-43a1-412f-80ac-295ed1fba71e--

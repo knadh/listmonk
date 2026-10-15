@@ -1,16 +1,20 @@
 package mailbox
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"net/mail"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/emersion/go-message"
 	_ "github.com/emersion/go-message/charset"
+	"github.com/emersion/go-message/textproto"
 	"github.com/knadh/go-pop3"
 	"github.com/knadh/listmonk/models"
 )
@@ -34,24 +38,25 @@ type bounceMeta struct {
 	DeliveredTo    string   `json:"delivered_to"`
 	Received       []string `json:"received"`
 	ClassifyReason string   `json:"classify_reason"`
+	DiagnosticCode string   `json:"diagnostic_code,omitempty"`
 }
 
 var (
 	// List of header to look for in the e-mail body, regexp to fall back to if the header is empty.
 	headerLookups = []bounceHeaders{
-		{models.EmailHeaderCampaignUUID, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderCampaignUUID + `:\s+?)([a-z0-9\-]{36})`)},
-		{models.EmailHeaderSubscriberUUID, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderSubscriberUUID + `:\s+?)([a-z0-9\-]{36})`)},
-		{models.EmailHeaderDate, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderDate + `:\s+?)([\w,\,\ ,:,+,-]*(?:\(?:\w*\))?)`)},
-		{models.EmailHeaderFrom, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderFrom + `:\s+?)(.*)`)},
-		{models.EmailHeaderSubject, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderSubject + `:\s+?)(.*)`)},
-		{models.EmailHeaderMessageId, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderMessageId + `:\s+?)(.*)`)},
-		{models.EmailHeaderDeliveredTo, regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderDeliveredTo + `:\s+?)(.*)`)},
+		{models.EmailHeaderCampaignUUID, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderCampaignUUID + `:\s+?)([a-z0-9\-]{36})`)},
+		{models.EmailHeaderSubscriberUUID, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderSubscriberUUID + `:\s+?)([a-z0-9\-]{36})`)},
+		{models.EmailHeaderDate, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderDate + `:\s+?)([\w,\,\ ,:,+,-]*(?:\(?:\w*\))?)`)},
+		{models.EmailHeaderFrom, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderFrom + `:\s+?)(.*)`)},
+		{models.EmailHeaderSubject, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderSubject + `:\s+?)(.*)`)},
+		{models.EmailHeaderMessageId, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderMessageId + `:\s+?)(.*)`)},
+		{models.EmailHeaderDeliveredTo, regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderDeliveredTo + `:\s+?)(.*)`)},
 	}
 
-	reHdrReceived = regexp.MustCompile(`(?m)(?:^` + models.EmailHeaderReceived + `:\s+?)(.*)`)
+	reHdrReceived = regexp.MustCompile(`(?mi)(?:^` + models.EmailHeaderReceived + `:[ \t]*)([^\r\n]*(?:\r?\n[ \t]+[^\r\n]*)*)`)
 
 	// SMTP status code (5.x.x or 4.x.x) to classify hard/soft bounces.
-	reSMTPStatus = regexp.MustCompile(`(?m)(?i)^(?:Status:\s*)?(?:\d{3}\s+)?([45]\.\d+\.\d+)`)
+	reSMTPStatus = regexp.MustCompile(`(?m)(?i)^(?:Status(?:\s+code)?:\s*)?(?:\d{3}\s+)?([45]\.\d+\.\d+)`)
 
 	// List of (conventional) strings to guess hard bounces.
 	reHardBounce = regexp.MustCompile(`(?i)(NXDOMAIN|user unknown|address not found|mailbox not found|address.*reject|does not exist|` +
@@ -74,8 +79,8 @@ func NewPOP(opt Opt, lo *log.Logger) *POP {
 }
 
 // Scan scans the mailbox and pushes the downloaded messages into the given channel.
-// The messages that are downloaded are deleted from the server. If limit > 0,
-// all messages on the server are downloaded and deleted.
+// The scanned messages are deleted from the server. A positive limit caps the
+// number of messages scanned.
 func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 	c, err := p.client.NewConn()
 	if err != nil {
@@ -114,86 +119,14 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 			continue
 		}
 
-		// Parse the message.
-		m, err := message.Read(b)
-		if err != nil && !message.IsUnknownCharset(err) {
+		bounces, err := parseBounce(b.Bytes())
+		if err != nil {
 			p.lo.Printf("error parsing bounce message %d: %v", id, err)
 			continue
 		}
-
-		h := m
-
-		// If this is a multipart message, find the last part.
-		if mr := m.MultipartReader(); mr != nil {
-			for {
-				part, err := mr.NextPart()
-				if err == io.EOF {
-					break
-				} else if err != nil && !message.IsUnknownCharset(err) {
-					p.lo.Printf("error reading multipart bounce message %d: %v", id, err)
-					continue
-				}
-				h = part
-			}
-		}
-
-		// Reset the "unread portion" pointer of the message buffer.
-		// If you don't do this, you can't read the entire body because the pointer will not point to the beginning.
-		b, _ = c.RetrRaw(id)
-
-		// Lookup headers in the e-mail. If a header isn't found, fall back to regexp lookups.
-		hdr := make(map[string]string, 7)
-		for _, l := range headerLookups {
-			v := h.Header.Get(l.Header)
-
-			// Not in the header. Try regexp.
-			if v == "" {
-				if m := l.Regexp.FindAllSubmatch(b.Bytes(), -1); m != nil {
-					v = string(m[len(m)-1][1])
-				}
-			}
-
-			hdr[l.Header] = strings.TrimSpace(v)
-		}
-
-		// Received is a []string header.
-		msgReceived := h.Header.Map()[models.EmailHeaderReceived]
-		if len(msgReceived) == 0 {
-			if u := reHdrReceived.FindAllSubmatch(b.Bytes(), -1); u != nil {
-				for i := range u {
-					msgReceived = append(msgReceived, string(u[i][1]))
-				}
-			}
-		}
-
-		date, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", hdr[models.EmailHeaderDate])
-		if date.IsZero() {
-			date = time.Now()
-		}
-
-		// Classify the bounce type based on message content.
-		bounceType, bounceReason := classifyBounce(b.Bytes())
-
-		// Additional bounce e-mail metadata.
-		meta, _ := json.Marshal(bounceMeta{
-			From:           hdr[models.EmailHeaderFrom],
-			Subject:        hdr[models.EmailHeaderSubject],
-			MessageID:      hdr[models.EmailHeaderMessageId],
-			DeliveredTo:    hdr[models.EmailHeaderDeliveredTo],
-			Received:       msgReceived,
-			ClassifyReason: bounceReason,
-		})
-
-		select {
-		case ch <- models.Bounce{
-			Type:           bounceType,
-			CampaignUUID:   hdr[models.EmailHeaderCampaignUUID],
-			SubscriberUUID: hdr[models.EmailHeaderSubscriberUUID],
-			Source:         p.opt.Host,
-			CreatedAt:      date,
-			Meta:           meta,
-		}:
-		default:
+		for _, bounce := range bounces {
+			bounce.Source = p.opt.Host
+			ch <- bounce
 		}
 	}
 
@@ -205,6 +138,218 @@ func (p *POP) Scan(limit int, ch chan models.Bounce) error {
 	}
 
 	return nil
+}
+
+// parseBounce uses MIME headers and delivery status fields to extract bounce messages.
+// When standard headers aren't available, regex heuristics are used to try and extract info.
+func parseBounce(raw []byte) ([]models.Bounce, error) {
+	m, err := message.Read(bytes.NewReader(bytes.TrimPrefix(raw, []byte{0xef, 0xbb, 0xbf})))
+	if err != nil && !message.IsUnknownCharset(err) {
+		// Even if the message has an unknown charset, headers can still be parsed.
+		return nil, err
+	}
+
+	h := m.Header
+	var (
+		original   bool
+		dsn        bool
+		feedback   *textproto.Header
+		recipients []textproto.Header
+	)
+
+	// Walk through nested multipart messages.
+	if err := m.Walk(func(_ []int, part *message.Entity, err error) error {
+		if err != nil && !message.IsUnknownCharset(err) {
+			return err
+		}
+
+		if !original {
+			h = part.Header
+		}
+
+		ct, _, _ := part.Header.ContentType()
+		switch ct {
+		case "message/feedback-report":
+			hdr, err := textproto.ReadHeader(bufio.NewReader(part.Body))
+			if err != nil && err != io.EOF {
+				return err
+			}
+
+			feedback = &hdr
+		case "message/rfc822", "message/global", "text/rfc822-headers":
+			hdr, err := textproto.ReadHeader(bufio.NewReader(part.Body))
+			if err != nil && err != io.EOF {
+				return err
+			}
+
+			h = message.Header{Header: hdr}
+			original = true
+		case "message/delivery-status", "message/global-delivery-status":
+			dsn = true
+			r := bufio.NewReader(part.Body)
+
+			// Skip the first block that describes the reporting server and not the subscriber / email recipient.
+			if _, err := textproto.ReadHeader(r); err != nil {
+				return err
+			}
+
+			for {
+				hdr, err := textproto.ReadHeader(r)
+				if err != nil && err != io.EOF {
+					return err
+				}
+
+				if hdr.Len() == 0 {
+					break
+				}
+
+				// Found recipients.
+				recipients = append(recipients, hdr)
+				if err == io.EOF {
+					break
+				}
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	// Try regex heuristics.
+	hdr := make(map[string]string, len(headerLookups))
+	for _, l := range headerLookups {
+		v := h.Get(l.Header)
+		if v == "" {
+			if matches := l.Regexp.FindAllSubmatch(raw, -1); len(matches) > 0 {
+				v = string(matches[len(matches)-1][1])
+			}
+		}
+
+		hdr[l.Header] = strings.TrimSpace(v)
+	}
+
+	var received []string
+	for fields := h.FieldsByKey(models.EmailHeaderReceived); fields.Next(); {
+		received = append(received, fields.Value())
+	}
+
+	if len(received) == 0 {
+		for _, match := range reHdrReceived.FindAllSubmatch(raw, -1) {
+			received = append(received, strings.Join(strings.Fields(string(match[1])), " "))
+		}
+	}
+
+	date, _ := mail.ParseDate(hdr[models.EmailHeaderDate])
+	if date.IsZero() {
+		date = time.Now()
+	}
+
+	bounceType, reason := classifyBounce(raw)
+	base := models.Bounce{
+		Type:           bounceType,
+		CampaignUUID:   hdr[models.EmailHeaderCampaignUUID],
+		SubscriberUUID: hdr[models.EmailHeaderSubscriberUUID],
+		CreatedAt:      date,
+	}
+
+	meta := bounceMeta{
+		From:           hdr[models.EmailHeaderFrom],
+		Subject:        hdr[models.EmailHeaderSubject],
+		MessageID:      hdr[models.EmailHeaderMessageId],
+		DeliveredTo:    hdr[models.EmailHeaderDeliveredTo],
+		Received:       received,
+		ClassifyReason: reason,
+	}
+
+	// There are ARF/feedback headers.
+	if feedback != nil {
+		if !strings.EqualFold(strings.TrimSpace(feedback.Get("Feedback-Type")), "abuse") {
+			return nil, nil
+		}
+
+		base.Type = models.BounceTypeComplaint
+		meta.ClassifyReason = "feedback_type=abuse"
+		base.Meta, _ = json.Marshal(meta)
+		if base.SubscriberUUID != "" {
+			return []models.Bounce{base}, nil
+		}
+
+		var out []models.Bounce
+		for fields := feedback.FieldsByKey("Original-Rcpt-To"); fields.Next(); {
+			a, err := mail.ParseAddress(strings.TrimSpace(fields.Value()))
+			if err != nil {
+				return nil, fmt.Errorf("invalid original recipient: %w", err)
+			}
+
+			b := base
+			b.Email = strings.ToLower(a.Address)
+			out = append(out, b)
+		}
+		if len(out) == 0 {
+			return nil, fmt.Errorf("missing subscriber UUID or original recipient")
+		}
+
+		return out, nil
+	}
+
+	if !dsn {
+		base.Meta, _ = json.Marshal(meta)
+		if base.SubscriberUUID == "" {
+			return nil, fmt.Errorf("missing subscriber UUID")
+		}
+
+		return []models.Bounce{base}, nil
+	}
+
+	var out []models.Bounce
+	for _, recipient := range recipients {
+		b := base
+		status := strings.TrimSpace(recipient.Get("Status"))
+		// Some servers append an explanatory comment after the status code.
+		if fields := strings.Fields(status); len(fields) > 0 {
+			status = fields[0]
+		}
+		action := strings.ToLower(strings.TrimSpace(recipient.Get("Action")))
+
+		switch {
+		case strings.HasPrefix(status, "2."), action == "delivered", action == "relayed", action == "expanded":
+			continue
+		case strings.HasPrefix(status, "5."):
+			b.Type = models.BounceTypeHard
+		case strings.HasPrefix(status, "4."):
+			b.Type = models.BounceTypeSoft
+		default:
+			return nil, fmt.Errorf("invalid delivery status %q", status)
+		}
+
+		if len(recipients) > 1 {
+			b.SubscriberUUID = ""
+		}
+
+		// No sub UUID, try to extract the email address from the final recipient header.
+		if b.SubscriberUUID == "" {
+			kind, address, _ := strings.Cut(recipient.Get("Final-Recipient"), ";")
+			if !strings.EqualFold(strings.TrimSpace(kind), "rfc822") && !strings.EqualFold(strings.TrimSpace(kind), "utf-8") {
+				return nil, fmt.Errorf("invalid final recipient")
+			}
+
+			a, err := mail.ParseAddress(strings.TrimSpace(address))
+			if err != nil {
+				return nil, fmt.Errorf("invalid final recipient: %w", err)
+			}
+
+			b.Email = strings.ToLower(a.Address)
+		}
+
+		meta.ClassifyReason = "smtp_status=" + status
+		meta.DiagnosticCode = recipient.Get("Diagnostic-Code")
+		b.Meta, _ = json.Marshal(meta)
+
+		out = append(out, b)
+	}
+
+	return out, nil
 }
 
 // classifyBounce analyzes the bounce message content and determines if it's a hard or soft bounce.
