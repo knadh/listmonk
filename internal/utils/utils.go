@@ -76,3 +76,12 @@ func SanitizeURI(u string) string {
 
 	return path.Clean(p.Path)
 }
+
+// NilToSlice returns an empty slice if s is nil, otherwise s unchanged.
+func NilToSlice[T any](s []T) []T {
+	if s == nil {
+		return []T{}
+	}
+
+	return s
+}
