@@ -88,6 +88,9 @@ type Manager struct {
 	pipes    map[int]*pipe
 	pipesMut sync.RWMutex
 
+	// Mutex for tracking periodic count sync to the DB.
+	countsMut sync.Mutex
+
 	tpls    map[int]*models.Template
 	tplsMut sync.RWMutex
 
@@ -453,8 +456,7 @@ func (m *Manager) scanCampaigns(tick time.Duration) {
 
 	// Periodically scan the data source for campaigns to process.
 	for range t.C {
-		ids, counts := m.getCurrentCampaigns()
-		campaigns, err := m.store.NextCampaigns(ids, counts)
+		campaigns, err := m.nextCampaigns()
 		if err != nil {
 			m.log.Printf("error fetching campaigns: %v", err)
 			continue
@@ -553,9 +555,6 @@ func (m *Manager) worker() {
 
 			// Increment the send rate or the error counter if there was an error.
 			if msg.pipe != nil {
-				// Mark the message as done.
-				msg.pipe.wg.Done()
-
 				if err != nil {
 					// Call the error callback, which keeps track of the error count
 					// and stops the campaign if the error count exceeds the threshold.
@@ -568,6 +567,9 @@ func (m *Manager) worker() {
 					msg.pipe.rate.Incr(1)
 					msg.pipe.sent.Add(1)
 				}
+
+				// Mark the message as done.
+				msg.pipe.wg.Done()
 			}
 
 		// Arbitrary message.
@@ -584,13 +586,14 @@ func (m *Manager) worker() {
 	}
 }
 
-// getCurrentCampaigns returns the IDs of campaigns currently being processed
-// and their sent counts.
-func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
-	// Needs to return an empty slice in case there are no campaigns.
-	m.pipesMut.RLock()
-	defer m.pipesMut.RUnlock()
+// nextCampaigns fetches new campaigns while updating stats.
+func (m *Manager) nextCampaigns() ([]*models.Campaign, error) {
+	m.countsMut.Lock()
+	defer m.countsMut.Unlock()
 
+	m.pipesMut.RLock()
+
+	// Needs to pass empty slices in case there are no campaigns.
 	var (
 		ids    = make([]int64, 0, len(m.pipes))
 		counts = make([]int64, 0, len(m.pipes))
@@ -600,11 +603,14 @@ func (m *Manager) getCurrentCampaigns() ([]int64, []int64) {
 
 		// Get the sent counts for campaigns and reset them to 0
 		// as in the database, they're stored cumulatively (sent += $newSent).
-		counts = append(counts, p.sent.Load())
-		p.sent.Store(0)
+		counts = append(counts, p.sent.Swap(0))
 	}
 
-	return ids, counts
+	m.pipesMut.RUnlock()
+
+	// A returned error does not guarantee the writes in the query were rolled back.
+	// The sent count shouldn't be restored, which could result in double sends.
+	return m.store.NextCampaigns(ids, counts)
 }
 
 // trackLink register a URL and return its UUID to be used in message templates

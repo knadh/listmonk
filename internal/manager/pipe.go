@@ -196,8 +196,13 @@ func (p *pipe) cleanup() {
 		p.m.pipesMut.Unlock()
 	}()
 
-	// Update campaign's 'sent count.
-	if err := p.m.store.UpdateCampaignCounts(p.camp.ID, 0, int(p.sent.Load()), int(p.lastID.Load())); err != nil {
+	// Wait for any pending periodic static syncs before flushing the final count.
+	// Swap prevents later scans from counting these sends again while the pipe
+	// remains in the map.
+	p.m.countsMut.Lock()
+	err := p.m.store.UpdateCampaignCounts(p.camp.ID, 0, int(p.sent.Swap(0)), int(p.lastID.Load()))
+	p.m.countsMut.Unlock()
+	if err != nil {
 		p.m.log.Printf("error updating campaign counts (%s): %v", p.camp.Name, err)
 	}
 
