@@ -243,19 +243,19 @@ func (c *Core) GetListCharts(id int, campaignViews bool) (types.JSONText, error)
 func (c *Core) GetListAnalyticsCounts(ids []int, typ, fromDate, toDate, interval string) ([]models.CampaignAnalyticsCount, error) {
 	var stmt *sqlx.Stmt
 	switch typ {
-	case "subscriptions":
+	case models.AnalyticsTypeSubscriptions:
 		stmt = c.q.GetListSubscriptionCounts
-	case "unsubscriptions":
+	case models.AnalyticsTypeUnsubscriptions:
 		stmt = c.q.GetListUnsubscriptionCounts
-	case "views":
+	case models.AnalyticsTypeViews:
 		stmt = c.q.GetListViewCounts
-	case "clicks":
+	case models.AnalyticsTypeClicks:
 		stmt = c.q.GetListClickCounts
-	case "total_views":
+	case models.AnalyticsTypeTotalViews:
 		stmt = c.q.GetListTotalViewCounts
-	case "total_clicks":
+	case models.AnalyticsTypeTotalClicks:
 		stmt = c.q.GetListTotalClickCounts
-	case "bounces":
+	case models.AnalyticsTypeBounces:
 		stmt = c.q.GetListBounceCounts
 	default:
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))

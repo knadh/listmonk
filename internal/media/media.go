@@ -7,6 +7,12 @@ import (
 	"gopkg.in/volatiletech/null.v6"
 )
 
+// Storage provider names.
+const (
+	ProviderS3         = "s3"
+	ProviderFilesystem = "filesystem"
+)
+
 // Media represents an uploaded object.
 type Media struct {
 	ID          int         `db:"id" json:"id"`

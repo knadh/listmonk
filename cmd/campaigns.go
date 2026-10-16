@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
@@ -86,7 +87,7 @@ type campaignView struct {
 // ViewNewCampaign renders the new campaign page (only the "campaign" tab).
 func (a *App) ViewNewCampaign(c echo.Context) error {
 	var tpls []models.Template
-	if can(auth.GetUser(c), "templates:get") {
+	if can(auth.GetUser(c), auth.PermTemplatesGet) {
 		var err error
 		tpls, err = a.core.GetTemplates("", "", true, "", "")
 		if err != nil {
@@ -163,7 +164,7 @@ func (a *App) ViewCampaign(c echo.Context) error {
 	}
 
 	var tpls []models.Template
-	if can(auth.GetUser(c), "templates:get") {
+	if can(auth.GetUser(c), auth.PermTemplatesGet) {
 		var err error
 		tpls, err = a.core.GetTemplates("", "", true, "", "")
 		if err != nil {
@@ -473,7 +474,7 @@ func (a *App) CreateCampaign(c echo.Context) error {
 	}
 
 	if o.Messenger == "" {
-		o.Messenger = "email"
+		o.Messenger = email.MessengerName
 	}
 
 	// Validate.
@@ -873,7 +874,7 @@ func (a *App) validateCampaignFields(c campReq) (campReq, error) {
 	if !a.manager.HasMessenger(c.Messenger) {
 		// If it's a specific SMTP, but it's no longer available (removed/disabled), fall back to general email messenger.
 		if strings.HasPrefix(c.Messenger, "email-") {
-			c.Messenger = "email"
+			c.Messenger = email.MessengerName
 		} else {
 			return c, errors.New(a.i18n.Ts("campaigns.fieldInvalidMessenger", "name", c.Messenger))
 		}

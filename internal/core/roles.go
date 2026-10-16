@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 )
@@ -12,7 +13,7 @@ import (
 // GetRoles retrieves all roles.
 func (c *Core) GetRoles(searchStr, orderBy, order string) ([]auth.Role, error) {
 	if order == "" {
-		order = SortAsc
+		order = models.OrderAsc
 	}
 
 	var (
@@ -30,7 +31,7 @@ func (c *Core) GetRoles(searchStr, orderBy, order string) ([]auth.Role, error) {
 // GetRole retrieves a role.
 func (c *Core) GetRole(id int) (auth.Role, error) {
 	out := []auth.Role{}
-	_, stmt := makeSearchQuery("", "", SortAsc, c.q.GetUserRoles, roleQuerySortFields)
+	_, stmt := makeSearchQuery("", "", models.OrderAsc, c.q.GetUserRoles, roleQuerySortFields)
 	if err := c.db.Select(&out, stmt, id, ""); err != nil {
 		return auth.Role{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "role", "error", pqErrMsg(err)))
@@ -48,7 +49,7 @@ func (c *Core) GetRole(id int) (auth.Role, error) {
 // GetListRoles retrieves all list roles.
 func (c *Core) GetListRoles(searchStr, orderBy, order string) ([]auth.ListRole, error) {
 	if order == "" {
-		order = SortAsc
+		order = models.OrderAsc
 	}
 
 	var (

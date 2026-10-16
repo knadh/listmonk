@@ -385,15 +385,15 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate, 
 	// Pick campaign view counts or click counts.
 	var stmt *sqlx.Stmt
 	switch typ {
-	case "views":
+	case models.AnalyticsTypeViews:
 		stmt = c.q.GetCampaignViewCounts
-	case "clicks":
+	case models.AnalyticsTypeClicks:
 		stmt = c.q.GetCampaignClickCounts
-	case "total_views":
+	case models.AnalyticsTypeTotalViews:
 		stmt = c.q.GetCampaignTotalViewCounts
-	case "total_clicks":
+	case models.AnalyticsTypeTotalClicks:
 		stmt = c.q.GetCampaignTotalClickCounts
-	case "bounces":
+	case models.AnalyticsTypeBounces:
 		stmt = c.q.GetCampaignBounceCounts
 	default:
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))

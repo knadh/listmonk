@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 )
 
@@ -97,9 +98,9 @@ func (a *App) GCCampaignAnalytics(c echo.Context) error {
 			return err
 		}
 		err = a.core.DeleteCampaignLinkClicks(t)
-	case "views":
+	case models.AnalyticsTypeViews:
 		err = a.core.DeleteCampaignViews(t)
-	case "clicks":
+	case models.AnalyticsTypeClicks:
 		err = a.core.DeleteCampaignLinkClicks(t)
 	default:
 		err = echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
@@ -120,7 +121,7 @@ func (a *App) ExportCampaignAnalytics(c echo.Context) error {
 	}
 
 	typ := c.Param("type")
-	if typ != "views" && typ != "clicks" {
+	if typ != models.AnalyticsTypeViews && typ != models.AnalyticsTypeClicks {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 	}
 
@@ -133,8 +134,8 @@ func (a *App) ExportCampaignAnalytics(c echo.Context) error {
 	hdr.Set("Cache-Control", "no-cache")
 
 	switch typ {
-	case "views":
-		wr.Write([]string{"campaign_id", "campaign_uuid", "campaign_name", "subscriber_id", "subscriber_uuid", "email", "subscriber_name", "created_at"})
+	case models.AnalyticsTypeViews:
+		wr.Write([]string{"campaign_id", "campaign_uuid", "campaign_name", "subscriber_id", "subscriber_uuid", "email", "subscriber_name", models.FieldCreatedAt})
 		next := a.core.ExportCampaignViews(since, a.cfg.DBBatchSize)
 		for {
 			rows, err := next()
@@ -157,8 +158,8 @@ func (a *App) ExportCampaignAnalytics(c echo.Context) error {
 			wr.Flush()
 		}
 
-	case "clicks":
-		wr.Write([]string{"campaign_id", "campaign_uuid", "campaign_name", "subscriber_id", "subscriber_uuid", "email", "subscriber_name", "url", "created_at"})
+	case models.AnalyticsTypeClicks:
+		wr.Write([]string{"campaign_id", "campaign_uuid", "campaign_name", "subscriber_id", "subscriber_uuid", "email", "subscriber_name", "url", models.FieldCreatedAt})
 		next := a.core.ExportCampaignLinkClicks(since, a.cfg.DBBatchSize)
 		for {
 			rows, err := next()

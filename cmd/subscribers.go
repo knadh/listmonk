@@ -495,7 +495,7 @@ func (a *App) ExportSubscribers(c echo.Context) error {
 	hdr.Set(echo.HeaderContentDisposition, "attachment; filename="+"subscribers.csv")
 	hdr.Set("Content-Transfer-Encoding", "binary")
 	hdr.Set("Cache-Control", "no-cache")
-	wr.Write([]string{"uuid", "email", "name", "attributes", "status", "created_at", "updated_at"})
+	wr.Write([]string{"uuid", "email", "name", "attributes", "status", models.FieldCreatedAt, "updated_at"})
 
 loop:
 	// Iterate in batches until there are no more subscribers to export.
@@ -801,11 +801,11 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	// Run the action in the DB.
 	var err error
 	switch req.Action {
-	case "add":
+	case models.SubscriptionActionAdd:
 		err = a.core.AddSubscriptions(subIDs, listIDs, req.Status)
-	case "remove":
+	case models.SubscriptionActionRemove:
 		err = a.core.DeleteSubscriptions(subIDs, listIDs)
-	case "unsubscribe":
+	case models.SubscriptionActionUnsubscribe:
 		err = a.core.UnsubscribeLists(subIDs, listIDs, nil)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
@@ -969,11 +969,11 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	// Run the action in the DB.
 	var err error
 	switch req.Action {
-	case "add":
+	case models.SubscriptionActionAdd:
 		err = a.core.AddSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus, req.SubscriberStatus)
-	case "remove":
+	case models.SubscriptionActionRemove:
 		err = a.core.DeleteSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus, req.SubscriberStatus)
-	case "unsubscribe":
+	case models.SubscriptionActionUnsubscribe:
 		err = a.core.UnsubscribeListsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus, req.SubscriberStatus)
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))

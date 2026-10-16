@@ -12,6 +12,10 @@ import (
 )
 
 const (
+	SubscriptionActionAdd         = "add"
+	SubscriptionActionRemove      = "remove"
+	SubscriptionActionUnsubscribe = "unsubscribe"
+
 	SubscriberStatusEnabled     = "enabled"
 	SubscriberStatusDisabled    = "disabled"
 	SubscriberStatusBlockListed = "blocklisted"

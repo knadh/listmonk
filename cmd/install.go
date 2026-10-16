@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
@@ -262,7 +263,7 @@ func installCampaign(campTplID, archiveTplID int, q *models.Queries) {
 		json.RawMessage("[]"),
 		json.RawMessage("{}"),
 		pq.StringArray{"test-campaign"},
-		emailMsgr,
+		email.MessengerName,
 		campTplID,
 		pq.Int64Array{1},
 		false,

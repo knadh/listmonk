@@ -65,8 +65,6 @@ import (
 const (
 	// Path to the SQL queries directory in the embedded FS.
 	queryFilePath = "/queries"
-
-	emailMsgr = "email"
 )
 
 // UrlConfig contains various URL constants used in the app.
@@ -816,7 +814,7 @@ func initPostbackMessengers(ko *koanf.Koanf) []manager.Messenger {
 // initMediaStore initializes Upload manager with a custom backend.
 func initMediaStore(ko *koanf.Koanf) media.Store {
 	switch provider := ko.String("upload.provider"); provider {
-	case "s3":
+	case media.ProviderS3:
 		var o s3.Opt
 		ko.Unmarshal("upload.s3", &o)
 		o.RootURL = ko.String("app.root_url")
@@ -828,7 +826,7 @@ func initMediaStore(ko *koanf.Koanf) media.Store {
 		lo.Println("media upload provider: s3")
 		return up
 
-	case "filesystem":
+	case media.ProviderFilesystem:
 		var o filesystem.Opts
 
 		ko.Unmarshal("upload.filesystem", &o)
@@ -1064,9 +1062,9 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		publicURL      = ko.String("upload.s3.public_url")
 	)
 	switch {
-	case uploadProvider == "filesystem" && uploadFsURI != "":
+	case uploadProvider == media.ProviderFilesystem && uploadFsURI != "":
 		srv.Static(uploadFsURI, ko.String("upload.filesystem.upload_path"))
-	case uploadProvider == "s3" && strings.HasPrefix(publicURL, "/"):
+	case uploadProvider == media.ProviderS3 && strings.HasPrefix(publicURL, "/"):
 		srv.GET(path.Join(publicURL, "/:filepath"), app.ServeS3Media)
 	}
 

@@ -25,8 +25,8 @@ var (
 		"status":       "",
 		"user_role_id": "",
 		"list_role_id": "",
-		"order_by":     "created_at",
-		"order":        "asc",
+		"order_by":     models.FieldCreatedAt,
+		"order":        models.OrderAsc,
 	}
 )
 

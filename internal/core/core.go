@@ -20,9 +20,6 @@ import (
 )
 
 const (
-	SortAsc  = "asc"
-	SortDesc = "desc"
-
 	matDashboardCharts = "mat_dashboard_charts"
 	matDashboardCounts = "mat_dashboard_counts"
 	matListCharts      = "mat_list_charts"
@@ -70,12 +67,12 @@ var (
 
 var (
 	regexpSpaces            = regexp.MustCompile(`[\s]+`)
-	campQuerySortFields     = []string{"name", "status", "created_at", "updated_at"}
-	subQuerySortFields      = []string{"email", "status", "name", "created_at", "updated_at"}
-	userQuerySortFields     = []string{"username", "email", "created_at", "loggedin_at"}
-	roleQuerySortFields     = []string{"name", "created_at", "updated_at"}
-	templateQuerySortFields = []string{"name", "type", "created_at", "updated_at"}
-	listQuerySortFields     = []string{"name", "status", "created_at", "updated_at", "subscriber_count"}
+	campQuerySortFields     = []string{"name", "status", models.FieldCreatedAt, "updated_at"}
+	subQuerySortFields      = []string{"email", "status", "name", models.FieldCreatedAt, "updated_at"}
+	userQuerySortFields     = []string{"username", "email", models.FieldCreatedAt, "loggedin_at"}
+	roleQuerySortFields     = []string{"name", models.FieldCreatedAt, "updated_at"}
+	templateQuerySortFields = []string{"name", "type", models.FieldCreatedAt, "updated_at"}
+	listQuerySortFields     = []string{"name", "status", models.FieldCreatedAt, "updated_at", "subscriber_count"}
 )
 
 // New returns a new instance of the core.
@@ -143,10 +140,10 @@ func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []
 
 	// Sort params.
 	if !strSliceContains(orderBy, querySortFields) {
-		orderBy = "created_at"
+		orderBy = models.FieldCreatedAt
 	}
-	if order != SortAsc && order != SortDesc {
-		order = SortDesc
+	if order != models.OrderAsc && order != models.OrderDesc {
+		order = models.OrderDesc
 	}
 
 	query = strings.ReplaceAll(query, "%order%", orderBy+" "+order)

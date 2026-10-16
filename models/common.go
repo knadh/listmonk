@@ -35,6 +35,26 @@ const (
 	TwofaTypeNone = "none"
 	TwofaTypeTOTP = "totp"
 
+	// Resource names.
+	ResourceCampaigns = "campaigns"
+	ResourceLists     = "lists"
+
+	// Analytics types.
+	AnalyticsTypeViews           = "views"
+	AnalyticsTypeClicks          = "clicks"
+	AnalyticsTypeTotalViews      = "total_views"
+	AnalyticsTypeTotalClicks     = "total_clicks"
+	AnalyticsTypeBounces         = "bounces"
+	AnalyticsTypeSubscriptions   = "subscriptions"
+	AnalyticsTypeUnsubscriptions = "unsubscriptions"
+	AnalyticsTypeLinks           = "links"
+
+	// Analytics aggregation intervals.
+	AnalyticsIntervalHour  = "hour"
+	AnalyticsIntervalDay   = "day"
+	AnalyticsIntervalWeek  = "week"
+	AnalyticsIntervalMonth = "month"
+
 	// Sort directions.
 	OrderAsc  = "asc"
 	OrderDesc = "desc"

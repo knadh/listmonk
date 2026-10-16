@@ -8,6 +8,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/utils"
+	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	"gopkg.in/volatiletech/null.v6"
@@ -16,7 +17,7 @@ import (
 // GetUsers retrieves users.
 func (c *Core) GetUsers(typ, status string, userRoleID, listRoleID int, orderBy, order string) ([]auth.User, error) {
 	if order == "" {
-		order = SortAsc
+		order = models.OrderAsc
 	}
 
 	var (

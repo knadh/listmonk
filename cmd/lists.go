@@ -130,7 +130,7 @@ func (a *App) ViewList(c echo.Context) error {
 	}
 
 	if tab == "list" {
-		data.CanViewCampaignCharts = data.Can("campaigns:get", "campaigns:get_all") && data.Can("campaigns:get_analytics")
+		data.CanViewCampaignCharts = data.Can(auth.PermCampaignsGet, auth.PermCampaignsGetAll) && data.Can(auth.PermCampaignsGetAnalytics)
 		data.CacheSlowQueries = ko.Bool("app.cache_slow_queries")
 		data.Charts, err = a.core.GetListCharts(id, data.CanViewCampaignCharts)
 		if err != nil {
@@ -138,7 +138,7 @@ func (a *App) ViewList(c echo.Context) error {
 		}
 	}
 
-	if tab == "list" && data.Can("campaigns:get", "campaigns:get_all") {
+	if tab == "list" && data.Can(auth.PermCampaignsGet, auth.PermCampaignsGetAll) {
 		data.Campaigns, data.Page, err = a.getViewCampaigns(c, id)
 		if err != nil {
 			return err

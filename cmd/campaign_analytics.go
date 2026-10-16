@@ -51,12 +51,12 @@ type analyticsView struct {
 
 // ViewCampaignAnalytics renders the HTML view for campaign analytics.
 func (a *App) ViewCampaignAnalytics(c echo.Context) error {
-	return a.viewAnalytics(c, "campaigns")
+	return a.viewAnalytics(c, models.ResourceCampaigns)
 }
 
 // ViewListAnalytics renders analytics for selected lists.
 func (a *App) ViewListAnalytics(c echo.Context) error {
-	return a.viewAnalytics(c, "lists")
+	return a.viewAnalytics(c, models.ResourceLists)
 }
 
 func (a *App) viewAnalytics(c echo.Context, resource string) error {
@@ -68,7 +68,7 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 	}
 
 	getAll, permittedLists := user.GetPermittedLists(auth.PermTypeGet)
-	if resource == "campaigns" {
+	if resource == models.ResourceCampaigns {
 		getAll, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
 		getAll = getAll || user.HasPerm(auth.PermCampaignsGetAll)
 	}
@@ -100,10 +100,10 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 		ShowUnique:         a.cfg.Privacy.IndividualTracking && c.QueryParam("unique") == "true",
 	}
 
-	data.CanViewCampaignCharts = resource == "campaigns" || (data.Can("campaigns:get", "campaigns:get_all") && data.Can("campaigns:get_analytics"))
+	data.CanViewCampaignCharts = resource == models.ResourceCampaigns || (data.Can(auth.PermCampaignsGet, auth.PermCampaignsGetAll) && data.Can(auth.PermCampaignsGetAnalytics))
 
 	if data.Interval == "" {
-		data.Interval = "day"
+		data.Interval = models.AnalyticsIntervalDay
 	}
 
 	// Pull analytics for the selected campaigns or lists.
@@ -122,17 +122,17 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 		getCounts := a.core.GetCampaignAnalyticsCounts
 		getLinks := a.core.GetCampaignAnalyticsLinks
 
-		if resource == "lists" {
+		if resource == models.ResourceLists {
 			getCounts = a.core.GetListAnalyticsCounts
 			getLinks = a.core.GetListAnalyticsLinks
-			rows, err := getCounts(ids, "subscriptions", fromStr, toStr, data.Interval)
+			rows, err := getCounts(ids, models.AnalyticsTypeSubscriptions, fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
 			}
 
 			data.Data.Subscriptions = rows
 			data.Counts.Subscriptions = sumAnalyticsCounts(rows)
-			rows, err = getCounts(ids, "unsubscriptions", fromStr, toStr, data.Interval)
+			rows, err = getCounts(ids, models.AnalyticsTypeUnsubscriptions, fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
 			}
@@ -140,32 +140,35 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 			data.Data.Unsubscriptions = rows
 			data.Counts.Unsubscriptions = sumAnalyticsCounts(rows)
 		}
+
 		if data.CanViewCampaignCharts {
 			var err error
-			data.Data.Views, err = getCounts(ids, "total_views", fromStr, toStr, data.Interval)
+			data.Data.Views, err = getCounts(ids, models.AnalyticsTypeTotalViews, fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
 			}
 
-			data.Data.Clicks, err = getCounts(ids, "total_clicks", fromStr, toStr, data.Interval)
+			data.Data.Clicks, err = getCounts(ids, models.AnalyticsTypeTotalClicks, fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
 			}
 
 			if data.ShowUnique {
-				data.Data.UniqueViews, err = getCounts(ids, "views", fromStr, toStr, data.Interval)
+				data.Data.UniqueViews, err = getCounts(ids, models.AnalyticsTypeViews, fromStr, toStr, data.Interval)
 				if err != nil {
 					return err
 				}
-				data.Data.UniqueClicks, err = getCounts(ids, "clicks", fromStr, toStr, data.Interval)
+
+				data.Data.UniqueClicks, err = getCounts(ids, models.AnalyticsTypeClicks, fromStr, toStr, data.Interval)
 				if err != nil {
 					return err
 				}
+
 				data.Counts.UniqueViews = sumAnalyticsCounts(data.Data.UniqueViews)
 				data.Counts.UniqueClicks = sumAnalyticsCounts(data.Data.UniqueClicks)
 			}
 
-			data.Data.Bounces, err = getCounts(ids, "bounces", fromStr, toStr, data.Interval)
+			data.Data.Bounces, err = getCounts(ids, models.AnalyticsTypeBounces, fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
 			}
@@ -186,12 +189,12 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 
 // GetCampaignViewAnalytics retrieves analytics for campaigns.
 func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
-	return a.getAnalytics(c, "campaigns")
+	return a.getAnalytics(c, models.ResourceCampaigns)
 }
 
 // GetListAnalytics retrieves analytics for lists.
 func (a *App) GetListAnalytics(c echo.Context) error {
-	return a.getAnalytics(c, "lists")
+	return a.getAnalytics(c, models.ResourceLists)
 }
 
 func (a *App) getAnalytics(c echo.Context, resource string) error {
@@ -208,13 +211,13 @@ func (a *App) getAnalytics(c echo.Context, resource string) error {
 
 	getCounts := a.core.GetCampaignAnalyticsCounts
 	getLinks := a.core.GetCampaignAnalyticsLinks
-	if resource == "lists" {
+	if resource == models.ResourceLists {
 		user := auth.GetUser(c)
 		if err := user.HasListPerm(auth.PermTypeGet, ids...); err != nil {
 			return err
 		}
 		// Match the list page: campaign metrics require campaign analytics access.
-		if typ := c.Param("type"); typ != "subscriptions" && typ != "unsubscriptions" {
+		if typ := c.Param("type"); typ != models.AnalyticsTypeSubscriptions && typ != models.AnalyticsTypeUnsubscriptions {
 			if !(user.HasPerm(auth.PermCampaignsGet) || user.HasPerm(auth.PermCampaignsGetAll)) || !user.HasPerm(auth.PermCampaignsGetAnalytics) {
 				return auth.ErrPermDenied
 			}
@@ -240,7 +243,7 @@ func (a *App) getAnalytics(c echo.Context, resource string) error {
 	}
 
 	// Link stats.
-	if typ == "links" {
+	if typ == models.AnalyticsTypeLinks {
 		out, err := getLinks(ids, from, to)
 		if err != nil {
 			return err
@@ -251,14 +254,16 @@ func (a *App) getAnalytics(c echo.Context, resource string) error {
 
 	interval := c.QueryParam("interval")
 	if interval == "" {
-		interval = "day"
+		interval = models.AnalyticsIntervalDay
 	}
 
 	// Views and clicks default to totals, with unique counts available when tracking is on.
 	if c.QueryParam("unique") != "true" || !a.cfg.Privacy.IndividualTracking {
 		switch typ {
-		case "views", "clicks":
-			typ = "total_" + typ
+		case models.AnalyticsTypeViews:
+			typ = models.AnalyticsTypeTotalViews
+		case models.AnalyticsTypeClicks:
+			typ = models.AnalyticsTypeTotalClicks
 		}
 	}
 

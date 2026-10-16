@@ -109,8 +109,8 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	if !strSliceContains(orderBy, subQuerySortFields) {
 		orderBy = "subscribers.id"
 	}
-	if order != SortAsc && order != SortDesc {
-		order = SortDesc
+	if order != models.OrderAsc && order != models.OrderDesc {
+		order = models.OrderDesc
 	}
 
 	// Required for pq.Array()

@@ -246,7 +246,7 @@ func main() {
 
 	// Assign the default `email` messenger to the app.
 	for _, m := range msgrs {
-		if m.Name() == "email" {
+		if m.Name() == email.MessengerName {
 			emailMsgr = m.(*email.Emailer)
 		}
 	}

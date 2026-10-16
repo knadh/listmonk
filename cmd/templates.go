@@ -34,8 +34,8 @@ var (
 	templatesQueryDefaults = map[string]string{
 		"type":     "",
 		"query":    "",
-		"order_by": "created_at",
-		"order":    "asc",
+		"order_by": models.FieldCreatedAt,
+		"order":    models.OrderAsc,
 	}
 )
 

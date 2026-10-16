@@ -18,8 +18,8 @@ func (c *Core) GetAnalyticsItems(resource string, ids []int, getAll bool, permit
 
 	stmt := c.q.GetListAnalyticsItems
 	switch resource {
-	case "lists":
-	case "campaigns":
+	case models.ResourceLists:
+	case models.ResourceCampaigns:
 		stmt = c.q.GetCampaignAnalyticsItems
 	default:
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
@@ -40,7 +40,7 @@ func (c *Core) getAnalyticsCounts(stmt *sqlx.Stmt, ids []int, fromDate, toDate, 
 	}
 
 	switch interval {
-	case "hour", "day", "week", "month":
+	case models.AnalyticsIntervalHour, models.AnalyticsIntervalDay, models.AnalyticsIntervalWeek, models.AnalyticsIntervalMonth:
 	default:
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
 	}

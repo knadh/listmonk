@@ -12,7 +12,7 @@ import (
 // GetTemplates retrieves templates filtered by name and type.
 func (c *Core) GetTemplates(searchStr, typ string, noBody bool, orderBy, order string) ([]models.Template, error) {
 	if order == "" {
-		order = SortAsc
+		order = models.OrderAsc
 	}
 
 	var (
@@ -31,7 +31,7 @@ func (c *Core) GetTemplates(searchStr, typ string, noBody bool, orderBy, order s
 func (c *Core) GetTemplate(id int, noBody bool) (models.Template, error) {
 	var (
 		out     []models.Template
-		_, stmt = makeSearchQuery("", "", SortAsc, c.q.GetTemplates, templateQuerySortFields)
+		_, stmt = makeSearchQuery("", "", models.OrderAsc, c.q.GetTemplates, templateQuerySortFields)
 	)
 	if err := c.db.Select(&out, stmt, id, noBody, "", ""); err != nil {
 		return models.Template{}, echo.NewHTTPError(http.StatusInternalServerError,

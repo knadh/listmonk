@@ -166,7 +166,7 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	// Validate and sanitize postback Messenger names along with SMTP names
 	// (where each SMTP is also considered as a standalone messenger).
 	// Duplicates are disallowed and "email" is a reserved name.
-	names := map[string]bool{emailMsgr: true}
+	names := map[string]bool{email.MessengerName: true}
 
 	// There should be at least one SMTP block that's enabled.
 	has := false

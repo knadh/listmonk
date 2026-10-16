@@ -9,16 +9,16 @@ import (
 	"github.com/lib/pq"
 )
 
-var bounceQuerySortFields = []string{"email", "campaign_name", "source", "created_at", "type"}
+var bounceQuerySortFields = []string{"email", "campaign_name", "source", models.FieldCreatedAt, "type"}
 
 // QueryBounces retrieves paginated bounce entries based on the given params.
 // It also returns the total number of bounce records in the DB.
 func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order string, offset, limit int) ([]models.Bounce, int, error) {
 	if !strSliceContains(orderBy, bounceQuerySortFields) {
-		orderBy = "created_at"
+		orderBy = models.FieldCreatedAt
 	}
-	if order != SortAsc && order != SortDesc {
-		order = SortDesc
+	if order != models.OrderAsc && order != models.OrderDesc {
+		order = models.OrderDesc
 	}
 
 	out := []models.Bounce{}
@@ -40,7 +40,7 @@ func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order strin
 // GetBounce retrieves bounce entries based on the given params.
 func (c *Core) GetBounce(id int) (models.Bounce, error) {
 	var out []models.Bounce
-	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", "id "+SortAsc)
+	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", "id "+models.OrderAsc)
 	if err := c.db.Select(&out, stmt, id, 0, 0, "", "", 0, 1); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return models.Bounce{}, echo.NewHTTPError(http.StatusInternalServerError,

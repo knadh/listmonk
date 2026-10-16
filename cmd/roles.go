@@ -15,8 +15,8 @@ import (
 // rolesQueryDefaults is the allow list of filter query params.
 var rolesQueryDefaults = map[string]string{
 	"query":    "",
-	"order_by": "created_at",
-	"order":    "asc",
+	"order_by": models.FieldCreatedAt,
+	"order":    models.OrderAsc,
 }
 
 // roleRow is the normalized shape of a user/list role for the roles table view.
