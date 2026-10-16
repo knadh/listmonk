@@ -493,12 +493,18 @@ class RichtextEditor extends HTMLElement {
         // Update the existing image in place.
         ed.saveUndoState();
         img.setAttribute('src', src);
-        for (const k of ['alt', 'width', 'height', 'class', 'data-embed']) {
+        for (const k of ['alt', 'width', 'height', 'data-embed']) {
           if (attrs[k]) {
             img.setAttribute(k, attrs[k]);
           } else {
             img.removeAttribute(k);
           }
+        }
+
+        // Only replace the float classes managed by this dialog.
+        img.classList.remove('img-float-left', 'img-float-right');
+        if (f.float.value) {
+          img.classList.add(f.float.value);
         }
 
         this.sync();
