@@ -165,6 +165,8 @@ type Settings struct {
 		TLSEnabled    bool   `json:"tls_enabled"`
 		TLSSkipVerify bool   `json:"tls_skip_verify"`
 		ScanInterval  string `json:"scan_interval"`
+		Folder        string `json:"folder"`
+		TrashFolder   string `json:"trash_folder"`
 	} `json:"bounce.mailboxes"`
 
 	MaintenanceDB struct {
