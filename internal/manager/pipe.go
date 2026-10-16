@@ -15,10 +15,13 @@ type pipe struct {
 	rate       *ratecounter.RateCounter
 	wg         *sync.WaitGroup
 	sent       atomic.Int64
-	lastID     atomic.Uint64
 	errors     atomic.Uint64
 	stopped    atomic.Bool
 	withErrors atomic.Bool
+
+	lastFetched int
+	pending     map[int]struct{}
+	pendingMut  sync.Mutex
 
 	m *Manager
 }
@@ -48,7 +51,10 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 
 	// Add the campaign to the active map.
 	p := &pipe{
-		camp: c,
+		camp:        c,
+		lastFetched: c.LastSubscriberID,
+		pending:     make(map[int]struct{}),
+
 		rate: ratecounter.NewRateCounter(time.Minute),
 		wg:   &sync.WaitGroup{},
 		m:    m,
@@ -79,8 +85,12 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 // in the current batch or not. A false indicates that all subscribers
 // have been processed, or that a campaign has been paused or cancelled.
 func (p *pipe) NextSubscribers() (bool, error) {
+	if p.stopped.Load() {
+		return false, nil
+	}
+
 	// Fetch the next batch of subscribers from a 'running' campaign.
-	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.m.cfg.BatchSize)
+	subs, err := p.m.store.NextSubscribers(p.camp.ID, p.lastFetched, p.m.cfg.BatchSize)
 	if err != nil {
 		return false, fmt.Errorf("error fetching campaign subscribers (%s): %v", p.camp.Name, err)
 	}
@@ -91,6 +101,14 @@ func (p *pipe) NextSubscribers() (bool, error) {
 		return false, nil
 	}
 
+	// Record all fetched subs before queueing for messaging.
+	p.pendingMut.Lock()
+	p.lastFetched = subs[len(subs)-1].ID
+	for _, s := range subs {
+		p.pending[s.ID] = struct{}{}
+	}
+	p.pendingMut.Unlock()
+
 	// Is there a sliding window limit configured?
 	hasSliding := p.m.cfg.SlidingWindow &&
 		p.m.cfg.SlidingWindowRate > 0 &&
@@ -98,9 +116,14 @@ func (p *pipe) NextSubscribers() (bool, error) {
 
 	// Push messages.
 	for _, s := range subs {
+		if p.stopped.Load() {
+			return false, nil
+		}
+
 		msg, err := p.newMessage(s)
 		if err != nil {
 			p.m.log.Printf("error rendering message (%s) (%s): %v", p.camp.Name, s.Email, err)
+			p.completeSub(s.ID)
 			continue
 		}
 
@@ -186,6 +209,27 @@ func (p *pipe) newMessage(s models.Subscriber) (CampaignMessage, error) {
 	return msg, nil
 }
 
+// completeSub removes a processed subscriber message.
+func (p *pipe) completeSub(id int) {
+	p.pendingMut.Lock()
+	delete(p.pending, id)
+	p.pendingMut.Unlock()
+}
+
+// getCheckpoint returns the ID of the last processed subscriber message,
+// ensuring that no queued or in-process messages are skipped.
+func (p *pipe) getCheckpoint() int {
+	p.pendingMut.Lock()
+	defer p.pendingMut.Unlock()
+
+	id := p.lastFetched
+	for pending := range p.pending {
+		id = min(id, pending-1)
+	}
+
+	return id
+}
+
 // cleanup finishes the campaign and updates the campaign status in the DB
 // and also triggers a notification to the admin. This only triggers once
 // a pipe's wg counter is fully exhausted, draining all messages in its queue.
@@ -200,7 +244,7 @@ func (p *pipe) cleanup() {
 	// Swap prevents later scans from counting these sends again while the pipe
 	// remains in the map.
 	p.m.countsMut.Lock()
-	err := p.m.store.UpdateCampaignCounts(p.camp.ID, 0, int(p.sent.Swap(0)), int(p.lastID.Load()))
+	err := p.m.store.UpdateCampaignCounts(p.camp.ID, 0, int(p.sent.Swap(0)), p.getCheckpoint())
 	p.m.countsMut.Unlock()
 	if err != nil {
 		p.m.log.Printf("error updating campaign counts (%s): %v", p.camp.Name, err)

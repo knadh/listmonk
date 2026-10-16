@@ -173,10 +173,10 @@ SELECT EXISTS (
 );
 
 -- name: next-campaigns
--- Retreives campaigns that are running (or scheduled and the time's up) and need
+-- Retrieves campaigns that are running (or scheduled and the time's up) and need
 -- to be processed. It updates the to_send count and max_subscriber_id of the campaign,
 -- that is, the total number of subscribers to be processed across all lists of a campaign.
--- Thus, it has a sideaffect.
+-- Also saves sent counts and resume checkpoints for active campaigns.
 -- In addition, it finds the max_subscriber_id, the upper limit across all lists of
 -- a campaign. This is used to fetch and slice subscribers for the campaign in next-campaign-subscribers.
 WITH camps AS (
@@ -215,9 +215,9 @@ counts AS (
     GROUP BY camps.id
 ),
 updateCounts AS (
-    WITH uc (campaign_id, sent_count) AS (SELECT * FROM unnest($1::INT[], $2::INT[]))
+    WITH uc (campaign_id, sent_count, last_sub_id) AS (SELECT * FROM unnest($1::INT[], $2::INT[], $3::INT[]))
     UPDATE campaigns
-    SET sent = sent + uc.sent_count
+    SET sent = sent + uc.sent_count, last_subscriber_id = GREATEST(campaigns.last_subscriber_id, uc.last_sub_id)
     FROM uc WHERE campaigns.id = uc.campaign_id
 ),
 u AS (
@@ -298,17 +298,15 @@ SELECT link_clicks.campaign_id,
 -- name: get-running-campaign
 -- Returns the metadata for a running campaign that is required by next-campaign-subscribers to retrieve
 -- a batch of campaign subscribers for processing.
-SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, last_subscriber_id, max_subscriber_id, lists.id AS list_id
+SELECT campaigns.id AS campaign_id, campaigns.type as campaign_type, max_subscriber_id, lists.id AS list_id
     FROM campaigns
     JOIN campaign_lists ON (campaign_lists.campaign_id = campaigns.id)
     JOIN lists ON (lists.id = campaign_lists.list_id)
     WHERE campaigns.id = $1 AND campaigns.status='running';
 
 -- name: next-campaign-subscribers
--- Returns a batch of subscribers in a given campaign starting from the last checkpoint
--- (last_subscriber_id). Every fetch updates the checkpoint and the sent count, which means
--- every fetch returns a new batch of subscribers until all rows are exhausted.
---
+-- Returns a batch of subscribersafter the runtime cursor ($3). last_subscriber_id is updated
+-- based on actual sends and not mere fetch.
 -- In previous versions, get-running-campaign + this was a single query spread across multiple
 -- CTEs, but despite numerous permutations and combinations, Postgres query planner simply would not use
 -- the right indexes on subscriber_lists when the JOIN or ids were referenced dynamically from campLists
@@ -330,7 +328,7 @@ subs AS (
         JOIN subscribers s ON s.id = sl.subscriber_id
         WHERE
             sl.list_id = ANY($5::INT[])
-            -- last_subscriber_id
+            -- In-memory fetch cursor.
             AND s.id > $3
              -- max_subscriber_id
             AND s.id <= $4
@@ -352,11 +350,6 @@ subs AS (
             )
         ORDER BY s.id LIMIT $6
     ) subIDs JOIN subscribers s ON (s.id = subIDs.id) ORDER BY s.id
-),
-u AS (
-    UPDATE campaigns
-    SET last_subscriber_id = (SELECT MAX(id) FROM subs), updated_at = NOW()
-    WHERE (SELECT COUNT(id) FROM subs) > 0 AND id=$1
 )
 SELECT * FROM subs;
 
@@ -425,7 +418,7 @@ INSERT INTO campaign_lists (campaign_id, list_id, list_name)
 UPDATE campaigns SET
     to_send=(CASE WHEN $2 != 0 THEN $2 ELSE to_send END),
     sent=sent+$3,
-    last_subscriber_id=(CASE WHEN $4 > 0 THEN $4 ELSE last_subscriber_id END),
+    last_subscriber_id=GREATEST(last_subscriber_id, $4),
     updated_at=NOW()
 WHERE id=$1;
 

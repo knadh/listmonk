@@ -47,8 +47,8 @@ const (
 // Store represents a data backend, such as a database,
 // that provides subscriber and campaign records.
 type Store interface {
-	NextCampaigns(currentIDs []int64, sentCounts []int64) ([]*models.Campaign, error)
-	NextSubscribers(campID, limit int) ([]models.Subscriber, error)
+	NextCampaigns(currentIDs []int64, sentCounts []int64, lastSubIDs []int64) ([]*models.Campaign, error)
+	NextSubscribers(campID, lastFetchedID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
 	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
@@ -560,15 +560,15 @@ func (m *Manager) worker() {
 					// and stops the campaign if the error count exceeds the threshold.
 					msg.pipe.OnError()
 				} else {
-					id := uint64(msg.Subscriber.ID)
-					if id > msg.pipe.lastID.Load() {
-						msg.pipe.lastID.Store(uint64(msg.Subscriber.ID))
-					}
 					msg.pipe.rate.Incr(1)
 					msg.pipe.sent.Add(1)
 				}
 
-				// Mark the message as done.
+				// Retain failed sends only when stopped, allowing retry on resume.
+				// Otherwise, send errors are considered processed and are not retried.
+				if err == nil || !msg.pipe.stopped.Load() {
+					msg.pipe.completeSub(msg.Subscriber.ID)
+				}
 				msg.pipe.wg.Done()
 			}
 
@@ -595,11 +595,13 @@ func (m *Manager) nextCampaigns() ([]*models.Campaign, error) {
 
 	// Needs to pass empty slices in case there are no campaigns.
 	var (
-		ids    = make([]int64, 0, len(m.pipes))
-		counts = make([]int64, 0, len(m.pipes))
+		ids     = make([]int64, 0, len(m.pipes))
+		counts  = make([]int64, 0, len(m.pipes))
+		lastIDs = make([]int64, 0, len(m.pipes))
 	)
 	for _, p := range m.pipes {
 		ids = append(ids, int64(p.camp.ID))
+		lastIDs = append(lastIDs, int64(p.getCheckpoint()))
 
 		// Get the sent counts for campaigns and reset them to 0
 		// as in the database, they're stored cumulatively (sent += $newSent).
@@ -610,7 +612,7 @@ func (m *Manager) nextCampaigns() ([]*models.Campaign, error) {
 
 	// A returned error does not guarantee the writes in the query were rolled back.
 	// The sent count shouldn't be restored, which could result in double sends.
-	return m.store.NextCampaigns(ids, counts)
+	return m.store.NextCampaigns(ids, counts, lastIDs)
 }
 
 // trackLink register a URL and return its UUID to be used in message templates

@@ -76,10 +76,11 @@ type Campaign struct {
 	ArchiveSlug       null.String     `db:"archive_slug" json:"archive_slug"`
 	ArchiveTemplateID null.Int        `db:"archive_template_id" json:"archive_template_id"`
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
+	LastSubscriberID  int             `db:"last_subscriber_id" json:"-"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
-	TemplateBody        string            `db:"template_body" json:"-"`
-	ArchiveTemplateBody string            `db:"archive_template_body" json:"-"`
+	TemplateBody        string       `db:"template_body" json:"-"`
+	ArchiveTemplateBody string       `db:"archive_template_body" json:"-"`
 	Tpl                 *tplRenderer `json:"-"`
 	SubjectTpl          *tplRenderer `json:"-"`
 	FromEmailTpl        *tplRenderer `json:"-"`

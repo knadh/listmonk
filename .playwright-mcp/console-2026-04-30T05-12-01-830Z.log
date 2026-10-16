@@ -1,0 +1,3 @@
+[  137466ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:9000/api/events?type=error:0
+[  140470ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:9000/api/events?type=error:0
+[  143474ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:9000/api/events?type=error:0
