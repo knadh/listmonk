@@ -125,7 +125,7 @@ class AnalyticsTag {
 }
 
 // analyticsForm is the Alpine component for the analytics page.
-function analyticsForm() {
+function analyticsForm(from, to) {
   let queryTimer = null;
 
   return {
@@ -133,6 +133,38 @@ function analyticsForm() {
 
     // Set on submit to give feedback during the full-page reload.
     submitting: false,
+
+    from,
+    to,
+
+    get rangeLabel() {
+      return [this.from, this.to]
+        .map((value) => value ? value.slice(0, 16).replace('T', ' ') : '…')
+        .join(' – ');
+    },
+
+    onDateRange(amount, unit) {
+      const to = new Date();
+      const from = new Date(to);
+      if (unit === 'month') {
+        // Clamp to the last day when the target month is short.
+        from.setDate(1);
+        from.setMonth(from.getMonth() - amount);
+
+        const lastDay = new Date(from.getFullYear(), from.getMonth() + 1, 0).getDate();
+        from.setDate(Math.min(to.getDate(), lastDay));
+      } else if (unit === 'day') {
+        from.setDate(from.getDate() - amount);
+      } else {
+        from.setTime(from.getTime() - amount * 60 * 60 * 1000);
+      }
+
+      const localDate = (date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      this.from = localDate(from);
+      this.to = localDate(to);
+      this.$refs.dates.hidePopover();
+      this.$nextTick(() => this.$root.requestSubmit());
+    },
 
     // Populate the selector's suggestions with the resource API.
     onQuery(el) {

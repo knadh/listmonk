@@ -1527,6 +1527,16 @@ section.templates {
 
 /* Analytics */
 section.analytics {
+    .analytics-dates {
+        width: min(90vw, 20rem);
+        max-height: 90vh;
+        overflow-y: auto;
+
+        .custom-dates {
+            padding: var(--space-3);
+        }
+    }
+
     .chart-box,
     .donut-container {
         position: relative;

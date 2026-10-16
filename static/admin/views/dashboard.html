@@ -96,7 +96,9 @@
 										</td>
 										<td class="actions align-right">
 										{{- if $d.Can "campaigns:get_analytics" }}
-											<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}" title="{{ $.L.T "globals.terms.analytics" }}">{{ Icon "bar-chart-2" }}</a>
+											{{- $from := now.AddDate 0 0 -30 -}}
+											{{- if .StartedAt.Valid }}{{ $from = .StartedAt.Time.Local }}{{ end -}}
+											<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}&from={{ $from.Format "2006-01-02" }}" title="{{ $.L.T "globals.terms.analytics" }}">{{ Icon "bar-chart-2" }}</a>
 										{{- end }}
 										</td>
 									</tr>

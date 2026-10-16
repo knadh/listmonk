@@ -4,6 +4,7 @@
 {{- $readonly := .Readonly -}}
 {{- $base := URI "/admin/campaigns" -}}
 {{- $tableBase := .Base -}}
+{{- $defaultAnalyticsDate := now.AddDate 0 0 -30 -}}
 <div class="table-wrapper" x-data="table({ query: {{ ToJSON $d.Page.Query }}, filters: {{ ToJSON $d.Page.QueryParams }}, total: {{ $d.Page.Total }} })" :aria-busy="isLoading('campaigns')" @change="onChange($event)">
 	{{- if .ClearFilters }}
 		<div class="bulk-actions">
@@ -178,7 +179,9 @@
 									<button type="button" role="menuitem" class="ghost" data-cy="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $root.L.T "globals.buttons.clone" }}</button>
 								{{- end }}
 								{{- if $d.Can "campaigns:get_analytics" }}
-									<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}" role="menuitem" class="button ghost" data-cy="btn-analytics">{{ Icon "bar-chart-2" }} {{ $root.L.T "globals.terms.analytics" }}</a>
+									{{- $from := $defaultAnalyticsDate -}}
+									{{- if .StartedAt.Valid }}{{ $from = .StartedAt.Time.Local }}{{ end -}}
+									<a href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}&from={{ $from.Format "2006-01-02" }}" role="menuitem" class="button ghost" data-cy="btn-analytics">{{ Icon "bar-chart-2" }} {{ $root.L.T "globals.terms.analytics" }}</a>
 								{{- end }}
 								{{- if and (not $readonly) ($d.Can "campaigns:manage" "campaigns:manage_all") }}
 									<hr />

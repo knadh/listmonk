@@ -15,11 +15,11 @@
 	</header>
 
 	<div class="vstack gap-6">
-		<form method="get" action="{{ URI (printf "/admin/%s/analytics" $d.Resource) }}" x-data="analyticsForm()" @submit="submitting = true">
+		<form method="get" action="{{ URI (printf "/admin/%s/analytics" $d.Resource) }}" x-data="analyticsForm({{ ToJSON $d.FromInput }}, {{ ToJSON $d.ToInput }})" @submit="submitting = true">
 			<div class="card float">
 				<h4 class="title">{{ .L.T "analytics.title" }}</h4>
 				<div class="row">
-					<div class="col-4">
+					<div class="col-5">
 						<label data-field>
 							{{ .L.T (printf "globals.terms.%s" $d.Resource) }}
 							<ot-taginput x-model="items">
@@ -32,13 +32,9 @@
 						</template>
 					</div>
 
-					<div class="col-5">
+					<div class="col-4">
 						<data data-field>
-							<label>{{ .L.T "analytics.fromDate" }} &rarr; {{ .L.T "analytics.toDate" }}</label>
-							<fieldset class="group">
-								<input type="datetime-local" name="from" value="{{ $d.FromInput }}" aria-label="{{ .L.T "analytics.fromDate" }}" data-cy="from" />
-								<input type="datetime-local" name="to" value="{{ $d.ToInput }}" aria-label="{{ .L.T "analytics.toDate" }}" data-cy="to" />
-							</fieldset>
+							{{ template "analytics-date-range" . }}
 							{{- if $d.DisableTracking }}
 								<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.trackingDisabled" }}</span>
 							{{- end }}

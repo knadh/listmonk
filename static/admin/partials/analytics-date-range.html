@@ -1,0 +1,23 @@
+{{ define "analytics-date-range" -}}
+<label>{{ .L.T "globals.terms.range" }}</label>
+<ot-dropdown>
+	<button type="button" class="outline" popovertarget="analytics-dates" data-cy="date-range"><span x-text="rangeLabel"></span> {{ Icon "chevron-down" }}</button>
+	<div popover id="analytics-dates" class="analytics-dates" x-ref="dates">
+		<button type="button" role="menuitem" class="ghost" @click="onDateRange(24, 'hour')" :disabled="submitting">24 {{ .L.Tc "globals.terms.hour" 24 }}</button>
+		<button type="button" role="menuitem" class="ghost" @click="onDateRange(7, 'day')" :disabled="submitting">7 {{ .L.Tc "globals.terms.day" 7 }}</button>
+		<button type="button" role="menuitem" class="ghost" @click="onDateRange(30, 'day')" :disabled="submitting">30 {{ .L.Tc "globals.terms.day" 30 }}</button>
+		<button type="button" role="menuitem" class="ghost" @click="onDateRange(6, 'month')" :disabled="submitting">6 {{ .L.Tc "globals.terms.month" 6 }}</button>
+		<button type="button" role="menuitem" class="ghost" @click="onDateRange(12, 'month')" :disabled="submitting">12 {{ .L.Tc "globals.terms.month" 12 }}</button>
+		<hr />
+		<div class="custom-dates">
+			<label data-field>{{ .L.T "analytics.fromDate" }}
+				<input type="datetime-local" name="from" x-model="from" data-cy="from" required />
+			</label>
+			<label data-field>{{ .L.T "analytics.toDate" }}
+				<input type="datetime-local" name="to" x-model="to" data-cy="to" :min="from" required />
+			</label>
+			<button type="submit" data-variant="secondary" :disabled="submitting">{{ .L.T "globals.buttons.apply" }}</button>
+		</div>
+	</div>
+</ot-dropdown>
+{{- end }}

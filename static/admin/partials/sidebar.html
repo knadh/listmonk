@@ -13,7 +13,7 @@
 				<ul>
 					<li><a href="{{ URI "/admin/lists" }}" {{ IsNav $p "lists.all" }} data-cy="all-lists">{{ .L.T "menu.allLists" }}</a></li>
 					<li><a href="{{ URI "/admin/lists" }}?status=archived" {{ IsNav $p "lists.archived" }} data-cy="archived-lists">{{ .L.T "lists.archived" }}</a></li>
-					<li><a href="{{ URI "/admin/lists/analytics" }}" {{ IsNav $p "lists.analytics" }} data-cy="list-analytics">{{ .L.T "globals.terms.analytics" }}</a></li>
+					<li><a href="{{ URI "/admin/lists/analytics" }}?from={{ (now.AddDate 0 -3 0).Format "2006-01-02" }}" {{ IsNav $p "lists.analytics" }} data-cy="list-analytics">{{ .L.T "globals.terms.analytics" }}</a></li>
 					<li><a href="{{ URI "/admin/lists/forms" }}" {{ IsNav $p "lists.forms" }} data-cy="forms">{{ .L.T "menu.forms" }}</a></li>
 				</ul>
 			</details>

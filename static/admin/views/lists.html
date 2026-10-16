@@ -145,7 +145,7 @@
 										</button>
 										<menu popover id="list-actions-{{ .ID }}">
 											<a href="{{ URI "/admin/lists" }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-view">{{ Icon "eye" }} {{ $.L.T "globals.buttons.view" }}</a>
-											<a href="{{ URI "/admin/lists/analytics" }}?id={{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-analytics">{{ Icon "bar-chart-2" }} {{ $.L.T "globals.terms.analytics" }}</a>
+											<a href="{{ URI "/admin/lists/analytics" }}?id={{ .ID }}&from={{ (now.AddDate 0 -3 0).Format "2006-01-02" }}" role="menuitem" class="button ghost" data-testid="btn-analytics">{{ Icon "bar-chart-2" }} {{ $.L.T "globals.terms.analytics" }}</a>
 											{{- if or ($d.Can "campaigns:manage" "campaigns:manage_all") ($d.CanManageList .ID) ($d.Can "subscribers:import") }}
 												<hr />
 											{{- end }}

@@ -79,12 +79,14 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 	}
 
 	// Resolve the date range, defaulting to the last 7 days.
-	to := time.Now()
-	from := to.AddDate(0, 0, -7)
-	if t, ok := parseAnalyticsDate(c.QueryParam("from")); ok {
+	var (
+		to   = time.Now()
+		from = to.AddDate(0, 0, -7)
+	)
+	if t, ok := ParseDateTime(c.QueryParam("from")); ok {
 		from = t
 	}
-	if t, ok := parseAnalyticsDate(c.QueryParam("to")); ok {
+	if t, ok := ParseDateTime(c.QueryParam("to")); ok {
 		to = t
 	}
 
@@ -274,26 +276,6 @@ func (a *App) getAnalytics(c echo.Context, resource string) error {
 	}
 
 	return c.JSON(http.StatusOK, okResp{out})
-}
-
-// parseAnalyticsDate parses a `datetime-local` form value (with or without seconds).
-func parseAnalyticsDate(s string) (time.Time, bool) {
-	if s == "" {
-		return time.Time{}, false
-	}
-
-	var layout string
-	switch len(s) {
-	case 16:
-		layout = "2006-01-02T15:04"
-	case 19:
-		layout = "2006-01-02T15:04:05"
-	default:
-		return time.Time{}, false
-	}
-	t, err := time.ParseInLocation(layout, s, time.Local)
-
-	return t, err == nil
 }
 
 // sumAnalyticsCounts returns the total count across the given analytics rows.

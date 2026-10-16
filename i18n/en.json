@@ -282,6 +282,7 @@
     "globals.terms.none": "None",
     "globals.terms.page": "Page {n}",
     "globals.terms.recent": "Recent {name}",
+    "globals.terms.range": "Range",
     "globals.terms.second": "Second | Seconds",
     "globals.terms.settings": "Settings",
     "globals.terms.subscriber": "Subscriber | Subscribers",
