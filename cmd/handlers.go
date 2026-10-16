@@ -493,3 +493,9 @@ func trustedURLsToCORSOrigins(urls []string) []string {
 
 	return out
 }
+
+// renderSandboxedHTML executes the HTML rendering handler with CSP sandboxing headers (for iframes).
+func renderSandboxedHTML(c echo.Context, body string) error {
+	c.Response().Header().Add("Content-Security-Policy", "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox")
+	return c.HTML(http.StatusOK, body)
+}

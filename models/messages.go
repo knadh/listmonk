@@ -3,7 +3,6 @@ package models
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"net/textproto"
 	txttpl "text/template"
 )
@@ -69,9 +68,7 @@ type TxMessage struct {
 	// File attachments added from multi-part form data.
 	Attachments []Attachment `json:"-"`
 
-	Body       []byte             `json:"-"`
-	Tpl        *template.Template `json:"-"`
-	SubjectTpl *txttpl.Template   `json:"-"`
+	Body []byte `json:"-"`
 }
 
 func (m *TxMessage) Render(sub Subscriber, tpl *Template, funcs txttpl.FuncMap) error {
@@ -104,7 +101,7 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template, funcs txttpl.FuncMap) 
 
 	// Was a subject provided in the message?
 	var (
-		subjTpl *txttpl.Template
+		subjTpl *tplRenderer
 		subject = m.Subject
 	)
 	if subject != "" {
@@ -114,7 +111,7 @@ func (m *TxMessage) Render(sub Subscriber, tpl *Template, funcs txttpl.FuncMap) 
 			if err != nil {
 				return fmt.Errorf("error compiling subject: %v", err)
 			}
-			subjTpl = s
+			subjTpl = &tplRenderer{s}
 		}
 	} else {
 		// Use the subject from the template.

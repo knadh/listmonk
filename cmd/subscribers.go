@@ -262,7 +262,7 @@ func (a *App) getViewSubscriber(c echo.Context) (models.Subscriber, error) {
 	user := auth.GetUser(c)
 
 	id := getID(c)
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{id}); err != nil {
 		return models.Subscriber{}, err
 	}
 
@@ -301,7 +301,7 @@ func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, m
 	// Filter the list IDs by permission.
 	var listIDs []int
 	if listID > 0 {
-		listIDs = user.GetPermittedListIDs([]int{listID})
+		listIDs = user.GetPermittedListIDs(auth.PermTypeGet|auth.PermTypeManage, []int{listID})
 	} else {
 		ids, err := a.filterListQueryByPerm("list_id", params, user)
 		if err != nil {
@@ -346,7 +346,7 @@ func (a *App) GetSubscriber(c echo.Context) error {
 
 	// Check if the user has access to at least one of the lists on the subscriber.
 	id := getID(c)
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -367,7 +367,7 @@ func (a *App) GetSubscriberActivity(c echo.Context) error {
 
 	// Check if the user has access to at least one of the lists on the subscriber.
 	id := getID(c)
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -383,7 +383,7 @@ func (a *App) GetSubscriberActivity(c echo.Context) error {
 // DeleteSubscriberActivity deletes a subscriber's campaign views or link clicks.
 func (a *App) DeleteSubscriberActivity(c echo.Context) error {
 	id := getID(c)
-	if err := a.hasSubPerm(auth.GetUser(c), []int{id}); err != nil {
+	if err := a.hasSubPerm(auth.GetUser(c), auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -595,7 +595,7 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	id := getID(c)
 
 	// Check if the user has access to at least one of the lists on the target subscriber.
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -624,7 +624,7 @@ func (a *App) PatchSubscriber(c echo.Context) error {
 
 	// Check if the user has access to at least one of the lists on the target subscriber
 	// before fetching it. An empty PATCH body is otherwise a cross-scope PII read primitive.
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -691,7 +691,7 @@ func (a *App) SubscriberSendOptin(c echo.Context) error {
 
 	// Fetch the subscriber.
 	id := getID(c)
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -714,7 +714,7 @@ func (a *App) BlocklistSubscriber(c echo.Context) error {
 
 	// Update the subscribers in the DB.
 	id := getID(c)
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -739,7 +739,7 @@ func (a *App) BlocklistSubscribers(c echo.Context) error {
 			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "ids"))
 	}
 
-	if err := a.hasSubPerm(user, req.SubscriberIDs); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, req.SubscriberIDs); err != nil {
 		return err
 	}
 
@@ -786,7 +786,7 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.errorNoListsGiven"))
 	}
 
-	if err := a.hasSubPerm(user, subIDs); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, subIDs); err != nil {
 		return err
 	}
 
@@ -824,7 +824,7 @@ func (a *App) DeleteSubscriber(c echo.Context) error {
 
 	// Delete the subscribers from the DB.
 	id := getID(c)
-	if err := a.hasSubPerm(user, []int{id}); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -850,7 +850,7 @@ func (a *App) DeleteSubscribers(c echo.Context) error {
 			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", "ids"))
 	}
 
-	if err := a.hasSubPerm(user, ids); err != nil {
+	if err := a.hasSubPerm(user, auth.PermTypeManage, ids); err != nil {
 		return err
 	}
 
@@ -888,7 +888,7 @@ func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
 	}
 
 	// Filter list IDs against the current user's permitted lists.
-	listIDs := user.GetPermittedListIDs(req.ListIDs)
+	listIDs := user.GetPermittedListIDs(auth.PermTypeManage, req.ListIDs)
 
 	// Delete the subscribers from the DB.
 	if err := a.core.DeleteSubscribersByQuery(req.Search, req.Query, listIDs, req.SubscriptionStatus, req.SubscriberStatus); err != nil {
@@ -923,7 +923,7 @@ func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 	}
 
 	// Filter list IDs against the current user's permitted lists.
-	listIDs := user.GetPermittedListIDs(req.ListIDs)
+	listIDs := user.GetPermittedListIDs(auth.PermTypeManage, req.ListIDs)
 
 	// Update the subscribers in the DB.
 	if err := a.core.BlocklistSubscribersByQuery(req.Search, req.Query, listIDs, req.SubscriptionStatus, req.SubscriberStatus); err != nil {
@@ -963,7 +963,7 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	}
 
 	// Filter lists against the current user's permitted lists.
-	sourceListIDs := user.GetPermittedListIDs(req.ListIDs)
+	sourceListIDs := user.GetPermittedListIDs(auth.PermTypeManage, req.ListIDs)
 	targetListIDs := user.FilterListsByPerm(auth.PermTypeManage, req.TargetListIDs)
 
 	// Run the action in the DB.
@@ -991,7 +991,7 @@ func (a *App) DeleteSubscriberBounces(c echo.Context) error {
 	id := getID(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
-	if err := a.hasSubPerm(auth.GetUser(c), []int{id}); err != nil {
+	if err := a.hasSubPerm(auth.GetUser(c), auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -1014,7 +1014,7 @@ func (a *App) ExportSubscriberData(c echo.Context) error {
 	id := getID(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
-	if err := a.hasSubPerm(auth.GetUser(c), []int{id}); err != nil {
+	if err := a.hasSubPerm(auth.GetUser(c), auth.PermTypeGet|auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
@@ -1096,10 +1096,10 @@ func maskRestrictedSubLists(user auth.User, sub *models.Subscriber) {
 
 // hasSubPerm checks whether the current user has permission to access the given list
 // of subscriber IDs.
-func (a *App) hasSubPerm(u auth.User, subIDs []int) error {
-	allPerm, listIDs := u.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+func (a *App) hasSubPerm(u auth.User, types auth.PermType, subIDs []int) error {
+	allPerm, listIDs := u.GetPermittedLists(types)
 
-	// User has blanket get_all|manage_all permission.
+	// User has the corresponding blanket list permission.
 	if allPerm {
 		return nil
 	}
@@ -1133,7 +1133,7 @@ func (a *App) filterListQueryByPerm(param string, qp url.Values, user auth.User)
 		listIDs = ids
 	}
 
-	return user.GetPermittedListIDs(listIDs), nil
+	return user.GetPermittedListIDs(auth.PermTypeGet|auth.PermTypeManage, listIDs), nil
 }
 
 // formatSQLExp does basic sanitisation on arbitrary

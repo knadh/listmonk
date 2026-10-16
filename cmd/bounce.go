@@ -105,7 +105,7 @@ func (a *App) GetSubscriberBounces(c echo.Context) error {
 	subID := getID(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
-	if err := a.hasSubPerm(auth.GetUser(c), []int{subID}); err != nil {
+	if err := a.hasSubPerm(auth.GetUser(c), auth.PermTypeGet|auth.PermTypeManage, []int{subID}); err != nil {
 		return err
 	}
 

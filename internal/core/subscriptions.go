@@ -40,7 +40,7 @@ func (c *Core) AddSubscriptionsByQuery(searchStr, queryExp string, sourceListIDs
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(searchStr, queryExp, c.q.AddSubscribersToListsByQuery, sourceListIDs, c.db, subStatus, subscriberStatus, pq.Array(targetListIDs), status)
+	err := c.execSubQueryTpl(searchStr, queryExp, c.q.AddSubscribersToListsByQuery, sourceListIDs, subStatus, subscriberStatus, pq.Array(targetListIDs), status)
 	if err != nil {
 		c.log.Printf("error adding subscriptions by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -69,7 +69,7 @@ func (c *Core) DeleteSubscriptionsByQuery(searchStr, queryExp string, sourceList
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(searchStr, queryExp, c.q.DeleteSubscriptionsByQuery, sourceListIDs, c.db, subStatus, subscriberStatus, pq.Array(targetListIDs))
+	err := c.execSubQueryTpl(searchStr, queryExp, c.q.DeleteSubscriptionsByQuery, sourceListIDs, subStatus, subscriberStatus, pq.Array(targetListIDs))
 	if err != nil {
 		c.log.Printf("error deleting subscriptions by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -97,7 +97,7 @@ func (c *Core) UnsubscribeListsByQuery(searchStr, queryExp string, sourceListIDs
 		sourceListIDs = []int{}
 	}
 
-	err := c.q.ExecSubQueryTpl(searchStr, queryExp, c.q.UnsubscribeSubscribersFromListsByQuery, sourceListIDs, c.db, subStatus, subscriberStatus, pq.Array(targetListIDs))
+	err := c.execSubQueryTpl(searchStr, queryExp, c.q.UnsubscribeSubscribersFromListsByQuery, sourceListIDs, subStatus, subscriberStatus, pq.Array(targetListIDs))
 	if err != nil {
 		c.log.Printf("error unsubscribing from lists by query: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

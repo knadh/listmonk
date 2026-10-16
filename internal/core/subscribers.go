@@ -497,7 +497,7 @@ func (c *Core) BlocklistSubscribers(subIDs []int) error {
 
 // BlocklistSubscribersByQuery blocklists the given list of subscribers.
 func (c *Core) BlocklistSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) error {
-	if err := c.q.ExecSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.BlocklistSubscribersByQuery, listIDs, c.db, subStatus, subscriberStatus); err != nil {
+	if err := c.execSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.BlocklistSubscribersByQuery, listIDs, subStatus, subscriberStatus); err != nil {
 		c.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("subscribers.errorBlocklisting", "error", pqErrMsg(err)))
@@ -526,7 +526,7 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
 
 // DeleteSubscribersByQuery deletes subscribers by a given arbitrary query expression.
 func (c *Core) DeleteSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) error {
-	err := c.q.ExecSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.DeleteSubscribersByQuery, listIDs, c.db, subStatus, subscriberStatus)
+	err := c.execSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.DeleteSubscribersByQuery, listIDs, subStatus, subscriberStatus)
 	if err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -708,4 +708,65 @@ func traverseQueryPlan(node map[string]any, tables map[string]struct{}) {
 			}
 		}
 	}
+}
+
+// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
+// to filter subscribers from the subscribers table and prepares a query
+// using the raw `query-subscribers-template` template. It sanitizes the
+// query by dry-running it as a read only query.
+func (c *Core) compileSubscriberQueryTpl(searchStr, queryExp string, subStatus, subscriberStatus string) (string, error) {
+	// There's an arbitrary query condition.
+	cond := "TRUE"
+	if queryExp != "" {
+		cond = queryExp
+	}
+
+	// Validate before executing the dry run.
+	stmt := strings.ReplaceAll(c.q.QuerySubscribersTpl, "%query%", cond)
+	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
+		return "", err
+	}
+
+	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback()
+
+	// Perform the dry run.
+	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
+		return "", err
+	}
+
+	return stmt, nil
+}
+
+// execSubQueryTpl takes an arbitrary WHERE expressions and a subscriber
+// query template that depends on the filter (eg: delete by query, blocklist by query etc.)
+// combines and executes them.
+func (c *Core) execSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs []int, subStatus, subscriberStatus string, args ...any) error {
+	queryExp, subStatus = models.ApplyOrphanFilter(queryExp, subStatus)
+
+	// Perform a dry run.
+	filterExp, err := c.compileSubscriberQueryTpl(searchStr, queryExp, subStatus, subscriberStatus)
+	if err != nil {
+		return err
+	}
+
+	if len(listIDs) == 0 {
+		listIDs = []int{}
+	}
+
+	// Insert the subscriber filter query into the target query.
+	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", filterExp)
+
+	// First argument is the boolean indicating if the query is a dry run.
+	a := append([]any{false, pq.Array(listIDs), subStatus, searchStr, subscriberStatus}, args...)
+
+	// Execute the query on the DB.
+	if _, err := c.db.Exec(stmt, a...); err != nil {
+		return err
+	}
+
+	return nil
 }

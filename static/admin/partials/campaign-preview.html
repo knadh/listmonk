@@ -11,7 +11,7 @@
 				<input type="hidden" name="archive_meta" :value="preview.archiveMeta" />
 				<input type="hidden" name="body" :value="preview.body" />
 			</form>
-			<iframe id="iframe" name="campaign-preview-frame" x-ref="previewFrame" title="{{ .L.T "campaigns.preview" }}" @load="preview.loading = false"></iframe>
+			<iframe id="iframe" name="campaign-preview-frame" x-ref="previewFrame" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" title="{{ .L.T "campaigns.preview" }}" @load="preview.loading = false"></iframe>
 		</section>
 		<footer class="dialog-foot">
 			<button type="button" class="outline" autofocus @click="$refs.previewDialog.close()">{{ .L.T "globals.buttons.close" }}</button>

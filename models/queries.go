@@ -1,13 +1,6 @@
 package models
 
-import (
-	"context"
-	"database/sql"
-	"strings"
-
-	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
-)
+import "github.com/jmoiron/sqlx"
 
 // Queries contains all prepared SQL queries.
 type Queries struct {
@@ -156,62 +149,6 @@ type Queries struct {
 	DeleteRole            *sqlx.Stmt `query:"delete-role"`
 	UpsertListPermissions *sqlx.Stmt `query:"upsert-list-permissions"`
 	DeleteListPermission  *sqlx.Stmt `query:"delete-list-permission"`
-}
-
-// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
-// to filter subscribers from the subscribers table and prepares a query
-// out of it using the raw `query-subscribers-template` query template.
-// While doing this, a readonly transaction is created and the query is
-// dry run on it to ensure that it is indeed readonly.
-func (q *Queries) compileSubscriberQueryTpl(searchStr, queryExp string, db *sqlx.DB, subStatus, subscriberStatus string) (string, error) {
-	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback()
-
-	// There's an arbitrary query condition.
-	cond := "TRUE"
-	if queryExp != "" {
-		cond = queryExp
-	}
-
-	// Perform the dry run.
-	stmt := strings.ReplaceAll(q.QuerySubscribersTpl, "%query%", cond)
-	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
-		return "", err
-	}
-
-	return stmt, nil
-}
-
-// compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
-// query template that depends on the filter (eg: delete by query, blocklist by query etc.)
-// combines and executes them.
-func (q *Queries) ExecSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs []int, db *sqlx.DB, subStatus, subscriberStatus string, args ...any) error {
-	queryExp, subStatus = ApplyOrphanFilter(queryExp, subStatus)
-
-	// Perform a dry run.
-	filterExp, err := q.compileSubscriberQueryTpl(searchStr, queryExp, db, subStatus, subscriberStatus)
-	if err != nil {
-		return err
-	}
-
-	if len(listIDs) == 0 {
-		listIDs = []int{}
-	}
-
-	// Insert the subscriber filter query into the target query.
-	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", filterExp)
-
-	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]any{false, pq.Array(listIDs), subStatus, searchStr, subscriberStatus}, args...)
-
-	// Execute the query on the DB.
-	if _, err := db.Exec(stmt, a...); err != nil {
-		return err
-	}
-	return nil
 }
 
 // ApplyOrphanFilter handles the special subscription_status value "none", which

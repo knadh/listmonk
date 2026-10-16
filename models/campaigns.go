@@ -78,15 +78,15 @@ type Campaign struct {
 	ArchiveMeta       json.RawMessage `db:"archive_meta" json:"archive_meta"`
 
 	// TemplateBody is joined in from templates by the next-campaigns query.
-	TemplateBody        string             `db:"template_body" json:"-"`
-	ArchiveTemplateBody string             `db:"archive_template_body" json:"-"`
-	Tpl                 *template.Template `json:"-"`
-	SubjectTpl          *txttpl.Template   `json:"-"`
-	FromEmailTpl        *txttpl.Template   `json:"-"`
-	AltBodyTpl          *template.Template `json:"-"`
+	TemplateBody        string            `db:"template_body" json:"-"`
+	ArchiveTemplateBody string            `db:"archive_template_body" json:"-"`
+	Tpl                 *tplRenderer `json:"-"`
+	SubjectTpl          *tplRenderer `json:"-"`
+	FromEmailTpl        *tplRenderer `json:"-"`
+	AltBodyTpl          *tplRenderer `json:"-"`
 
 	// HeaderTpls holds optionally {{ templated }} campaign headers.
-	HeaderTpls []map[string]*txttpl.Template `json:"-"`
+	HeaderTpls []map[string]*tplRenderer `json:"-"`
 
 	// List of media (attachment) IDs obtained from the next-campaign query
 	// while sending a campaign.
@@ -239,7 +239,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	if err != nil {
 		return fmt.Errorf("error inserting child template: %v", err)
 	}
-	c.Tpl = out
+	c.Tpl = &tplRenderer{out}
 
 	if HasTplExpr(c.AltBody.String) {
 		b := c.AltBody.String
@@ -250,7 +250,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 		if err != nil {
 			return fmt.Errorf("error compiling alt plaintext message: %v", err)
 		}
-		c.AltBodyTpl = bTpl
+		c.AltBodyTpl = &tplRenderer{bTpl}
 	}
 
 	// Rebuild header templates in case the campaign is being recompiled.
@@ -266,10 +266,10 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 			}
 
 			if c.HeaderTpls == nil {
-				c.HeaderTpls = make([]map[string]*txttpl.Template, len(c.Headers))
+				c.HeaderTpls = make([]map[string]*tplRenderer, len(c.Headers))
 			}
 			if c.HeaderTpls[i] == nil {
-				c.HeaderTpls[i] = make(map[string]*txttpl.Template)
+				c.HeaderTpls[i] = make(map[string]*tplRenderer)
 			}
 			c.HeaderTpls[i][hdr] = tpl
 		}
@@ -278,7 +278,7 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	return nil
 }
 
-func compileTxtTpl(label, val string, f template.FuncMap) (*txttpl.Template, error) {
+func compileTxtTpl(label, val string, f template.FuncMap) (*tplRenderer, error) {
 	if !HasTplExpr(val) {
 		return nil, nil
 	}
@@ -292,7 +292,7 @@ func compileTxtTpl(label, val string, f template.FuncMap) (*txttpl.Template, err
 		return nil, fmt.Errorf("error compiling %s: %v", label, err)
 	}
 
-	return tpl, nil
+	return &tplRenderer{tpl}, nil
 }
 
 // ConvertContent converts a campaign's body from one format to another,

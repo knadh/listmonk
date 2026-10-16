@@ -147,7 +147,7 @@ func (a *App) PreviewTemplate(c echo.Context) error {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, string(out))
+	return renderSandboxedHTML(c, string(out))
 }
 
 // PreviewTemplateBody renders the HTML preview of a template given its type and body.
@@ -173,7 +173,7 @@ func (a *App) PreviewTemplateBody(c echo.Context) error {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, string(out))
+	return renderSandboxedHTML(c, string(out))
 }
 
 // CreateTemplate handles template creation.
