@@ -251,6 +251,10 @@ func (c *Core) GetListAnalyticsCounts(ids []int, typ, fromDate, toDate, interval
 		stmt = c.q.GetListViewCounts
 	case "clicks":
 		stmt = c.q.GetListClickCounts
+	case "total_views":
+		stmt = c.q.GetListTotalViewCounts
+	case "total_clicks":
+		stmt = c.q.GetListTotalClickCounts
 	case "bounces":
 		stmt = c.q.GetListBounceCounts
 	default:

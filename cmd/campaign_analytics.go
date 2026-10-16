@@ -16,6 +16,8 @@ type analyticsData struct {
 	Unsubscriptions []models.CampaignAnalyticsCount `json:"unsubscriptions"`
 	Views           []models.CampaignAnalyticsCount `json:"views"`
 	Clicks          []models.CampaignAnalyticsCount `json:"clicks"`
+	UniqueViews     []models.CampaignAnalyticsCount `json:"unique_views,omitempty"`
+	UniqueClicks    []models.CampaignAnalyticsCount `json:"unique_clicks,omitempty"`
 	Bounces         []models.CampaignAnalyticsCount `json:"bounces"`
 	Links           []models.CampaignAnalyticsLink  `json:"links"`
 }
@@ -32,6 +34,7 @@ type analyticsView struct {
 	Interval              string
 	DisableTracking       bool
 	IndividualTracking    bool
+	ShowUnique            bool
 
 	HasData bool
 	Counts  struct {
@@ -39,6 +42,8 @@ type analyticsView struct {
 		Unsubscriptions int
 		Views           int
 		Clicks          int
+		UniqueViews     int
+		UniqueClicks    int
 		Bounces         int
 	}
 	Data analyticsData
@@ -92,6 +97,7 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 		Interval:           c.QueryParam("interval"),
 		DisableTracking:    a.cfg.Privacy.DisableTracking,
 		IndividualTracking: a.cfg.Privacy.IndividualTracking,
+		ShowUnique:         a.cfg.Privacy.IndividualTracking && c.QueryParam("unique") == "true",
 	}
 
 	data.CanViewCampaignCharts = resource == "campaigns" || (data.Can("campaigns:get", "campaigns:get_all") && data.Can("campaigns:get_analytics"))
@@ -136,14 +142,27 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 		}
 		if data.CanViewCampaignCharts {
 			var err error
-			data.Data.Views, err = getCounts(ids, "views", fromStr, toStr, data.Interval)
+			data.Data.Views, err = getCounts(ids, "total_views", fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
 			}
 
-			data.Data.Clicks, err = getCounts(ids, "clicks", fromStr, toStr, data.Interval)
+			data.Data.Clicks, err = getCounts(ids, "total_clicks", fromStr, toStr, data.Interval)
 			if err != nil {
 				return err
+			}
+
+			if data.ShowUnique {
+				data.Data.UniqueViews, err = getCounts(ids, "views", fromStr, toStr, data.Interval)
+				if err != nil {
+					return err
+				}
+				data.Data.UniqueClicks, err = getCounts(ids, "clicks", fromStr, toStr, data.Interval)
+				if err != nil {
+					return err
+				}
+				data.Counts.UniqueViews = sumAnalyticsCounts(data.Data.UniqueViews)
+				data.Counts.UniqueClicks = sumAnalyticsCounts(data.Data.UniqueClicks)
 			}
 
 			data.Data.Bounces, err = getCounts(ids, "bounces", fromStr, toStr, data.Interval)
@@ -165,8 +184,17 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 	return c.Render(http.StatusOK, "admin-analytics", data)
 }
 
-// GetCampaignViewAnalytics retrieves view counts for a campaign.
+// GetCampaignViewAnalytics retrieves analytics for campaigns.
 func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
+	return a.getAnalytics(c, "campaigns")
+}
+
+// GetListAnalytics retrieves analytics for lists.
+func (a *App) GetListAnalytics(c echo.Context) error {
+	return a.getAnalytics(c, "lists")
+}
+
+func (a *App) getAnalytics(c echo.Context, resource string) error {
 	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -178,10 +206,27 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 			a.i18n.Ts("globals.messages.missingFields", "name", "`id`"))
 	}
 
-	// Ensure the user has access to campaigns via lists.
-	for _, id := range ids {
-		if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+	getCounts := a.core.GetCampaignAnalyticsCounts
+	getLinks := a.core.GetCampaignAnalyticsLinks
+	if resource == "lists" {
+		user := auth.GetUser(c)
+		if err := user.HasListPerm(auth.PermTypeGet, ids...); err != nil {
 			return err
+		}
+		// Match the list page: campaign metrics require campaign analytics access.
+		if typ := c.Param("type"); typ != "subscriptions" && typ != "unsubscriptions" {
+			if !(user.HasPerm(auth.PermCampaignsGet) || user.HasPerm(auth.PermCampaignsGetAll)) || !user.HasPerm(auth.PermCampaignsGetAnalytics) {
+				return auth.ErrPermDenied
+			}
+		}
+		getCounts = a.core.GetListAnalyticsCounts
+		getLinks = a.core.GetListAnalyticsLinks
+	} else {
+		// Ensure the user has access to campaigns via lists.
+		for _, id := range ids {
+			if err := a.checkCampaignPerm(auth.PermTypeGet, id, c); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -194,9 +239,9 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
 	}
 
-	// Campaign link stats.
+	// Link stats.
 	if typ == "links" {
-		out, err := a.core.GetCampaignAnalyticsLinks(ids, from, to)
+		out, err := getLinks(ids, from, to)
 		if err != nil {
 			return err
 		}
@@ -209,8 +254,16 @@ func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
 		interval = "day"
 	}
 
-	// Get the analytics numbers from the DB for the campaigns.
-	out, err := a.core.GetCampaignAnalyticsCounts(ids, typ, from, to, interval)
+	// Views and clicks default to totals, with unique counts available when tracking is on.
+	if c.QueryParam("unique") != "true" || !a.cfg.Privacy.IndividualTracking {
+		switch typ {
+		case "views", "clicks":
+			typ = "total_" + typ
+		}
+	}
+
+	// Get the analytics numbers from the DB.
+	out, err := getCounts(ids, typ, from, to, interval)
 	if err != nil {
 		return err
 	}

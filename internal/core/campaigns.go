@@ -389,6 +389,10 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate, 
 		stmt = c.q.GetCampaignViewCounts
 	case "clicks":
 		stmt = c.q.GetCampaignClickCounts
+	case "total_views":
+		stmt = c.q.GetCampaignTotalViewCounts
+	case "total_clicks":
+		stmt = c.q.GetCampaignTotalClickCounts
 	case "bounces":
 		stmt = c.q.GetCampaignBounceCounts
 	default:

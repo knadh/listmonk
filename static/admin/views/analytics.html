@@ -41,8 +41,9 @@
 							</fieldset>
 							{{- if $d.DisableTracking }}
 								<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.trackingDisabled" }}</span>
-							{{- else if not $d.IndividualTracking }}
-								<span data-hint>{{ Icon "alert-triangle" }} {{ .L.T "analytics.nonIndividualTracking" }}</span>
+							{{- end }}
+							{{- if and $d.CanViewCampaignCharts $d.IndividualTracking }}
+								<label><input type="checkbox" name="unique" value="true" {{ if $d.ShowUnique }}checked{{ end }} /> {{ .L.T "analytics.showUnique" }}</label>
 							{{- end }}
 						</data>
 					</div>
@@ -77,7 +78,13 @@
 			{{- end }}
 			{{- if $d.CanViewCampaignCharts }}
 				{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Items" $d.Items "Resource" $d.Resource }}
+				{{- if $d.ShowUnique }}
+					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "campaigns.views") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueViews "Key" "unique_views" "Items" $d.Items "Resource" $d.Resource }}
+				{{- end }}
 				{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Items" $d.Items "Resource" $d.Resource }}
+				{{- if $d.ShowUnique }}
+					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "campaigns.clicks") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueClicks "Key" "unique_clicks" "Items" $d.Items "Resource" $d.Resource }}
+				{{- end }}
 				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Items" $d.Items "Resource" $d.Resource }}
 
 				<article class="card float">

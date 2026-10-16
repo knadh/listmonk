@@ -297,6 +297,15 @@ function renderCharts() {
   renderCounts('subscriptions', camps, d.subscriptions || [], d.unsubscriptions || []);
   renderCounts('views', camps, d.views || []);
   renderCounts('clicks', camps, d.clicks || []);
+
+  if (d.unique_views) {
+    renderCounts('unique_views', camps, d.unique_views);
+  }
+
+  if (d.unique_clicks) {
+    renderCounts('unique_clicks', camps, d.unique_clicks);
+  }
+
   renderCounts('bounces', camps, d.bounces || []);
   renderLinks(d.links || []);
 }
