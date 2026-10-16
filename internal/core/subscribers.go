@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/jmoiron/sqlx"
@@ -15,6 +17,11 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
+)
+
+const (
+	optinThrottleTTL = 10 * time.Minute
+	optinThrottleCap = 5000
 )
 
 var (
@@ -383,7 +390,7 @@ func (c *Core) InsertSubscriber(sub models.Subscriber, listIDs []int, listUUIDs 
 	hasOptin := false
 	if !preconfirm && c.consts.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
-		num, err := c.h.SendOptinConfirmation(out, listIDs)
+		num, err := c.sendOptinConfirmation(out, listIDs, assertOptin)
 		if assertOptin && err != nil {
 			return out, hasOptin, err
 		}
@@ -474,7 +481,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 	hasOptin := false
 	if !preconfirm && c.consts.SendOptinConfirmation {
 		// Send a confirmation e-mail (if there are any double opt-in lists).
-		num, err := c.h.SendOptinConfirmation(out, listIDs)
+		num, err := c.sendOptinConfirmation(out, listIDs, assertOptin)
 		if assertOptin && err != nil {
 			return out, hasOptin, err
 		}
@@ -769,4 +776,30 @@ func (c *Core) execSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs
 	}
 
 	return nil
+}
+
+// sendOptinConfirmation throttles opt-in mails sent on public subscriptions.
+func (c *Core) sendOptinConfirmation(sub models.Subscriber, listIDs []int, public bool) (int, error) {
+	if public {
+		var pending []int
+		for _, l := range sub.ParsedLists() {
+			if l.Optin == models.ListOptinDouble && l.SubscriptionStatus == models.SubscriptionStatusUnconfirmed {
+				pending = append(pending, l.ID)
+			}
+		}
+		if len(pending) == 0 {
+			return 0, nil
+		}
+
+		// Make the throttle key from the e-mail + the normalized list of pending list IDs
+		// so that new subscriptions don't get throttled.
+		slices.Sort(pending)
+		key := fmt.Sprintf("%s:%v", strings.ToLower(strings.TrimSpace(sub.Email)), pending)
+		if !c.optinThrottle.Insert(key, true) {
+			return len(pending), nil
+		}
+		listIDs = pending
+	}
+
+	return c.h.SendOptinConfirmation(sub, listIDs)
 }

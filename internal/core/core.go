@@ -14,6 +14,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/internal/i18n"
+	"github.com/knadh/listmonk/internal/throttle"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
@@ -30,11 +31,12 @@ const (
 type Core struct {
 	h *Hooks
 
-	consts Constants
-	i18n   *i18n.I18n
-	db     *sqlx.DB
-	q      *models.Queries
-	log    *log.Logger
+	consts        Constants
+	optinThrottle *throttle.Throttle
+	i18n          *i18n.I18n
+	db            *sqlx.DB
+	q             *models.Queries
+	log           *log.Logger
 }
 
 // Constants represents constant config.
@@ -78,12 +80,13 @@ var (
 // New returns a new instance of the core.
 func New(o *Opt, h *Hooks) *Core {
 	return &Core{
-		h:      h,
-		consts: o.Constants,
-		i18n:   o.I18n,
-		db:     o.DB,
-		q:      o.Queries,
-		log:    o.Log,
+		h:             h,
+		consts:        o.Constants,
+		optinThrottle: throttle.New(optinThrottleTTL, optinThrottleCap),
+		i18n:          o.I18n,
+		db:            o.DB,
+		q:             o.Queries,
+		log:           o.Log,
 	}
 }
 
