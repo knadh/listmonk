@@ -168,13 +168,18 @@
 						<legend>{{ .L.T "globals.fields.name" }}</legend>
 						<label data-field>
 							{{ .L.T "globals.fields.name" }}
-							<input maxlength="100" placeholder="email-primary" x-model="item.name" />
+							<input maxlength="100" placeholder="email-primary" x-model="item.name" :required="item.exclude_from_default" />
 							<small data-hint>{{ .L.T "settings.mailserver.nameHelp" }}</small>
 						</label>
 						<label data-field>
 							{{ .L.T "settings.smtp.fromAddresses" }}
 							<ot-taginput x-model="item.from_addresses"><input placeholder="user@example.com, anothersite.com" /></ot-taginput>
 							<small data-hint>{{ .L.T "settings.smtp.fromAddressesHelp" }}</small>
+						</label>
+						<label data-field>
+							<input type="checkbox" role="switch" x-model="item.exclude_from_default" :disabled="!item.name" x-effect="if (!item.name) item.exclude_from_default = false" />
+							{{ .L.T "settings.smtp.excludeFromDefault" }}
+							<small data-hint>{{ .L.T "settings.smtp.excludeFromDefaultHelp" }}</small>
 						</label>
 					</fieldset>
 

@@ -9,6 +9,24 @@ import (
 )
 
 func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+	// Add `exclude_from_default` field to all SMTP servers.
+	if _, err := db.Exec(`
+        UPDATE settings
+        SET value = (
+            SELECT JSONB_AGG(
+                JSONB_SET(v, '{exclude_from_default}', COALESCE(v->'exclude_from_default', 'false'::JSONB))
+                ORDER BY ord
+            )
+            FROM JSONB_ARRAY_ELEMENTS(value) WITH ORDINALITY AS t(v, ord)
+        )
+        WHERE key = 'smtp' AND EXISTS (
+            SELECT 1 FROM JSONB_ARRAY_ELEMENTS(value) AS v
+            WHERE NOT (v ? 'exclude_from_default')
+        );
+    `); err != nil {
+		return err
+	}
+
 	// OIDC claim mapping.
 	if _, err := db.Exec(`UPDATE settings SET value = JSONB_SET(value, '{roles}', '[]'::JSONB) WHERE key = 'security.oidc' AND NOT (value ? 'roles');`); err != nil {
 		return err

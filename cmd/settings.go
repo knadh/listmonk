@@ -168,10 +168,10 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	// Duplicates are disallowed and "email" is a reserved name.
 	names := map[string]bool{email.MessengerName: true}
 
-	// There should be at least one SMTP block that's enabled.
+	// There should be at least one enabled SMTP server for the default messenger.
 	has := false
 	for i, s := range set.SMTP {
-		if s.Enabled {
+		if s.Enabled && !s.ExcludeFromDefault {
 			has = true
 		}
 
@@ -188,6 +188,9 @@ func (a *App) UpdateSettings(c echo.Context) error {
 			}
 
 			names[name] = true
+		}
+		if s.ExcludeFromDefault && name == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.smtp.excludeFromDefaultNameRequired"))
 		}
 		set.SMTP[i].Name = name
 
@@ -214,7 +217,7 @@ func (a *App) UpdateSettings(c echo.Context) error {
 		}
 	}
 	if !has {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.errorNoSMTP"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.smtp.defaultRequired"))
 	}
 
 	// Normalize `from_addresses``. Values are either an e-mail address

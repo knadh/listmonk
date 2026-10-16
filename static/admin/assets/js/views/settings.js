@@ -252,7 +252,7 @@ function component(settings, userRoles, listRoles) {
     // SMTP.
     addSMTP() {
       this.form.smtp.push({
-        name: '', enabled: true, host: '', hello_hostname: '', port: 587, auth_protocol: 'none',
+        name: '', enabled: true, exclude_from_default: false, host: '', hello_hostname: '', port: 587, auth_protocol: 'none',
         username: '', password: '', email_headers: [], strEmailHeaders: '[]', showHeaders: false,
         from_addresses: [], max_conns: 10, max_msg_retries: 2, msg_retry_delay: '10ms',
         idle_timeout: '15s', wait_timeout: '5s', tls_type: 'STARTTLS', tls_skip_verify: false,

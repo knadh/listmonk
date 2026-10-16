@@ -138,6 +138,9 @@ func (e *Emailer) Push(m models.Message) error {
 			pool = srvs
 		}
 	}
+	if len(pool) == 0 {
+		return fmt.Errorf("no SMTP servers available for messenger %q", e.name)
+	}
 	srv := pool[rand.Intn(len(pool))]
 
 	// Are there attachments?

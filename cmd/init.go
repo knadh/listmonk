@@ -744,7 +744,13 @@ func initSMTPMessengers() []manager.Messenger {
 			lo.Fatalf("error reading SMTP config: %v", err)
 		}
 
-		servers = append(servers, s)
+		if item.Bool("exclude_from_default") {
+			if s.Name == "" {
+				lo.Println("warning: SMTP server excluded from default has no name and cannot be selected")
+			}
+		} else {
+			servers = append(servers, s)
+		}
 		lo.Printf("initialized email (SMTP) messenger: %s@%s", item.String("username"), item.String("host"))
 
 		// If the server has a name, initialize it as a standalone e-mail messenger
@@ -758,18 +764,17 @@ func initSMTPMessengers() []manager.Messenger {
 		}
 	}
 
-	// Initialize the 'email' messenger with all SMTP servers.
+	if len(servers) == 0 {
+		lo.Println("warning: no SMTP servers available for the default email messenger")
+	}
+
+	// Initialize the 'email' messenger with the default SMTP servers.
 	msgr, err := email.New(email.MessengerName, servers...)
 	if err != nil {
 		lo.Fatalf("error initializing e-mail messenger: %v", err)
 	}
 
-	// If it's just one server, return the default "email" messenger.
-	if len(servers) == 1 {
-		return []manager.Messenger{msgr}
-	}
-
-	// If there are multiple servers, prepend the group "email" to be the first one.
+	// Prepend the default "email" messenger before the named servers.
 	out = append([]manager.Messenger{msgr}, out...)
 
 	return out
