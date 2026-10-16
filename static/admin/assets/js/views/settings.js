@@ -10,6 +10,7 @@ import * as u from '../utils.js';
 // Quick-fill templates for known SMTP providers.
 const smtpTemplates = {
   gmail: { host: 'smtp.gmail.com', port: 465, auth_protocol: 'login', tls_type: 'TLS' },
+  gmailrelay: { host: 'smtp-relay.gmail.com', port: 465, auth_protocol: 'login', tls_type: 'TLS', hello_hostname: true },
   ses: { host: 'email-smtp.YOUR-REGION.amazonaws.com', port: 465, auth_protocol: 'login', tls_type: 'TLS' },
   azure: { host: 'smtp.azurecomm.net', port: 587, auth_protocol: 'login', tls_type: 'STARTTLS' },
   mailjet: { host: 'in-v3.mailjet.com', port: 465, auth_protocol: 'cram', tls_type: 'TLS' },
@@ -277,7 +278,7 @@ function component(settings, userRoles, listRoles) {
         ...smtpTemplates[key],
         username: '',
         password: '',
-        hello_hostname: '',
+        hello_hostname: smtpTemplates[key].hello_hostname ? new URL(config.root_url).hostname : '',
         tls_skip_verify: false,
       };
       this.$nextTick(() => document.querySelector(`.smtp-username-${n}`)?.focus());
