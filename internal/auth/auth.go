@@ -52,8 +52,9 @@ type BasicAuthConfig struct {
 }
 
 type Config struct {
-	OIDC      OIDCConfig
-	BasicAuth BasicAuthConfig
+	OIDC            OIDCConfig
+	BasicAuth       BasicAuthConfig
+	SessionDuration time.Duration
 }
 
 // Callbacks takes two callback functions required by simplesessions.
@@ -84,6 +85,10 @@ var sessPruneInterval = time.Hour * 12
 
 // New returns an initialize Auth instance.
 func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
+	if cfg.SessionDuration < time.Second {
+		cfg.SessionDuration = 7 * 24 * time.Hour
+	}
+
 	a := &Auth{
 		cfg: cfg,
 		cb:  cb,
@@ -98,10 +103,10 @@ func New(cfg Config, db *sql.DB, cb *Callbacks, lo *log.Logger) (*Auth, error) {
 		SessionIDLength:  64,
 		Cookie: simplesessions.CookieOptions{
 			IsHTTPOnly: true,
-			MaxAge:     time.Hour * 24 * 7,
+			MaxAge:     cfg.SessionDuration,
 		},
 	})
-	st, err := postgres.New(postgres.Opt{}, db)
+	st, err := postgres.New(postgres.Opt{TTL: cfg.SessionDuration}, db)
 	if err != nil {
 		return nil, err
 	}

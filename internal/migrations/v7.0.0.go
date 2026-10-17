@@ -9,6 +9,11 @@ import (
 )
 
 func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+	// Login session duration.
+	if _, err := db.Exec(`INSERT INTO settings (key, value) VALUES ('security.session_duration', '"7d"') ON CONFLICT (key) DO NOTHING;`); err != nil {
+		return err
+	}
+
 	// Add `exclude_from_default` field to all SMTP servers.
 	if _, err := db.Exec(`
         UPDATE settings

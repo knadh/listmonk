@@ -606,6 +606,7 @@
     "settings.security.enableCaptchaHelp": "Enable CAPTCHA on the public subscription form.",
     "settings.security.enableOIDC": "OIDC SSO",
     "settings.security.name": "Security",
+    "settings.security.sessionDuration": "Session duration",
     "settings.smtp.customHeaders": "Custom headers",
     "settings.smtp.customHeadersHelp": "Optional array of e-mail headers to include in all messages sent from this server. eg: [{\"X-Custom\": \"value\"}, {\"X-Custom2\": \"value\"}]",
     "settings.smtp.excludeFromDefault": "Exclude from default",

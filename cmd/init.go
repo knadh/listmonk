@@ -1431,7 +1431,10 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	}
 
 	// Initiaize the auth module.
-	a, err := auth.New(auth.Config{OIDC: oidcCfg}, db, cb, lo)
+	a, err := auth.New(auth.Config{
+		OIDC:            oidcCfg,
+		SessionDuration: ko.Duration("security.session_duration"),
+	}, db, cb, lo)
 	if err != nil {
 		lo.Fatalf("error initializing auth: %v", err)
 	}

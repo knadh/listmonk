@@ -74,7 +74,8 @@ type Settings struct {
 		Roles             []OIDCRoleMapping `json:"roles"`
 	} `json:"security.oidc"`
 
-	SecurityTrustedURLs []string `json:"security.trusted_urls"`
+	SecuritySessionDuration string   `json:"security.session_duration"`
+	SecurityTrustedURLs     []string `json:"security.trusted_urls"`
 
 	UploadProvider             string   `json:"upload.provider"`
 	UploadExtensions           []string `json:"upload.extensions"`

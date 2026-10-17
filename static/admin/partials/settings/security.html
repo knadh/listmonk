@@ -1,6 +1,16 @@
 {{ define "settings-security" -}}
 {{- $d := .Data -}}
 <div class="settings-items">
+	<fieldset class="card" data-keywords="login session duration expiry timeout">
+		<legend>{{ .L.T "users.login" }}</legend>
+		<label data-field>
+			{{ .L.T "settings.security.sessionDuration" }}
+			<input required placeholder="7d" x-model="form['security.session_duration']" />
+		</label>
+	</fieldset>
+
+	<hr />
+
 	<fieldset class="card" data-keywords="oidc sso single sign-on openid connect authentication login provider identity roles mapping claims groups">
 		<legend>{{ .L.T "settings.security.enableOIDC" }}</legend>
 		<label data-field>
