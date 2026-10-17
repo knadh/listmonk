@@ -36,6 +36,7 @@ func (c *Core) GetSettings() (models.Settings, error) {
 // UpdateSettings updates settings.
 func (c *Core) UpdateSettings(s models.Settings) error {
 	// Persist empty collections as arrays, not JSON null.
+	s.AppFromEmail = utils.NilToSlice(s.AppFromEmail)
 	s.AppNotifyEmails = utils.NilToSlice(s.AppNotifyEmails)
 	s.PrivacyExportable = utils.NilToSlice(s.PrivacyExportable)
 	s.DomainBlocklist = utils.NilToSlice(s.DomainBlocklist)
@@ -65,7 +66,8 @@ func (c *Core) UpdateSettings(s models.Settings) error {
 // UpdateSettingsByKey updates a single setting by key.
 func (c *Core) UpdateSettingsByKey(key string, value json.RawMessage) error {
 	switch key {
-	case "app.notify_emails",
+	case "app.from_email",
+		"app.notify_emails",
 		"privacy.exportable",
 		"privacy.domain_blocklist",
 		"privacy.domain_allowlist",

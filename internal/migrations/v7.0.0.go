@@ -9,6 +9,11 @@ import (
 )
 
 func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+	// Migrate existing `from_email` to `from_email[]`.
+	if _, err := db.Exec(`UPDATE settings SET value = JSONB_BUILD_ARRAY(value) WHERE key = 'app.from_email' AND JSONB_TYPEOF(value) = 'string';`); err != nil {
+		return err
+	}
+
 	// Login session duration.
 	if _, err := db.Exec(`INSERT INTO settings (key, value) VALUES ('security.session_duration', '"7d"') ON CONFLICT (key) DO NOTHING;`); err != nil {
 		return err

@@ -83,10 +83,10 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 		to   = time.Now()
 		from = to.AddDate(0, 0, -7)
 	)
-	if t, ok := ParseDateTime(c.QueryParam("from")); ok {
+	if t, ok := parseDateTime(c.QueryParam("from")); ok {
 		from = t
 	}
-	if t, ok := ParseDateTime(c.QueryParam("to")); ok {
+	if t, ok := parseDateTime(c.QueryParam("to")); ok {
 		to = t
 	}
 

@@ -67,6 +67,9 @@ function component(settings, userRoles, listRoles) {
     // Messengers render as collapsible accordions too.
     (d.messengers || []).forEach((m, i) => { m.open = !!openState.messengers?.[i]; });
 
+    // One sender per line.
+    d['app.from_email'] = (d['app.from_email'] || []).join('\n');
+
     // Domain block/allow lists, convert array to multi-line string.
     d['privacy.domain_blocklist'] = (d['privacy.domain_blocklist'] || []).join('\n');
     d['privacy.domain_allowlist'] = (d['privacy.domain_allowlist'] || []).join('\n');
@@ -413,6 +416,8 @@ function component(settings, userRoles, listRoles) {
         u.toast(i18n.ts('globals.messages.passwordChangeFull', { name: dummy }), 'warning');
         return;
       }
+
+      form['app.from_email'] = form['app.from_email'].split('\n');
 
       // Convert domain lists multi-line string back to arrays.
       form['privacy.domain_blocklist'] = form['privacy.domain_blocklist'].split('\n').map((v) => v.trim().toLowerCase()).filter((v) => v !== '');

@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"regexp"
 	"runtime"
@@ -150,6 +152,13 @@ func (a *App) UpdateSettings(c echo.Context) error {
 	if err := c.Bind(&set); err != nil {
 		return err
 	}
+
+	// Sanitize `from` addresses.
+	addr, err := sanitizeFromAddresses(set.AppFromEmail)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	set.AppFromEmail = addr
 
 	// Get the existing settings.
 	cur, err := a.core.GetSettings()
@@ -542,4 +551,45 @@ func (a *App) GetAboutInfo(c echo.Context) error {
 	out.System.OSMB = mem.Sys / 1024 / 1024
 
 	return c.JSON(http.StatusOK, out)
+}
+
+func sanitizeFromAddresses(addresses []string) ([]string, error) {
+	if len(addresses) > 250 {
+		return nil, fmt.Errorf("omax 250 `from` addresses are allowed")
+	}
+
+	out := make([]string, 0, len(addresses))
+	seen := make(map[string]struct{}, len(addresses))
+	for _, a := range addresses {
+		a = strings.TrimSpace(a)
+		if a == "" {
+			continue
+		}
+		if utf8.RuneCountInString(a) > stdInputMaxLen {
+			return nil, fmt.Errorf("`from` address cannot exceed %d characters", stdInputMaxLen)
+		}
+
+		// The first from email address must not contain template expressions as that's
+		// used in non-campaign emails also.
+		if models.HasTplExpr(a) {
+			if len(out) == 0 {
+				return nil, fmt.Errorf("default (first) `from` address cannot contain template expressions")
+			}
+		} else {
+			if _, err := mail.ParseAddress(a); err != nil {
+				return nil, fmt.Errorf("invalid from email address: %s", a)
+			}
+		}
+		if _, ok := seen[a]; ok {
+			continue
+		}
+		seen[a] = struct{}{}
+		out = append(out, a)
+	}
+
+	if len(out) == 0 {
+		return nil, fmt.Errorf("at least one `from` address is required")
+	}
+
+	return out, nil
 }

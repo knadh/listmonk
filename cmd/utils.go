@@ -194,8 +194,8 @@ func formatTimestamps(from, to, now time.Time) string {
 	return from.Format(startLayout) + " - " + to.Format(endLayout)
 }
 
-// ParseDateTime parses datetime formats.
-func ParseDateTime(s string) (time.Time, bool) {
+// parseDateTime parses datetime formats.
+func parseDateTime(s string) (time.Time, bool) {
 	if s == "" {
 		return time.Time{}, false
 	}

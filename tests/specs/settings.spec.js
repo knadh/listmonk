@@ -34,6 +34,53 @@ test.describe('Settings', () => {
   test.beforeEach(async ({ browser }) => { await resetDB(browser); });
   test.beforeEach(async ({ page }) => { await page.goto(SETTINGS); });
 
+  test('validates sender defaults and preserves configured and custom campaign senders', async ({ page }) => {
+    const first = 'Default <default@example.com>';
+    const second = 'News <news@example.com>';
+    const custom = 'Custom <custom@example.com>';
+    const templated = '{{ .Subscriber.Attribs.sender }}';
+    const current = await settings(page);
+    const longSender = `${'a'.repeat(2000)} <sender@example.com>`;
+    for (const addresses of [null, [], [' '], ['invalid'], ['{{ .Subscriber.Email }}'],
+      [' ', '{{ .Subscriber.Email }}'], ['{{ .Subscriber.Name }} <sender@example.com>'], [first, 'invalid'],
+      [longSender], [first, `${templated}${longSender}`], Array(101).fill(first)]) {
+      const res = await page.request.put('/api/settings', {
+        data: { ...current, 'app.from_email': addresses },
+      });
+      expect(res.status()).toBe(400);
+    }
+
+    await page.locator('[name="app.from_email"]').fill(`\n ${first} \n${second}\n${first}\n${templated}\n`);
+    await save(page);
+    expect((await settings(page))['app.from_email']).toEqual([first, second, templated]);
+    await page.reload();
+    await expect(page.locator('[name="app.from_email"]')).toHaveValue(`${first}\n${second}\n${templated}`);
+
+    await page.goto('/admin/campaigns');
+    await page.getByRole('link', { name: 'New', exact: true }).click();
+    const input = page.locator('input[name="from_email"]');
+    await expect(input).toHaveValue(first);
+    await expect(input).toHaveAttribute('maxlength', '2000');
+    await expect(input).toHaveAttribute('list', 'campaign-from-emails');
+    const options = page.locator('#campaign-from-emails option');
+    await expect(options).toHaveCount(3);
+    await expect(options.nth(0)).toHaveAttribute('value', first);
+    await expect(options.nth(1)).toHaveAttribute('value', second);
+    await expect(options.nth(2)).toHaveAttribute('value', templated);
+
+    await page.goto('/admin/campaigns/1');
+    // Native datalist selections set the input value, just like typing it.
+    for (const address of [second, custom]) {
+      await input.fill(address);
+      const response = page.waitForResponse((r) => new URL(r.url()).pathname === '/api/campaigns/1'
+        && r.request().method() === 'PUT');
+      await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+      expect((await response).ok()).toBeTruthy();
+      await page.reload();
+      await expect(input).toHaveValue(address);
+    }
+  });
+
   test('saves edits across tabs, enables SMTP and deletes a server', async ({ page }) => {
     const root = 'http://127.0.0.1:9000';
     const favicon = `${root}/public/static/logo.png`;

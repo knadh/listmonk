@@ -44,8 +44,8 @@
 		<legend>{{ .L.T "subscribers.email" }}</legend>
 		<label data-field>
 			{{ .L.T "settings.general.fromEmail" }}
-			<input name="app.from_email" pattern="((.+?)\s)?<(.+?)@(.+?)>" maxlength="300"
-				placeholder="Listmonk <noreply@listmonk.yoursite.com>" x-model="form['app.from_email']" />
+			<textarea name="app.from_email" rows="4"
+				placeholder="Listmonk <noreply@listmonk.yoursite.com>" x-model="form['app.from_email']"></textarea>
 			<small data-hint>{{ .L.T "settings.general.fromEmailHelp" }}</small>
 		</label>
 

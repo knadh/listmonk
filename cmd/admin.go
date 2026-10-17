@@ -13,8 +13,9 @@ import (
 )
 
 type serverConfig struct {
-	RootURL            string `json:"root_url"`
-	FromEmail          string `json:"from_email"`
+	RootURL            string   `json:"root_url"`
+	FromEmail          string   `json:"from_email"`
+	FromEmails         []string `json:"from_emails"`
 	PublicSubscription struct {
 		Enabled          bool        `json:"enabled"`
 		CaptchaEnabled   bool        `json:"captcha_enabled"`
@@ -42,6 +43,7 @@ func (a *App) makeServerConfig() (serverConfig, error) {
 	out := serverConfig{
 		RootURL:       a.urlCfg.RootURL,
 		FromEmail:     a.cfg.FromEmail,
+		FromEmails:    a.cfg.FromEmails,
 		Lang:          a.cfg.Lang,
 		Permissions:   a.cfg.PermissionsRaw,
 		HasLegacyUser: a.cfg.HasLegacyUser,

@@ -17,7 +17,7 @@ type Settings struct {
 	AppRootURL                    string   `json:"app.root_url"`
 	AppLogoURL                    string   `json:"app.logo_url"`
 	AppFaviconURL                 string   `json:"app.favicon_url"`
-	AppFromEmail                  string   `json:"app.from_email"`
+	AppFromEmail                  []string `json:"app.from_email"`
 	AppNotifyEmails               []string `json:"app.notify_emails"`
 	EnablePublicSubPage           bool     `json:"app.enable_public_subscription_page"`
 	EnablePublicArchive           bool     `json:"app.enable_public_archive"`

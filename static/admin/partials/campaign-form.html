@@ -32,10 +32,13 @@
 
 			<fieldset class="card">
 				<legend>{{ $root.L.Tc "globals.terms.messenger" 1 }}</legend>
-				<label data-field>
-					{{ $root.L.T "campaigns.fromAddress" }}
-					<input name="from_email" maxlength="200" x-model="form.from_email" :disabled="!canEdit" placeholder="{{ $root.L.T "campaigns.fromAddressPlaceholder" }}" required />
-				</label>
+				<div data-field>
+					<label for="campaign-from-email">{{ $root.L.T "campaigns.fromAddress" }}</label>
+					<input id="campaign-from-email" name="from_email" list="campaign-from-emails" maxlength="2000" x-model="form.from_email" :disabled="!canEdit" placeholder="{{ $root.L.T "campaigns.fromAddressPlaceholder" }}" required />
+					<datalist id="campaign-from-emails">
+						{{- range $root.ConfigJS.FromEmails }}<option value="{{ . }}"></option>{{ end }}
+					</datalist>
+				</div>
 
 				<label data-field for="messenger">
 					{{ $root.L.Tc "globals.terms.messenger" 1 }}

@@ -85,7 +85,8 @@ type UrlConfig struct {
 // Config contains static, constant config values required by arbitrary handlers and functions.
 type Config struct {
 	SiteName                      string   `koanf:"site_name"`
-	FromEmail                     string   `koanf:"from_email"`
+	FromEmail                     string   `koanf:"-"`
+	FromEmails                    []string `koanf:"from_email"`
 	NotifyEmails                  []string `koanf:"notify_emails"`
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
 	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
@@ -545,6 +546,7 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 		lo.Fatalf("error loading app.appearance config: %v", err)
 	}
 
+	c.FromEmail = getDefaultFromEmail(ko)
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = koanfmaps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
 	c.MediaUpload.Provider = ko.String("upload.provider")
@@ -659,7 +661,7 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		Concurrency:           ko.Int("app.concurrency"),
 		MessageRate:           ko.Int("app.message_rate"),
 		MaxSendErrors:         ko.Int("app.max_send_errors"),
-		FromEmail:             ko.String("app.from_email"),
+		FromEmail:             getDefaultFromEmail(ko),
 		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
 		DisableTracking:       ko.Bool("privacy.disable_tracking"),
 		UnsubURL:              u.UnsubURL,
@@ -882,7 +884,7 @@ func initNotifs(fs stuffbin.FileSystem, i *i18n.I18n, em *email.Emailer, u *UrlC
 	}
 
 	notifs.Initialize(notifs.Opt{
-		FromEmail:    ko.String("app.from_email"),
+		FromEmail:    getDefaultFromEmail(ko),
 		SystemEmails: ko.Strings("app.notify_emails"),
 		ContentType:  contentType,
 	}, tpls, txtTpls, em, lo)
@@ -1564,4 +1566,13 @@ func parseCronString(spec string) (cron.Schedule, error) {
 		return nil, err
 	}
 	return p.Parse(spec)
+}
+
+// getDefaultFromEmail returns the first address from `app.from_email[]` as the global default.
+func getDefaultFromEmail(ko *koanf.Koanf) string {
+	if addresses := ko.Strings("app.from_email"); len(addresses) > 0 {
+		return addresses[0]
+	}
+
+	return ""
 }
