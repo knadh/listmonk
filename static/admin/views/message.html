@@ -1,10 +1,24 @@
 {{ define "admin-message" }}
-{{ template "admin-header" .}}
-
-<article class="card">
-    <h2>{{ .Data.Title }}</h2>
-    <div>{{ .Data.Description }}</div>
-</article>
-
-{{ template "admin-footer" .}}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ .Data.Title }} - listmonk</title>
+    <meta name="color-scheme" content="light dark" />
+    <link href="{{ URI "/admin/static/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+    <link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <main class="container mt-8">
+        <div class="row">
+        <article class="card col-6 offset-3">
+        <header><h1>{{ .Data.Title }}</h1></header>
+        <div>{{ .Data.Description }}</div>
+        <footer class="mt-6"><a class="button" href="{{ URI "/admin" }}">&larr; Dashboard</a></footer>
+        </article>
+        </div>
+    </main>
+</body>
+</html>
 {{ end }}

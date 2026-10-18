@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"path"
@@ -31,14 +30,7 @@ var (
 
 // registerHandlers registers HTTP handlers.
 func initHTTPHandlers(e *echo.Echo, a *App) {
-	// Default error handler.
-	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		// Generic, non-echo error. Log it.
-		if _, ok := err.(*echo.HTTPError); !ok {
-			a.log.Println(err.Error())
-		}
-		e.DefaultHTTPErrorHandler(err, c)
-	}
+	e.HTTPErrorHandler = a.handleHTTPErr
 
 	// Configure CORS middleware if domains are configured.
 	if corsOrigins := trustedURLsToCORSOrigins(a.cfg.Security.TrustedURLs); len(corsOrigins) > 0 {
@@ -67,13 +59,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 					return c.Redirect(http.StatusTemporaryRedirect, u.String())
 				}
 
-				err := next(c)
-				var httpErr *echo.HTTPError
-				if errors.As(err, &httpErr) && httpErr.Code == http.StatusForbidden && !c.Response().Committed {
-					return a.renderAdminMessage(c, "Error", a.i18n.Ts("globals.messages.permissionDenied", "name", c.Path()))
-				}
-
-				return err
+				return next(c)
 			}
 		})
 
@@ -81,51 +67,51 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// their routes here. Unported /admin/* paths fall through to the 404 handler.
 		g.GET(path.Join(uriAdmin, "/custom.css"), serveCustomAppearance("admin.custom_css"))
 		g.GET(path.Join(uriAdmin, "/custom.js"), serveCustomAppearance("admin.custom_js"))
-		g.GET(uriAdmin, a.ViewDashboard)
-		g.GET(path.Join(uriAdmin, "/lists"), a.ViewLists)
-		g.GET(path.Join(uriAdmin, "/lists/analytics"), a.ViewListAnalytics)
-		g.GET(path.Join(uriAdmin, "/lists/new"), pm(a.ViewNewList, auth.PermListManageAll))
-		g.GET(path.Join(uriAdmin, "/lists/:id"), hasID(a.ViewList))
-		g.GET(path.Join(uriAdmin, "/lists/:id/edit"), hasID(a.ViewList))
-		g.GET(path.Join(uriAdmin, "/lists/forms"), a.ViewForms)
-		g.GET(path.Join(uriAdmin, "/campaigns"), pm(a.ViewCampaigns, auth.PermCampaignsGetAll, auth.PermCampaignsGet))
-		g.GET(path.Join(uriAdmin, "/campaigns/media"), pm(a.ViewMedia, auth.PermMediaGet))
-		g.GET(path.Join(uriAdmin, "/campaigns/media/fragment"), pm(a.ViewMediaFragment, auth.PermMediaGet))
-		g.GET(path.Join(uriAdmin, "/campaigns/analytics"), pm(a.ViewCampaignAnalytics, auth.PermCampaignsGetAnalytics))
-		g.GET(path.Join(uriAdmin, "/campaigns/new"), pm(a.ViewNewCampaign, auth.PermCampaignsManageAll, auth.PermCampaignsManage))
-		g.GET(path.Join(uriAdmin, "/campaigns/:id"), pm(hasID(a.ViewCampaign), auth.PermCampaignsGetAll, auth.PermCampaignsGet))
-		g.GET(path.Join(uriAdmin, "/campaigns/:id/:tab"), pm(hasID(a.ViewCampaign), auth.PermCampaignsGetAll, auth.PermCampaignsGet))
-		g.GET(path.Join(uriAdmin, "/templates"), pm(a.ViewTemplates, auth.PermTemplatesGet))
-		g.GET(path.Join(uriAdmin, "/templates/new"), pm(a.ViewNewTemplate, auth.PermTemplatesManage))
-		g.GET(path.Join(uriAdmin, "/templates/:id"), pm(hasID(a.ViewTemplate), auth.PermTemplatesGet))
-		g.GET(path.Join(uriAdmin, "/subscribers/import"), pm(a.ViewImport, auth.PermSubscribersImport))
-		g.GET(path.Join(uriAdmin, "/subscribers/bounces"), pm(a.ViewBounces, auth.PermBouncesGet))
-		g.GET(path.Join(uriAdmin, "/subscribers"), pm(a.ViewSubscribers, auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.POST(path.Join(uriAdmin, "/subscribers"), pm(a.ViewSubscribers, auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), pm(hasID(a.ViewSubscribers), auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.POST(path.Join(uriAdmin, "/subscribers/lists/:id"), pm(hasID(a.ViewSubscribers), auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.GET(path.Join(uriAdmin, "/subscribers/new"), pm(a.ViewNewSubscriber, auth.PermSubscribersManage))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/edit"), pm(hasID(a.ViewSubscriber), auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id"), pm(hasID(a.ViewSubscriberInfo), auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), pm(hasID(a.ViewSubscriber), auth.PermSubscribersGetAll, auth.PermSubscribersGet))
-		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), pm(pm(hasID(a.ViewSubscriberBounces), auth.PermBouncesGet), auth.PermSubscribersGetAll, auth.PermSubscribersGet))
+		g.GET(uriAdmin, a.adminPage(a.ViewDashboard))
+		g.GET(path.Join(uriAdmin, "/lists"), a.adminPage(a.ViewLists))
+		g.GET(path.Join(uriAdmin, "/lists/analytics"), a.adminPage(a.ViewListAnalytics))
+		g.GET(path.Join(uriAdmin, "/lists/new"), a.adminPage(pm(a.ViewNewList, auth.PermListManageAll)))
+		g.GET(path.Join(uriAdmin, "/lists/:id"), a.adminPage(hasID(a.ViewList)))
+		g.GET(path.Join(uriAdmin, "/lists/:id/edit"), a.adminPage(hasID(a.ViewList)))
+		g.GET(path.Join(uriAdmin, "/lists/forms"), a.adminPage(a.ViewForms))
+		g.GET(path.Join(uriAdmin, "/campaigns"), a.adminPage(pm(a.ViewCampaigns, auth.PermCampaignsGetAll, auth.PermCampaignsGet)))
+		g.GET(path.Join(uriAdmin, "/campaigns/media"), a.adminPage(pm(a.ViewMedia, auth.PermMediaGet)))
+		g.GET(path.Join(uriAdmin, "/campaigns/media/fragment"), a.adminPage(pm(a.ViewMediaFragment, auth.PermMediaGet)))
+		g.GET(path.Join(uriAdmin, "/campaigns/analytics"), a.adminPage(pm(a.ViewCampaignAnalytics, auth.PermCampaignsGetAnalytics)))
+		g.GET(path.Join(uriAdmin, "/campaigns/new"), a.adminPage(pm(a.ViewNewCampaign, auth.PermCampaignsManageAll, auth.PermCampaignsManage)))
+		g.GET(path.Join(uriAdmin, "/campaigns/:id"), a.adminPage(pm(hasID(a.ViewCampaign), auth.PermCampaignsGetAll, auth.PermCampaignsGet)))
+		g.GET(path.Join(uriAdmin, "/campaigns/:id/:tab"), a.adminPage(pm(hasID(a.ViewCampaign), auth.PermCampaignsGetAll, auth.PermCampaignsGet)))
+		g.GET(path.Join(uriAdmin, "/templates"), a.adminPage(pm(a.ViewTemplates, auth.PermTemplatesGet)))
+		g.GET(path.Join(uriAdmin, "/templates/new"), a.adminPage(pm(a.ViewNewTemplate, auth.PermTemplatesManage)))
+		g.GET(path.Join(uriAdmin, "/templates/:id"), a.adminPage(pm(hasID(a.ViewTemplate), auth.PermTemplatesGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers/import"), a.adminPage(pm(a.ViewImport, auth.PermSubscribersImport)))
+		g.GET(path.Join(uriAdmin, "/subscribers/bounces"), a.adminPage(pm(a.ViewBounces, auth.PermBouncesGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers"), a.adminPage(pm(a.ViewSubscribers, auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.POST(path.Join(uriAdmin, "/subscribers"), a.adminPage(pm(a.ViewSubscribers, auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers/lists/:id"), a.adminPage(pm(hasID(a.ViewSubscribers), auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.POST(path.Join(uriAdmin, "/subscribers/lists/:id"), a.adminPage(pm(hasID(a.ViewSubscribers), auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers/new"), a.adminPage(pm(a.ViewNewSubscriber, auth.PermSubscribersManage)))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/edit"), a.adminPage(pm(hasID(a.ViewSubscriber), auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id"), a.adminPage(pm(hasID(a.ViewSubscriberInfo), auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/lists"), a.adminPage(pm(hasID(a.ViewSubscriber), auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
+		g.GET(path.Join(uriAdmin, "/subscribers/:id/bounces"), a.adminPage(pm(pm(hasID(a.ViewSubscriberBounces), auth.PermBouncesGet), auth.PermSubscribersGetAll, auth.PermSubscribersGet)))
 
 		// Users and roles. Static segments are registered before the :id param routes.
-		g.GET(path.Join(uriAdmin, "/users"), pm(a.ViewUsers, auth.PermUsersGet))
-		g.GET(path.Join(uriAdmin, "/users/new"), pm(a.ViewUser, auth.PermUsersManage))
-		g.GET(path.Join(uriAdmin, "/users/roles"), pm(a.ViewUserRoles, auth.PermRolesGet))
-		g.GET(path.Join(uriAdmin, "/users/roles/new"), pm(a.ViewUserRole, auth.PermRolesManage))
-		g.GET(path.Join(uriAdmin, "/users/roles/lists"), pm(a.ViewListRoles, auth.PermRolesGet))
-		g.GET(path.Join(uriAdmin, "/users/roles/lists/new"), pm(a.ViewListRole, auth.PermRolesManage))
-		g.GET(path.Join(uriAdmin, "/users/roles/lists/:id"), pm(hasID(a.ViewListRole), auth.PermRolesGet))
-		g.GET(path.Join(uriAdmin, "/users/roles/:id"), pm(hasID(a.ViewUserRole), auth.PermRolesGet))
-		g.GET(path.Join(uriAdmin, "/users/:id"), pm(hasID(a.ViewUser), auth.PermUsersGet))
-		g.GET(path.Join(uriAdmin, "/user/profile"), a.ViewProfile)
+		g.GET(path.Join(uriAdmin, "/users"), a.adminPage(pm(a.ViewUsers, auth.PermUsersGet)))
+		g.GET(path.Join(uriAdmin, "/users/new"), a.adminPage(pm(a.ViewUser, auth.PermUsersManage)))
+		g.GET(path.Join(uriAdmin, "/users/roles"), a.adminPage(pm(a.ViewUserRoles, auth.PermRolesGet)))
+		g.GET(path.Join(uriAdmin, "/users/roles/new"), a.adminPage(pm(a.ViewUserRole, auth.PermRolesManage)))
+		g.GET(path.Join(uriAdmin, "/users/roles/lists"), a.adminPage(pm(a.ViewListRoles, auth.PermRolesGet)))
+		g.GET(path.Join(uriAdmin, "/users/roles/lists/new"), a.adminPage(pm(a.ViewListRole, auth.PermRolesManage)))
+		g.GET(path.Join(uriAdmin, "/users/roles/lists/:id"), a.adminPage(pm(hasID(a.ViewListRole), auth.PermRolesGet)))
+		g.GET(path.Join(uriAdmin, "/users/roles/:id"), a.adminPage(pm(hasID(a.ViewUserRole), auth.PermRolesGet)))
+		g.GET(path.Join(uriAdmin, "/users/:id"), a.adminPage(pm(hasID(a.ViewUser), auth.PermUsersGet)))
+		g.GET(path.Join(uriAdmin, "/user/profile"), a.adminPage(a.ViewProfile))
 
 		// Settings.
-		g.GET(path.Join(uriAdmin, "/settings"), pm(a.ViewSettings, auth.PermSettingsGet))
-		g.GET(path.Join(uriAdmin, "/settings/logs"), pm(a.ViewLogs, auth.PermSettingsGet))
-		g.GET(path.Join(uriAdmin, "/settings/maintenance"), pm(a.ViewMaintenance, auth.PermSettingsMaintain))
+		g.GET(path.Join(uriAdmin, "/settings"), a.adminPage(pm(a.ViewSettings, auth.PermSettingsGet)))
+		g.GET(path.Join(uriAdmin, "/settings/logs"), a.adminPage(pm(a.ViewLogs, auth.PermSettingsGet)))
+		g.GET(path.Join(uriAdmin, "/settings/maintenance"), a.adminPage(pm(a.ViewMaintenance, auth.PermSettingsMaintain)))
 	}
 
 	// =================================================================
@@ -297,14 +283,14 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		})
 
 		// Public admin endpoints (login page, OIDC endpoints, password reset).
-		g.GET(path.Join(uriAdmin, "/login"), a.LoginPage)
-		g.POST(path.Join(uriAdmin, "/login"), a.LoginPage)
-		g.GET(path.Join(uriAdmin, "/login/twofa"), a.TwofaPage)
-		g.POST(path.Join(uriAdmin, "/login/twofa"), a.TwofaPage)
-		g.GET(path.Join(uriAdmin, "/forgot"), a.ForgotPage)
-		g.POST(path.Join(uriAdmin, "/forgot"), a.ForgotPage)
-		g.GET(path.Join(uriAdmin, "/reset"), a.ResetPage)
-		g.POST(path.Join(uriAdmin, "/reset"), a.ResetPage)
+		g.GET(path.Join(uriAdmin, "/login"), a.adminPage(a.LoginPage))
+		g.POST(path.Join(uriAdmin, "/login"), a.adminPage(a.LoginPage))
+		g.GET(path.Join(uriAdmin, "/login/twofa"), a.adminPage(a.TwofaPage))
+		g.POST(path.Join(uriAdmin, "/login/twofa"), a.adminPage(a.TwofaPage))
+		g.GET(path.Join(uriAdmin, "/forgot"), a.adminPage(a.ForgotPage))
+		g.POST(path.Join(uriAdmin, "/forgot"), a.adminPage(a.ForgotPage))
+		g.GET(path.Join(uriAdmin, "/reset"), a.adminPage(a.ResetPage))
+		g.POST(path.Join(uriAdmin, "/reset"), a.adminPage(a.ResetPage))
 
 		if a.cfg.Security.OIDC.Enabled {
 			g.POST("/auth/oidc", a.OIDCLogin)
@@ -355,9 +341,9 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.RouteNotFound("/api/*", func(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound, "404 unknown endpoint")
 		})
-		g.RouteNotFound("/admin/*", func(c echo.Context) error {
+		g.RouteNotFound("/admin/*", a.adminPage(func(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound, "404 page not found")
-		})
+		}))
 	}
 }
 
@@ -453,6 +439,15 @@ func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
 
 		return next(c)
 	}
+}
+
+// handleHTTPErr logs errors and delegates response formatting to Echo.
+func (a *App) handleHTTPErr(err error, c echo.Context) {
+	if _, ok := err.(*echo.HTTPError); !ok {
+		a.log.Println(err.Error())
+	}
+
+	c.Echo().DefaultHTTPErrorHandler(err, c)
 }
 
 // noIndex adds the HTTP header requesting robots to not crawl the page.

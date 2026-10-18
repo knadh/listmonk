@@ -122,7 +122,7 @@ func (a *App) ViewSubscribers(c echo.Context) error {
 	if listID > 0 {
 		user := auth.GetUser(c)
 		if err := user.HasListPerm(auth.PermTypeGet, listID); err != nil {
-			return a.renderAdminMessage(c, "Error", a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+			return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
 		}
 	}
 

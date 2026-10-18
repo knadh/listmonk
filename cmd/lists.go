@@ -110,7 +110,7 @@ func (a *App) ViewList(c echo.Context) error {
 	// Check if the user has access to the list.
 	id := getID(c)
 	if err := user.HasListPerm(auth.PermTypeGet, id); err != nil {
-		return a.renderAdminMessage(c, "Error", a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.Ts("globals.messages.permissionDenied", "name", "lists"))
 	}
 
 	list, err := a.core.GetList(id, "")

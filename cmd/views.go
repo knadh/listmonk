@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -16,11 +17,14 @@ type adminView struct {
 }
 
 func newAdminView(c echo.Context, title, description, pageID string) adminView {
+	// Admin views like error pages can be rendereded inside/outside auth.
+	profile, _ := c.Get(auth.UserHTTPCtxKey).(auth.User)
+
 	return adminView{
 		Title:       title,
 		Description: description,
 		PageID:      pageID,
-		Profile:     auth.GetUser(c),
+		Profile:     profile,
 	}
 }
 
@@ -55,6 +59,59 @@ func canManageList(user auth.User, id int) bool {
 }
 
 // renderAdminMessage renders a message page.
-func (a *App) renderAdminMessage(c echo.Context, title, description string) error {
-	return c.Render(http.StatusForbidden, "admin-message", newAdminView(c, title, description, ""))
+func (a *App) renderAdminMessage(c echo.Context, status int, title, description string) error {
+	return c.Render(status, "admin-message", newAdminView(c, title, description, ""))
+}
+
+// adminPage captures errors from admin HTML handlers and converts
+// error messages into HTML renders.
+func (a *App) adminPage(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if err := next(c); err != nil {
+			return a.renderAdminError(c, err)
+		}
+
+		return nil
+	}
+}
+
+// renderAdminError renders an error as an admin message page.
+func (a *App) renderAdminError(c echo.Context, err error) error {
+	if c.Response().Committed {
+		return nil
+	}
+
+	var (
+		status = http.StatusInternalServerError
+		msg    = http.StatusText(status)
+	)
+	if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok {
+		if internal, ok := httpErr.Internal.(*echo.HTTPError); ok {
+			httpErr = internal
+		}
+
+		status = httpErr.Code
+		msg = http.StatusText(status)
+		switch m := httpErr.Message.(type) {
+		case string:
+			msg = m
+		case error:
+			msg = m.Error()
+		}
+	} else {
+		a.log.Println(err.Error())
+	}
+
+	if c.Request().Method == http.MethodHead {
+		return c.NoContent(status)
+	}
+
+	if err := a.renderAdminMessage(c, status, "Error", msg); err != nil {
+		a.log.Println(err.Error())
+		// The template renderer itself failed!
+		if !c.Response().Committed {
+			return c.HTML(http.StatusInternalServerError, "Internal Server Error")
+		}
+	}
+	return nil
 }
