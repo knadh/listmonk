@@ -3472,7 +3472,13 @@ components:
         app.favicon_url:
           type: string
         app.from_email:
-          type: string
+          type: array
+          description: Sender addresses. The first must be a literal email address and is the default for campaigns and system emails.
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+            maxLength: 2000
         app.notify_emails:
           type: array
           items:
