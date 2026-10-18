@@ -1765,6 +1765,7 @@
 
 <h2 id="oidc-single-sign-on">OIDC Single Sign On<a class="headerlink" href="#oidc-single-sign-on" title="Permanent link">&para;</a></h2>
 <p>Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -&gt; Security -&gt; OIDC</p>
+<p>Enable <strong>OIDC RP-initiated logout</strong> in Settings → Security to redirect to the provider's logout endpoint when logging out of an OIDC session, if the provider supports OIDC logout. This option is disabled by default. Register <code>https://listmonk.yoursite.com/admin/login</code> (including any configured root URL path) as an allowed post-logout redirect URI with the provider.</p>
 <h3 id="user-auto-creation">User auto-creation<a class="headerlink" href="#user-auto-creation" title="Permanent link">&para;</a></h3>
 <p>If <code>Settings -&gt; Security -&gt; OIDC -&gt; Auto-create users</code> is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID). If role mapping is enabled, newly created users (on first OIDC login) can be auto-assigned roles mapped to OIDC claims.</p>
 <h1 id="tutorials">Tutorials<a class="headerlink" href="#tutorials" title="Permanent link">&para;</a></h1>
