@@ -226,6 +226,12 @@ func (a *App) CreateUser(c echo.Context) error {
 	email := strings.ToLower(strings.TrimSpace(u.Email.String))
 
 	// Validate fields.
+	if u.Type != auth.UserTypeUser && u.Type != auth.UserTypeAPI {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "type"))
+	}
+	if u.Status != auth.UserStatusEnabled && u.Status != auth.UserStatusDisabled {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "status"))
+	}
 	if !strHasLen(u.Username, 3, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}
@@ -281,6 +287,12 @@ func (a *App) UpdateUser(c echo.Context) error {
 	email := strings.ToLower(strings.TrimSpace(u.Email.String))
 
 	// Validate fields.
+	if u.Type != "" && u.Type != auth.UserTypeUser && u.Type != auth.UserTypeAPI {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "type"))
+	}
+	if u.Status != "" && u.Status != auth.UserStatusEnabled && u.Status != auth.UserStatusDisabled {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "status"))
+	}
 	if !strHasLen(u.Username, 3, stdInputMaxLen) {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "username"))
 	}

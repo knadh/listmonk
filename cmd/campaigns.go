@@ -469,8 +469,10 @@ func (a *App) CreateCampaign(c echo.Context) error {
 			return err
 		}
 		o = op
-	case "":
+	case "", models.CampaignTypeRegular:
 		o.Type = models.CampaignTypeRegular
+	default:
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "type"))
 	}
 
 	if o.Messenger == "" {

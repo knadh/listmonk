@@ -533,6 +533,9 @@ func (a *App) CreateSubscriber(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
+	if err := a.validateSubscriberStatus(req.Status); err != nil {
+		return err
+	}
 
 	// Validate fields.
 	req, err := a.importer.ValidateFields(req)
@@ -569,6 +572,9 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 		PreconfirmSubs bool  `json:"preconfirm_subscriptions"`
 	}{}
 	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	if err := a.validateSubscriberStatus(req.Status); err != nil {
 		return err
 	}
 
@@ -646,6 +652,9 @@ func (a *App) PatchSubscriber(c echo.Context) error {
 	}
 
 	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	if err := a.validateSubscriberStatus(req.Status); err != nil {
 		return err
 	}
 
@@ -802,6 +811,9 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case models.SubscriptionActionAdd:
+		if err := a.validateSubscriptionStatus(req.Status); err != nil {
+			return err
+		}
 		err = a.core.AddSubscriptions(subIDs, listIDs, req.Status)
 	case models.SubscriptionActionRemove:
 		err = a.core.DeleteSubscriptions(subIDs, listIDs)
@@ -970,6 +982,9 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	var err error
 	switch req.Action {
 	case models.SubscriptionActionAdd:
+		if err := a.validateSubscriptionStatus(req.Status); err != nil {
+			return err
+		}
 		err = a.core.AddSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.Status, req.SubscriptionStatus, req.SubscriberStatus)
 	case models.SubscriptionActionRemove:
 		err = a.core.DeleteSubscriptionsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus, req.SubscriberStatus)
@@ -1200,4 +1215,20 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 
 		return len(lists), nil
 	}
+}
+
+// validateSubscriberStatus sanity checks subscriber status.
+func (a *App) validateSubscriberStatus(status string) error {
+	if status != "" && status != models.SubscriberStatusEnabled && status != models.SubscriberStatusDisabled && status != models.SubscriberStatusBlockListed {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "status"))
+	}
+	return nil
+}
+
+// validateSubscriptionStatus sanity checks subscription status.
+func (a *App) validateSubscriptionStatus(status string) error {
+	if status != "" && status != models.SubscriptionStatusUnconfirmed && status != models.SubscriptionStatusConfirmed && status != models.SubscriptionStatusUnsubscribed {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "status"))
+	}
+	return nil
 }

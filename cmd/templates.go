@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"html/template"
 	"net/http"
 	"regexp"
@@ -182,6 +181,10 @@ func (a *App) CreateTemplate(c echo.Context) error {
 	if err := c.Bind(&o); err != nil {
 		return err
 	}
+	if o.Type != models.TemplateTypeCampaign && o.Type != models.TemplateTypeCampaignVisual && o.Type != models.TemplateTypeTx {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "type"))
+	}
+
 	if err := a.validateTemplate(o); err != nil {
 		return err
 	}
@@ -285,7 +288,7 @@ func (a *App) DeleteTemplate(c echo.Context) error {
 // compileTemplate validates template fields.
 func (a *App) validateTemplate(o models.Template) error {
 	if !strHasLen(o.Name, 1, stdInputMaxLen) {
-		return errors.New(a.i18n.T("campaigns.fieldInvalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("campaigns.fieldInvalidName"))
 	}
 
 	if o.Type == models.TemplateTypeCampaign && !regexpTplTag.MatchString(o.Body) {

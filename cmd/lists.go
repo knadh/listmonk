@@ -205,8 +205,8 @@ func (a *App) CreateList(c echo.Context) error {
 	}
 
 	// Validate.
-	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
+	if err := a.validateListFields(l); err != nil {
+		return err
 	}
 
 	out, err := a.core.CreateList(l)
@@ -235,8 +235,8 @@ func (a *App) UpdateList(c echo.Context) error {
 	}
 
 	// Validate.
-	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
+	if err := a.validateListFields(l); err != nil {
+		return err
 	}
 
 	// Update the list in the DB.
@@ -309,6 +309,10 @@ func (a *App) DeleteLists(c echo.Context) error {
 			return err
 		}
 	} else {
+		if err := a.validateListFilters(c.FormValue("type"), c.FormValue("optin"), c.FormValue("status")); err != nil {
+			return err
+		}
+
 		// For query deletion, get the list IDs the user has manage permission for.
 		hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeManage)
 
@@ -328,6 +332,9 @@ func (a *App) DeleteLists(c echo.Context) error {
 
 func (a *App) getLists(c echo.Context) ([]models.List, models.PageProps, error) {
 	q := makeQuery(c.Request().URL.Query(), listsQueryDefaults)
+	if err := a.validateListFilters(q.Get("type"), q.Get("optin"), q.Get("status")); err != nil {
+		return nil, models.PageProps{}, err
+	}
 
 	// Get the authenticated user.
 	user := auth.GetUser(c)
@@ -371,4 +378,30 @@ func (a *App) getLists(c echo.Context) ([]models.List, models.PageProps, error) 
 	}
 
 	return res, models.NewPageProps(q, total, pg.Page, pg.PerPage), nil
+}
+
+// validateListFields sanity checks and validates list fields.
+func (a *App) validateListFields(l models.List) error {
+	if !strHasLen(l.Name, 1, stdInputMaxLen) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
+	}
+
+	return a.validateListFilters(l.Type, l.Optin, l.Status)
+}
+
+// validateListFilters validates filter field enums.
+func (a *App) validateListFilters(typ, optin, status string) error {
+	if typ != "" && typ != models.ListTypePublic && typ != models.ListTypePrivate {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "type"))
+	}
+
+	if optin != "" && optin != models.ListOptinSingle && optin != models.ListOptinDouble {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "optin"))
+	}
+
+	if status != "" && status != models.ListStatusActive && status != models.ListStatusArchived {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "status"))
+	}
+
+	return nil
 }
