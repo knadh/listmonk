@@ -25,7 +25,7 @@
 					</label>
 				</div>
 				<div class="col-8 col-end hstack justify-end">
-					<button type="button" data-variant="danger" data-cy="btn-delete-subscribers"
+					<button type="button" data-variant="danger"
 						:disabled="isLoading('maintenance')" :aria-busy="isLoading('maintenance')" data-spinner="small"
 						@click="deleteSubscribers">
 						{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
@@ -53,7 +53,7 @@
 					</label>
 				</div>
 				<div class="col-4 col-end hstack justify-end">
-					<button type="button" data-variant="danger" data-cy="btn-delete-subscriptions"
+					<button type="button" data-variant="danger"
 						:disabled="isLoading('maintenance') || !subscriptionDate" :aria-busy="isLoading('maintenance')" data-spinner="small"
 						@click="deleteSubscriptions">
 						{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
@@ -83,7 +83,7 @@
 					</label>
 				</div>
 				<div class="col-4 col-end hstack justify-end">
-					<button type="button" data-variant="danger" data-cy="btn-delete-analytics"
+					<button type="button" data-variant="danger"
 						:disabled="isLoading('maintenance') || !analyticsDate" :aria-busy="isLoading('maintenance')" data-spinner="small"
 						@click="deleteAnalytics">
 						{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
@@ -110,7 +110,7 @@
 					</label>
 				</div>
 				<div class="col-4 col-end hstack justify-end">
-					<a class="button" data-variant="primary" data-cy="btn-export-analytics"
+					<a class="button" data-variant="primary"
 						:href="exportURL" :aria-disabled="!exportDate">
 						{{ Icon "download-cloud" }} {{ .L.T "subscribers.export" }}
 					</a>
@@ -140,7 +140,7 @@
 						</label>
 					</div>
 					<div class="col-5 col-end hstack justify-end">
-						<button type="submit" data-variant="primary" data-cy="btn-save-db"
+						<button type="submit" data-variant="primary"
 							:disabled="isSaving" :aria-busy="isSaving" data-spinner="small">
 							{{ Icon "save" }} {{ .L.T "globals.buttons.save" }}
 						</button>

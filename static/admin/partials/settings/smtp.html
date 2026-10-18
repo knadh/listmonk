@@ -13,13 +13,13 @@
 					<div class="col-7 col-end">
 						<div class="hstack gap-6 justify-end">
 							<label data-field @click.stop>
-								<input type="checkbox" role="switch" x-model="item.enabled" data-cy="btn-enable-smtp" />
+								<input type="checkbox" role="switch" x-model="item.enabled" />
 								{{ .L.T "globals.buttons.enabled" }}
 							</label>
-							<button type="button" class="outline small" data-cy="btn-test-smtp" :disabled="!item.enabled" @click.stop.prevent="showSMTPTest(n)">
+							<button type="button" class="outline small" :disabled="!item.enabled" @click.stop.prevent="showSMTPTest(n)">
 								{{ Icon "send" }} {{ .L.T "settings.smtp.testConnection" }}
 							</button>
-							<button type="button" class="outline small" x-show="form.smtp.length > 1" data-variant="danger" data-cy="btn-delete-smtp" @click.stop.prevent="removeSMTP(n)">
+							<button type="button" class="outline small" x-show="form.smtp.length > 1" data-variant="danger" @click.stop.prevent="removeSMTP(n)">
 								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
 							</button>
 						</div>

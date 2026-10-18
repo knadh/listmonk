@@ -6,14 +6,14 @@
 	<div class="row">
 		<div class="col-6">
 			<label data-field>
-				<input type="checkbox" role="switch" x-model="form.archive" :disabled="!canArchive" data-cy="btn-archive" /> {{ $root.L.T "campaigns.archiveEnable" }}
+				<input type="checkbox" role="switch" x-model="form.archive" :disabled="!canArchive" /> {{ $root.L.T "campaigns.archiveEnable" }}
 				<small data-hint>{{ $root.L.T "campaigns.archiveHelp" }}</small>
 			</label>
 		</div>
 		{{ if and $canManage }}
 		<template x-if="!canEdit && canArchive">
 			<div class="col-6 col-end align-right">
-					<button type="button" data-variant="primary" data-cy="btn-save" @click="onSaveArchive" :disabled="isLoading('campaigns')">{{ $root.L.T "globals.buttons.saveChanges" }}</button>
+					<button type="button" data-variant="primary" @click="onSaveArchive" :disabled="isLoading('campaigns')">{{ $root.L.T "globals.buttons.saveChanges" }}</button>
 			</div>
 		</template>
 		{{ end }}
@@ -31,12 +31,12 @@
 							<option :value="t.id" x-text="t.name"></option>
 						</template>
 					</select>
-					<button type="button" data-variant="primary" data-cy="btn-preview" @click="onPreviewArchive">{{ $root.L.T "campaigns.preview" }}</button>
+					<button type="button" data-variant="primary" @click="onPreviewArchive">{{ $root.L.T "campaigns.preview" }}</button>
 				</fieldset>
 
 				<label data-field>
 					{{ $root.L.T "campaigns.archiveSlug" }}
-					<input name="archive_slug" maxlength="200" x-model="form.archive_slug" data-cy="archive-slug" />
+					<input name="archive_slug" maxlength="200" x-model="form.archive_slug" />
 					<small data-hint>{{ $root.L.T "campaigns.archiveSlugHelp" }}</small>
 				</label>
 
@@ -45,7 +45,7 @@
 
 			<fieldset class="card" :disabled="!canArchive" data-field>
 				<legend>{{ $root.L.T "campaigns.archiveMeta" }}</legend>
-				<textarea name="archive_meta" x-model="form.archiveMetaStr" data-cy="archive-meta" rows="15"></textarea>
+				<textarea name="archive_meta" x-model="form.archiveMetaStr" rows="15"></textarea>
 				<small data-hint>{{ $root.L.T "campaigns.archiveMetaHelp" }}</small>
 				<template x-if="form.archiveMetaStr === '' || form.archiveMetaStr === '{}'">
 					<div class="mt-4"><button type="button" class="outline small" @click="onFillArchiveMeta">{{ $root.L.T "templates.makeDefault" }}</button></div>

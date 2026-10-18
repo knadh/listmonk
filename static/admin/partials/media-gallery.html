@@ -19,13 +19,13 @@
 			<form method="get" action="{{ URI "/admin/campaigns/media" }}{{ if $picker }}/fragment{{ end }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
-					<input name="query" aria-label="Search" data-cy="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline external" data-cy="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+					<input name="query" aria-label="Search" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline external" aria-label="Search">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $canManage }}
 				<ot-dropdown>
-					<button type="button" data-variant="primary" class="btn-new media-upload-btn" popovertarget="media-upload" data-cy="btn-upload">
+					<button type="button" data-variant="primary" class="btn-new media-upload-btn" popovertarget="media-upload">
 						{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
 					</button>
 					<div popover id="media-upload" class="media-upload">
@@ -40,7 +40,7 @@
 								</ot-upload>
 							</div>
 							<div class="hstack justify-end buttons">
-								<button type="submit" data-variant="primary" data-cy="btn-submit" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
+								<button type="submit" data-variant="primary" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
 									{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
 								</button>
 							</div>
@@ -55,7 +55,7 @@
 		{{- if $d.Media }}
 			<ul class="unstyled gallery">
 				{{- range $d.Media }}
-					<li data-cy="media-item">
+					<li>
 						{{- template "media-gallery-item" dict "Root" $root "Mode" $mode "CanManage" $canManage "Media" . }}
 					</li>
 				{{- end }}

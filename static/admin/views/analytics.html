@@ -47,7 +47,7 @@
 					<div class="col-2">
 						<data data-field>
 							<label for="analytics-interval">{{ .L.T "analytics.interval" }}</label>
-							<select id="analytics-interval" name="interval" data-cy="interval">
+							<select id="analytics-interval" name="interval">
 								<option value="day" {{ if eq $d.Interval "day" }}selected{{ end }}>{{ .L.T "globals.terms.day" }}</option>
 								<option value="hour" {{ if eq $d.Interval "hour" }}selected{{ end }}>{{ .L.T "globals.terms.hour" }}</option>
 								<option value="week" {{ if eq $d.Interval "week" }}selected{{ end }}>{{ .L.T "globals.terms.week" }}</option>
@@ -59,7 +59,7 @@
 					<div class="col-1">
 						<data data-field>
 							<label aria-hidden="true">&nbsp;</label>
-							<button type="submit" data-cy="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="items.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
+							<button type="submit" aria-label="{{ .L.T "globals.buttons.search" }}" :disabled="items.length === 0 || submitting" :aria-busy="submitting" data-spinner="small">
 								{{ .L.T "globals.buttons.view" }}
 							</button>
 						</data>

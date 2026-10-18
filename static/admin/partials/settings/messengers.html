@@ -16,7 +16,7 @@
 								<input type="checkbox" role="switch" x-model="item.enabled" />
 								{{ .L.T "globals.buttons.enabled" }}
 							</label>
-							<button type="button" class="outline small" data-variant="danger" data-cy="btn-delete-messenger" @click.stop.prevent="removeMessenger(n)">
+							<button type="button" class="outline small" data-variant="danger" @click.stop.prevent="removeMessenger(n)">
 								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
 							</button>
 						</div>

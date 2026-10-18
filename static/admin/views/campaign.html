@@ -42,7 +42,7 @@
 			<div class="col-6 hstack justify-end buttons">
 				{{- if $showActions }}
 					<ot-dropdown>
-						<button type="button" class="outline external campaign-test-btn dot-indicator" :class="{ 'is-active': form.testEmails.length > 0 }" popovertarget="campaign-test" :disabled="isNew" data-cy="btn-test">{{ Icon "mail" }} {{ .L.T "campaigns.sendTest" }}</button>
+						<button type="button" class="outline external campaign-test-btn dot-indicator" :class="{ 'is-active': form.testEmails.length > 0 }" popovertarget="campaign-test" :disabled="isNew">{{ Icon "mail" }} {{ .L.T "campaigns.sendTest" }}</button>
 						<div popover id="campaign-test" class="campaign-test">
 							<label data-field>
 								<ot-taginput x-model="form.testEmails"><input type="email" placeholder="{{ .L.T "campaigns.testEmails" }}" :disabled="isNew" @blur="$el.value !== '' && $el.closest('ot-taginput').add($el.value)" autofocus /></ot-taginput>
@@ -55,10 +55,10 @@
 					</ot-dropdown>
 				{{- end }}
 				{{- if $showPreview }}
-					<button type="button" class="outline external" data-cy="btn-preview" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "campaigns.preview" }}</button>
+					<button type="button" class="outline external" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "campaigns.preview" }}</button>
 				{{- end }}
 				{{- if $showActions }}
-					<button type="button" data-variant="primary" data-cy="btn-save" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
+					<button type="button" data-variant="primary" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
 				{{- end }}
 			</div>
 		{{- end }}
@@ -119,7 +119,7 @@
 										<option :value="t.id" x-text="t.name"></option>
 									</template>
 								</select>
-								<button type="button" data-variant="primary" data-cy="btn-save-visual-tpl" @click="onImportVisualTpl" :disabled="!canEdit || !visualTemplateId">{{ .L.T "globals.terms.import" }}</button>
+								<button type="button" data-variant="primary" @click="onImportVisualTpl" :disabled="!canEdit || !visualTemplateId">{{ .L.T "globals.terms.import" }}</button>
 							</fieldset>
 						</div>
 					</template>

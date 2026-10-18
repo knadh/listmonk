@@ -5,7 +5,7 @@
 <div class="card page-content attachments">
 	<ul class="unstyled gallery">
 		<template x-for="(m, idx) in form.media" :key="m.id || m.filename">
-			<li data-cy="media-item">
+			<li>
 				{{- template "media-gallery-item" dict "Root" $root "Mode" "attach" }}
 			</li>
 		</template>
@@ -15,7 +15,7 @@
 	</template>
 
 	<footer class="hstack justify-center">
-		<button type="button" data-variant="primary" @click="onOpenMedia('attach')" :disabled="!canEdit" data-cy="btn-attach">{{ Icon "plus" }} {{ $root.L.T "campaigns.addAttachments" }}</button>
+		<button type="button" data-variant="primary" @click="onOpenMedia('attach')" :disabled="!canEdit">{{ Icon "plus" }} {{ $root.L.T "campaigns.addAttachments" }}</button>
 	</footer>
 </div>
 {{- end }}

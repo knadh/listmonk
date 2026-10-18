@@ -64,7 +64,7 @@
 				<div class="row">
 					<div class="col-6">
 						<label data-field>
-							<input type="checkbox" role="switch" x-model="form.sendLater" @change="onToggleSendLater" :disabled="!canEdit" data-cy="btn-send-later" /> {{ $root.L.T "campaigns.sendLater" }}
+							<input type="checkbox" role="switch" x-model="form.sendLater" @change="onToggleSendLater" :disabled="!canEdit" /> {{ $root.L.T "campaigns.sendLater" }}
 						</label>
 
 						<template x-if="form.sendLater">
@@ -76,8 +76,8 @@
 					</div>
 					{{- if and (not $isNew) $canSend }}
 						<div class="col-6 col-end hstack justify-end">
-							<button type="button" class="outline" data-variant="primary" data-cy="btn-schedule" x-cloak x-show="canSchedule" @click="onStart">{{ Icon "clock" }} {{ $root.L.T "campaigns.schedule" }}</button>
-							<button type="button" class="outline" data-variant="danger" data-cy="btn-unschedule" x-cloak x-show="canUnSchedule" @click="onUnschedule">{{ Icon "clock" }} {{ $root.L.T "campaigns.unSchedule" }}</button>
+							<button type="button" class="outline" data-variant="primary" x-cloak x-show="canSchedule" @click="onStart">{{ Icon "clock" }} {{ $root.L.T "campaigns.schedule" }}</button>
+							<button type="button" class="outline" data-variant="danger" x-cloak x-show="canUnSchedule" @click="onUnschedule">{{ Icon "clock" }} {{ $root.L.T "campaigns.unSchedule" }}</button>
 						</div>
 					{{- end }}
 				</div>
@@ -86,7 +86,7 @@
 			<fieldset class="card">
 				<legend>{{ $root.L.T "settings.smtp.customHeaders" }}</legend>
 				<label data-field>
-					<input type="checkbox" role="switch" x-model="isHeadersVisible" :disabled="!canEdit" data-cy="btn-headers" /> {{ $root.L.T "settings.smtp.customHeaders" }}
+					<input type="checkbox" role="switch" x-model="isHeadersVisible" :disabled="!canEdit" /> {{ $root.L.T "settings.smtp.customHeaders" }}
 				</label>
 
 				<template x-if="isHeadersVisible">
@@ -99,7 +99,7 @@
 		</section>
 		{{- if $isNew }}
 			<footer class="hstack justify-end mt-6">
-				<button type="submit" data-variant="primary" data-cy="btn-continue" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ $root.L.T "campaigns.continue" }}</button>
+				<button type="submit" data-variant="primary" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ $root.L.T "campaigns.continue" }}</button>
 			</footer>
 		{{- end }}
 	</form>
@@ -117,7 +117,7 @@
 			{{- if $canSend }}
 				<div class="hstack justify-end gap-1">
 					<template x-if="canStart">
-						<button type="button" data-variant="primary" data-cy="btn-start" @click="onStart">{{ Icon "send" }} {{ $root.L.T "campaigns.start" }}</button>
+						<button type="button" data-variant="primary" @click="onStart">{{ Icon "send" }} {{ $root.L.T "campaigns.start" }}</button>
 					</template>
 				</div>
 			{{- end }}

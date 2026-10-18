@@ -1,6 +1,6 @@
 {{ define "settings-bounces" -}}
 <div class="settings-items">
-	<label data-field data-cy="btn-enable-bounce" data-keywords="bounce processing email delivery failures soft hard complaint enable">
+	<label data-field data-keywords="bounce processing email delivery failures soft hard complaint enable">
 		<input type="checkbox" role="switch" x-model="form['bounce.enabled']" />
 		{{ .L.T "settings.bounces.enable" }}
 	</label>
@@ -12,7 +12,7 @@
 					<legend>{{ $.L.T (printf "bounces.%s" $typ) }}</legend>
 					<div class="row">
 						<div class="col-6">
-							<label data-field data-cy="btn-bounce-count">
+							<label data-field>
 								{{ $.L.T "settings.bounces.count" }}
 								<input type="number" min="1" max="1000" placeholder="3" x-model.number="form['bounce.actions']['{{ $typ }}'].count" />
 								<small data-hint>{{ $.L.T "settings.bounces.countHelp" }}</small>
@@ -36,7 +36,7 @@
 			<hr />
 
 			<div>
-				<label data-field data-cy="btn-enable-bounce-mailbox" data-keywords="bounce mailbox pop imap scan inbox host poll">
+				<label data-field data-keywords="bounce mailbox pop imap scan inbox host poll">
 					<input type="checkbox" role="switch" x-model="form['bounce.mailboxes'][0].enabled" />
 					{{ $.L.T "settings.bounces.enableMailbox" }}
 				</label>
@@ -118,7 +118,7 @@
 
 			<hr />
 
-			<label data-field data-cy="btn-enable-bounce-webhook" data-keywords="bounce webhook notifications endpoint enable">
+			<label data-field data-keywords="bounce webhook notifications endpoint enable">
 				<input type="checkbox" role="switch" x-model="form['bounce.webhooks_enabled']" />
 				{{ $.L.T "settings.bounces.enableWebhooks" }}
 				<small data-hint><a href="https://listmonk.app/docs/bounces" target="_blank" rel="noopener noreferrer">{{ $.L.T "globals.buttons.learnMore" }} &rarr;</a></small>
@@ -128,7 +128,7 @@
 				<div class="settings-items">
 					<fieldset class="card" data-keywords="bounce ses amazon sns aws webhook">
 						<legend>{{ $.L.T "settings.bounces.enableSES" }}</legend>
-						<label data-field data-cy="btn-enable-bounce-ses">
+						<label data-field>
 							<input type="checkbox" role="switch" x-model="form['bounce.ses_enabled']" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
@@ -136,7 +136,7 @@
 
 					<fieldset class="card" data-keywords="bounce azure webhook shared secret header">
 						<legend>{{ $.L.T "settings.bounces.enableAzure" }}</legend>
-						<label data-field data-cy="btn-enable-bounce-azure">
+						<label data-field>
 							<input type="checkbox" role="switch" x-model="form['bounce.azure'].enabled" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
@@ -144,12 +144,12 @@
 							<div>
 								<label data-field>
 									{{ $.L.T "settings.bounces.azureSharedSecret" }}
-									<input type="password" x-model="form['bounce.azure'].shared_secret" data-cy="bounce-azure-shared-secret" />
+									<input type="password" x-model="form['bounce.azure'].shared_secret" />
 									<small data-hint>{{ $.L.T "settings.bounces.azureSharedSecretHelp" }}</small>
 								</label>
 								<label data-field>
 									{{ $.L.T "settings.bounces.azureSharedSecretHeader" }}
-									<input type="text" x-model="form['bounce.azure'].shared_secret_header" data-cy="bounce-azure-shared-secret-header" />
+									<input type="text" x-model="form['bounce.azure'].shared_secret_header" />
 									<small data-hint>{{ $.L.T "settings.bounces.azureSharedSecretHeaderHelp" }}</small>
 								</label>
 							</div>
@@ -158,7 +158,7 @@
 
 					<fieldset class="card" data-keywords="bounce sendgrid webhook key">
 						<legend>{{ $.L.T "settings.bounces.enableSendgrid" }}</legend>
-						<label data-field data-cy="btn-enable-bounce-sendgrid">
+						<label data-field>
 							<input type="checkbox" role="switch" x-model="form['bounce.sendgrid_enabled']" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
@@ -173,7 +173,7 @@
 
 					<fieldset class="card" data-keywords="bounce postmark webhook username password">
 						<legend>{{ $.L.T "settings.bounces.enablePostmark" }}</legend>
-						<label data-field data-cy="btn-enable-bounce-postmark">
+						<label data-field>
 							<input type="checkbox" role="switch" x-model="form['bounce.postmark'].enabled" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
@@ -195,7 +195,7 @@
 
 					<fieldset class="card" data-keywords="bounce forwardemail forward email webhook key">
 						<legend>{{ $.L.T "settings.bounces.enableForwardemail" }}</legend>
-						<label data-field data-cy="btn-enable-bounce-forwardemail">
+						<label data-field>
 							<input type="checkbox" role="switch" x-model="form['bounce.forwardemail'].enabled" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
@@ -210,14 +210,14 @@
 
 					<fieldset class="card" data-keywords="bounce lettermint webhook key">
 						<legend>{{ $.L.T "settings.bounces.enableLettermint" }}</legend>
-						<label data-field data-cy="btn-enable-bounce-lettermint">
+						<label data-field>
 							<input type="checkbox" role="switch" x-model="form['bounce.lettermint'].enabled" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
 						<template x-if="form['bounce.lettermint'].enabled">
 							<label data-field>
 								{{ $.L.T "settings.bounces.lettermintKey" }}
-								<input type="password" x-model="form['bounce.lettermint'].key" data-cy="bounce-lettermint-key" />
+								<input type="password" x-model="form['bounce.lettermint'].key" />
 								<small data-hint>{{ $.L.T "globals.messages.passwordChange" }}</small>
 							</label>
 						</template>

@@ -6,7 +6,7 @@
 	{{- if or .ConfigJS.NeedsRestart .ConfigJS.HasLegacyUser $hasUpdate }}
 		<div class="global-notices vstack gap-4 mb-8">
 			{{- if .ConfigJS.NeedsRestart }}
-				<div role="alert" data-cy="needs-restart" class="hstack justify-between">
+				<div role="alert" class="hstack justify-between">
 					<span>{{ .L.T "settings.needsRestart" }}</span>
 					{{- if .Data.Can "settings:manage" }}
 						<button type="button" class="small" @click="restartApp">{{ Icon "refresh-cw" }} {{ .L.T "settings.restart" }}</button>
@@ -19,7 +19,7 @@
 					{{- $version := .Update.ReleaseVersion }}
 					{{- $date := toDate "2006-01-02" .Update.ReleaseDate }}
 					{{- if not $date.IsZero }}{{ $version = printf "%s (%s)" $version ($date.Format "02 Jan 2006") }}{{ end }}
-					<div role="alert" data-cy="update-available">
+					<div role="alert">
 						<div class="row">
 							<div class="col-10">{{ Icon "download-cloud" }} {{ $.L.Ts "settings.updateAvailable" "version" $version }}</div>
 							<div class="col-2 hstack justify-end">
@@ -31,7 +31,7 @@
 
 				{{- range .Messages }}
 					{{ $high := (eq .Priority "high") }}
-					<div role="alert" data-cy="update-message" {{ if $high }}data-variant="danger"{{ end }}>
+					<div role="alert" {{ if $high }}data-variant="danger"{{ end }}>
 						<div class="row">
 							<div class="col-10">
 								{{ if $high }}{{ Icon "alert-triangle" }}{{ else }}{{ Icon "info" }}{{ end }}
@@ -49,7 +49,7 @@
 			{{- end }}
 
 			{{- if .ConfigJS.HasLegacyUser }}
-				<div role="alert" data-cy="legacy-user">
+				<div role="alert">
 					<div class="row">
 						<div class="col-10">{{ .L.T "settings.hasLegacyUser" }}</div>
 						<div class="col-2 hstack justify-end">

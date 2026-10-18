@@ -15,7 +15,7 @@
 	<div class="vstack gap-6">
 		<section class="row">
 			<div class="col-3">
-				<article class="card stat-card" data-cy="lists">
+				<article class="card stat-card">
 					<small class="text-light">{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/lists" }}" class="unstyled">{{ FormatNumber $c.Lists.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
@@ -26,7 +26,7 @@
 			</div>
 
 			<div class="col-3">
-				<article class="card stat-card" data-cy="subscribers">
+				<article class="card stat-card">
 					<small class="text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/subscribers" }}" class="unstyled">{{ FormatNumber $c.Subscribers.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
@@ -37,7 +37,7 @@
 			</div>
 
 			<div class="col-3">
-				<article class="card stat-card" data-cy="campaigns">
+				<article class="card stat-card">
 					<small class="text-light">{{ Icon "send" }} {{ .L.T "globals.terms.campaigns" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/campaigns" }}" class="unstyled">{{ FormatNumber $c.Campaigns.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
@@ -48,7 +48,7 @@
 			</div>
 
 			<div class="col-3">
-				<article class="card stat-card" data-cy="messages">
+				<article class="card stat-card">
 					<small class="text-light">{{ Icon "mail" }} {{ .L.T "dashboard.messagesSent" }}</small>
 					<div class="stat-value">{{ FormatNumber $c.Messages }}</div>
 				</article>
