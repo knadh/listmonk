@@ -32,7 +32,7 @@ Retrieve all campaigns.
 | Name     | Type     | Required | Description                                                              |
 | :------- | :------- | :------- | :----------------------------------------------------------------------- |
 | order    | string   |          | Sorting order: ASC for ascending, DESC for descending.                   |
-| order_by | string   |          | Result sorting field. Options: name, status, created_at, updated_at.     |
+| order_by | string   |          | Result sorting field. Options: name, status, created_at, updated_at, started_at, send_at. |
 | query    | string   |          | String to filtter by campaign name and subject (fulltext and substring). |
 | status   | []string |          | Status to filter campaigns. Repeat in the query for multiple values.     |
 | tags     | []string |          | Tags to filter campaigns. Repeat in the query for multiple values.       |

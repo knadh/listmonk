@@ -948,6 +948,12 @@ td > .empty-state {
             }
         }
 
+        .timestamp-sort {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
         th a[data-sort-field] {
             display: flex;
             align-items: center;
@@ -1969,7 +1975,7 @@ section.users {
         }
 
         /* Sort links become pills. */
-        th a[data-sort-field] {
+        th a[data-sort-field]:not([role="menuitem"]) {
             display: inline-flex;
             align-items: center;
             gap: var(--space-1);

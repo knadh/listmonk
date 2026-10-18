@@ -61,7 +61,7 @@ export async function getMail() {
 
 // Run a SQL statement against the listmonk DB. Credentials come from the
 // LISTMONK_db__* env, falling back to config.toml defaults.
-function psql(sql) {
+export function psql(sql) {
   const args = [
     '-h', process.env.LISTMONK_db__host || 'localhost',
     '-p', process.env.LISTMONK_db__port || '5432',

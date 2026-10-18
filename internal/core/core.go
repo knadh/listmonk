@@ -69,7 +69,7 @@ var (
 
 var (
 	regexpSpaces            = regexp.MustCompile(`[\s]+`)
-	campQuerySortFields     = []string{"name", "status", models.FieldCreatedAt, "updated_at"}
+	campQuerySortFields     = []string{"name", "status", models.FieldCreatedAt, "updated_at", "started_at", "send_at"}
 	subQuerySortFields      = []string{"email", "status", "name", models.FieldCreatedAt, "updated_at"}
 	userQuerySortFields     = []string{"username", "email", models.FieldCreatedAt, "loggedin_at"}
 	roleQuerySortFields     = []string{"name", models.FieldCreatedAt, "updated_at"}

@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { confirm, openMenu, resetDB, selectList, getMail } from '../helpers.js';
+import { confirm, openMenu, resetDB, selectList, getMail, psql } from '../helpers.js';
 
 const CAMPAIGNS = '/admin/campaigns';
 const expression = 'Hello {{ .Subscriber.Name }} from {{ .Subscriber.Attribs.city }}';
 const rendered = 'Hello Demo Subscriber from Bengaluru';
 const rows = (page) => page.locator('tbody tr[data-campaign-id]');
 const row = (page, name) => rows(page).filter({ has: page.getByRole('link', { name, exact: true }) });
+const campaignNames = (page) => rows(page).locator('td.name > .avatar > .avatar-label > div > a.unstyled');
+const timestampHeading = (page) => page.locator('.cy-timestamp .timestamp-sort > a');
 const tab = (page, name) => page.getByRole('tab', { name, exact: true });
 const button = (scope, name) => scope.getByRole('button', { name, exact: true });
 
@@ -311,7 +313,7 @@ test('clones full content into a draft and cancels cloning and deletion', async 
   await expect(row(page, c.name)).toBeVisible();
 });
 
-test('searches, filters and sorts campaigns through SSR navigation', async ({ page }) => {
+test('searches and filters campaigns through SSR navigation', async ({ page }) => {
   await data(await page.request.delete('/api/campaigns?all=true'));
   for (const name of ['Bravo', 'Alpha', 'Charlie']) await create(page, { name, tags: [name === 'Charlie' ? 'other' : 'news'] });
   const scheduled = await create(page, { name: 'Scheduled', send_at: new Date(Date.now() + 86400000).toISOString() });
@@ -336,16 +338,113 @@ test('searches, filters and sorts campaigns through SSR navigation', async ({ pa
   await row(page, 'Alpha').getByTitle('Filter Draft', { exact: true }).click();
   await expect(page).toHaveURL(/[?&]status=draft/);
   await expect(rows(page)).toHaveCount(3);
-  for (const [field, orders] of [
-    ['name', [['Alpha', 'Bravo', 'Charlie'], ['Charlie', 'Bravo', 'Alpha']]],
-    ['created_at', [['Bravo', 'Alpha', 'Charlie'], ['Charlie', 'Alpha', 'Bravo']]],
-  ]) {
-    for (const names of orders) {
-      await page.locator(`a[data-sort-field="${field}"]`).click();
-      await expect(rows(page).locator('td.name > .avatar > .avatar-label > div > a.unstyled')).toHaveText(names);
-      await expect(page).toHaveURL(/[?&]status=draft/);
-    }
+});
+
+async function selectTimestamp(page, label) {
+  await page.locator('[popovertarget="camp-timestamp-sort"]').click();
+  await page.locator('#camp-timestamp-sort').getByRole('menuitem', { name: label, exact: true }).click();
+}
+
+// Give each timestamp a distinct order so falling back to created_at cannot pass.
+async function createSortableCampaigns(page) {
+  const fixtures = [
+    { name: 'Sort Alpha', created_at: '2021-01-12', started_at: '2022-02-13', updated_at: '2023-03-12', send_at: '2022-01-11' },
+    { name: 'Sort Bravo', created_at: '2021-01-13', started_at: '2022-02-11', updated_at: '2023-03-11', send_at: '2022-01-13' },
+    { name: 'Sort Charlie', created_at: '2021-01-11', started_at: '2022-02-12', updated_at: '2023-03-13', send_at: '2022-01-12' },
+  ];
+  for (const fixture of fixtures) {
+    const c = await create(page, { name: fixture.name, tags: ['sort-test'] });
+    // Historical start/end dates cannot be set through the campaign API.
+    psql(`UPDATE campaigns SET status = 'finished',
+      created_at = '${fixture.created_at}T12:00:00Z', started_at = '${fixture.started_at}T12:00:00Z',
+      updated_at = '${fixture.updated_at}T12:00:00Z', send_at = '${fixture.send_at}T12:00:00Z'
+      WHERE id = ${c.id}`);
   }
+  return fixtures;
+}
+
+const sortFilters = { query: 'Sort', tag: 'sort-test', status: 'finished', type: 'regular', per_page: '10' };
+const sortURL = (params = {}) => `${CAMPAIGNS}?${new URLSearchParams({ ...sortFilters, ...params })}`;
+
+async function expectCampaignSort(page, field, order, names) {
+  await expect(page).toHaveURL((url) =>
+    Object.entries({ ...sortFilters, order_by: field, order }).every(([key, value]) => url.searchParams.get(key) === value)
+      && !url.searchParams.has('page'));
+  await expect(campaignNames(page)).toHaveText(names);
+}
+
+test('sorts campaigns by name in both directions', async ({ page }) => {
+  await createSortableCampaigns(page);
+  await page.goto(sortURL({ page: '2' }));
+  const heading = page.locator('.cy-name').getByRole('link', { name: 'Name', exact: true });
+  await heading.click();
+  await expectCampaignSort(page, 'name', 'asc', ['Sort Alpha', 'Sort Bravo', 'Sort Charlie']);
+  await heading.click();
+  await expectCampaignSort(page, 'name', 'desc', ['Sort Charlie', 'Sort Bravo', 'Sort Alpha']);
+});
+
+for (const { field, label, names } of [
+  { field: 'created_at', label: 'Created', names: ['Sort Charlie', 'Sort Alpha', 'Sort Bravo'] },
+  { field: 'started_at', label: 'Started', names: ['Sort Bravo', 'Sort Charlie', 'Sort Alpha'] },
+  { field: 'updated_at', label: 'Ended', names: ['Sort Bravo', 'Sort Alpha', 'Sort Charlie'] },
+  { field: 'send_at', label: 'Scheduled', names: ['Sort Alpha', 'Sort Charlie', 'Sort Bravo'] },
+]) {
+  test(`sorts campaigns by ${label} through the timestamp dropdown`, async ({ page }) => {
+    const fixtures = await createSortableCampaigns(page);
+    await page.goto(sortURL());
+    const defaultCells = await rows(page).locator('td.timestamp').allTextContents();
+    await page.goto(sortURL({ page: '2' }));
+
+    await selectTimestamp(page, label);
+    await expectCampaignSort(page, field, 'asc', names);
+    await expect(timestampHeading(page)).toHaveText(label);
+    await expect(timestampHeading(page)).toHaveAttribute('data-sorted', 'asc');
+    for (const fixture of fixtures) {
+      const cell = row(page, fixture.name).locator('td.timestamp');
+      const date = new Date(`${fixture[field]}T12:00:00Z`);
+      const month = date.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
+      await expect(cell).toHaveAttribute('data-label', label);
+      await expect(cell).toContainText(`${date.getUTCDate()} ${month} ${date.getUTCFullYear()}`);
+      await expect(cell.locator('span')).toHaveCount(1);
+      await expect(cell.locator('span')).not.toHaveAttribute('title', /Created:|Started:|Ended:|Scheduled:/);
+    }
+
+    // Re-selecting the option and clicking its heading both toggle direction.
+    await selectTimestamp(page, label);
+    await expectCampaignSort(page, field, 'desc', [...names].reverse());
+    await expect(timestampHeading(page)).toHaveAttribute('data-sorted', 'desc');
+    await timestampHeading(page).click();
+    await expectCampaignSort(page, field, 'asc', names);
+    await page.reload();
+    await expect(timestampHeading(page)).toHaveText(label);
+
+    await page.goto(sortURL({ order_by: field, order: 'asc', page: '2' }));
+    await selectTimestamp(page, 'All');
+    await expect(page).toHaveURL((url) =>
+      Object.entries(sortFilters).every(([key, value]) => url.searchParams.get(key) === value)
+        && ['order_by', 'order', 'page'].every((key) => !url.searchParams.has(key)));
+    await expect(timestampHeading(page)).toHaveText('Timestamps');
+    await expect(campaignNames(page)).toHaveText(['Sort Bravo', 'Sort Alpha', 'Sort Charlie']);
+    await expect(rows(page).locator('td.timestamp')).toHaveText(defaultCells.map((text) => text.trim()));
+    await expect(rows(page).locator('td.timestamp > span').first()).toHaveAttribute('title', /Created:.*\nScheduled:.*\nStarted:.*\nEnded:/);
+  });
+}
+
+test('shows missing campaign timestamps as a dash and restores the default view', async ({ page }) => {
+  const c = await create(page, { name: 'Unsent campaign' });
+  await page.goto(`${CAMPAIGNS}?query=Unsent`);
+  const cell = row(page, c.name).locator('td.timestamp');
+  const defaultText = await cell.textContent();
+  for (const label of ['Started', 'Ended', 'Scheduled']) {
+    await selectTimestamp(page, label);
+    await expect(timestampHeading(page)).toHaveText(label);
+    await expect(cell).toHaveText('—');
+  }
+  await selectTimestamp(page, 'Created');
+  await expect(cell.locator('span')).toBeVisible();
+  await selectTimestamp(page, 'All');
+  await expect(timestampHeading(page)).toHaveText('Timestamps');
+  await expect(cell).toHaveText(defaultText.trim());
 });
 
 for (const { label, all, filter, unrelated } of [
