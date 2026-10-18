@@ -27,7 +27,6 @@ file-text
 grid
 help-circle
 image
-inbox
 info
 link-2
 list

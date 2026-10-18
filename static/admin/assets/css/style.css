@@ -883,6 +883,9 @@ main {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+    justify-content: center;
+    width: 100%;
+    height: 100%;
     padding-block: var(--space-10);
     text-align: center;
 

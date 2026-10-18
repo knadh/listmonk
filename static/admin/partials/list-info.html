@@ -54,14 +54,20 @@
 		<div class="col-6">
 			<article class="card float">
 				<h5 class="title">{{ .L.Tc "globals.terms.subscriptions" 2 }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriptions" data-extra-label="{{ .L.T "globals.terms.unsubscribed" }}" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas></div>
+				<div class="chart-box">
+					<canvas id="chart-subscriptions" data-extra-label="{{ .L.T "globals.terms.unsubscribed" }}" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas>
+					<template>{{ template "empty-state" }}</template>
+				</div>
 			</article>
 		</div>
 		{{ if $d.CanViewCampaignCharts }}
 		<div class="col-6">
 			<article class="card float">
 				<h5 class="title">{{ .L.T "dashboard.campaignViews" }}</h5>
-				<div class="chart-box"><canvas id="chart-list-views" role="img" aria-label="{{ .L.T "dashboard.campaignViews" }}"></canvas></div>
+				<div class="chart-box">
+					<canvas id="chart-list-views" role="img" aria-label="{{ .L.T "dashboard.campaignViews" }}"></canvas>
+					<template>{{ template "empty-state" }}</template>
+				</div>
 			</article>
 		</div>
 		{{ end }}

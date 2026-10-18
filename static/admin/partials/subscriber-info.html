@@ -27,13 +27,19 @@
 		<div class="col-6">
 			<article class="card float">
 				<h5 class="title">{{ .L.T "globals.terms.views" }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriber-views" role="img" aria-label="{{ .L.T "globals.terms.views" }}"></canvas></div>
+				<div class="chart-box">
+					<canvas id="chart-subscriber-views" role="img" aria-label="{{ .L.T "globals.terms.views" }}"></canvas>
+					<template>{{ template "empty-state" }}</template>
+				</div>
 			</article>
 		</div>
 		<div class="col-6">
 			<article class="card float">
 				<h5 class="title">{{ .L.T "globals.terms.clicks" }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriber-clicks" role="img" aria-label="{{ .L.T "globals.terms.clicks" }}"></canvas></div>
+				<div class="chart-box">
+					<canvas id="chart-subscriber-clicks" role="img" aria-label="{{ .L.T "globals.terms.clicks" }}"></canvas>
+					<template>{{ template "empty-state" }}</template>
+				</div>
 			</article>
 		</div>
 	</section>

@@ -59,14 +59,20 @@
 			<div class="col-6">
 				<article class="card float">
 					<h5 class="title"><a href="{{ URI "/admin/campaigns/analytics" }}" class="unstyled">{{ .L.T "dashboard.campaignViews" }}</a></h5>
-					<div class="chart-box"><canvas id="chart-views"></canvas></div>
+					<div class="chart-box">
+						<canvas id="chart-views"></canvas>
+						<template>{{ template "empty-state" }}</template>
+					</div>
 				</article>
 			</div>
 
 			<div class="col-6">
 				<article class="card float">
 					<h5 class="title"><a href="{{ URI "/admin/campaigns/analytics" }}" class="unstyled">{{ .L.T "dashboard.linkClicks" }}</a></h5>
-					<div class="chart-box"><canvas id="chart-clicks"></canvas></div>
+					<div class="chart-box">
+						<canvas id="chart-clicks"></canvas>
+						<template>{{ template "empty-state" }}</template>
+					</div>
 				</article>
 			</div>
 		</section>

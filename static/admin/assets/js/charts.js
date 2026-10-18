@@ -21,6 +21,15 @@ export function lineChart(id, rows, comparison) {
     return;
   }
 
+  const data = rows || [];
+  if (!data.some((d) => d.count > 0) && !comparison?.some((d) => d.count > 0)) {
+    const emptyState = canvas.parentElement.querySelector('template');
+    if (emptyState) {
+      canvas.parentElement.replaceChildren(emptyState.content.cloneNode(true));
+      return;
+    }
+  }
+
   // Get the primary colour.
   const el = document.createElement('div');
   el.style.color = 'var(--primary)';
@@ -28,7 +37,6 @@ export function lineChart(id, rows, comparison) {
   const color = getComputedStyle(el).color || '#0055d4';
   el.remove();
 
-  const data = rows || [];
   Chart.defaults.font.family = FONT_FAMILY;
 
   const datasets = [{
