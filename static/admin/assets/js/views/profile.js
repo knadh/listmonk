@@ -55,7 +55,7 @@ function profileView() {
         this.totpSecret = data.secret;
         this.$nextTick(() => this.$refs.totpCode && this.$refs.totpCode.focus());
       } catch (e) {
-        this.resetTotp();
+        this.cancelTotp();
       }
     },
 
@@ -72,7 +72,7 @@ function profileView() {
       u.reload({ message: i18n.t('users.twoFAEnabled') });
     },
 
-    resetTotp() {
+    cancelTotp() {
       this.showTotpSetup = false;
       this.totpQR = null;
       this.totpSecret = null;
