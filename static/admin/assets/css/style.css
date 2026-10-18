@@ -1049,7 +1049,8 @@ td > .empty-state {
     width: min(100% - 2rem, 24rem);
 }
 
-.preview-modal {
+.preview-modal,
+.rte-dialog-code {
     padding: 0;
     position: fixed;
     width: 100%;

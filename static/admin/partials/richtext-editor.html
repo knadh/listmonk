@@ -103,6 +103,7 @@
 				</div>
 			</ot-dropdown>
 			<button type="button" class="ghost" data-cmd="removeformat" title="{{ $L.T "campaigns.editor.removeFormat" }}" aria-label="{{ $L.T "campaigns.editor.removeFormat" }}">{{ Icon "remove-format" $f }}</button>
+			<button type="button" class="ghost" data-cmd="source" title="HTML" aria-label="HTML">{{ Icon "code" $f }}</button>
 		</div>
 
 		{{- /* Insert */}}
@@ -148,10 +149,11 @@
 				</div>
 			</ot-dropdown>
 
-			<button type="button" class="ghost" data-cmd="source" title="{{ $L.T "campaigns.editor.sourceCode" }}" aria-label="{{ $L.T "campaigns.editor.sourceCode" }}">{{ Icon "code" $f }}</button>
 			<button type="button" class="ghost" data-cmd="fullscreen" title="{{ $L.T "campaigns.editor.fullscreen" }}" aria-label="{{ $L.T "campaigns.editor.fullscreen" }}">{{ Icon "maximize" $f }}</button>
 			<button type="button" class="ghost" data-cmd="help" title="{{ $L.T "campaigns.editor.help" }}" aria-label="{{ $L.T "campaigns.editor.help" }}">{{ Icon "help-circle" $f }}</button>
 		</div>
+
+		{{- /* Keep source code visible after the tools and before the overflow control. */}}
 
 		{{- /* Overflow: toolbar groups that don't fit on one line are relocated
 		   here by richtext-editor.js. Hidden until it has something to hold. */}}
@@ -159,6 +161,7 @@
 			<button type="button" class="ghost" popovertarget="rte-overflow-menu" title="{{ $L.T "campaigns.editor.more" }}" aria-label="{{ $L.T "campaigns.editor.more" }}">{{ Icon "more-vertical" $f }}</button>
 			<menu popover id="rte-overflow-menu" class="rte-overflow-menu"></menu>
 		</ot-dropdown>
+
 	</div>
 
 	<div class="rte-content" data-rte-content></div>
@@ -228,7 +231,7 @@
 	{{- /* Source code */}}
 	<dialog class="rte-dialog rte-dialog-code" data-rte-dialog="source">
 		<div class="dialog-card">
-			<header class="dialog-head"><h4 class="dialog-title">{{ $L.T "campaigns.editor.sourceCode" }}</h4></header>
+			<header class="dialog-head"><h4 class="dialog-title">HTML</h4></header>
 			<section class="dialog-body" data-rte-code></section>
 			<footer class="dialog-foot align-right">
 				<button type="button" class="outline" data-rte-act="format">{{ $L.T "campaigns.formatHTML" }}</button>

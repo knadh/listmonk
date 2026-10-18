@@ -35,6 +35,7 @@ richtext-editor {
 }
 
 .rte-toolbar button {
+    flex: none;
     padding: 0.4rem;
     line-height: 0;
 }
@@ -235,16 +236,25 @@ richtext-editor {
 }
 
 .rte-dialog-code .dialog-card {
-    width: min(920px, 95vw);
+    min-width: 0;
 }
 
 .rte-dialog[data-rte-dialog="image"] label[data-field] {
     margin-block-start: var(--space-4);
 }
 
-.rte-dialog [data-rte-code],
 .rte-dialog [data-rte-code] .code-editor {
-    min-height: 50vh;
+    display: block;
+    height: 70vh;
+    min-height: 0;
+}
+
+.rte-dialog [data-rte-code] .code-editor > div {
+    height: 100%;
+}
+
+.rte-dialog [data-rte-code] .cm-scroller {
+    overflow: auto;
 }
 
 .rte-img-dims {
