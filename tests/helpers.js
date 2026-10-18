@@ -56,7 +56,9 @@ export async function clearMail() {
 
 // All mail captured by MailHog, newest first.
 export async function getMail() {
-  return (await (await fetch(`${MAILHOG_URL}/api/v2/messages`)).json()).items;
+  const response = await fetch(`${MAILHOG_URL}/api/v2/messages`, { signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error(`MailHog returned HTTP ${response.status}`);
+  return (await response.json()).items;
 }
 
 // Run a SQL statement against the listmonk DB. Credentials come from the

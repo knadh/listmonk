@@ -47,6 +47,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailhog:
+        condition: service_started
     volumes:
       - ../:/app
       - go-mod:/go/pkg/mod

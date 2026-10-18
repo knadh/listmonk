@@ -43,12 +43,19 @@ test.describe('Settings', () => {
     const longSender = `${'a'.repeat(2000)} <sender@example.com>`;
     for (const addresses of [null, [], [' '], ['invalid'], ['{{ .Subscriber.Email }}'],
       [' ', '{{ .Subscriber.Email }}'], ['{{ .Subscriber.Name }} <sender@example.com>'], [first, 'invalid'],
-      [longSender], [first, `${templated}${longSender}`], Array(101).fill(first)]) {
+      [longSender], [first, `${templated}${longSender}`], Array(251).fill(first)]) {
       const res = await page.request.put('/api/settings', {
         data: { ...current, 'app.from_email': addresses },
       });
       expect(res.status()).toBe(400);
     }
+
+    const maxAddresses = Array.from({ length: 250 }, (_, i) => `sender${i}@example.com`);
+    const res = await page.request.put('/api/settings', {
+      data: { ...current, 'app.from_email': maxAddresses },
+    });
+    expect(res.status()).toBe(200);
+    expect((await settings(page))['app.from_email']).toEqual(maxAddresses);
 
     await page.locator('[name="app.from_email"]').fill(`\n ${first} \n${second}\n${first}\n${templated}\n`);
     await save(page);
@@ -352,9 +359,10 @@ test.describe('Maintenance: bulk deletion', () => {
       email: 'orphan@example.com', name: 'Orphan', status: 'enabled', lists: [],
     } }));
     await page.goto('/admin/settings/maintenance');
+    const subscribers = page.getByRole('group', { name: 'Subscribers', exact: true });
     for (const type of ['blocklisted', 'orphan']) {
-      await page.locator('select[x-model=subscriberType]').selectOption(type);
-      await page.locator('[data-cy=btn-delete-subscribers]').click();
+      await subscribers.getByRole('combobox', { name: 'Data', exact: true }).selectOption(type);
+      await subscribers.getByRole('button', { name: 'Delete', exact: true }).click();
       const [res] = await Promise.all([
         page.waitForResponse((r) => r.url().endsWith(`/api/maintenance/subscribers/${type}`)), confirm(page),
       ]);
