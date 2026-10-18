@@ -1680,6 +1680,7 @@
 <p class="admonition-title">Tip</p>
 <p>To set the Super Admin username and password during installation, set the environment variables:
 <code>LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx ./listmonk --install</code></p>
+<p>To also create a Super Admin API user, for automation, add <code>LISTMONK_ADMIN_API_USER=myapiuser</code>. Its API token is written to stderr as <code>export LISTMONK_ADMIN_API_TOKEN="..."</code>.</p>
 </div>
 <h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
 <p>The latest image is available on DockerHub at <code>listmonk/listmonk:latest</code></p>
