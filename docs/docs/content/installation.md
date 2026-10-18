@@ -12,6 +12,8 @@ listmonk is a simple binary application that requires a Postgres database instan
     To set the Super Admin username and password during installation, set the environment variables:
     `LISTMONK_ADMIN_USER=myuser LISTMONK_ADMIN_PASSWORD=xxxxx ./listmonk --install`
 
+    To also create a Super Admin API user, for automation, add `LISTMONK_ADMIN_API_USER=myapiuser`. Its API token is written to stderr as `export LISTMONK_ADMIN_API_TOKEN="..."`.
+
 
 ## Docker
 
