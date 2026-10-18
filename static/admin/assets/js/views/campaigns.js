@@ -15,11 +15,16 @@ function component() {
 
     // Running-campaign stats polling.
     _pollID: null,
-    _hadRunning: false,
 
     init() {
-      this._poll();
-      this._pollID = setInterval(() => this._poll(), 1000);
+      if (this.$el.querySelector('tr.status-running')) {
+        this._pollID = setTimeout(() => this._poll(), 0);
+      }
+    },
+
+    destroy() {
+      clearTimeout(this._pollID);
+      this._pollID = null;
     },
 
     // ===============
@@ -115,33 +120,34 @@ function component() {
     // ===============
     // Live stats polling for running campaigns.
     async _poll() {
-      let resp;
       try {
-        resp = await fetch(`${urls.api}/campaigns/running/stats`, { headers: { Accept: 'application/json' } });
-      } catch (e) {
-        clearInterval(this._pollID);
-        return;
-      }
-      if (!resp.ok) {
-        clearInterval(this._pollID);
-        return;
-      }
-
-      const out = await resp.json().catch(() => ({}));
-      const data = Array.isArray(out.data) ? out.data : [];
-
-      // No running campaigns. Stop polling, and if some were running earlier,
-      // reload to fetch fresh server-rendered stats and statuses.
-      if (data.length === 0) {
-        clearInterval(this._pollID);
-        if (this._hadRunning) {
-          u.reload();
+        const resp = await fetch(`${urls.api}/campaigns/running/stats`, {
+          headers: { Accept: 'application/json' },
+          signal: AbortSignal.timeout(10000),
+        });
+        if (!resp.ok) {
+          if (resp.status === 401 || resp.status === 403) this.destroy();
+          return;
         }
-        return;
-      }
 
-      this._hadRunning = true;
-      data.forEach((c) => this._updateStats(c));
+        const { data } = await resp.json();
+        if (this._pollID === null || !Array.isArray(data)) return;
+
+        for (const row of this.$el.querySelectorAll('tr.status-running[data-campaign-id]')) {
+          const stats = data.find((c) => c.id === Number(row.dataset.campaignId));
+          if (!stats) {
+            this.destroy();
+            u.reload();
+            return;
+          }
+          this._updateStats(stats);
+        }
+      } catch (e) {
+        // Retry transient network, timeout, and JSON errors.
+      } finally {
+        // Schedule after completion so requests cannot overlap.
+        if (this._pollID !== null) this._pollID = setTimeout(() => this._poll(), 1000);
+      }
     },
 
     _updateStats(c) {
@@ -157,9 +163,13 @@ function component() {
       set('sent', u.formatNumber(c.sent));
       const sentCount = row.querySelector('[data-sent-count]');
       if (sentCount) {
-        sentCount.hidden = c.sent === 0;
+        sentCount.hidden = false;
       }
       set('to_send', u.formatNumber(c.to_send));
+      const sendTotal = row.querySelector('[data-send-total]');
+      if (sendTotal) {
+        sendTotal.hidden = c.to_send === 0;
+      }
       set('rate', Math.round(c.rate || 0));
       set('percent', `${c.to_send > 0 ? Math.floor((c.sent / c.to_send) * 100) : 0}%`);
 

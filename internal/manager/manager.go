@@ -72,6 +72,7 @@ type Messenger interface {
 // CampStats contains campaign stats like per minute send rate.
 type CampStats struct {
 	SendRate int
+	Sent     int
 }
 
 // Manager handles the scheduling, processing, and queuing of campaigns
@@ -265,15 +266,16 @@ func (m *Manager) HasRunningCampaigns() bool {
 
 // GetCampaignStats returns campaign statistics.
 func (m *Manager) GetCampaignStats(id int) CampStats {
-	n := 0
+	stats := CampStats{}
 
 	m.pipesMut.Lock()
 	if c, ok := m.pipes[id]; ok {
-		n = int(c.rate.Rate())
+		stats.SendRate = int(c.rate.Rate())
+		stats.Sent = int(c.totalSent.Load())
 	}
 	m.pipesMut.Unlock()
 
-	return CampStats{SendRate: n}
+	return stats
 }
 
 // Run is a blocking function (that should be invoked as a goroutine)
@@ -562,6 +564,7 @@ func (m *Manager) worker() {
 				} else {
 					msg.pipe.rate.Incr(1)
 					msg.pipe.sent.Add(1)
+					msg.pipe.totalSent.Add(1)
 				}
 
 				// Retain failed sends only when stopped, allowing retry on resume.

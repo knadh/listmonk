@@ -146,7 +146,7 @@
 					</td>
 					<td class="stats" data-label="{{ $root.L.T "globals.terms.stats" }}">
 						<div class="vstack gap-1">
-								<div><div data-sent-count{{ if eq .Sent 0 }} hidden{{ end }}><span data-stat="sent">{{ FormatNumber .Sent }}</span>{{ if and .ToSend (not (eq .Status "finished")) }} / <span data-stat="to_send">{{ FormatNumber .ToSend }}</span>{{ end }}</div><span class="text-8 text-light"><span data-stat="percent">{{ if .ToSend }}{{ div (mul .Sent 100) .ToSend }}{{ else }}0{{ end }}%</span> {{ $root.L.T "globals.terms.sent" | lower }}{{ with Duration .StartedAt .UpdatedAt }} · {{ . }}{{ end }}</span></div>
+								<div><div data-sent-count{{ if and (eq .Sent 0) (ne .Status "running") }} hidden{{ end }}><span data-stat="sent">{{ FormatNumber .Sent }}</span>{{ if ne .Status "finished" }}<span data-send-total{{ if not .ToSend }} hidden{{ end }}> / <span data-stat="to_send">{{ FormatNumber .ToSend }}</span></span>{{ end }}</div><span class="text-8 text-light"><span data-stat="percent">{{ if .ToSend }}{{ div (mul .Sent 100) .ToSend }}{{ else }}0{{ end }}%</span> {{ $root.L.T "globals.terms.sent" | lower }}{{ with Duration .StartedAt .UpdatedAt }} · {{ . }}{{ end }}</span></div>
 								<div><a class="unstyled" href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ .ID }}">{{ FormatNumber .Bounces }} <span class="text-8 text-light">{{ $root.L.T "globals.terms.bounces" | lower }}</span></a></div>
 							{{- if eq .Status "running" }}
 								<div class="hstack gap-1 text-8 campaign-progress">

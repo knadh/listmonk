@@ -11,10 +11,16 @@ import (
 )
 
 type pipe struct {
-	camp       *models.Campaign
-	rate       *ratecounter.RateCounter
-	wg         *sync.WaitGroup
-	sent       atomic.Int64
+	camp *models.Campaign
+	rate *ratecounter.RateCounter
+	wg   *sync.WaitGroup
+
+	// Sent is the number of messages sent in the current pipe pending to be
+	// synced to the DB. This is periodically flushed to DB and reset to 0.
+	sent atomic.Int64
+
+	// This is a running total of all sends used for reporting in the stats API.
+	totalSent  atomic.Int64
 	errors     atomic.Uint64
 	stopped    atomic.Bool
 	withErrors atomic.Bool
@@ -59,6 +65,8 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		wg:   &sync.WaitGroup{},
 		m:    m,
 	}
+
+	p.totalSent.Store(int64(c.Sent))
 
 	// Increment the waitgroup so that Wait() blocks immediately. This is necessary
 	// as a campaign pipe is created first and subscribers/messages under it are

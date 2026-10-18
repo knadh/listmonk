@@ -696,8 +696,13 @@ func (a *App) GetRunningCampaignStats(c *echo.Context) error {
 		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
 	}
 
-	// Compute rate.
+	// Compute rate and stats.
 	for i, c := range out {
+		stats := a.manager.GetCampaignStats(c.ID)
+		c.Sent = max(c.Sent, stats.Sent)
+		out[i].Sent = c.Sent
+		out[i].Rate = stats.SendRate
+
 		if c.Started.Valid && c.UpdatedAt.Valid {
 			diff := max(int(c.UpdatedAt.Time.Sub(c.Started.Time).Minutes()), 1)
 
@@ -709,8 +714,6 @@ func (a *App) GetRunningCampaignStats(c *echo.Context) error {
 			// Rate since the starting of the campaign.
 			out[i].NetRate = rate
 
-			// Realtime running rate over the last minute.
-			out[i].Rate = a.manager.GetCampaignStats(c.ID).SendRate
 		}
 	}
 
