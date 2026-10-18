@@ -101,7 +101,7 @@
       },
       "props": {
         "markdown": true,
-        "text": "<a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"email.unsub\" }}</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>"
+        "text": "<a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"globals.buttons.unsubscribe\" }}</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>"
       }
     }
   },
@@ -122,7 +122,7 @@
       },
       "props": {
         "markdown": true,
-        "text": "<a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"email.unsub\" }}</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>\n{{ TrackView }}"
+        "text": "<a href=\"{{ UnsubscribeURL }}\" style=\"color: #888;\">{{ L.T \"globals.buttons.unsubscribe\" }}</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"{{ MessageURL }}\" style=\"color: #888;\">{{ L.T \"email.viewInBrowser\" }}</a>\n{{ TrackView }}"
       }
     }
   }

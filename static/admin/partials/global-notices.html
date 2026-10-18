@@ -9,7 +9,7 @@
 				<div role="alert" class="hstack justify-between">
 					<span>{{ .L.T "settings.needsRestart" }}</span>
 					{{- if .Data.Can "settings:manage" }}
-						<button type="button" class="small" @click="restartApp">{{ Icon "refresh-cw" }} {{ .L.T "settings.restart" }}</button>
+						<button type="button" class="small" @click="restartApp">{{ Icon "refresh-cw" }} {{ .L.T "globals.buttons.restart" }}</button>
 					{{- end }}
 				</div>
 			{{- end }}

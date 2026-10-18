@@ -1,13 +1,13 @@
 {{ define "subscription-form" }}
 {{ template "header" . }}
 <section>
-    <h2>{{ L.T "public.subTitle" }}</h2>
+    <h2>{{ L.T "globals.buttons.subscribe" }}</h2>
 
     <form method="post" action="" class="form">
         <div>
             <p>
-                <label for="email">{{ L.T "subscribers.email" }}</label>
-                <input id="email" name="email" required="true" type="email" placeholder="{{ L.T "subscribers.email" }}" autofocus="true" >
+                <label for="email">{{ L.T "globals.fields.email" }}</label>
+                <input id="email" name="email" required="true" type="email" placeholder="{{ L.T "globals.fields.email" }}" autofocus="true" >
 
                 <input name="nonce" class="nonce" value="" />
             </p>
@@ -41,7 +41,7 @@
                 </div>
             {{ end }}
             <p>
-                <button type="submit" class="button">{{ L.T "public.sub" }}</button>
+                <button type="submit" class="button">{{ L.T "globals.buttons.subscribe" }}</button>
 
                 {{ if .EnablePublicArchive }}
                     <p class="right">

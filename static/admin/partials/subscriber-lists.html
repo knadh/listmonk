@@ -35,7 +35,7 @@
 							{{- if and (eq .Optin "single") (eq .SubscriptionStatus "unconfirmed") -}}
 								<span class="text-light">&ndash;</span>
 							{{- else -}}
-								{{ Badge (list (Dot) ($root.L.T (printf "subscribers.status.%s" .SubscriptionStatus))) (printf "enum status-%s" .SubscriptionStatus) }}
+								{{ Badge (list (Dot) ($root.L.T (printf "globals.terms.%s" .SubscriptionStatus))) (printf "enum status-%s" .SubscriptionStatus) }}
 							{{- end -}}
 						</td>
 						<td data-label="{{ $root.L.T "globals.fields.createdAt" }}">{{ NiceDate .SubscriptionCreatedAt }}</td>
@@ -46,12 +46,12 @@
 									<button popovertarget="sub-list-{{ .ID }}" type="button" class="ghost more icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
 									<menu popover id="sub-list-{{ .ID }}">
 										{{- if and (eq .Optin "double") (eq .SubscriptionStatus "unconfirmed") }}
-											<button type="button" role="menuitem" class="ghost" data-testid="btn-confirm-sub" @click.prevent="onConfirmSub({{ .ID }})">{{ Icon "check-circle" }} {{ $root.L.T "email.optin.confirmSub" }}</button>
+											<button type="button" role="menuitem" class="ghost" data-testid="btn-confirm-sub" @click.prevent="onConfirmSub({{ .ID }})">{{ Icon "check-circle" }} {{ $root.L.T "globals.buttons.confirmSubscription" }}</button>
 										{{- end }}
 										{{- if eq .SubscriptionStatus "unsubscribed" }}
 											<button type="button" role="menuitem" class="ghost" data-testid="btn-resubscribe" @click.prevent="onResubscribe({{ .ID }})">{{ Icon "refresh-cw" }} {{ $root.L.T "subscribers.reSubscribe" }}</button>
 										{{- else }}
-											<button type="button" role="menuitem" class="ghost" data-testid="btn-unsubscribe" @click.prevent="onUnsubscribe({{ .ID }})">{{ Icon "user-x" }} {{ $root.L.T "email.unsub" }}</button>
+											<button type="button" role="menuitem" class="ghost" data-testid="btn-unsubscribe" @click.prevent="onUnsubscribe({{ .ID }})">{{ Icon "user-x" }} {{ $root.L.T "globals.buttons.unsubscribe" }}</button>
 										{{- end }}
 										<button type="button" role="menuitem" class="ghost" data-variant="danger" data-testid="btn-delete-sub" @click.prevent="onDeleteSub({{ .ID }})">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</button>
 									</menu>

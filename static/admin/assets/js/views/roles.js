@@ -13,7 +13,7 @@ function rolesView({ type = 'user' } = {}) {
   return {
     // Clone a role by fetching its full definition and creating a copy.
     async onCloneRole(id, name) {
-      const newName = window.prompt(i18n.t('globals.fields.name'), i18n.ts('campaigns.copyOf', { name }));
+      const newName = window.prompt(i18n.t('globals.fields.name'), i18n.ts('globals.messages.copyOf', { name }));
       if (!newName) {
         return;
       }

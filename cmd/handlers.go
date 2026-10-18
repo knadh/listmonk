@@ -336,7 +336,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// 404 pages.
 		g.RouteNotFound("/*", func(c echo.Context) error {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl("404 - "+a.i18n.T("public.notFoundTitle"), "", ""))
+				makeMsgTpl("404 - "+a.i18n.T("globals.terms.notFound"), "", ""))
 		})
 		g.RouteNotFound("/api/*", func(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound, "404 unknown endpoint")
@@ -399,7 +399,7 @@ func (a *App) hasUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 	return func(c echo.Context) error {
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
-				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "",
+				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "",
 					a.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
@@ -429,12 +429,12 @@ func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
 		if _, err := a.core.GetSubscriber(0, subUUID, ""); err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
-					makeMsgTpl(a.i18n.T("public.notFoundTitle"), "", er.Message.(string)))
+					makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", er.Message.(string)))
 			}
 
 			a.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.errorProcessingRequest")))
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
 		}
 
 		return next(c)

@@ -22,7 +22,7 @@
 							{{ .L.T "subscribers.newSubscriber" }}
 						{{- else }}
 							{{ $sub.Email }}
-							{{ if ne $sub.Status "enabled" }}{{ Badge (list (Dot) (.L.T (printf "subscribers.status.%s" $sub.Status))) (printf "status-%s" $sub.Status) }}{{ end }}
+							{{ if ne $sub.Status "enabled" }}{{ Badge (list (Dot) (.L.T (printf "globals.terms.%s" $sub.Status))) (printf "status-%s" $sub.Status) }}{{ end }}
 						{{- end }}
 					</h1>
 				</div>

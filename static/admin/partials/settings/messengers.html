@@ -14,7 +14,7 @@
 						<div class="hstack gap-6 justify-end">
 							<label data-field @click.stop>
 								<input type="checkbox" role="switch" x-model="item.enabled" />
-								{{ .L.T "globals.buttons.enabled" }}
+								{{ .L.T "globals.terms.enabled" }}
 							</label>
 							<button type="button" class="outline small" data-variant="danger" @click.stop.prevent="removeMessenger(n)">
 								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
@@ -36,44 +36,44 @@
 						</label>
 
 						<label data-field>
-							{{ .L.T "settings.messengers.url" }}
+							{{ .L.T "globals.terms.url" }}
 							<input type="url" pattern="https?://.*" maxlength="200" placeholder="https://postback.messenger.net/path" x-model="item.root_url" />
 							<small data-hint>{{ .L.T "settings.messengers.urlHelp" }}</small>
 						</label>
 
 						<label data-field>
-							{{ .L.T "settings.messengers.username" }}
+							{{ .L.T "globals.fields.username" }}
 							<input maxlength="200" x-model="item.username" />
 						</label>
 
 						<label data-field>
-							{{ .L.T "settings.messengers.password" }}
+							{{ .L.T "globals.fields.password" }}
 							<input type="password" maxlength="200" placeholder="{{ .L.T "globals.messages.passwordChange" }}" x-model="item.password" />
 							<small data-hint>{{ .L.T "globals.messages.passwordChange" }}</small>
 						</label>
 					</fieldset>
 					<fieldset class="card">
-						<legend>{{ .L.T "settings.connection" }}</legend>
+						<legend>{{ .L.T "globals.terms.connection" }}</legend>
 						<div class="row">
 							<div class="col-4">
 								<label data-field>
-									{{ .L.T "settings.messengers.maxConns" }}
+									{{ .L.T "globals.fields.maxConns" }}
 									<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.max_conns" />
-									<small data-hint>{{ .L.T "settings.messengers.maxConnsHelp" }}</small>
+									<small data-hint>{{ .L.T "settings.mailserver.maxConnsHelp" }}</small>
 								</label>
 							</div>
 							<div class="col-4">
 								<label data-field>
-									{{ .L.T "settings.messengers.retries" }}
+									{{ .L.T "globals.fields.retries" }}
 									<input type="number" min="1" max="1000" placeholder="2" x-model.number="item.max_msg_retries" />
-									<small data-hint>{{ .L.T "settings.messengers.retriesHelp" }}</small>
+									<small data-hint>{{ .L.T "settings.mailserver.retriesHelp" }}</small>
 								</label>
 							</div>
 							<div class="col-4">
 								<label data-field>
-									{{ .L.T "settings.messengers.timeout" }}
+									{{ .L.T "globals.fields.idleTimeout" }}
 									<input maxlength="10" placeholder="5s" x-model="item.timeout" />
-									<small data-hint>{{ .L.T "settings.messengers.timeoutHelp" }}</small>
+									<small data-hint>{{ .L.T "settings.mailserver.idleTimeoutHelp" }}</small>
 								</label>
 							</div>
 						</div>

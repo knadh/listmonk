@@ -160,7 +160,7 @@ function component(camp, sel) {
 
     // Generate for the content-settings dropdown.
     get contentSettingsLabel() {
-      const type = i18n.t(`campaigns.contentType.${this.form.content_type}`);
+      const type = i18n.t(`editor.contentType.${this.form.content_type}`);
 
       const isVisual = this.form.content_type === 'visual';
       const tplId = isVisual ? this.visualTemplateId : this.form.template_id;
@@ -190,7 +190,7 @@ function component(camp, sel) {
 
       // Confirm before converting a non-empty body.
       if (this.form.body && this.form.body.trim()
-        && !(await u.confirm(i18n.t('campaigns.confirmSwitchFormat')))) {
+        && !(await u.confirm(i18n.t('editor.confirmSwitchFormat')))) {
         e.target.value = from;
         return;
       }
@@ -329,7 +329,7 @@ function component(camp, sel) {
       const status = this.canStart ? 'running' : 'scheduled';
       await this.onSave();
       await api('campaigns', `/campaigns/${this.form.id}/status`, 'PUT', { status });
-      u.redirect(`${urls.admin}/campaigns`, { message: i18n.ts('campaigns.statusChanged', { name: this.form.name, status }) });
+      u.redirect(`${urls.admin}/campaigns`, { message: i18n.ts('globals.messages.statusChanged', { name: this.form.name, status: i18n.t(`globals.terms.${status}`) }) });
     },
 
     async onUnschedule() {
@@ -396,7 +396,7 @@ function component(camp, sel) {
         return;
       }
 
-      if (!(await u.confirm(i18n.t('campaigns.confirmOverwriteContent')))) {
+      if (!(await u.confirm(i18n.t('globals.messages.confirmOverwriteContent')))) {
         return;
       }
 

@@ -110,7 +110,7 @@ export function setupTable(cmp) {
 
   // Floating cell toolbar.
   const base = (cmp.querySelector('.rte-toolbar svg.icon use')?.getAttribute('href') ?? '').split('#')[0];
-  const btn = (op, icon, glyph = '') => `<button type="button" class="ghost" data-op="${op}" title="${t(`campaigns.editor.${op}`)}">`
+  const btn = (op, icon, glyph = '') => `<button type="button" class="ghost" data-op="${op}" title="${t(`editor.${op}`)}">`
     + `<svg class="icon"><use href="${base}#icon-${icon}"></use></svg>${glyph && `<span>${glyph}</span>`}</button>`;
 
   const bar = document.createElement('div');

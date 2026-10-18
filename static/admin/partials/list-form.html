@@ -11,10 +11,10 @@
 			</label>
 
 			<div data-field>
-				<label for="list-type">{{ $root.L.T "lists.type" }}</label>
+				<label for="list-type">{{ $root.L.T "globals.fields.type" }}</label>
 				<select name="type" id="list-type" aria-describedby="list-type-hint" required x-model="form.type">
-					<option value="private">{{ $root.L.T "lists.types.private" }}</option>
-					<option value="public">{{ $root.L.T "lists.types.public" }}</option>
+					<option value="private">{{ $root.L.T "globals.terms.private" }}</option>
+					<option value="public">{{ $root.L.T "globals.terms.public" }}</option>
 				</select>
 				<small id="list-type-hint" data-hint>{{ $root.L.T "lists.typeHelp" }}</small>
 			</div>
@@ -39,7 +39,7 @@
 			</label>
 
 			<label data-field>
-				<input type="checkbox" role="switch" x-model="isArchived" /> {{ $root.L.T "lists.archived" }}
+				<input type="checkbox" role="switch" x-model="isArchived" /> {{ $root.L.T "globals.terms.archived" }}
 				<small data-hint>{{ $root.L.T "lists.archivedHelp" }}</small>
 			</label>
 		</section>

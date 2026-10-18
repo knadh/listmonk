@@ -19,21 +19,21 @@
 	</div>
 	<div class="row">
 		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "globals.terms.campaigns" }}</h5><div class="stat-value">{{ len $d.CampaignViews }}</div></div></div>
-		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "campaigns.views" }}</h5><div class="stat-value">{{ $d.TotalViews }}</div></div></div>
-		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "campaigns.clicks" }}</h5><div class="stat-value">{{ $d.TotalClicks }}</div></div></div>
+		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "globals.terms.views" }}</h5><div class="stat-value">{{ $d.TotalViews }}</div></div></div>
+		<div class="col-4"><div class="card float stat-card"><h5 class="title">{{ .L.T "globals.terms.clicks" }}</h5><div class="stat-value">{{ $d.TotalClicks }}</div></div></div>
 	</div>
 
 	<section class="row">
 		<div class="col-6">
 			<article class="card float">
-				<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriber-views" role="img" aria-label="{{ .L.T "campaigns.views" }}"></canvas></div>
+				<h5 class="title">{{ .L.T "globals.terms.views" }}</h5>
+				<div class="chart-box"><canvas id="chart-subscriber-views" role="img" aria-label="{{ .L.T "globals.terms.views" }}"></canvas></div>
 			</article>
 		</div>
 		<div class="col-6">
 			<article class="card float">
-				<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriber-clicks" role="img" aria-label="{{ .L.T "campaigns.clicks" }}"></canvas></div>
+				<h5 class="title">{{ .L.T "globals.terms.clicks" }}</h5>
+				<div class="chart-box"><canvas id="chart-subscriber-clicks" role="img" aria-label="{{ .L.T "globals.terms.clicks" }}"></canvas></div>
 			</article>
 		</div>
 	</section>
@@ -41,7 +41,7 @@
 
 	{{- if $d.CampaignViews }}
 	<div class="card float has-table">
-		<h5 class="title">{{ .L.T "campaigns.views" }}</h5>
+		<h5 class="title">{{ .L.T "globals.terms.views" }}</h5>
 		<div class="table-wrapper">
 			{{- if $d.Can "subscribers:manage" }}
 				<ot-dropdown class="bulk-actions">
@@ -52,7 +52,7 @@
 				</ot-dropdown>
 			{{- end }}
 			<table>
-				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th width="10%" class="align-center">{{ .L.T "campaigns.views" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
+				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th width="10%" class="align-center">{{ .L.T "globals.terms.views" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
 				<tbody>
 					{{- range $d.CampaignViews }}
 						<tr>
@@ -69,7 +69,7 @@
 									</div>
 								</div>
 							</td>
-							<td class="align-center" data-label="{{ $.L.T "campaigns.views" }}">{{ .ViewCount }}</td>
+							<td class="align-center" data-label="{{ $.L.T "globals.terms.views" }}">{{ .ViewCount }}</td>
 							<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .LastViewedAt }}</td>
 						</tr>
 					{{- end }}
@@ -81,7 +81,7 @@
 
 	{{- if $d.LinkClicks }}
 	<div class="card float has-table">
-		<h5 class="title">{{ .L.T "campaigns.clicks" }}</h5>
+		<h5 class="title">{{ .L.T "globals.terms.clicks" }}</h5>
 		<div class="table-wrapper">
 			{{- if $d.Can "subscribers:manage" }}
 				<ot-dropdown class="bulk-actions">
@@ -92,7 +92,7 @@
 				</ot-dropdown>
 			{{- end }}
 			<table>
-				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th>{{ .L.T "globals.terms.url" }}</th><th width="10%" class="align-center">{{ .L.T "campaigns.clicks" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
+				<thead><tr><th>{{ .L.T "globals.terms.campaign" }}</th><th>{{ .L.T "globals.terms.url" }}</th><th width="10%" class="align-center">{{ .L.T "globals.terms.clicks" }}</th><th width="20%">{{ .L.T "globals.fields.createdAt" }}</th></tr></thead>
 				<tbody>
 					{{- range $d.LinkClicks }}
 						<tr>
@@ -112,7 +112,7 @@
 								{{- end }}
 							</td>
 							<td class="link-click-url" data-label="{{ $.L.T "globals.terms.url" }}"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></td>
-							<td class="align-center" data-label="{{ $.L.T "campaigns.clicks" }}">{{ .ClickCount }}</td>
+							<td class="align-center" data-label="{{ $.L.T "globals.terms.clicks" }}">{{ .ClickCount }}</td>
 							<td data-label="{{ $.L.T "globals.fields.createdAt" }}">{{ NiceDate .LastClickedAt }}</td>
 						</tr>
 					{{- end }}

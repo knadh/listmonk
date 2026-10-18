@@ -148,19 +148,19 @@ func (a *App) CampaignArchivePage(c echo.Context) error {
 		// 404.
 		if notFound {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(a.i18n.T("public.notFoundTitle"), "", a.i18n.T("public.campaignNotFound")))
+				makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", a.i18n.T("public.campaignNotFound")))
 		}
 
 		// Some other internal error.
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// "Compile" the campaign template with appropriate data.
 	out, err := a.compileArchiveCampaigns([]models.Campaign{pubCamp})
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Render the campaign body.
@@ -169,7 +169,7 @@ func (a *App) CampaignArchivePage(c echo.Context) error {
 	if err != nil {
 		a.log.Printf("error rendering campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
@@ -185,7 +185,7 @@ func (a *App) CampaignArchivePageLatest(c echo.Context) error {
 
 	if len(camps) == 0 {
 		return c.Render(http.StatusNotFound, tplMessage,
-			makeMsgTpl(a.i18n.T("public.notFoundTitle"), "", a.i18n.T("public.campaignNotFound")))
+			makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", a.i18n.T("public.campaignNotFound")))
 	}
 	camp := camps[0]
 

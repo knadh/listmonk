@@ -24,10 +24,10 @@
 					<div class="row fields">
 						<div class="col-4">
 							<fieldset class="vstack gap-6">
-								<legend>{{ .L.T "import.mode" }}</legend>
+								<legend>{{ .L.T "globals.fields.mode" }}</legend>
 								<div class="hstack">
-									<label><input type="radio" name="mode" value="subscribe" x-model="form.mode" data-testid="check-subscribe" /> {{ .L.T "import.subscribe" }}</label>
-									<label><input type="radio" name="mode" value="blocklist" x-model="form.mode" data-testid="check-blocklist" /> {{ .L.T "import.blocklist" }}</label>
+									<label><input type="radio" name="mode" value="subscribe" x-model="form.mode" data-testid="check-subscribe" /> {{ .L.T "globals.buttons.subscribe" }}</label>
+									<label><input type="radio" name="mode" value="blocklist" x-model="form.mode" data-testid="check-blocklist" /> {{ .L.T "globals.terms.blocklist" }}</label>
 								</div>
 								<label data-field>
 									<input type="checkbox" role="switch" x-model="form.overwriteUserInfo" data-testid="overwrite-user-info" /> {{ .L.T "import.overwriteUserInfo" }}
@@ -40,12 +40,12 @@
 								<legend>{{ .L.T "globals.fields.status" }}</legend>
 								<template x-if="form.mode === 'subscribe'">
 									<div class="hstack">
-										<label><input type="radio" name="subStatus" value="unconfirmed" x-model="form.subStatus" data-testid="check-unconfirmed" /> {{ .L.T "subscribers.status.unconfirmed" }}</label>
-										<label><input type="radio" name="subStatus" value="confirmed" x-model="form.subStatus" data-testid="check-confirmed" /> {{ .L.T "subscribers.status.confirmed" }}</label>
+										<label><input type="radio" name="subStatus" value="unconfirmed" x-model="form.subStatus" data-testid="check-unconfirmed" /> {{ .L.T "globals.terms.unconfirmed" }}</label>
+										<label><input type="radio" name="subStatus" value="confirmed" x-model="form.subStatus" data-testid="check-confirmed" /> {{ .L.T "globals.terms.confirmed" }}</label>
 									</div>
 								</template>
 								<template x-if="form.mode === 'blocklist'">
-									<label><input type="radio" name="subStatus" value="unsubscribed" x-model="form.subStatus" data-testid="check-unsubscribed" /> {{ .L.T "subscribers.status.unsubscribed" }}</label>
+									<label><input type="radio" name="subStatus" value="unsubscribed" x-model="form.subStatus" data-testid="check-unsubscribed" /> {{ .L.T "globals.terms.unsubscribed" }}</label>
 								</template>
 								<template x-if="form.mode === 'subscribe'">
 									<label data-field>
@@ -75,7 +75,7 @@
 				</template>
 
 				<fieldset class="card">
-					<legend>{{ .L.T "import.upload" }}</legend>
+					<legend>{{ .L.T "globals.buttons.upload" }}</legend>
 					<div data-field>
 						<ot-upload>
 							<div data-field class="vstack">
@@ -96,7 +96,7 @@
 
 				<footer class="hstack justify-end mt-6">
 					<button type="submit" data-variant="primary" data-testid="btn-upload" :disabled="!canUpload || isProcessing" :aria-busy="isProcessing">
-						{{ Icon "upload" }} {{ .L.T "import.upload" }}
+						{{ Icon "upload" }} {{ .L.T "globals.buttons.upload" }}
 					</button>
 				</footer>
 			</form>
@@ -117,7 +117,7 @@
 						</header>
 						<div class="col-4 hstack justify-end items-center">
 							<button type="button" data-variant="danger" data-testid="btn-stop" x-show="!isDone" @click="stopImport" :disabled="isProcessing || status.status === 'stopping'" :aria-busy="isProcessing">{{ .L.T "import.stopImport" }}</button>
-							<button type="button" data-variant="primary" data-testid="btn-done" x-show="isDone" @click="stopImport" :disabled="isProcessing" :aria-busy="isProcessing">{{ .L.T "import.importDone" }}</button>
+							<button type="button" data-variant="primary" data-testid="btn-done" x-show="isDone" @click="stopImport" :disabled="isProcessing" :aria-busy="isProcessing">{{ .L.T "globals.messages.done" }}</button>
 						</div>
 					</div>
 					<footer>
@@ -127,7 +127,7 @@
 				</article>
 
 				<article class="card float import-logs log-view mt-6">
-					<h5 class="title">{{ .L.T "menu.logs" }}</h5>
+					<h5 class="title">{{ .L.T "globals.terms.logs" }}</h5>
 					<div class="lines" x-ref="logLines">
 						<template x-for="(l, i) in logLines" :key="i">
 							<span class="line">
@@ -143,7 +143,7 @@
 
 		{{ if $show }}
 			<div class="import-help mt-6">
-				<h6>{{ .L.T "import.instructions" }}</h6>
+				<h6>{{ .L.T "globals.terms.instructions" }}</h6>
 				<p class="text-light">{{ .L.T "import.instructionsHelp" }}</p>
 				<blockquote class="csv-example">
 					<code class="csv-headers"><span>email,</span> <span>name,</span> <span>attributes</span></code>

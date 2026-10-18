@@ -1,7 +1,7 @@
 {{ define "settings-general" -}}
 <div class="settings-items">
 	<fieldset class="card" data-keywords="site name root url logo favicon language locale branding domain title">
-		<legend>{{ .L.T "settings.general.name" }}</legend>
+		<legend>{{ .L.T "globals.terms.general" }}</legend>
 		<label data-field>
 			{{ .L.T "settings.general.siteName" }}
 			<input name="app.site_name" maxlength="300" required x-model="form['app.site_name']" />
@@ -28,7 +28,7 @@
 			<small data-hint>{{ .L.T "settings.general.faviconURLHelp" }}</small>
 		</label>
 		<div data-field>
-			<label for="app-lang">{{ .L.T "settings.general.language" }}</label>
+			<label for="app-lang">{{ .L.T "globals.fields.language" }}</label>
 			<select id="app-lang" name="app.lang" x-model="form['app.lang']">
 				{{- range $.ConfigJS.Langs }}
 					<option value="{{ .Code }}">{{ .Name }}</option>
@@ -41,7 +41,7 @@
 	</fieldset>
 
 	<fieldset class="card" data-keywords="from email address admin notification emails sender">
-		<legend>{{ .L.T "subscribers.email" }}</legend>
+		<legend>{{ .L.T "globals.fields.email" }}</legend>
 		<label data-field>
 			{{ .L.T "settings.general.fromEmail" }}
 			<textarea name="app.from_email" rows="4"
@@ -65,7 +65,7 @@
 		</label>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['app.send_optin_confirmation']" />
-			{{ .L.T "settings.general.sendOptinConfirm" }}
+			{{ .L.T "subscribers.sendOptinConfirm" }}
 			<small data-hint>{{ .L.T "settings.general.sendOptinConfirmHelp" }}</small>
 		</label>
 		<label data-field>
@@ -76,7 +76,7 @@
 	</fieldset>
 
 	<fieldset class="card" data-keywords="public archive rss feed campaigns">
-		<legend>{{ .L.T "campaigns.archive" }}</legend>
+		<legend>{{ .L.T "globals.terms.archive" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['app.enable_public_archive']" />
 			{{ .L.T "settings.general.enablePublicArchive" }}

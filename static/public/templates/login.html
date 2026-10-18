@@ -2,24 +2,24 @@
 {{ template "header" .}}
 
 <section class="login">
-	<h2>{{ .L.T "users.login"}}</h2>
+	<h2>{{ .L.T "globals.buttons.login"}}</h2>
 	{{ if .Data.PasswordEnabled }}
 	<form method="post" action="/admin/login" class="form">
 		<div>
 			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
 			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
 			<p>
-				<label for="username">{{ .L.T "users.username" }}</label>
+				<label for="username">{{ .L.T "globals.fields.username" }}</label>
 				<input id="username" type="text" name="username" autofocus required minlength="3" />
 			</p>
 			<p>
-				<label for="password">{{ .L.T "users.password" }}</label>
+				<label for="password">{{ .L.T "globals.fields.password" }}</label>
 				<input id="password" type="password" name="password" required minlength="8" />
 			</p>
 
 			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
 
-			<p class="submit"><button class="button" type="submit">{{ .L.T "users.login" }}</button></p>
+			<p class="submit"><button class="button" type="submit">{{ .L.T "globals.buttons.login" }}</button></p>
 		</div>
 	</form>
 	{{ end }}

@@ -9,7 +9,7 @@
 		<div class="col-4">
 			<div class="hstack">
 				<h1 class="page-title">
-					{{ $root.L.T "media.title" }}
+					{{ $root.L.T "globals.terms.media" }}
 					<span>({{ $d.Page.Total }})</span>
 				</h1>
 				{{- if $d.Provider }}<div class="text-lighter">{{ $d.Provider }}</div>{{ end }}
@@ -26,7 +26,7 @@
 			{{- if $canManage }}
 				<ot-dropdown>
 					<button type="button" data-variant="primary" class="btn-new media-upload-btn" popovertarget="media-upload">
-						{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
+						{{ Icon "upload" }} {{ $root.L.T "globals.buttons.upload" }}
 					</button>
 					<div popover id="media-upload" class="media-upload">
 						<form @submit.prevent="onUpload">
@@ -34,14 +34,14 @@
 								<ot-upload>
 									<div data-field class="vstack">
 										<input type="file" name="file" multiple hidden @change="files = [...$event.target.files]" />
-										<button type="button" class="ghost" aria-label="{{ $root.L.T "media.upload" }}">{{ Icon "upload" }}</button>
+										<button type="button" class="ghost" aria-label="{{ $root.L.T "globals.buttons.upload" }}">{{ Icon "upload" }}</button>
 										<div data-files><small data-hint>{{ $root.L.T "media.uploadHelp" }}</small></div>
 									</div>
 								</ot-upload>
 							</div>
 							<div class="hstack justify-end buttons">
 								<button type="submit" data-variant="primary" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
-									{{ Icon "upload" }} {{ $root.L.T "media.upload" }}
+									{{ Icon "upload" }} {{ $root.L.T "globals.buttons.upload" }}
 								</button>
 							</div>
 						</form>

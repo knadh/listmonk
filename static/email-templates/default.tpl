@@ -93,7 +93,7 @@
     
     <div class="footer" style="text-align: center;font-size: 12px;color: #888;">
         <p>
-            <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ L.T "email.unsub" }}</a>
+            <a href="{{ UnsubscribeURL }}" style="color: #888;">{{ L.T "globals.buttons.unsubscribe" }}</a>
             &nbsp;&nbsp;
             <a href="{{ MessageURL }}" style="color: #888;">{{ L.T "email.viewInBrowser" }}</a>
         </p>

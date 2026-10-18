@@ -2,9 +2,9 @@
 {{- $d := .Data -}}
 <div class="settings-items">
 	<fieldset class="card" data-keywords="login session duration expiry timeout">
-		<legend>{{ .L.T "users.login" }}</legend>
+		<legend>{{ .L.T "globals.buttons.login" }}</legend>
 		<label data-field>
-			{{ .L.T "settings.security.sessionDuration" }}
+			{{ .L.T "globals.fields.sessionDuration" }}
 			<input required placeholder="7d" x-model="form['security.session_duration']" />
 		</label>
 	</fieldset>
@@ -75,7 +75,7 @@
 
 
 				<fieldset :disabled="!form['security.oidc'].auto_create_users">
-					<legend>{{ .L.T "users.roles" }}</legend>
+					<legend>{{ .L.T "globals.terms.roles" }}</legend>
 					<div data-field>
 						<label for="oidc-user-role">{{ .L.T "settings.security.OIDCDefaultUserRole" }}</label>
 						<select id="oidc-user-role" required x-model="form['security.oidc'].default_user_role_id">

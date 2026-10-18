@@ -6,13 +6,13 @@
 	<div class="page-content content">
 		<section>
 			<fieldset class="card">
-				<legend>{{ $root.L.T "users.profile" }}</legend>
+				<legend>{{ $root.L.T "globals.terms.profile" }}</legend>
 				{{ template "subscriber-fields" $root }}
 			</fieldset>
 
 			{{- if .IsNew }}
 				<fieldset class="card">
-					<legend>{{ $root.L.T "subscribers.lists" }}</legend>
+					<legend>{{ $root.L.T "globals.terms.lists" }}</legend>
 					{{ template "list-selector" dict "Root" $root "Model" "form.lists" "ListID" "form-lists" "Placeholder" "subscribers.listsPlaceholder" }}
 					<label data-field :aria-disabled="!hasOptinList">
 						<input type="checkbox" x-model="form.preconfirm" data-testid="preconfirm" :disabled="!hasOptinList" /> {{ $root.L.T "subscribers.preconfirm" }}
@@ -39,7 +39,7 @@
 {{ define "subscriber-fields" -}}
 {{- $root := . -}}
 <label data-field>
-	{{ $root.L.T "subscribers.email" }}
+	{{ $root.L.T "globals.fields.email" }}
 	<input name="email" type="email" maxlength="200" autofocus required x-model="form.email" />
 </label>
 
@@ -51,8 +51,8 @@
 <div data-field>
 	<label for="sub-status">{{ $root.L.T "globals.fields.status" }}</label>
 	<select name="status" id="sub-status" required x-model="form.status">
-		<option value="enabled">{{ $root.L.T "subscribers.status.enabled" }}</option>
-		<option value="blocklisted">{{ $root.L.T "subscribers.status.blocklisted" }}</option>
+		<option value="enabled">{{ $root.L.T "globals.terms.enabled" }}</option>
+		<option value="blocklisted">{{ $root.L.T "globals.terms.blocklisted" }}</option>
 	</select>
 	<small data-hint>{{ $root.L.T "subscribers.blocklistedHelp" }}</small>
 </div>

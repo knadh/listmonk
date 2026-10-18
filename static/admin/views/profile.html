@@ -9,7 +9,7 @@
 		<div class="hstack gap-1">
 			<div class="avatar avatar-title">
 				{{ template "avatar-icon" dict "Kind" "user" "Name" (or $u.Name $u.Username) "URL" $u.Avatar.String "Href" (URI "/admin/user/profile") "Title" (printf "%s %s" ($.L.T "globals.buttons.view") (or $u.Name $u.Username)) }}
-				<h1 class="page-title avatar-label">{{ .L.T "users.profile" }}</h1>
+				<h1 class="page-title avatar-label">{{ .L.T "globals.terms.profile" }}</h1>
 			</div>
 			{{- if $u.UserRole.Name }}{{ Badge $u.UserRole.Name }}{{ end }}
 		</div>
@@ -21,7 +21,7 @@
 				<h4 class="mb-6">@{{ $u.Username }}</h4>
 				{{- if ne $u.Type "api" }}
 				<label data-field>
-					{{ .L.T "subscribers.email" }}
+					{{ .L.T "globals.fields.email" }}
 					<input name="email" type="email" maxlength="200" required {{ if not $u.PasswordLogin }}disabled{{ end }} x-model="form.email" autofocus />
 				</label>
 				{{- end }}
@@ -34,11 +34,11 @@
 				{{- if $u.PasswordLogin }}
 				<div class="row">
 					<label data-field class="col-6">
-						{{ .L.T "users.password" }}
+						{{ .L.T "globals.fields.password" }}
 						<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" x-model="form.password" />
 					</label>
 					<label data-field class="col-6">
-						{{ .L.T "users.passwordRepeat" }}
+						{{ .L.T "globals.fields.passwordRepeat" }}
 						<input type="password" name="password2" minlength="8" maxlength="200" autocomplete="new-password" x-model="form.password2" />
 					</label>
 				</div>
@@ -68,7 +68,7 @@
 			<template x-if="showDisableTotp">
 				<form class="disable-totp mt-5" @submit.prevent="confirmDisableTotp">
 					<label data-field>
-						{{ .L.T "users.password" }}
+						{{ .L.T "globals.fields.password" }}
 						<input type="password" x-model="disablePassword" minlength="8" required />
 					</label>
 					<div class="hstack gap-3">
@@ -98,8 +98,8 @@
 					</figure>
 
 					<fieldset>
-						<legend>{{ .L.T "users.totpSecret" }}</legend>
-						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "users.totpSecret" }}" @click="copyToClipboard(totpSecret)">
+						<legend>{{ .L.T "globals.fields.secretKey" }}</legend>
+						<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.secretKey" }}" @click="copyToClipboard(totpSecret)">
 							<span x-text="totpSecret"></span>
 						</button>
 					</fieldset>

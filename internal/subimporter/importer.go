@@ -624,7 +624,7 @@ func (im *Importer) Stop() {
 func (im *Importer) SanitizeEmail(email string) (string, error) {
 	addr, err := utils.SanitizeEmail(email)
 	if err != nil {
-		return "", errors.New(im.i18n.T("subscribers.invalidEmail"))
+		return "", errors.New(im.i18n.T("globals.messages.invalidEmail"))
 	}
 
 	// Check if the e-mail's domain is blocklisted. The e-mail domain and blocklist config
@@ -655,7 +655,7 @@ func (im *Importer) SanitizeEmail(email string) (string, error) {
 // ValidateFields validates incoming subscriber field values and returns sanitized fields.
 func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
 	if len(s.Email) > 1000 {
-		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
+		return s, errors.New(im.i18n.T("globals.messages.invalidEmail"))
 	}
 
 	em, err := im.SanitizeEmail(s.Email)

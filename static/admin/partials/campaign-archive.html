@@ -22,7 +22,7 @@
 	<template x-if="form.archive">
 		<div>
 			<fieldset class="card" :disabled="!canArchive">
-				<legend>{{ $root.L.T "campaigns.archive" }}</legend>
+				<legend>{{ $root.L.T "globals.terms.archive" }}</legend>
 
 				<fieldset class="group">
 					<legend class="mb-0">{{ $root.L.Tc "globals.terms.template" 1 }}</legend>
@@ -31,11 +31,11 @@
 							<option :value="t.id" x-text="t.name"></option>
 						</template>
 					</select>
-					<button type="button" data-variant="primary" @click="onPreviewArchive">{{ $root.L.T "campaigns.preview" }}</button>
+					<button type="button" data-variant="primary" @click="onPreviewArchive">{{ $root.L.T "globals.buttons.preview" }}</button>
 				</fieldset>
 
 				<label data-field>
-					{{ $root.L.T "campaigns.archiveSlug" }}
+					{{ $root.L.T "globals.fields.slug" }}
 					<input name="archive_slug" maxlength="200" x-model="form.archive_slug" />
 					<small data-hint>{{ $root.L.T "campaigns.archiveSlugHelp" }}</small>
 				</label>
@@ -48,7 +48,7 @@
 				<textarea name="archive_meta" x-model="form.archiveMetaStr" rows="15"></textarea>
 				<small data-hint>{{ $root.L.T "campaigns.archiveMetaHelp" }}</small>
 				<template x-if="form.archiveMetaStr === '' || form.archiveMetaStr === '{}'">
-					<div class="mt-4"><button type="button" class="outline small" @click="onFillArchiveMeta">{{ $root.L.T "templates.makeDefault" }}</button></div>
+					<div class="mt-4"><button type="button" class="outline small" @click="onFillArchiveMeta">{{ $root.L.T "globals.buttons.setDefault" }}</button></div>
 				</template>
 			</fieldset>
 		</div>

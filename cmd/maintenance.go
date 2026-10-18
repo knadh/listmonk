@@ -30,7 +30,7 @@ func (a *App) ViewMaintenance(c echo.Context) error {
 	}
 
 	data := maintenanceView{
-		adminView: newAdminView(c, a.i18n.T("maintenance.title"), "", "settings.maintenance"),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.maintenance"), "", "settings.maintenance"),
 	}
 	data.DBSettings.Vacuum = s.MaintenanceDB.Vacuum
 	data.DBSettings.VacuumInterval = s.MaintenanceDB.VacuumInterval

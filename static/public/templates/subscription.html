@@ -2,7 +2,7 @@
 {{ template "header" .}}
 <section class="section">
     {{ if not .Data.ShowManage }}
-        <h2>{{ L.T "public.unsubTitle" }}</h2>
+        <h2>{{ L.T "globals.buttons.unsubscribe" }}</h2>
         <form method="post" class="unsub-form">
             <div>
                 <p>{{ L.T "public.unsubHelp" }}</p>
@@ -16,7 +16,7 @@
                 {{ end }}
 
                 <p>
-                    <button type="submit" class="button" id="btn-unsub">{{ L.T "public.unsub" }}</button>
+                    <button type="submit" class="button" id="btn-unsub">{{ L.T "globals.buttons.unsubscribe" }}</button>
                 </p>
                 {{ if .Data.AllowPreferences }}
                     <a href="?manage=true">{{ L.T "public.managePrefs" }}</a>

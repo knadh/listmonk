@@ -81,7 +81,7 @@ function profileView() {
 
     async confirmDisableTotp() {
       if (!this.disablePassword) {
-        u.toast(i18n.t('globals.messages.invalidFields'), 'danger');
+        u.toast(i18n.ts('globals.messages.invalidFields', { name: i18n.t('globals.fields.password') }), 'danger');
         return;
       }
 

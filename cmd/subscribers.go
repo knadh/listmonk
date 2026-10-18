@@ -586,7 +586,7 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 	}
 
 	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidName"))
 	}
 
 	// Filter lists against the current user's permitted lists.
@@ -665,7 +665,7 @@ func (a *App) PatchSubscriber(c echo.Context) error {
 	}
 
 	if req.Name != "" && !strHasLen(req.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidName"))
 	}
 
 	// If lists were explicitly sent, replace the existing subscriptions.
@@ -786,7 +786,7 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 	}
 	if len(req.SubscriberIDs) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.errorNoIDs"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.noIDs"))
 	}
 	if len(subIDs) == 0 {
 		subIDs = req.SubscriberIDs
@@ -820,7 +820,7 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 	case models.SubscriptionActionUnsubscribe:
 		err = a.core.UnsubscribeLists(subIDs, listIDs, nil)
 	default:
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidAction"))
 	}
 
 	if err != nil {
@@ -991,7 +991,7 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 	case models.SubscriptionActionUnsubscribe:
 		err = a.core.UnsubscribeListsByQuery(req.Search, req.Query, sourceListIDs, targetListIDs, req.SubscriptionStatus, req.SubscriberStatus)
 	default:
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidAction"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidAction"))
 	}
 
 	if err != nil {
@@ -1208,7 +1208,7 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 		}
 
 		// Send the e-mail.
-		if err := notifs.Notify([]string{sub.Email}, i.T("subscribers.optinSubject"), notifs.TplSubscriberOptin, out, hdr); err != nil {
+		if err := notifs.Notify([]string{sub.Email}, i.T("globals.buttons.confirmSubscription"), notifs.TplSubscriberOptin, out, hdr); err != nil {
 			lo.Printf("error sending opt-in e-mail for subscriber %d (%s): %s", sub.ID, sub.UUID, err)
 			return 0, err
 		}

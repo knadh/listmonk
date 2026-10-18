@@ -436,7 +436,7 @@ func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) (st
 	var url string
 	if err := c.q.RegisterLinkClick.Get(&url, linkUUID, campUUID, subUUID); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
-			return "", echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("public.invalidLink"))
+			return "", echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("globals.messages.invalidLink"))
 		}
 
 		c.log.Printf("error registering link click: %s", err)

@@ -68,7 +68,7 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 	var opt subimporter.SessionOpt
 	if err := json.Unmarshal([]byte(c.FormValue("params")), &opt); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("import.invalidParams", "error", err.Error()))
+			a.i18n.Ts("globals.messages.invalidParams", "error", err.Error()))
 	}
 
 	// Filter list IDs against the current user's permitted lists.
@@ -82,7 +82,7 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 
 	// Validate mode.
 	if opt.Mode != subimporter.ModeSubscribe && opt.Mode != subimporter.ModeBlocklist {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("import.invalidMode"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidMode"))
 	}
 
 	// If no status is specified, pick a default one.
@@ -109,7 +109,7 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("import.invalidFile", "error", err.Error()))
+			a.i18n.Ts("globals.messages.invalidFile", "error", err.Error()))
 	}
 
 	src, err := file.Open()
@@ -122,13 +122,13 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 	out, err := os.CreateTemp("", "listmonk")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			a.i18n.Ts("import.errorCopyingFile", "error", err.Error()))
+			a.i18n.Ts("globals.messages.errorCopyingFile", "error", err.Error()))
 	}
 	defer out.Close()
 
 	if _, err = io.Copy(out, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			a.i18n.Ts("import.errorCopyingFile", "error", err.Error()))
+			a.i18n.Ts("globals.messages.errorCopyingFile", "error", err.Error()))
 	}
 
 	// Start the importer session.

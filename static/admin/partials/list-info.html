@@ -9,10 +9,10 @@
 			<div class="col-3">
 				<div class="hstack gap-2">
 					{{- $typeIcon := "eye-off" }}{{ if eq $l.Type "public" }}{{ $typeIcon = "eye" }}{{ end }}
-					<a href="{{ URI "/admin/lists" }}?type={{ $l.Type }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "lists.types.%s" $l.Type) }}">{{ Badge (list (Icon $typeIcon) (.L.T (printf "lists.types.%s" $l.Type))) (printf "enum type-%s" $l.Type) }}</a>
+					<a href="{{ URI "/admin/lists" }}?type={{ $l.Type }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "globals.terms.%s" $l.Type) }}">{{ Badge (list (Icon $typeIcon) (.L.T (printf "globals.terms.%s" $l.Type))) (printf "enum type-%s" $l.Type) }}</a>
 					{{- $icon := "user-x" }}{{ if eq $l.Optin "double" }}{{ $icon = "user-check" }}{{ end }}
 					<a href="{{ URI "/admin/lists" }}?optin={{ $l.Optin }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "lists.optins.%s" $l.Optin) }}">{{ Badge (list (Icon $icon) (.L.T (printf "lists.optins.%s" $l.Optin))) "enum" }}</a>
-					{{ if eq $l.Status "archived" }}{{ Badge (.L.T "lists.archived") "enum status-archived" }}{{ end }}
+					{{ if eq $l.Status "archived" }}{{ Badge (.L.T "globals.terms.archived") "enum status-archived" }}{{ end }}
 				</div>
 				<div class="text-small text-light mt-2">{{ NiceDate $l.CreatedAt }}</div>
 			</div>
@@ -44,7 +44,7 @@
 		{{ range list "confirmed" "unconfirmed" "unsubscribed" }}
 			<div class="col-3">
 				<article class="card float stat-card">
-					<h4 class="title">{{ $.L.T (printf "subscribers.status.%s" .) }}</h4>
+					<h4 class="title">{{ $.L.T (printf "globals.terms.%s" .) }}</h4>
 					<div class="stat-value"><a href="{{ $subs }}?subscription_status={{ . }}" class="unstyled">{{ FormatNumber (index $l.SubscriberCounts .) }}</a></div>
 				</article>
 			</div>
@@ -54,7 +54,7 @@
 		<div class="col-6">
 			<article class="card float">
 				<h5 class="title">{{ .L.Tc "globals.terms.subscriptions" 2 }}</h5>
-				<div class="chart-box"><canvas id="chart-subscriptions" data-extra-label="{{ .L.T "subscribers.status.unsubscribed" }}" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas></div>
+				<div class="chart-box"><canvas id="chart-subscriptions" data-extra-label="{{ .L.T "globals.terms.unsubscribed" }}" role="img" aria-label="{{ .L.Tc "globals.terms.subscriptions" 2 }}"></canvas></div>
 			</article>
 		</div>
 		{{ if $d.CanViewCampaignCharts }}

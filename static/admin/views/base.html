@@ -68,15 +68,15 @@
 							<span class="avatar-label user-label">{{ .Username }}</span></span>
 						</button>
 						<menu popover id="user-menu">
-							<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
+							<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "globals.terms.profile" }}</a>
 							<button type="button" role="menuitem" class="ghost" @click="onLogout('{{ URI "/api/logout" }}', '{{ URI "/admin/login" }}')">
-								{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
+								{{ Icon "log-out" }} {{ $.L.T "globals.buttons.logout" }}
 							</button>
 							<hr />
 							<div class="theme-switch" role="group" aria-label="Theme">
 								<button type="button" class="ghost small" title="{{ $.L.T "globals.terms.system" }}" @click="setTheme('auto')" :class="{ 'is-active': theme === 'auto' }" :aria-pressed="theme === 'auto'">{{ Icon "monitor" }}</button>
-								<button type="button" class="ghost small" title="{{ $.L.T "users.themeLight" }}" @click="setTheme('light')" :class="{ 'is-active': theme === 'light' }" :aria-pressed="theme === 'light'">{{ Icon "sun" }}</button>
-								<button type="button" class="ghost small" title="{{ $.L.T "users.themeDark" }}" @click="setTheme('dark')" :class="{ 'is-active': theme === 'dark' }" :aria-pressed="theme === 'dark'">{{ Icon "moon" }}</button>
+								<button type="button" class="ghost small" title="{{ $.L.T "globals.terms.light" }}" @click="setTheme('light')" :class="{ 'is-active': theme === 'light' }" :aria-pressed="theme === 'light'">{{ Icon "sun" }}</button>
+								<button type="button" class="ghost small" title="{{ $.L.T "globals.terms.dark" }}" @click="setTheme('dark')" :class="{ 'is-active': theme === 'dark' }" :aria-pressed="theme === 'dark'">{{ Icon "moon" }}</button>
 							</div>
 						</menu>
 					</ot-dropdown>

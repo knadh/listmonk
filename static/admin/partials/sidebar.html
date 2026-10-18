@@ -4,7 +4,7 @@
 <nav>
 	<ul>
 		<li>
-			<a href="{{ URI "/admin" }}" {{ IsNav $p "dashboard" }}>{{ Icon "grid" }} {{ .L.T "menu.dashboard" }}</a>
+			<a href="{{ URI "/admin" }}" {{ IsNav $p "dashboard" }}>{{ Icon "grid" }} {{ .L.T "globals.terms.dashboard" }}</a>
 		</li>
 
 		<li>
@@ -12,9 +12,9 @@
 				<summary>{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</summary>
 				<ul>
 					<li><a href="{{ URI "/admin/lists" }}" {{ IsNav $p "lists.all" }}>{{ .L.T "menu.allLists" }}</a></li>
-					<li><a href="{{ URI "/admin/lists" }}?status=archived" {{ IsNav $p "lists.archived" }}>{{ .L.T "lists.archived" }}</a></li>
+					<li><a href="{{ URI "/admin/lists" }}?status=archived" {{ IsNav $p "lists.archived" }}>{{ .L.T "globals.terms.archived" }}</a></li>
 					<li><a href="{{ URI "/admin/lists/analytics" }}?from={{ (now.AddDate 0 -3 0).Format "2006-01-02" }}" {{ IsNav $p "lists.analytics" }}>{{ .L.T "globals.terms.analytics" }}</a></li>
-					<li><a href="{{ URI "/admin/lists/forms" }}" {{ IsNav $p "lists.forms" }}>{{ .L.T "menu.forms" }}</a></li>
+					<li><a href="{{ URI "/admin/lists/forms" }}" {{ IsNav $p "lists.forms" }}>{{ .L.T "globals.terms.forms" }}</a></li>
 				</ul>
 			</details>
 		</li>
@@ -28,7 +28,7 @@
 					<li><a href="{{ URI "/admin/subscribers" }}" {{ IsNav $p "subscribers.all" }}>{{ .L.T "menu.allSubscribers" }}</a></li>
 					{{- end }}
 					{{- if Can $u "subscribers:import" }}
-					<li><a href="{{ URI "/admin/subscribers/import" }}" {{ IsNav $p "subscribers.import" }}>{{ .L.T "menu.import" }}</a></li>
+					<li><a href="{{ URI "/admin/subscribers/import" }}" {{ IsNav $p "subscribers.import" }}>{{ .L.T "globals.terms.import" }}</a></li>
 					{{- end }}
 					{{- if Can $u "bounces:get" }}
 					<li><a href="{{ URI "/admin/subscribers/bounces" }}" {{ IsNav $p "subscribers.bounces" }}>{{ .L.T "globals.terms.bounces" }}</a></li>
@@ -47,10 +47,10 @@
 					<li><a href="{{ URI "/admin/campaigns" }}" {{ IsNav $p "campaigns.all" }}>{{ .L.T "menu.allCampaigns" }}</a></li>
 					{{- end }}
 					{{- if Can $u "campaigns:manage" "campaigns:manage_all" }}
-					<li><a href="{{ URI "/admin/campaigns/new" }}" {{ IsNav $p "campaigns.new" }}>{{ .L.T "menu.newCampaign" }}</a></li>
+					<li><a href="{{ URI "/admin/campaigns/new" }}" {{ IsNav $p "campaigns.new" }}>{{ .L.T "globals.buttons.createNew" }}</a></li>
 					{{- end }}
 					{{- if Can $u "media:get" "media:manage" }}
-					<li><a href="{{ URI "/admin/campaigns/media" }}" {{ IsNav $p "campaigns.media" }}>{{ .L.T "menu.media" }}</a></li>
+					<li><a href="{{ URI "/admin/campaigns/media" }}" {{ IsNav $p "campaigns.media" }}>{{ .L.T "globals.terms.media" }}</a></li>
 					{{- end }}
 					{{- if Can $u "templates:get" }}
 					<li><a href="{{ URI "/admin/templates" }}" {{ IsNav $p "campaigns.templates" }}>{{ .L.T "globals.terms.templates" }}</a></li>
@@ -83,14 +83,14 @@
 		{{- if Can $u "settings:get" "settings:manage" "settings:maintain" }}
 		<li>
 			<details {{ ExpandNav $p "settings" }} name="sidebar-nav">
-				<summary>{{ Icon "settings" }} {{ .L.T "menu.settings" }}</summary>
+				<summary>{{ Icon "settings" }} {{ .L.T "globals.terms.settings" }}</summary>
 				<ul>
 					{{- if Can $u "settings:get" }}
-					<li><a href="{{ URI "/admin/settings" }}" {{ IsNav $p "settings.all" }}>{{ .L.T "menu.settings" }}</a></li>
-					<li><a href="{{ URI "/admin/settings/logs" }}" {{ IsNav $p "settings.logs" }}>{{ .L.T "menu.logs" }}</a></li>
+					<li><a href="{{ URI "/admin/settings" }}" {{ IsNav $p "settings.all" }}>{{ .L.T "globals.terms.settings" }}</a></li>
+					<li><a href="{{ URI "/admin/settings/logs" }}" {{ IsNav $p "settings.logs" }}>{{ .L.T "globals.terms.logs" }}</a></li>
 					{{- end }}
 					{{- if Can $u "settings:maintain" }}
-					<li><a href="{{ URI "/admin/settings/maintenance" }}" {{ IsNav $p "settings.maintenance" }}>{{ .L.T "menu.maintenance" }}</a></li>
+					<li><a href="{{ URI "/admin/settings/maintenance" }}" {{ IsNav $p "settings.maintenance" }}>{{ .L.T "globals.terms.maintenance" }}</a></li>
 					{{- end }}
 				</ul>
 			</details>

@@ -40,7 +40,7 @@ func (a *App) ViewMedia(c echo.Context) error {
 	}
 
 	data := mediaView{
-		adminView: newAdminView(c, a.i18n.T("media.title"), "", "campaigns.media"),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.media"), "", "campaigns.media"),
 		Media:     res,
 		Provider:  a.cfg.MediaUpload.Provider,
 		Page:      props,
@@ -57,7 +57,7 @@ func (a *App) ViewMediaFragment(c echo.Context) error {
 	}
 
 	data := mediaView{
-		adminView: newAdminView(c, a.i18n.T("media.title"), "", "campaigns.media"),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.media"), "", "campaigns.media"),
 		Media:     res,
 		Provider:  a.cfg.MediaUpload.Provider,
 		Page:      props,
@@ -91,14 +91,14 @@ func (a *App) UploadMedia(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			a.i18n.Ts("media.invalidFile", "error", err.Error()))
+			a.i18n.Ts("globals.messages.invalidFile", "error", err.Error()))
 	}
 
 	// Read the file from the HTTP form.
 	src, err := file.Open()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			a.i18n.Ts("media.errorReadingFile", "error", err.Error()))
+			a.i18n.Ts("globals.messages.errorReadingFile", "error", err.Error()))
 	}
 	defer src.Close()
 
@@ -112,7 +112,7 @@ func (a *App) UploadMedia(c echo.Context) error {
 	if !inArray("*", a.cfg.MediaUpload.Extensions) {
 		if ok := inArray(ext, a.cfg.MediaUpload.Extensions); !ok {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				a.i18n.Ts("media.unsupportedFileType", "type", ext))
+				a.i18n.Ts("globals.messages.unsupportedFileType", "type", ext))
 		}
 	}
 
@@ -135,7 +135,7 @@ func (a *App) UploadMedia(c echo.Context) error {
 	if err != nil {
 		a.log.Printf("error uploading file: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			a.i18n.Ts("media.errorUploading", "error", err.Error()))
+			a.i18n.Ts("globals.messages.errorUploadingFile", "error", err.Error()))
 	}
 
 	// This keeps track of whether the file has to be deleted from the DB and the store

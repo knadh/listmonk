@@ -55,7 +55,7 @@ function setupAlpine() {
         return;
       }
 
-      u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('settings.title') }));
+      u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('globals.terms.settings') }));
       const poll = setInterval(() => {
         fetch(`${urls.api}/health`).then((r) => {
           if (r.ok) {

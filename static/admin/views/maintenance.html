@@ -1,11 +1,11 @@
 {{ define "admin-maintenance" -}}
 {{ template "admin-header" . }}
-{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "menu.settings") "URL" (URI "/admin/settings") "CanLink" (.Data.Can "settings:get"))) }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.settings") "URL" (URI "/admin/settings") "CanLink" (.Data.Can "settings:get"))) }}
 {{- $d := .Data -}}
 
 <section class="maintenance" x-data="maintenanceView">
 	<header class="page-header">
-		<h1 class="page-title">{{ .L.T "maintenance.title" }}</h1>
+		<h1 class="page-title">{{ .L.T "globals.terms.maintenance" }}</h1>
 		<p class="text-light">{{ .L.T "maintenance.help" }}</p>
 	</header>
 
@@ -19,7 +19,7 @@
 						Data
 						<select aria-label="Data" x-model="subscriberType">
 							<option value="orphan">{{ .L.T "dashboard.orphanSubs" }}</option>
-							<option value="blocklisted">{{ .L.T "subscribers.status.blocklisted" }}</option>
+							<option value="blocklisted">{{ .L.T "globals.terms.blocklisted" }}</option>
 						</select>
 						<small data-hint>{{ .L.T "maintenance.orphanHelp" }}</small>
 					</label>
@@ -48,7 +48,7 @@
 				</div>
 				<div class="col-4">
 					<label data-field>
-						{{ .L.T "maintenance.olderThan" }}
+						{{ .L.T "globals.fields.olderThan" }}
 						<input type="date" x-model="subscriptionDate" required />
 					</label>
 				</div>
@@ -78,7 +78,7 @@
 				</div>
 				<div class="col-4">
 					<label data-field>
-						{{ .L.T "maintenance.olderThan" }}
+						{{ .L.T "globals.fields.olderThan" }}
 						<input type="date" x-model="analyticsDate" required />
 					</label>
 				</div>
@@ -92,7 +92,7 @@
 			</div>
 
 			<hr />
-			<h5 class="text-5">{{ .L.T "subscribers.export" }}</h5>
+			<h5 class="text-5">{{ .L.T "globals.buttons.export" }}</h5>
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
@@ -105,14 +105,14 @@
 				</div>
 				<div class="col-4">
 					<label data-field>
-						{{ .L.T "analytics.fromDate" }}
+						{{ .L.T "globals.fields.fromDate" }}
 						<input type="date" x-model="exportDate" required />
 					</label>
 				</div>
 				<div class="col-4 col-end hstack justify-end">
 					<a class="button" data-variant="primary"
 						:href="exportURL" :aria-disabled="!exportDate">
-						{{ Icon "download-cloud" }} {{ .L.T "subscribers.export" }}
+						{{ Icon "download-cloud" }} {{ .L.T "globals.buttons.export" }}
 					</a>
 				</div>
 			</div>
@@ -122,14 +122,14 @@
 		<!-- Database -->
 		<form @submit.prevent="onUpdateDBSettings">
 			<fieldset class="card">
-				<legend>{{ .L.T "maintenance.database.title" }}</legend>
+				<legend>{{ .L.T "globals.terms.database" }}</legend>
 				<h5 class="text-5">Vacuum</h5>
 				<p class="text-light">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
 				<div class="row">
 					<div class="col-3">
 						<label data-field>
 							<input type="checkbox" role="switch" x-model="dbSettings.vacuum" />
-							{{ .L.T "globals.buttons.enabled" }}
+							{{ .L.T "globals.terms.enabled" }}
 						</label>
 					</div>
 					<div class="col-4" :aria-disabled="!dbSettings.vacuum">

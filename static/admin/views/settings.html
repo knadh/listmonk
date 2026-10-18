@@ -12,7 +12,7 @@
 		<header class="row page-header">
 			<div class="col-4">
 				<h1 class="page-title">
-					{{ .L.T "settings.title" }}
+					{{ .L.T "globals.terms.settings" }}
 					<span>({{ $d.Version }})</span>
 				</h1>
 			</div>
@@ -36,15 +36,15 @@
 		<div class="page-content">
 			<ot-tabs class="settings-tabs" x-ref="tabs" data-anchor="tab">
 				<div class="settings-sidebar" role="tablist" aria-orientation="vertical" @click="onTabClick($event)" @keydown="onTabKeydown($event)">
-					<button type="button" role="tab" id="general">{{ .L.T "settings.general.name" }}</button>
-					<button type="button" role="tab" id="performance">{{ .L.T "settings.performance.name" }}</button>
-					<button type="button" role="tab" id="privacy">{{ .L.T "settings.privacy.name" }}</button>
-					<button type="button" role="tab" id="security">{{ .L.T "settings.security.name" }}</button>
+					<button type="button" role="tab" id="general">{{ .L.T "globals.terms.general" }}</button>
+					<button type="button" role="tab" id="performance">{{ .L.T "globals.terms.performance" }}</button>
+					<button type="button" role="tab" id="privacy">{{ .L.T "globals.terms.privacy" }}</button>
+					<button type="button" role="tab" id="security">{{ .L.T "globals.terms.security" }}</button>
 					<button type="button" role="tab" id="media">{{ .L.T "settings.media.title" }}</button>
 					<button type="button" role="tab" id="smtp">{{ .L.T "settings.smtp.name" }}</button>
-					<button type="button" role="tab" id="bounces">{{ .L.T "settings.bounces.name" }}</button>
+					<button type="button" role="tab" id="bounces">{{ .L.T "globals.terms.bounces" }}</button>
 					<button type="button" role="tab" id="messengers">{{ .L.T "settings.messengers.name" }}</button>
-					<button type="button" role="tab" id="appearance">{{ .L.T "settings.appearance.name" }}</button>
+					<button type="button" role="tab" id="appearance">{{ .L.T "globals.terms.appearance" }}</button>
 				</div>
 
 				<div role="tabpanel">{{ template "settings-general" . }}</div>

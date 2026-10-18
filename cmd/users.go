@@ -163,7 +163,7 @@ func (a *App) ViewProfile(c echo.Context) error {
 	user.Password = null.String{}
 
 	data := profileView{
-		adminView: newAdminView(c, a.i18n.T("users.profile"), "", "users.profile"),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.profile"), "", "globals.terms.profile"),
 		User:      user,
 	}
 
@@ -474,7 +474,7 @@ func (a *App) EnableTOTP(c echo.Context) error {
 	)
 
 	if secret == "" || code == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidFields"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "{users.totpCode}"))
 	}
 
 	// If password login is disabled, can't enable TOTP.
@@ -490,7 +490,7 @@ func (a *App) EnableTOTP(c echo.Context) error {
 	// Verify the TOTP code.
 	valid := totp.Validate(code, secret)
 	if !valid {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.invalidTOTPCode"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "{users.totpCode}"))
 	}
 
 	// Enable TOTP in the DB.
@@ -526,7 +526,7 @@ func (a *App) DisableTOTP(c echo.Context) error {
 
 	// Verify the password.
 	if _, err := a.core.LoginUser(u.Username, password); err != nil {
-		return echo.NewHTTPError(http.StatusForbidden, a.i18n.T("users.invalidPassword"))
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.T("globals.messages.invalidPassword"))
 	}
 
 	// Disable TOTP in the DB.

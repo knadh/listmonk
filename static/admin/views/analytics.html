@@ -11,13 +11,13 @@
 
 <section class="analytics">
 	<header class="page-header">
-		<h1 class="page-title">{{ .L.T "analytics.title" }}</h1>
+		<h1 class="page-title">{{ .L.T "globals.terms.analytics" }}</h1>
 	</header>
 
 	<div class="vstack gap-6">
 		<form method="get" action="{{ URI (printf "/admin/%s/analytics" $d.Resource) }}" x-data="analyticsForm({{ ToJSON $d.FromInput }}, {{ ToJSON $d.ToInput }})" @submit="submitting = true">
 			<div class="card float">
-				<h4 class="title">{{ .L.T "analytics.title" }}</h4>
+				<h4 class="title">{{ .L.T "globals.terms.analytics" }}</h4>
 				<div class="row">
 					<div class="col-5">
 						<label data-field>
@@ -46,7 +46,7 @@
 
 					<div class="col-2">
 						<data data-field>
-							<label for="analytics-interval">{{ .L.T "analytics.interval" }}</label>
+							<label for="analytics-interval">{{ .L.T "globals.fields.interval" }}</label>
 							<select id="analytics-interval" name="interval">
 								<option value="day" {{ if eq $d.Interval "day" }}selected{{ end }}>{{ .L.T "globals.terms.day" }}</option>
 								<option value="hour" {{ if eq $d.Interval "hour" }}selected{{ end }}>{{ .L.T "globals.terms.hour" }}</option>
@@ -70,21 +70,21 @@
 
 		{{- if $d.HasData }}
 			{{- if eq $d.Resource "lists" }}
-				{{ template "analytics-chart" dict "Title" (.L.Tc "globals.terms.subscriptions" 2) "Count" $d.Counts.Subscriptions "Key" "subscriptions" "ExtraCount" $d.Counts.Unsubscriptions "ExtraLabel" (.L.T "subscribers.status.unsubscribed") "Items" $d.Items "Resource" $d.Resource }}
+				{{ template "analytics-chart" dict "Title" (.L.Tc "globals.terms.subscriptions" 2) "Count" $d.Counts.Subscriptions "Key" "subscriptions" "ExtraCount" $d.Counts.Unsubscriptions "ExtraLabel" (.L.T "globals.terms.unsubscribed") "Items" $d.Items "Resource" $d.Resource }}
 			{{- end }}
 			{{- if $d.CanViewCampaignCharts }}
-				{{ template "analytics-chart" dict "Title" (.L.T "campaigns.views") "Count" $d.Counts.Views "Key" "views" "Items" $d.Items "Resource" $d.Resource }}
+				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.views") "Count" $d.Counts.Views "Key" "views" "Items" $d.Items "Resource" $d.Resource }}
 				{{- if $d.ShowUnique }}
-					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "campaigns.views") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueViews "Key" "unique_views" "Items" $d.Items "Resource" $d.Resource }}
+					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "globals.terms.views") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueViews "Key" "unique_views" "Items" $d.Items "Resource" $d.Resource }}
 				{{- end }}
-				{{ template "analytics-chart" dict "Title" (.L.T "campaigns.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Items" $d.Items "Resource" $d.Resource }}
+				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Items" $d.Items "Resource" $d.Resource }}
 				{{- if $d.ShowUnique }}
-					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "campaigns.clicks") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueClicks "Key" "unique_clicks" "Items" $d.Items "Resource" $d.Resource }}
+					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "globals.terms.clicks") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueClicks "Key" "unique_clicks" "Items" $d.Items "Resource" $d.Resource }}
 				{{- end }}
 				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Items" $d.Items "Resource" $d.Resource }}
 
 				<article class="card float">
-					<h4 class="title">{{ .L.T "analytics.links" }}</h4>
+					<h4 class="title">{{ .L.T "globals.terms.links" }}</h4>
 					{{- if $d.Data.Links }}
 						<div class="chart-box"><canvas id="chart-links"></canvas></div>
 					{{- else }}

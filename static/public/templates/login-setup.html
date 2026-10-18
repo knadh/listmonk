@@ -10,19 +10,19 @@
 			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
 			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
 			<p>
-				<label for="email">{{ .L.T "subscribers.email" }}</label>
+				<label for="email">{{ .L.T "globals.fields.email" }}</label>
 				<input id="email" type="email" name="email" autofocus required minlength="3" />
 			</p>
 			<p>
-				<label for="username">{{ .L.T "users.username" }}</label>
+				<label for="username">{{ .L.T "globals.fields.username" }}</label>
 				<input id="username" type="text" name="username" required minlength="3" />
 			</p>
 			<p>
-				<label for="password">{{ .L.T "users.password" }}</label>
+				<label for="password">{{ .L.T "globals.fields.password" }}</label>
 				<input id="password" type="password" name="password" required minlength="8" />
 			</p>
 			<p>
-				<label for="password2">{{ .L.T "users.passwordRepeat" }}</label>
+				<label for="password2">{{ .L.T "globals.fields.passwordRepeat" }}</label>
 				<input id="password2" type="password" name="password2" required minlength="8" />
 			</p>
 

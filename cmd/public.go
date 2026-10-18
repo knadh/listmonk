@@ -238,12 +238,12 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 		if er, ok := err.(*echo.HTTPError); ok {
 			if er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
-					makeMsgTpl(a.i18n.T("public.notFoundTitle"), "", a.i18n.T("public.campaignNotFound")))
+					makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", a.i18n.T("public.campaignNotFound")))
 			}
 		}
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Get the subscriber.
@@ -252,11 +252,11 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(a.i18n.T("public.notFoundTitle"), "", a.i18n.T("public.errorFetchingEmail")))
+				makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", a.i18n.T("public.errorFetchingEmail")))
 		}
 
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Resolve data-embed images to media URLs as cid: cannot resolve on a web page.
@@ -266,7 +266,7 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 	if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
 		a.log.Printf("error compiling template: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Render the message body.
@@ -274,7 +274,7 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 	if err != nil {
 		a.log.Printf("error rendering message: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return c.HTML(http.StatusOK, string(msg.Body()))
@@ -292,7 +292,7 @@ func (a *App) SubscriptionPage(c echo.Context) error {
 	s, err := a.core.GetSubscriber(0, subUUID, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	// Prepare the public template.
@@ -348,7 +348,7 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 	}
 	if err := c.Bind(&req); err != nil {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("globals.messages.invalidData")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("globals.messages.invalidData")))
 	}
 
 	// Simple unsubscribe.
@@ -360,31 +360,31 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 	if !req.Manage || blocklist {
 		if err := a.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist, campUUID == dummyUUID); err != nil {
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.errorProcessingRequest")))
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
 		}
 
 		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl(a.i18n.T("public.unsubbedTitle"), "", a.i18n.T("public.unsubbedInfo")))
+			makeMsgTpl(a.i18n.T("globals.terms.unsubscribed"), "", a.i18n.T("public.unsubbedInfo")))
 	}
 
 	// Is preference management enabled?
 	if !a.cfg.Privacy.AllowPreferences {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidFeature")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.invalidFeature")))
 	}
 
 	// Manage preferences.
 	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" || len(req.Name) > 256 {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("subscribers.invalidName")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("globals.messages.invalidName")))
 	}
 
 	// Get the subscriber from the DB.
 	sub, err := a.core.GetSubscriber(0, subUUID, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("globals.messages.pFound",
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("globals.messages.notFound",
 				"name", a.i18n.T("globals.terms.subscriber"))))
 	}
 	sub.Name = req.Name
@@ -392,7 +392,7 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 	// Update the subscriber properties in the DB.
 	if _, err := a.core.UpdateSubscriber(sub.ID, sub); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
 	}
 
 	// Get the subscriber's lists and whatever is not sent in the request (unchecked),
@@ -422,7 +422,7 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 	// Unsubscribe from lists.
 	if err := a.core.UnsubscribeLists([]int{sub.ID}, nil, unsubUUIDs); err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
 
 	}
 
@@ -448,7 +448,7 @@ func (a *App) OptinPage(c echo.Context) error {
 		for _, l := range req.ListUUIDs {
 			if !reUUID.MatchString(l) {
 				return c.Render(http.StatusBadRequest, tplMessage,
-					makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("globals.messages.invalidUUID")))
+					makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("globals.messages.invalidUUID")))
 			}
 		}
 	}
@@ -457,7 +457,7 @@ func (a *App) OptinPage(c echo.Context) error {
 	lists, err := a.core.GetSubscriberLists(0, subUUID, nil, req.ListUUIDs, models.SubscriptionStatusUnconfirmed, "")
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingLists")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingLists")))
 	}
 
 	// There are no lists to confirm.
@@ -473,7 +473,7 @@ func (a *App) OptinPage(c echo.Context) error {
 	var out optinTpl
 	out.Lists = lists
 	out.SubUUID = subUUID
-	out.Title = a.i18n.T("public.confirmOptinSubTitle")
+	out.Title = a.i18n.T("globals.buttons.confirmSubscription")
 
 	return c.Render(http.StatusOK, "optin", out)
 }
@@ -498,11 +498,11 @@ func (a *App) confirmOptinSubscription(c echo.Context, subUUID string, listUUIDs
 	if err := a.core.ConfirmOptionSubscription(subUUID, listUUIDs, meta); err != nil {
 		a.log.Printf("error confirming opt-in subscription: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
-		makeMsgTpl(a.i18n.T("public.subConfirmedTitle"), "", a.i18n.Ts("public.subConfirmed")))
+		makeMsgTpl(a.i18n.T("globals.terms.confirmed"), "", a.i18n.Ts("public.subConfirmed")))
 }
 
 // SubscriptionFormPage handles subscription requests coming from public
@@ -510,24 +510,24 @@ func (a *App) confirmOptinSubscription(c echo.Context, subUUID string, listUUIDs
 func (a *App) SubscriptionFormPage(c echo.Context) error {
 	if !a.cfg.EnablePublicSubPage {
 		return c.Render(http.StatusNotFound, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.invalidFeature")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.invalidFeature")))
 	}
 
 	// Get all public lists from the DB.
 	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, true, nil)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingLists")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingLists")))
 	}
 
 	// There are no public lists available for subscription.
 	if len(lists) == 0 {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.noListsAvailable")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.noListsAvailable")))
 	}
 
 	out := subFormTpl{}
-	out.Title = a.i18n.T("public.sub")
+	out.Title = a.i18n.T("globals.buttons.subscribe")
 	out.Lists = lists
 
 	// Captcha configuration for template rendering.
@@ -569,12 +569,12 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 			val = c.FormValue("altcha")
 		default:
 			return c.Render(http.StatusBadRequest, tplMessage,
-				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.invalidCaptcha")))
 		}
 
 		if val == "" {
 			return c.Render(http.StatusBadRequest, tplMessage,
-				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.invalidCaptcha")))
 		}
 
 		err, ok := a.captcha.Verify(val)
@@ -584,7 +584,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 
 		if !ok {
 			return c.Render(http.StatusBadRequest, tplMessage,
-				makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.T("public.invalidCaptcha")))
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.invalidCaptcha")))
 		}
 	}
 
@@ -595,7 +595,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 			return err
 		}
 
-		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", e.Message)))
+		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "", fmt.Sprintf("%s", e.Message)))
 	}
 
 	// Redirect to a custom page if a trusted '?next' is set.
@@ -614,7 +614,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 		msg = "public.subOptinPending"
 	}
 
-	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("public.subTitle"), "", a.i18n.Ts(msg)))
+	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("globals.buttons.subscribe"), "", a.i18n.Ts(msg)))
 }
 
 // PublicSubscription handles subscription requests coming from public
@@ -648,7 +648,7 @@ func (a *App) LinkRedirect(c echo.Context) error {
 		url, err := a.core.GetLinkURL(linkUUID)
 		if err != nil {
 			e := err.(*echo.HTTPError)
-			return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", e.Error()))
+			return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "", e.Error()))
 		}
 		return c.Redirect(http.StatusTemporaryRedirect, url)
 	}
@@ -662,7 +662,7 @@ func (a *App) LinkRedirect(c echo.Context) error {
 	url, err := a.core.RegisterCampaignLinkClick(linkUUID, campUUID, subUUID)
 	if err != nil {
 		e := err.(*echo.HTTPError)
-		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("public.errorTitle"), "", e.Error()))
+		return c.Render(e.Code, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "", e.Error()))
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, url)
@@ -705,7 +705,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	// Is export allowed?
 	if !a.cfg.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.invalidFeature")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.invalidFeature")))
 	}
 
 	// Get the subscriber's data. A single query that gets the profile,
@@ -716,7 +716,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	// Prepare the attachment e-mail.
@@ -724,7 +724,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	if err := notifs.Tpls.ExecuteTemplate(&msg, notifs.TplSubscriberData, data); err != nil {
 		a.log.Printf("error compiling notification template '%s': %v", notifs.TplSubscriberData, err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	// TODO: GetTplSubject should be moved to a utils package.
@@ -747,7 +747,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 	}); err != nil {
 		a.log.Printf("error e-mailing subscriber profile: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
@@ -761,14 +761,14 @@ func (a *App) WipeSubscriberData(c echo.Context) error {
 	// Is wiping allowed?
 	if !a.cfg.Privacy.AllowWipe {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.invalidFeature")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.invalidFeature")))
 	}
 
 	subUUID := c.Param("subUUID")
 	if err := a.core.DeleteSubscribers(nil, []string{subUUID}); err != nil {
 		a.log.Printf("error wiping subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorProcessingRequest")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
 	return c.Render(http.StatusOK, tplMessage,
@@ -826,7 +826,7 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 
 	// Validate fields.
 	if len(req.Email) > 1000 {
-		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidEmail"))
+		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidEmail"))
 	}
 
 	em, err := a.importer.SanitizeEmail(req.Email)
@@ -840,7 +840,7 @@ func (a *App) processSubForm(c echo.Context) (bool, error) {
 		// If there's no name, use the name bit from the e-mail.
 		req.Name = strings.Split(req.Email, "@")[0]
 	} else if len(req.Name) > stdInputMaxLen {
-		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("subscribers.invalidName"))
+		return false, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidName"))
 	}
 
 	listUUIDs := pq.StringArray(req.FormListUUIDs)

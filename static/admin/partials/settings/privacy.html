@@ -1,7 +1,7 @@
 {{ define "settings-privacy" -}}
 <div class="settings-items">
 	<fieldset class="card" data-keywords="privacy tracking open click individual subscriber opt-in ip analytics one-click unsubscribe header">
-		<legend>{{ .L.T "settings.privacy.name" }}</legend>
+		<legend>{{ .L.T "globals.terms.privacy" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['privacy.disable_tracking']" />
 			{{ .L.T "settings.privacy.disableTracking" }}
@@ -25,7 +25,7 @@
 	</fieldset>
 
 	<fieldset class="card" data-keywords="privacy permissions blocklist preferences export wipe gdpr data subscriber rights">
-		<legend>{{ .L.T "users.perms" }}</legend>
+		<legend>{{ .L.T "globals.terms.permissions" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['privacy.allow_blocklist']" />
 			{{ .L.T "settings.privacy.allowBlocklist" }}

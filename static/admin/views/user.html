@@ -19,7 +19,7 @@
 					{{- if not $d.IsNew }}{{ or $d.User.Name $d.User.Username }}{{ else }}{{ .L.T "users.newUser" }}{{ end -}}
 				</h1>
 			</div>
-			{{- if and (not $d.IsNew) (eq $d.User.Status "disabled") }}{{ Badge (list (Dot) ($.L.T "users.status.disabled")) "enum status-disabled" }}{{ end }}
+			{{- if and (not $d.IsNew) (eq $d.User.Status "disabled") }}{{ Badge (list (Dot) ($.L.T "globals.terms.disabled")) "enum status-disabled" }}{{ end }}
 		</div>
 	</header>
 
@@ -27,9 +27,9 @@
 		<div class="page-content content">
 			<section>
 				<fieldset class="card">
-					<legend>{{ .L.T "users.profile" }}</legend>
+					<legend>{{ .L.T "globals.terms.profile" }}</legend>
 					<div data-field>
-						<label for="user-type">{{ .L.T "users.type" }}</label>
+						<label for="user-type">{{ .L.T "globals.fields.type" }}</label>
 						<select name="type" id="user-type" autofocus x-model="form.type" :disabled="!isNew">
 							<option value="user">{{ .L.T "users.type.user" }}</option>
 							<option value="api">{{ .L.T "users.type.api" }}</option>
@@ -37,7 +37,7 @@
 					</div>
 
 					<label data-field>
-						{{ .L.T "users.username" }}
+						{{ .L.T "globals.fields.username" }}
 						<input name="username" maxlength="200" required autocomplete="off" pattern="[a-zA-Z0-9_\-\.@]+$" autofocus x-model="form.username" />
 						<small data-hint>{{ .L.T "users.usernameHelp" }}</small>
 					</label>
@@ -49,7 +49,7 @@
 
 					<template x-if="form.type !== 'api'">
 						<label data-field>
-							{{ .L.T "subscribers.email" }}
+							{{ .L.T "globals.fields.email" }}
 							<input name="email" type="email" maxlength="200" required x-model="form.email" />
 						</label>
 					</template>
@@ -57,31 +57,31 @@
 					<div data-field>
 						<label for="user-status">{{ .L.T "globals.fields.status" }}</label>
 						<select name="status" id="user-status" required x-model="form.status">
-							<option value="enabled">{{ .L.T "users.status.enabled" }}</option>
-							<option value="disabled">{{ .L.T "users.status.disabled" }}</option>
+							<option value="enabled">{{ .L.T "globals.terms.enabled" }}</option>
+							<option value="disabled">{{ .L.T "globals.terms.disabled" }}</option>
 						</select>
 					</div>
 				</fieldset>
 
 				<template x-if="form.type !== 'api'">
 					<fieldset class="card">
-						<legend>{{ .L.T "users.password" }}</legend>
+						<legend>{{ .L.T "globals.fields.password" }}</legend>
 						<label data-field>
 							<input type="checkbox" x-model="form.password_login" data-testid="password-login" /> {{ .L.T "users.passwordEnable" }}
 						</label>
 						<label data-field>
-							{{ .L.T "users.password" }}
+							{{ .L.T "globals.fields.password" }}
 							<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && isNew" x-model="form.password" />
 						</label>
 						<label data-field>
-							{{ .L.T "users.passwordRepeat" }}
+							{{ .L.T "globals.fields.passwordRepeat" }}
 							<input type="password" name="password2" minlength="8" maxlength="200" autocomplete="new-password" :disabled="!form.password_login" :required="form.password_login && isNew && form.password" x-model="form.password2" />
 						</label>
 					</fieldset>
 				</template>
 
 				<fieldset class="card">
-					<legend>{{ .L.Tc "users.roles" 2 }}</legend>
+					<legend>{{ .L.Tc "globals.terms.roles" 2 }}</legend>
 					<div data-field>
 						<label for="user-role">{{ .L.Tc "users.userRole" 1 }}</label>
 						<select name="user_role" id="user-role" required x-model.number="form.user_role_id">

@@ -45,11 +45,11 @@ function component() {
       }
 
       await api('campaigns', `/campaigns/${id}/status`, 'PUT', { status });
-      u.reload({ message: i18n.ts('campaigns.statusChanged', { name, status }) });
+      u.reload({ message: i18n.ts('globals.messages.statusChanged', { name, status: i18n.t(`globals.terms.${status}`) }) });
     },
 
     async onClone(id, name) {
-      const newName = window.prompt(i18n.t('globals.fields.name'), i18n.ts('campaigns.copyOf', { name }));
+      const newName = window.prompt(i18n.t('globals.fields.name'), i18n.ts('globals.messages.copyOf', { name }));
       if (!newName || !newName.trim()) {
         return;
       }
@@ -86,7 +86,7 @@ function component() {
     },
 
     async onDelete(id, name) {
-      if (!(await u.confirm(i18n.ts('campaigns.confirmDelete', { name })))) {
+      if (!(await u.confirm(i18n.ts('globals.messages.confirmDeleteNamed', { name })))) {
         return;
       }
       await api('campaigns', `/campaigns/${id}`, 'DELETE');

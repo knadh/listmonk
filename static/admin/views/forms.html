@@ -7,7 +7,7 @@
 <section class="forms" x-data="formsView(_lists)">
 	<header class="row page-header">
 		<div class="col-4">
-			<h1 class="page-title">{{ .L.T "forms.title" }}</h1>
+			<h1 class="page-title">{{ .L.T "globals.terms.forms" }}</h1>
 		</div>
 		<div class="col-8 hstack justify-end buttons">
 			{{- if $.ConfigJS.PublicSubscription.Enabled }}
@@ -38,7 +38,7 @@
 					</fieldset>
 
 					<fieldset class="group">
-						<legend>{{ .L.T "forms.redirectURL" }}</legend>
+						<legend>{{ .L.T "globals.fields.redirectURL" }}</legend>
 						<p class="text-light">{{ .L.T "forms.redirectURLHelp" }}</p>
 						{{- if $.ConfigJS.PublicSubscription.RedirectURLs }}
 							<ul class="no" data-testid="redirect-urls">

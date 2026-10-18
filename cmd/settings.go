@@ -135,7 +135,7 @@ func (a *App) ViewSettings(c echo.Context) error {
 	}
 
 	data := settingsView{
-		adminView: newAdminView(c, a.i18n.T("settings.title"), "", "settings.all"),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.settings"), "", "settings.all"),
 		Settings:  s,
 		UserRoles: userRoles,
 		ListRoles: listRoles,
@@ -474,7 +474,7 @@ type logsView struct {
 // ViewLogs renders the HTML view for the application log viewer.
 func (a *App) ViewLogs(c echo.Context) error {
 	data := logsView{
-		adminView: newAdminView(c, a.i18n.T("logs.title"), "", "settings.logs"),
+		adminView: newAdminView(c, a.i18n.T("globals.terms.logs"), "", "settings.logs"),
 		Lines:     a.bufLog.Lines(),
 	}
 
@@ -533,7 +533,7 @@ func (a *App) TestSMTPSettings(c echo.Context) error {
 	m := models.Message{}
 	m.From = a.cfg.FromEmail
 	m.To = []string{to}
-	m.Subject = a.i18n.T("settings.smtp.testConnection")
+	m.Subject = a.i18n.T("globals.buttons.testConnection")
 	m.Body = b.Bytes()
 	if err := msgr.Push(m); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

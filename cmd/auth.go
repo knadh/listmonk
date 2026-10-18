@@ -413,7 +413,7 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 	}
 
 	out := loginTpl{
-		Title:            a.i18n.T("users.login"),
+		Title:            a.i18n.T("globals.buttons.login"),
 		PasswordEnabled:  true,
 		OIDCProvider:     oidcProviderName,
 		OIDCProviderLogo: oidcLogo,
@@ -456,7 +456,7 @@ func (a *App) renderLoginSetupPage(c echo.Context, loginErr error) error {
 	}
 
 	out := loginTpl{
-		Title:           a.i18n.T("users.login"),
+		Title:           a.i18n.T("globals.buttons.login"),
 		PasswordEnabled: true,
 		NextURI:         next,
 	}

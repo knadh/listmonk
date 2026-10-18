@@ -1,9 +1,9 @@
 {{ define "settings-performance" -}}
 <div class="settings-items">
 	<fieldset class="card" data-keywords="performance concurrency message rate batch size errors threshold throughput sending speed workers">
-		<legend>{{ .L.T "settings.performance.name" }}</legend>
+		<legend>{{ .L.T "globals.terms.performance" }}</legend>
 		<label data-field>
-			{{ .L.T "settings.performance.concurrency" }}
+			{{ .L.T "globals.fields.concurrency" }}
 			<input type="number" name="app.concurrency" min="1" max="10000" placeholder="5" x-model.number="form['app.concurrency']" />
 			<small data-hint>{{ .L.T "settings.performance.concurrencyHelp" }}</small>
 		</label>
@@ -15,7 +15,7 @@
 		</label>
 
 		<label data-field>
-			{{ .L.T "settings.performance.batchSize" }}
+			{{ .L.T "globals.fields.batchSize" }}
 			<input type="number" name="app.batch_size" min="1" max="100000" placeholder="1000" x-model.number="form['app.batch_size']" />
 			<small data-hint>{{ .L.T "settings.performance.batchSizeHelp" }}</small>
 		</label>
@@ -40,7 +40,7 @@
 				<small data-hint>{{ .L.T "settings.performance.slidingWindowRateHelp" }}</small>
 			</label>
 			<label data-field :aria-disabled="!form['app.message_sliding_window']">
-				{{ .L.T "settings.performance.slidingWindowDuration" }}
+				{{ .L.T "globals.fields.duration" }}
 				<input placeholder="1h" maxlength="10" :disabled="!form['app.message_sliding_window']" x-model="form['app.message_sliding_window_duration']" />
 				<small data-hint>{{ .L.T "settings.performance.slidingWindowDurationHelp" }}</small>
 			</label>

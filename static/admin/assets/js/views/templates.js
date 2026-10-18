@@ -36,7 +36,7 @@ function templatesView() {
 
     // Clone a template by fetching its full body and creating a copy.
     async onClone(id, name) {
-      const newName = window.prompt(i18n.t('globals.fields.name'), i18n.ts('campaigns.copyOf', { name }));
+      const newName = window.prompt(i18n.t('globals.fields.name'), i18n.ts('globals.messages.copyOf', { name }));
       if (!newName) {
         return;
       }

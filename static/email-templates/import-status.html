@@ -3,15 +3,15 @@
 <h2>{{ L.Ts "email.status.importTitle" }}</h2>
 <table width="100%">
     <tr>
-        <td width="30%"><strong>{{ L.Ts "email.status.importFile" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "globals.fields.file" }}</strong></td>
         <td><a href="{{ RootURL }}/admin/subscribers/import">{{ .Name }}</a></td>
     </tr>
     <tr>
-        <td width="30%"><strong>{{ L.Ts "email.status.status" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "globals.fields.status" }}</strong></td>
         <td>{{ .Status }}</td>
     </tr>
     <tr>
-        <td width="30%"><strong>{{ L.Ts "email.status.importRecords" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "globals.terms.records" }}</strong></td>
         <td>{{ .Imported }} / {{ .Total }}</td>
     </tr>
 </table>

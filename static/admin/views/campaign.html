@@ -33,7 +33,7 @@
 					</h1>
 				</div>
 				{{- if not $isNew }}
-					{{ Badge (list (Dot) (.L.T (printf "campaigns.status.%s" $c.Status))) (printf "enum status-%s" $c.Status) }}
+					{{ Badge (list (Dot) (.L.T (printf "globals.terms.%s" $c.Status))) (printf "enum status-%s" $c.Status) }}
 					{{- if eq $c.Type "optin" }}{{ Badge (.L.T "lists.optin") "enum optin" }}{{ end }}
 				{{- end }}
 			</div>
@@ -45,17 +45,17 @@
 						<button type="button" class="outline external campaign-test-btn dot-indicator" :class="{ 'is-active': form.testEmails.length > 0 }" popovertarget="campaign-test" :disabled="isNew">{{ Icon "mail" }} {{ .L.T "campaigns.sendTest" }}</button>
 						<div popover id="campaign-test" class="campaign-test">
 							<label data-field>
-								<ot-taginput x-model="form.testEmails"><input type="email" placeholder="{{ .L.T "campaigns.testEmails" }}" :disabled="isNew" @blur="$el.value !== '' && $el.closest('ot-taginput').add($el.value)" autofocus /></ot-taginput>
+								<ot-taginput x-model="form.testEmails"><input type="email" placeholder="{{ .L.T "globals.fields.emails" }}" :disabled="isNew" @blur="$el.value !== '' && $el.closest('ot-taginput').add($el.value)" autofocus /></ot-taginput>
 								<small data-hint>{{ .L.T "campaigns.sendTestHelp" }}</small>
 							</label>
 							<div class="hstack justify-end buttons">
-								<button type="button" data-variant="primary" @click="onTest" :disabled="isNew || isLoading('campaigns.test')" :aria-busy="isLoading('campaigns.test')" data-spinner="small">{{ Icon "mail" }} {{ .L.T "campaigns.send" }}</button>
+								<button type="button" data-variant="primary" @click="onTest" :disabled="isNew || isLoading('campaigns.test')" :aria-busy="isLoading('campaigns.test')" data-spinner="small">{{ Icon "mail" }} {{ .L.T "globals.buttons.send" }}</button>
 							</div>
 						</div>
 					</ot-dropdown>
 				{{- end }}
 				{{- if $showPreview }}
-					<button type="button" class="outline external" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "campaigns.preview" }}</button>
+					<button type="button" class="outline external" @click="onPreviewContent" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "globals.buttons.preview" }}</button>
 				{{- end }}
 				{{- if $showActions }}
 					<button type="button" data-variant="primary" x-show="canEdit" @click="onSave" :disabled="isLoading('campaigns')" data-spinner="small" :aria-busy="isLoading('campaigns')">{{ Icon "save" }} {{ .L.T "globals.buttons.saveChanges" }}</button>
@@ -67,10 +67,10 @@
 	{{- if $isNew }}
 		<div role="tablist" data-variant="primary">
 			<a role="tab" aria-selected="true">{{ Icon "mail" }} {{ .L.Tc "globals.terms.campaign" 1 }}</a>
-			<a role="tab" aria-disabled="true">{{ Icon "file-text" }} {{ .L.T "campaigns.content" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "file-text" }} {{ .L.T "globals.fields.content" }}</a>
 			<a role="tab" aria-disabled="true">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }}</a>
-			<a role="tab" aria-disabled="true">{{ Icon "paperclip" }} {{ .L.T "campaigns.attachments" }}</a>
-			<a role="tab" aria-disabled="true">{{ Icon "archive" }} {{ .L.T "campaigns.archive" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "paperclip" }} {{ .L.T "globals.terms.attachments" }}</a>
+			<a role="tab" aria-disabled="true">{{ Icon "archive" }} {{ .L.T "globals.terms.archive" }}</a>
 		</div>
 
 		{{ template "campaign-form" dict "Root" . "IsNew" $isNew "CanManage" $canManage "CanSend" $canSend }}
@@ -78,23 +78,23 @@
 		<ot-tabs data-anchor="tab">
 			<div role="tablist" data-variant="primary">
 				<button type="button" role="tab" id="campaign">{{ Icon "send" }} {{ .L.Tc "globals.terms.campaign" 1 }}</button>
-				<button type="button" role="tab" id="content">{{ Icon "align-left" }} {{ .L.T "campaigns.content" }}</button>
+				<button type="button" role="tab" id="content">{{ Icon "align-left" }} {{ .L.T "globals.fields.content" }}</button>
 				<button type="button" role="tab" id="attribs">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }} <span x-cloak x-show="form.attribsStr.trim() !== '' && form.attribsStr.trim() !== '{}'">{{ Icon "check-circle" }}</span></button>
-				<button type="button" role="tab" id="attachments">{{ Icon "paperclip" }} {{ .L.T "campaigns.attachments" }} <span x-cloak x-show="form.media.length" x-text="`(${form.media.length})`"></span></button>
-				<button type="button" role="tab" id="archive">{{ Icon "archive" }} {{ .L.T "campaigns.archive" }} <span x-cloak x-show="form.archive">{{ Icon "check-circle" }}</span></button>
+				<button type="button" role="tab" id="attachments">{{ Icon "paperclip" }} {{ .L.T "globals.terms.attachments" }} <span x-cloak x-show="form.media.length" x-text="`(${form.media.length})`"></span></button>
+				<button type="button" role="tab" id="archive">{{ Icon "archive" }} {{ .L.T "globals.terms.archive" }} <span x-cloak x-show="form.archive">{{ Icon "check-circle" }}</span></button>
 			</div>
 
 			<ot-dropdown class="content-settings" x-cloak x-show="activeTab === 'content'">
 				<button type="button" class="outline small external" popovertarget="content-settings" :title="contentSettingsLabel">{{ Icon "settings" }} <span class="content-settings-label" x-text="contentSettingsLabel"></span></button>
 				<div popover id="content-settings" class="content-settings-menu">
 					<div data-field>
-						<label>{{ .L.T "campaigns.format" }}</label>
+						<label>{{ .L.T "globals.fields.format" }}</label>
 						<select :value="form.content_type" @change="onContentTypeChange($event)" :disabled="!canEdit" name="content_type">
-							<option value="richtext">{{ .L.T "campaigns.contentType.richtext" }}</option>
-							<option value="html">{{ .L.T "campaigns.contentType.html" }}</option>
-							<option value="markdown">{{ .L.T "campaigns.contentType.markdown" }}</option>
-							<option value="plain">{{ .L.T "campaigns.contentType.plain" }}</option>
-							<option value="visual">{{ .L.T "campaigns.contentType.visual" }}</option>
+							<option value="richtext">{{ .L.T "editor.contentType.richtext" }}</option>
+							<option value="html">{{ .L.T "editor.contentType.html" }}</option>
+							<option value="markdown">{{ .L.T "editor.contentType.markdown" }}</option>
+							<option value="plain">{{ .L.T "editor.contentType.plain" }}</option>
+							<option value="visual">{{ .L.T "editor.contentType.visual" }}</option>
 						</select>
 					</div>
 

@@ -19,8 +19,8 @@
 					<small class="text-light">{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/lists" }}" class="unstyled">{{ FormatNumber $c.Lists.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=public" class="unstyled"><strong>{{ FormatNumber $c.Lists.Public }}</strong></a></dt><dd class="text-light">{{ .L.T "lists.types.public" }}</dd></div>
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=private" class="unstyled"><strong>{{ FormatNumber $c.Lists.Private }}</strong></a></dt><dd class="text-light">{{ .L.T "lists.types.private" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=public" class="unstyled"><strong>{{ FormatNumber $c.Lists.Public }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.public" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=private" class="unstyled"><strong>{{ FormatNumber $c.Lists.Private }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.private" }}</dd></div>
 					</dl>
 				</article>
 			</div>
@@ -31,7 +31,7 @@
 					<div class="stat-value"><a href="{{ URI "/admin/subscribers" }}" class="unstyled">{{ FormatNumber $c.Subscribers.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
 						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?subscription_status=none" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Orphans }}</strong></a></dt><dd class="text-light">{{ .L.T "dashboard.orphanSubs" }}</dd></div>
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?status=blocklisted" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Blocklisted }}</strong></a></dt><dd class="text-light">{{ .L.T "subscribers.status.blocklisted" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?status=blocklisted" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Blocklisted }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.blocklisted" }}</dd></div>
 					</dl>
 				</article>
 			</div>
@@ -41,8 +41,8 @@
 					<small class="text-light">{{ Icon "send" }} {{ .L.T "globals.terms.campaigns" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/campaigns" }}" class="unstyled">{{ FormatNumber $c.Campaigns.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=scheduled" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "scheduled") }}</strong></a></dt><dd class="text-light">{{ .L.T "campaigns.status.scheduled" }}</dd></div>
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=finished" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "finished") }}</strong></a></dt><dd class="text-light">{{ .L.T "campaigns.status.finished" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=scheduled" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "scheduled") }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.scheduled" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=finished" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "finished") }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.finished" }}</dd></div>
 					</dl>
 				</article>
 			</div>
@@ -87,8 +87,8 @@
 											</div>
 										</td>
 										<td width="20%">
-											<a href="{{ URI "/admin/campaigns" }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "campaigns.status.%s" .Status) }}">
-												{{ Badge (list (Dot) ($.L.T (printf "campaigns.status.%s" .Status))) (printf "enum status-%s" .Status) }}
+											<a href="{{ URI "/admin/campaigns" }}?status={{ .Status }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T (printf "globals.terms.%s" .Status) }}">
+												{{ Badge (list (Dot) ($.L.T (printf "globals.terms.%s" .Status))) (printf "enum status-%s" .Status) }}
 											</a>
 										</td>
 										<td width="20%"class="text-light">
@@ -114,7 +114,7 @@
 			<div class="col-4">
 				{{- $s := $d.System -}}
 				<article class="card float">
-					<h5 class="title">{{ Icon "activity" }} {{ .L.T "dashboard.system" }}</h5>
+					<h5 class="title">{{ Icon "activity" }} {{ .L.T "globals.terms.system" }}</h5>
 					<dl class="vstack gap-4">
 						<div class="hstack justify-between"><dt>Uptime</dt><dd class="text-light">{{ $s.Uptime }}</dd></div>
 						<div class="hstack justify-between"><dt>App memory</dt><dd class="text-light">{{ FormatNumber (int $s.AppMemMB) }} MB</dd></div>

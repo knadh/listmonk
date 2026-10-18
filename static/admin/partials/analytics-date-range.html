@@ -10,10 +10,10 @@
 		<button type="button" role="menuitem" class="ghost" @click="onDateRange(12, 'month')" :disabled="submitting">12 {{ .L.Tc "globals.terms.month" 12 }}</button>
 		<hr />
 		<div class="custom-dates">
-			<label data-field>{{ .L.T "analytics.fromDate" }}
+			<label data-field>{{ .L.T "globals.fields.fromDate" }}
 				<input type="datetime-local" name="from" x-model="from" required />
 			</label>
-			<label data-field>{{ .L.T "analytics.toDate" }}
+			<label data-field>{{ .L.T "globals.fields.toDate" }}
 				<input type="datetime-local" name="to" x-model="to" :min="from" required />
 			</label>
 			<button type="submit" data-variant="secondary" :disabled="submitting">{{ .L.T "globals.buttons.apply" }}</button>

@@ -1,7 +1,7 @@
 {{ define "optin" }}
 {{ template "header" .}}
 <section>
-    <h2>{{ L.T "public.confirmSubTitle" }}</h2>
+    <h2>{{ L.T "globals.buttons.confirm" }}</h2>
     <p>
         {{ L.T "public.confirmSubInfo" }}
     </p>
@@ -20,7 +20,7 @@
         <p>
             <input type="hidden" name="confirm" value="true" />
             <button type="submit" class="button" id="btn-unsub">
-                {{ L.Ts "public.confirmSub" }}
+                {{ L.Ts "globals.buttons.confirmSubscription" }}
             </button>
         </p>
     </form>

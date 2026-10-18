@@ -266,7 +266,7 @@ func (c *Core) DeleteSubscriberActivity(id int, activityType string) error {
 	if _, err := stmt.Exec(id); err != nil {
 		c.log.Printf("error deleting subscriber activity: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			c.i18n.Ts("globals.messages.errorDeleting", "name", "{subscribers.activity}", "error", pqErrMsg(err)))
+			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.activity}", "error", pqErrMsg(err)))
 	}
 
 	return nil

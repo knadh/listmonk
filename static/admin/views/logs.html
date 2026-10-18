@@ -1,11 +1,11 @@
 {{ define "admin-logs" -}}
 {{ template "admin-header" . }}
-{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "menu.settings") "URL" (URI "/admin/settings") "CanLink" (.Data.Can "settings:get"))) }}
+{{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T "globals.terms.settings") "URL" (URI "/admin/settings") "CanLink" (.Data.Can "settings:get"))) }}
 {{- $d := .Data -}}
 
 <section class="logs relative" x-data="logsView">
 	<header class="page-header">
-		<h1 class="page-title">{{ .L.T "logs.title" }}</h1>
+		<h1 class="page-title">{{ .L.T "globals.terms.logs" }}</h1>
 	</header>
 
 	<div class="card page-content">

@@ -98,7 +98,7 @@ func (a *App) ViewDashboard(c echo.Context) error {
 	}
 
 	data := dashboardView{
-		adminView:        newAdminView(c, a.i18n.T("menu.dashboard"), "", "dashboard"),
+		adminView:        newAdminView(c, a.i18n.T("globals.terms.dashboard"), "", "dashboard"),
 		Counts:           cnt,
 		Charts:           charts,
 		Campaigns:        camps,

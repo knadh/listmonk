@@ -262,9 +262,9 @@ class RichtextEditor extends HTMLElement {
     // Block-format label.
     const m = path.match(/(H[1-6]|BLOCKQUOTE|PRE)/);
     this.#toolbar.querySelector('[data-rte-blocklabel]').textContent = !m
-      ? t('campaigns.editor.paragraph')
-      : ({ BLOCKQUOTE: t('campaigns.editor.blockquote'), PRE: t('campaigns.editor.code') })[m[1]]
-      ?? `${t('campaigns.editor.heading')} ${m[1][1]}`;
+      ? t('editor.paragraph')
+      : ({ BLOCKQUOTE: t('editor.blockquote'), PRE: t('globals.terms.code') })[m[1]]
+      ?? `${t('editor.heading')} ${m[1][1]}`;
 
     // Statusbar element path.
     this.querySelector('[data-rte-path]').textContent = path.replace(/^(?:P|DIV)>?/, '').replace(/>/g, ' › ').toLowerCase();
@@ -296,7 +296,7 @@ class RichtextEditor extends HTMLElement {
   #updateWordcount() {
     const text = this.content.textContent.trim();
     const n = text ? text.split(/\s+/).length : 0;
-    this.querySelector('[data-rte-wordcount]').textContent = i18n.tc('campaigns.editor.words', n, { num: n });
+    this.querySelector('[data-rte-wordcount]').textContent = i18n.tc('editor.words', n, { num: n });
   }
 
   // Responsive toolbar
@@ -399,7 +399,7 @@ class RichtextEditor extends HTMLElement {
   }
 
   #insertAnchor() {
-    const name = window.prompt(t('campaigns.editor.anchorName'));
+    const name = window.prompt(t('editor.anchorName'));
     if (name) {
       this.editor.focus();
       this.editor.insertHTML(`<a id="${name.replace(/"/g, '')}"></a>`);
@@ -610,7 +610,7 @@ class RichtextEditor extends HTMLElement {
         node.replaceWith(frag);
       }
 
-      count.textContent = i18n.ts('campaigns.editor.findCount', { num: matches.length });
+      count.textContent = i18n.ts('editor.findCount', { num: matches.length });
       if (matches.length) {
         next();
       }

@@ -28,11 +28,11 @@
 						{{- if $isNew }}{{ .L.T "templates.newTemplate" }}{{ else }}{{ $t.Name }}{{ end -}}
 					</h1>
 				</div>
-				{{- if and (not $isNew) $t.IsDefault }}{{ Badge (.L.T "templates.default") "enum" }}{{ end }}
+				{{- if and (not $isNew) $t.IsDefault }}{{ Badge (.L.T "globals.terms.default") "enum" }}{{ end }}
 			</div>
 		</div>
 		<div class="col-6 hstack justify-end buttons">
-			<button type="button" class="outline external" data-testid="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "templates.preview" }}</button>
+			<button type="button" class="outline external" data-testid="btn-preview" @click="onPreviewBody" aria-keyshortcuts="F9">{{ Icon "eye" }} {{ .L.T "globals.buttons.preview" }}</button>
 		</div>
 	</header>
 
@@ -61,15 +61,15 @@
 
 				<template x-if="form.type === 'tx'">
 					<label data-field>
-						{{ .L.T "templates.subject" }}
-						<input name="subject" maxlength="200" x-model="form.subject" placeholder="{{ .L.T "templates.subject" }}" />
+						{{ .L.T "globals.fields.subject" }}
+						<input name="subject" maxlength="200" x-model="form.subject" placeholder="{{ .L.T "globals.fields.subject" }}" />
 					</label>
 				</template>
 
 			</fieldset>
 
 			<fieldset class="card">
-				<legend>{{ .L.T "campaigns.content" }}</legend>
+				<legend>{{ .L.T "globals.fields.content" }}</legend>
 				<div class="editor-body">
 					<template x-if="form.type === 'campaign_visual'">
 						<visual-editor base="{{ URI "/admin/static/email-builder" }}" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source"><textarea>{{ $t.BodySource.String }}</textarea></visual-editor>

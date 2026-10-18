@@ -45,7 +45,7 @@ function component(lists = []) {
 
       let h = `<form method="post" action="${root}/subscription/form" class="listmonk-form">\n`
         + '  <div>\n'
-        + `    <h3>${i18n.t('public.sub')}</h3>\n`
+        + `    <h3>${i18n.t('globals.buttons.subscribe')}</h3>\n`
         + '    <input type="hidden" name="nonce" />\n';
 
       if (this.redirectURL) {
@@ -53,7 +53,7 @@ function component(lists = []) {
       }
 
       h += '\n'
-        + `    <p><input type="email" name="email" required placeholder="${i18n.t('subscribers.email')}" /></p>\n`
+        + `    <p><input type="email" name="email" required placeholder="${i18n.t('globals.fields.email')}" /></p>\n`
         + `    <p><input type="text" name="name" placeholder="${i18n.t('public.subName')}" /></p>\n\n`;
 
       this.checked.forEach((uuid) => {
@@ -88,7 +88,7 @@ function component(lists = []) {
       }
 
       h += '\n'
-        + `    <input type="submit" value="${i18n.t('public.sub')} " />\n`
+        + `    <input type="submit" value="${i18n.t('globals.buttons.subscribe')} " />\n`
         + '  </div>\n'
         + '</form>';
 

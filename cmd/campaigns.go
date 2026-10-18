@@ -418,7 +418,7 @@ func (a *App) PreviewCampaignArchive(c echo.Context) error {
 	res, err := a.compileArchiveCampaigns([]models.Campaign{camp})
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	// Render the campaign body.
@@ -427,7 +427,7 @@ func (a *App) PreviewCampaignArchive(c echo.Context) error {
 	if err != nil {
 		a.log.Printf("error rendering campaign: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("public.errorTitle"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
 	return renderSandboxedHTML(c, string(msg.Body()))

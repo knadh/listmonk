@@ -14,10 +14,10 @@
 						<div class="hstack gap-6 justify-end">
 							<label data-field @click.stop>
 								<input type="checkbox" role="switch" x-model="item.enabled" />
-								{{ .L.T "globals.buttons.enabled" }}
+								{{ .L.T "globals.terms.enabled" }}
 							</label>
 							<button type="button" class="outline small" :disabled="!item.enabled" @click.stop.prevent="showSMTPTest(n)">
-								{{ Icon "send" }} {{ .L.T "settings.smtp.testConnection" }}
+								{{ Icon "send" }} {{ .L.T "globals.buttons.testConnection" }}
 							</button>
 							<button type="button" class="outline small" x-show="form.smtp.length > 1" data-variant="danger" @click.stop.prevent="removeSMTP(n)">
 								{{ Icon "trash-2" }} {{ .L.T "globals.buttons.delete" }}
@@ -48,18 +48,18 @@
 
 				<div :aria-disabled="!item.enabled">
 					<fieldset class="card" :disabled="!item.enabled">
-						<legend>{{ .L.T "settings.mailserver.host" }}</legend>
+						<legend>{{ .L.T "globals.fields.host" }}</legend>
 						<div class="row">
 							<div class="col-9">
 								<label data-field>
-									{{ .L.T "settings.mailserver.host" }}
+									{{ .L.T "globals.fields.host" }}
 									<input maxlength="200" placeholder="smtp.yourmailserver.net" x-model="item.host" />
 									<small data-hint>{{ .L.T "settings.mailserver.hostHelp" }}</small>
 								</label>
 							</div>
 							<div class="col-3">
 								<label data-field>
-									{{ .L.T "settings.mailserver.port" }}
+									{{ .L.T "globals.fields.port" }}
 									<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.port" />
 									<small data-hint>{{ .L.T "settings.mailserver.portHelp" }}</small>
 								</label>
@@ -80,9 +80,9 @@
 					</fieldset>
 
 					<fieldset class="card" :disabled="!item.enabled">
-						<legend>{{ .L.T "settings.mailserver.authProtocol" }}</legend>
+						<legend>{{ .L.T "globals.fields.authProtocol" }}</legend>
 						<div data-field>
-							<label>{{ .L.T "settings.mailserver.authProtocol" }}</label>
+							<label>{{ .L.T "globals.fields.authProtocol" }}</label>
 							<select x-model="item.auth_protocol">
 								<option value="login">LOGIN</option>
 								<option value="cram">CRAM</option>
@@ -91,13 +91,13 @@
 							</select>
 						</div>
 						<label data-field>
-							{{ .L.T "settings.mailserver.username" }}
+							{{ .L.T "globals.fields.username" }}
 							<input maxlength="200" placeholder="mysmtp" :class="`smtp-username-${n}`" :disabled="item.auth_protocol === 'none'" x-model="item.username" />
 						</label>
 						<label data-field>
-							{{ .L.T "settings.mailserver.password" }}
+							{{ .L.T "globals.fields.password" }}
 							<input type="password" maxlength="200" :class="`smtp-password-${n}`" :disabled="item.auth_protocol === 'none'" x-model="item.password" />
-							<small data-hint>{{ .L.T "settings.mailserver.passwordHelp" }}</small>
+							<small data-hint>{{ .L.T "globals.messages.passwordChange" }}</small>
 						</label>
 					</fieldset>
 
@@ -131,33 +131,33 @@
 					</fieldset>
 
 					<fieldset class="card" :disabled="!item.enabled">
-						<legend>{{ .L.T "settings.connection" }}</legend>
+						<legend>{{ .L.T "globals.terms.connection" }}</legend>
 						<label data-field>
-							{{ .L.T "settings.mailserver.maxConns" }}
+							{{ .L.T "globals.fields.maxConns" }}
 							<input type="number" min="1" max="65535" placeholder="25" x-model.number="item.max_conns" />
 							<small data-hint>{{ .L.T "settings.mailserver.maxConnsHelp" }}</small>
 						</label>
 						<label data-field>
-							{{ .L.T "settings.mailserver.idleTimeout" }}
+							{{ .L.T "globals.fields.idleTimeout" }}
 							<input maxlength="10" placeholder="15s" x-model="item.idle_timeout" />
 							<small data-hint>{{ .L.T "settings.mailserver.idleTimeoutHelp" }}</small>
 						</label>
 						<label data-field>
-							{{ .L.T "settings.mailserver.waitTimeout" }}
+							{{ .L.T "globals.fields.waitTimeout" }}
 							<input maxlength="10" placeholder="5s" x-model="item.wait_timeout" />
 							<small data-hint>{{ .L.T "settings.mailserver.waitTimeoutHelp" }}</small>
 						</label>
 						<div class="row" data-field>
 							<div class="col-6">
 								<label data-field>
-									{{ .L.T "settings.smtp.retries" }}
+									{{ .L.T "globals.fields.retries" }}
 									<input type="number" min="1" max="1000" placeholder="2" x-model.number="item.max_msg_retries" />
-									<small data-hint>{{ .L.T "settings.smtp.retriesHelp" }}</small>
+									<small data-hint>{{ .L.T "settings.mailserver.retriesHelp" }}</small>
 								</label>
 							</div>
 							<div class="col-6">
 								<label data-field>
-									{{ .L.T "settings.smtp.retryDelay" }}
+									{{ .L.T "globals.fields.retryDelay" }}
 									<input maxlength="10" placeholder="0s" x-model="item.msg_retry_delay" />
 									<small data-hint>{{ .L.T "settings.smtp.retryDelayHelp" }}</small>
 								</label>

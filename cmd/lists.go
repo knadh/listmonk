@@ -170,7 +170,7 @@ func (a *App) ViewForms(c echo.Context) error {
 		adminView
 		PublicLists []publicListForm
 	}{
-		adminView:   newAdminView(c, a.i18n.T("forms.title"), "", "lists.forms"),
+		adminView:   newAdminView(c, a.i18n.T("globals.terms.forms"), "", "lists.forms"),
 		PublicLists: out,
 	}
 
@@ -383,7 +383,7 @@ func (a *App) getLists(c echo.Context) ([]models.List, models.PageProps, error) 
 // validateListFields sanity checks and validates list fields.
 func (a *App) validateListFields(l models.List) error {
 	if !strHasLen(l.Name, 1, stdInputMaxLen) {
-		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("lists.invalidName"))
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidName"))
 	}
 
 	return a.validateListFilters(l.Type, l.Optin, l.Status)

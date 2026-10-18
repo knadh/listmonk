@@ -14,7 +14,7 @@
 				{{- if $d.Type }}
 					{{- $label := $d.Type }}
 					{{- if eq $d.Type "tx" }}{{ $label = .L.Tc "globals.terms.tx" 1 }}
-					{{- else if eq $d.Type "campaign_visual" }}{{ $label = .L.T "campaigns.contentType.visual" }}
+					{{- else if eq $d.Type "campaign_visual" }}{{ $label = .L.T "editor.contentType.visual" }}
 					{{- else if eq $d.Type "campaign" }}{{ $label = .L.Tc "globals.terms.campaign" 1 }}{{ end }}
 					{{ template "filter-badge" dict "Label" $label "Class" "enum" "URL" ($d.Page.FilterURL $base "type") }}
 				{{- end }}
@@ -57,7 +57,7 @@
 									{{ template "avatar-icon" dict "Kind" $kind "Name" .Name "Href" (printf "%s/%d" $base .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
 									<div class="avatar-label">
 										<a href="{{ $base }}/{{ .ID }}" class="unstyled {{ if .IsDefault }}default{{ end }}" data-testid="btn-edit">{{ .Name }}</a>
-										{{ if .IsDefault }}{{ Badge ($.L.T "templates.default") }}{{ end }}
+										{{ if .IsDefault }}{{ Badge ($.L.T "globals.terms.default") }}{{ end }}
 										{{- if eq .Type "tx" }}<p class="text-light">{{ .Subject }}</p>{{ end }}
 									</div>
 								</div>
@@ -69,7 +69,7 @@
 									{{- else }}
 										<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.Tc "globals.terms.campaign" 1 }}">{{ Badge (list (Icon "send") ($.L.Tc "globals.terms.campaign" 1)) "enum" }}</a>
 										{{- if eq .Type "campaign_visual" }}
-											<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "campaigns.contentType.visual" }}">{{ Badge (list (Icon "eye") ($.L.T "campaigns.contentType.visual")) "enum" }}</a>
+											<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} {{ $.L.T "editor.contentType.visual" }}">{{ Badge (list (Icon "eye") ($.L.T "editor.contentType.visual")) "enum" }}</a>
 										{{- else }}
 											<a href="{{ $base }}?{{ $d.Page.Encode "type" }}&type={{ .Type }}" title="{{ $.L.T "globals.buttons.filter" }} HTML">{{ Badge (list (Icon "code") "HTML") "enum" }}</a>
 										{{- end }}
@@ -83,13 +83,13 @@
 										{{ Icon "more-vertical" }}
 									</button>
 									<menu popover id="tpl-actions-{{ .ID }}">
-										<button type="button" role="menuitem" class="ghost" data-testid="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "templates.preview" }}</button>
+										<button type="button" role="menuitem" class="ghost" data-testid="btn-preview" @click.prevent="onPreview({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "eye" }} {{ $.L.T "globals.buttons.preview" }}</button>
 										<hr />
 										<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost" data-testid="btn-edit">{{ Icon "edit-2" }} {{ $.L.T "globals.buttons.edit" }}</a>
 										{{- if $canManage }}
 											<button type="button" role="menuitem" class="ghost" data-testid="btn-clone" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $.L.T "globals.buttons.clone" }}</button>
 											{{- if and (not .IsDefault) (eq .Type "campaign") }}
-												<button type="button" role="menuitem" class="ghost" data-testid="btn-set-default" :disabled="isLoading('templates')" @click.prevent="onSetDefault({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "check-circle" }} {{ $.L.T "templates.makeDefault" }}</button>
+												<button type="button" role="menuitem" class="ghost" data-testid="btn-set-default" :disabled="isLoading('templates')" @click.prevent="onSetDefault({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "check-circle" }} {{ $.L.T "globals.buttons.setDefault" }}</button>
 											{{- end }}
 											{{- if not .IsDefault }}
 												<hr />

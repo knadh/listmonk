@@ -96,7 +96,7 @@ function component() {
     // Poll the health endpoint until the app is back up after a settings-triggered
     // restart, then reload the page.
     _awaitRestart() {
-      u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('settings.title') }));
+      u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('globals.terms.settings') }));
       return new Promise((resolve) => {
         const poll = setInterval(() => {
           fetch(`${urls.api}/health`).then((r) => {

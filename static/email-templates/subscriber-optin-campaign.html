@@ -1,17 +1,17 @@
 {{ define "optin-campaign" }}
 
 <p>{{ L.Ts "email.optin.confirmSubWelcome" }} {{ "{{" }}.Subscriber.FirstName {{ "}}" }}</p>
-<p>{{ L.Ts "email.optin.confirmSubInfo" }}</p>
+<p>{{ L.Ts "public.confirmSubInfo" }}</p>
 <ul>
     {{ range $i, $l := .Lists }}
         {{ if eq .Type "public" }}
             <li>{{ .Name }}</li>
         {{ else }}
-            <li>{{ L.Ts "email.optin.privateList" }}</li>
+            <li>{{ L.Ts "public.subPrivateList" }}</li>
         {{ end }}
     {{ end }}
 </ul>
 <p>
-    <a class="button" {{ .OptinURLAttr }}>{{ L.Ts "email.optin.confirmSub" }}</a>
+    <a class="button" {{ .OptinURLAttr }}>{{ L.Ts "globals.buttons.confirmSubscription" }}</a>
 </p>
 {{ end }}

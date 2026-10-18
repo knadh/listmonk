@@ -7,16 +7,16 @@
         <td><a href="{{ RootURL }}/admin/campaigns/{{ index . "ID" }}">{{ index . "Name" }}</a></td>
     </tr>
     <tr>
-        <td width="30%"><strong>{{ L.Ts "email.status.status" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "globals.fields.status" }}</strong></td>
         <td>{{ index . "Status" }}</td>
     </tr>
     <tr>
-        <td width="30%"><strong>{{ L.Ts "email.status.campaignSent" }}</strong></td>
+        <td width="30%"><strong>{{ L.Ts "globals.terms.sent" }}</strong></td>
         <td>{{ index . "Sent" }} / {{ index . "ToSend" }}</td>
     </tr>
     {{ if ne (index . "Reason") "" }}
         <tr>
-            <td width="30%"><strong>{{ L.Ts "email.status.campaignReason" }}</strong></td>
+            <td width="30%"><strong>{{ L.Ts "globals.fields.reason" }}</strong></td>
             <td>{{ index . "Reason" }}</td>
         </tr>
     {{ end }}

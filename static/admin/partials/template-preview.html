@@ -9,7 +9,7 @@
 				<input type="hidden" name="template_type" :value="preview.templateType" />
 				<input type="hidden" name="body" :value="preview.body" />
 			</form>
-			<iframe id="iframe" name="template-preview-frame" x-ref="previewFrame" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" title="{{ .L.T "templates.preview" }}" @load="preview.loading = false"></iframe>
+			<iframe id="iframe" name="template-preview-frame" x-ref="previewFrame" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" title="{{ .L.T "globals.buttons.preview" }}" @load="preview.loading = false"></iframe>
 		</section>
 		<footer class="dialog-foot align-right">
 			<button type="button" class="outline" autofocus @click="$refs.previewDialog.close()">{{ .L.T "globals.buttons.close" }}</button>

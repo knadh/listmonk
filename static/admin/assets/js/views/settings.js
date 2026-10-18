@@ -454,7 +454,7 @@ function component(settings, userRoles, listRoles) {
           if (r.ok) {
             clearInterval(poll);
             this.isRestarting = false;
-            u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('settings.title') }), 'success');
+            u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('globals.terms.settings') }), 'success');
           }
         }).catch(() => { });
       }, 500);

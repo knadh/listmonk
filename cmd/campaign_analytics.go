@@ -91,7 +91,7 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 	}
 
 	data := analyticsView{
-		adminView:          newAdminView(c, a.i18n.T("analytics.title"), "", resource+".analytics"),
+		adminView:          newAdminView(c, a.i18n.T("globals.terms.analytics"), "", resource+".analytics"),
 		Items:              items,
 		Resource:           resource,
 		FromInput:          from.Format("2006-01-02T15:04"),
