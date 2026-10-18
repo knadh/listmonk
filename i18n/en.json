@@ -416,7 +416,7 @@
     "public.subPrivateList": "Private list",
     "public.subTitle": "Subscribe",
     "public.unsub": "Unsubscribe",
-    "public.unsubFull": "Unsubscribe from all future e-mails.",
+    "public.unsubFull": "Also block all future emails from this service.",
     "public.unsubHelp": "Do you want to unsubscribe from this mailing list?",
     "public.unsubTitle": "Unsubscribe",
     "public.unsubbedInfo": "You have unsubscribed successfully.",

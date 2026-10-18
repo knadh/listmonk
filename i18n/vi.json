@@ -416,7 +416,7 @@
     "public.subPrivateList": "Danh sách riêng tư",
     "public.subTitle": "Đăng ký",
     "public.unsub": "Hủy đăng ký",
-    "public.unsubFull": "Đồng thời hủy đăng ký nhận tất cả các e-mail trong tương lai.",
+    "public.unsubFull": "Đồng thời chặn tất cả email trong tương lai từ dịch vụ này.",
     "public.unsubHelp": "Bạn có muốn hủy đăng ký khỏi danh sách gửi thư này không?",
     "public.unsubTitle": "Hủy đăng ký",
     "public.unsubbedInfo": "Bạn đã hủy đăng ký thành công.",

@@ -416,7 +416,7 @@
     "public.subPrivateList": "Privat lista",
     "public.subTitle": "Prenumerera",
     "public.unsub": "Avprenumerera",
-    "public.unsubFull": "Avprenumerera från alla framtida e-postutskick.",
+    "public.unsubFull": "Blockera även alla framtida e-postmeddelanden från den här tjänsten.",
     "public.unsubHelp": "Vill du avprenumerera från denna e-postlista?",
     "public.unsubTitle": "Avprenumerera",
     "public.unsubbedInfo": "Du har nu avprenumererats.",

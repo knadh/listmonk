@@ -416,7 +416,7 @@
     "public.subPrivateList": "Privat liste",
     "public.subTitle": "Abonner",
     "public.unsub": "Afmeld",
-    "public.unsubFull": "Afmeld alle fremtidige e-mails.",
+    "public.unsubFull": "Bloker også alle fremtidige e-mails fra denne tjeneste.",
     "public.unsubHelp": "Ønsker du at afmelde dig denne mailingliste?",
     "public.unsubTitle": "Afmeld",
     "public.unsubbedInfo": "Du har afmeldt dig.",

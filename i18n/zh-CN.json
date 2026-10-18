@@ -416,7 +416,7 @@
     "public.subPrivateList": "私人列表",
     "public.subTitle": "订阅",
     "public.unsub": "退订",
-    "public.unsubFull": "也取消订阅所有未来的电子邮件。",
+    "public.unsubFull": "同时屏蔽此服务今后发送的所有电子邮件。",
     "public.unsubHelp": "您想退订此邮件列表吗？",
     "public.unsubTitle": "退订",
     "public.unsubbedInfo": "您已成功退订。",

@@ -416,7 +416,7 @@
     "public.subPrivateList": "Приватна розсилка",
     "public.subTitle": "Підписатись",
     "public.unsub": "Відписатись",
-    "public.unsubFull": "Відписатись від усіх майбутніх листів.",
+    "public.unsubFull": "Також заблокувати всі майбутні листи від цього сервісу.",
     "public.unsubHelp": "Точно відписатись від цієї розсилки?",
     "public.unsubTitle": "Відписатись",
     "public.unsubbedInfo": "Вас успішно відписано.",

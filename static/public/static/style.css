@@ -30,6 +30,11 @@ h3,
 h4 {
   font-weight: 400;
 }
+hr {
+  border: 0;
+  height: 1px;
+  background: #eee;
+}
 .section {
   margin-bottom: 45px;
 }

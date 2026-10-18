@@ -416,7 +416,7 @@
     "public.subPrivateList": "Liste privée",
     "public.subTitle": "S'abonner",
     "public.unsub": "Se désabonner",
-    "public.unsubFull": "Se désabonner également de tous futurs courriels.",
+    "public.unsubFull": "Bloquer également tous les futurs courriels de ce service.",
     "public.unsubHelp": "Voulez-vous vous désabonner de cette liste de diffusion ?",
     "public.unsubTitle": "Se désabonner",
     "public.unsubbedInfo": "Vous vous êtes désabonné·e avec succès.",

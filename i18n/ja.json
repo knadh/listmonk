@@ -416,7 +416,7 @@
     "public.subPrivateList": "プライベートリスト",
     "public.subTitle": "加入",
     "public.unsub": "登録を解除する。",
-    "public.unsubFull": "今後全てのメール配信も停止する。",
+    "public.unsubFull": "あわせて、このサービスから今後送信されるすべてのメールをブロックする。",
     "public.unsubHelp": "このメーリングリストの登録も解除しますか？",
     "public.unsubTitle": "登録を解除する。",
     "public.unsubbedInfo": "登録の解除に成功しました。",

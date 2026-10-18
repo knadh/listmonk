@@ -416,7 +416,7 @@
     "public.subPrivateList": "비공개 리스트",
     "public.subTitle": "구독",
     "public.unsub": "구독 해지",
-    "public.unsubFull": "향후 모든 이메일 구독 해지",
+    "public.unsubFull": "추가로 이 서비스에서 앞으로 보내는 모든 이메일을 차단합니다.",
     "public.unsubHelp": "이 메일링 리스트 구독을 해지하시겠습니까?",
     "public.unsubTitle": "구독 해지",
     "public.unsubbedInfo": "구독 해지가 완료되었습니다.",

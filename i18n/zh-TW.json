@@ -416,7 +416,7 @@
     "public.subPrivateList": "不公開清單",
     "public.subTitle": "訂閱",
     "public.unsub": "退訂",
-    "public.unsubFull": "也取消訂閱所有未來的電子郵件。",
+    "public.unsubFull": "同時封鎖此服務今後寄送的所有電子郵件。",
     "public.unsubHelp": "您想退訂此電子報清單嗎？",
     "public.unsubTitle": "退訂",
     "public.unsubbedInfo": "您已成功退訂。",

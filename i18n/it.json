@@ -416,7 +416,7 @@
     "public.subPrivateList": "Lista privata",
     "public.subTitle": "Iscriviti",
     "public.unsub": "Cancella iscrizione",
-    "public.unsubFull": "Cancella iscrizione anche per tutte le mail future.",
+    "public.unsubFull": "Blocca anche tutte le email future da questo servizio.",
     "public.unsubHelp": "Vuoi cancellare l'iscrizione da questa newsletter?",
     "public.unsubTitle": "Cancella iscrizione",
     "public.unsubbedInfo": "La cancellazione è avvenuta con successo.",

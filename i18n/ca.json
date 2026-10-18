@@ -416,7 +416,7 @@
     "public.subPrivateList": "Llista privada",
     "public.subTitle": "Subscriu-t'hi",
     "public.unsub": "Desubscriu",
-    "public.unsubFull": "Dona't de baixa de tots els correus electrònics futurs.",
+    "public.unsubFull": "Bloqueja també tots els correus electrònics futurs d'aquest servei.",
     "public.unsubHelp": "Vols donar-te de baixa d'aquesta llista de correu?",
     "public.unsubTitle": "Desubscriu",
     "public.unsubbedInfo": "Has cancel·lat la subscripció correctament.",

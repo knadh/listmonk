@@ -416,7 +416,7 @@
     "public.subPrivateList": "Privát",
     "public.subTitle": "Feliratkozás",
     "public.unsub": "Leiratkozás",
-    "public.unsubFull": "Leiratkozás minden jövőbeni e-mailről.",
+    "public.unsubFull": "Egyúttal blokkolja a szolgáltatás összes jövőbeli e-mailjét is.",
     "public.unsubHelp": "Le szeretne iratkozni erről a listáról?",
     "public.unsubTitle": "Leiratkozás",
     "public.unsubbedInfo": "Sikeresen leiratkozott.",

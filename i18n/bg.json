@@ -416,7 +416,7 @@
     "public.subPrivateList": "Частен списък",
     "public.subTitle": "Абониране",
     "public.unsub": "Отписване",
-    "public.unsubFull": "Отписване от всички бъдещи имейли.",
+    "public.unsubFull": "Блокиране и на всички бъдещи имейли от тази услуга.",
     "public.unsubHelp": "Искате ли да се отпишете от този пощенски списък?",
     "public.unsubTitle": "Отписване",
     "public.unsubbedInfo": "Успешно сте отписани.",

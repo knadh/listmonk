@@ -416,7 +416,7 @@
     "public.subPrivateList": "Súkromný zoznam",
     "public.subTitle": "Odoberať",
     "public.unsub": "Zrušiť odber",
-    "public.unsubFull": "Zrušiť odber tiež so všetkých budúcich emailov.",
+    "public.unsubFull": "Zároveň blokovať všetky budúce e-maily z tejto služby.",
     "public.unsubHelp": "Chcete zrušiť odber z tohoto zoznamu adresátov?",
     "public.unsubTitle": "Zrušiť odber",
     "public.unsubbedInfo": "Odber ste úspešne zrušili.",
