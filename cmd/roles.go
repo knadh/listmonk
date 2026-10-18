@@ -8,7 +8,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"gopkg.in/volatiletech/null.v6"
 )
 
@@ -53,7 +53,7 @@ type roleFormView struct {
 }
 
 // ViewUserRoles renders the HTML view listing user roles.
-func (a *App) ViewUserRoles(c echo.Context) error {
+func (a *App) ViewUserRoles(c *echo.Context) error {
 	q := makeQuery(c.Request().URL.Query(), rolesQueryDefaults)
 	roles, err := a.core.GetRoles(q.Get("query"), q.Get("order_by"), q.Get("order"))
 	if err != nil {
@@ -76,7 +76,7 @@ func (a *App) ViewUserRoles(c echo.Context) error {
 }
 
 // ViewListRoles renders the HTML view listing list roles.
-func (a *App) ViewListRoles(c echo.Context) error {
+func (a *App) ViewListRoles(c *echo.Context) error {
 	q := makeQuery(c.Request().URL.Query(), rolesQueryDefaults)
 	roles, err := a.core.GetListRoles(q.Get("query"), q.Get("order_by"), q.Get("order"))
 	if err != nil {
@@ -99,7 +99,7 @@ func (a *App) ViewListRoles(c echo.Context) error {
 }
 
 // ViewUserRole renders the HTML add/edit form for a user role.
-func (a *App) ViewUserRole(c echo.Context) error {
+func (a *App) ViewUserRole(c *echo.Context) error {
 	var (
 		role  auth.Role
 		isNew = true
@@ -135,7 +135,7 @@ func (a *App) ViewUserRole(c echo.Context) error {
 }
 
 // ViewListRole renders the HTML add/edit form for a list role.
-func (a *App) ViewListRole(c echo.Context) error {
+func (a *App) ViewListRole(c *echo.Context) error {
 	var (
 		role  auth.ListRole
 		isNew = true
@@ -193,7 +193,7 @@ func (a *App) parsePermGroups() ([]permGroup, error) {
 }
 
 // GetUserRoles retrieves roles.
-func (a *App) GetUserRoles(c echo.Context) error {
+func (a *App) GetUserRoles(c *echo.Context) error {
 	// Get all roles.
 	out, err := a.core.GetRoles(c.QueryParam("query"), c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
@@ -204,7 +204,7 @@ func (a *App) GetUserRoles(c echo.Context) error {
 }
 
 // GeListRoles retrieves roles.
-func (a *App) GeListRoles(c echo.Context) error {
+func (a *App) GeListRoles(c *echo.Context) error {
 	// Get all roles.
 	out, err := a.core.GetListRoles(c.QueryParam("query"), c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
@@ -215,7 +215,7 @@ func (a *App) GeListRoles(c echo.Context) error {
 }
 
 // CreateUserRole handles role creation.
-func (a *App) CreateUserRole(c echo.Context) error {
+func (a *App) CreateUserRole(c *echo.Context) error {
 	var r auth.Role
 	if err := c.Bind(&r); err != nil {
 		return err
@@ -234,7 +234,7 @@ func (a *App) CreateUserRole(c echo.Context) error {
 }
 
 // CreateListRole handles role creation.
-func (a *App) CreateListRole(c echo.Context) error {
+func (a *App) CreateListRole(c *echo.Context) error {
 	var r auth.ListRole
 	if err := c.Bind(&r); err != nil {
 		return err
@@ -253,7 +253,7 @@ func (a *App) CreateListRole(c echo.Context) error {
 }
 
 // UpdateUserRole handles role modification.
-func (a *App) UpdateUserRole(c echo.Context) error {
+func (a *App) UpdateUserRole(c *echo.Context) error {
 	id := getID(c)
 
 	// ID 1 is reserved for the Super Admin user role.
@@ -288,7 +288,7 @@ func (a *App) UpdateUserRole(c echo.Context) error {
 }
 
 // UpdateListRole handles role modification.
-func (a *App) UpdateListRole(c echo.Context) error {
+func (a *App) UpdateListRole(c *echo.Context) error {
 	// Get the role ID.
 	id := getID(c)
 
@@ -325,7 +325,7 @@ func (a *App) UpdateListRole(c echo.Context) error {
 }
 
 // DeleteRole handles (user|list) role deletion.
-func (a *App) DeleteRole(c echo.Context) error {
+func (a *App) DeleteRole(c *echo.Context) error {
 	// Get the role ID.
 	id := getID(c)
 

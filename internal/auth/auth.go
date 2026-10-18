@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/zerodha/simplesessions/stores/postgres/v3"
 	"github.com/zerodha/simplesessions/v3"
 	"golang.org/x/oauth2"
@@ -346,7 +346,7 @@ func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDC
 // sets the authenticated User{} on the echo context on the key UserKey. On failure, it sets an Error{}
 // instead on the same key.
 func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		// It's an `Authorization` header request.
 		hdr := strings.TrimSpace(c.Request().Header.Get("Authorization"))
 
@@ -396,7 +396,7 @@ func (o *Auth) Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 // Perm is an HTTP handler middleware that checks if the authenticated user has the required permissions.
 func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		u, ok := c.Get(UserHTTPCtxKey).(User)
 		if !ok {
 			c.Set(UserHTTPCtxKey, echo.NewHTTPError(http.StatusForbidden, "invalid session"))
@@ -429,7 +429,7 @@ func (o *Auth) Perm(next echo.HandlerFunc, perms ...string) echo.HandlerFunc {
 }
 
 // SaveSession creates and sets a session (post successful login/auth).
-func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context) error {
+func (o *Auth) SaveSession(u User, oidcToken string, c *echo.Context) error {
 	sess, err := o.sess.NewSession(c, c)
 	if err != nil {
 		o.log.Printf("error creating login session: %v", err)
@@ -478,7 +478,7 @@ func (o *Auth) GetOIDCLogoutURL(token, redirectURL string) (string, error) {
 }
 
 // GetSessionID returns the current session ID from the echo context.
-func GetSessionID(c echo.Context) string {
+func GetSessionID(c *echo.Context) string {
 	sess, ok := c.Get(SessionKey).(*simplesessions.Session)
 	if !ok || sess == nil {
 		return ""
@@ -494,7 +494,7 @@ func HashAPIToken(token string) string {
 }
 
 // validateSession checks if the cookie session is valid (in the DB) and returns the session and user details.
-func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, error) {
+func (o *Auth) validateSession(c *echo.Context) (*simplesessions.Session, User, error) {
 	// Cookie session.
 	sess, err := o.sess.Acquire(context.TODO(), c, c)
 	if err != nil {
@@ -529,7 +529,7 @@ func (o *Auth) validateSession(c echo.Context) (*simplesessions.Session, User, e
 
 // GetUser retrieves and returns the User object from an authenticated
 // HTTP handler request.
-func GetUser(c echo.Context) User {
+func GetUser(c *echo.Context) User {
 	return c.Get(UserHTTPCtxKey).(User)
 }
 

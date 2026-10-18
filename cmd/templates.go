@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -56,7 +56,7 @@ type templateView struct {
 }
 
 // ViewTemplates renders the HTML list view for templates.
-func (a *App) ViewTemplates(c echo.Context) error {
+func (a *App) ViewTemplates(c *echo.Context) error {
 	q := makeQuery(c.Request().URL.Query(), templatesQueryDefaults)
 	typ := q.Get("type")
 
@@ -76,7 +76,7 @@ func (a *App) ViewTemplates(c echo.Context) error {
 }
 
 // ViewNewTemplate renders the new template page.
-func (a *App) ViewNewTemplate(c echo.Context) error {
+func (a *App) ViewNewTemplate(c *echo.Context) error {
 	data := templateView{
 		adminView: newAdminView(c, a.i18n.T("templates.newTemplate")+" / "+a.i18n.T("globals.terms.templates"), "", "campaigns.templates"),
 		IsNew:     true,
@@ -87,7 +87,7 @@ func (a *App) ViewNewTemplate(c echo.Context) error {
 }
 
 // ViewTemplate renders the single-page editor for an existing template.
-func (a *App) ViewTemplate(c echo.Context) error {
+func (a *App) ViewTemplate(c *echo.Context) error {
 	id := getID(c)
 	out, err := a.core.GetTemplate(id, false)
 	if err != nil {
@@ -103,7 +103,7 @@ func (a *App) ViewTemplate(c echo.Context) error {
 }
 
 // GetTemplate handles the retrieval of a template
-func (a *App) GetTemplate(c echo.Context) error {
+func (a *App) GetTemplate(c *echo.Context) error {
 	// If no_body is true, blank out the body of the template from the response.
 	noBody, _ := strconv.ParseBool(c.QueryParam("no_body"))
 
@@ -118,7 +118,7 @@ func (a *App) GetTemplate(c echo.Context) error {
 }
 
 // GetTemplates handles retrieval of templates.
-func (a *App) GetTemplates(c echo.Context) error {
+func (a *App) GetTemplates(c *echo.Context) error {
 	// If no_body is true, blank out the body of the template from the response.
 	noBody, _ := strconv.ParseBool(c.QueryParam("no_body"))
 
@@ -132,7 +132,7 @@ func (a *App) GetTemplates(c echo.Context) error {
 }
 
 // PreviewTemplate renders the HTML preview of a template in the DB.
-func (a *App) PreviewTemplate(c echo.Context) error {
+func (a *App) PreviewTemplate(c *echo.Context) error {
 	// Fetch one template from the DB.
 	id := getID(c)
 	tpl, err := a.core.GetTemplate(id, false)
@@ -150,7 +150,7 @@ func (a *App) PreviewTemplate(c echo.Context) error {
 }
 
 // PreviewTemplateBody renders the HTML preview of a template given its type and body.
-func (a *App) PreviewTemplateBody(c echo.Context) error {
+func (a *App) PreviewTemplateBody(c *echo.Context) error {
 	tpl := models.Template{
 		Type: c.FormValue("template_type"),
 		Body: c.FormValue("body"),
@@ -176,7 +176,7 @@ func (a *App) PreviewTemplateBody(c echo.Context) error {
 }
 
 // CreateTemplate handles template creation.
-func (a *App) CreateTemplate(c echo.Context) error {
+func (a *App) CreateTemplate(c *echo.Context) error {
 	var o models.Template
 	if err := c.Bind(&o); err != nil {
 		return err
@@ -220,7 +220,7 @@ func (a *App) CreateTemplate(c echo.Context) error {
 }
 
 // UpdateTemplate handles template modification.
-func (a *App) UpdateTemplate(c echo.Context) error {
+func (a *App) UpdateTemplate(c *echo.Context) error {
 	var o models.Template
 	if err := c.Bind(&o); err != nil {
 		return err
@@ -261,7 +261,7 @@ func (a *App) UpdateTemplate(c echo.Context) error {
 }
 
 // TemplateSetDefault handles template modification.
-func (a *App) TemplateSetDefault(c echo.Context) error {
+func (a *App) TemplateSetDefault(c *echo.Context) error {
 	// Update the template in the DB.
 	id := getID(c)
 	if err := a.core.SetDefaultTemplate(id); err != nil {
@@ -272,7 +272,7 @@ func (a *App) TemplateSetDefault(c echo.Context) error {
 }
 
 // DeleteTemplate handles template deletion.
-func (a *App) DeleteTemplate(c echo.Context) error {
+func (a *App) DeleteTemplate(c *echo.Context) error {
 	// Delete the template from the DB.
 	id := getID(c)
 	if err := a.core.DeleteTemplate(id); err != nil {

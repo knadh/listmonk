@@ -54,7 +54,7 @@ import (
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
 	"golang.org/x/text/language"
@@ -991,15 +991,14 @@ func initAbout(q *models.Queries, db *sqlx.DB) about {
 
 }
 
-// initHTTPServer sets up and runs the app's main HTTP server and blocks forever.
-func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.FileSystem, app *App) *echo.Echo {
+// initHTTPServer sets up and starts the app's main HTTP server.
+func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.FileSystem, app *App) *http.Server {
 	// Initialize the HTTP server.
 	var srv = echo.New()
-	srv.HideBanner = true
 
 	// Register app (*App) to be injected into all HTTP handlers.
 	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			c.Set("app", app)
 
 			// Used for computing a request's finish time.
@@ -1080,8 +1079,9 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 	initHTTPHandlers(srv, app)
 
 	// Start the server.
+	httpSrv := &http.Server{Addr: ko.String("app.address"), Handler: srv}
 	go func() {
-		if err := srv.Start(ko.String("app.address")); err != nil {
+		if err := httpSrv.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
 				lo.Println("HTTP server shut down")
 			} else {
@@ -1090,7 +1090,7 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		}
 	}()
 
-	return srv
+	return httpSrv
 }
 
 // staticServer returns an http.Handler that serves static files from the stuffbin
@@ -1419,12 +1419,12 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	// Setup the sessio manager callbacks for getting and setting cookies.
 	cb := &auth.Callbacks{
 		GetCookie: func(name string, r any) (*http.Cookie, error) {
-			c := r.(echo.Context)
+			c := r.(*echo.Context)
 			cookie, err := c.Cookie(name)
 			return cookie, err
 		},
 		SetCookie: func(cookie *http.Cookie, w any) error {
-			c := w.(echo.Context)
+			c := w.(*echo.Context)
 			cookie.SameSite = http.SameSiteLaxMode
 			c.SetCookie(cookie)
 			return nil

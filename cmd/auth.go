@@ -20,7 +20,7 @@ import (
 	"github.com/knadh/listmonk/internal/tmptokens"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/pquerna/otp/totp"
 	"github.com/zerodha/simplesessions/v3"
 	"gopkg.in/volatiletech/null.v6"
@@ -83,7 +83,7 @@ var (
 )
 
 // LoginPage renders the login page and handles the login form.
-func (a *App) LoginPage(c echo.Context) error {
+func (a *App) LoginPage(c *echo.Context) error {
 	// Has the user been setup?
 	a.Lock()
 	needsUserSetup := a.needsUserSetup
@@ -107,7 +107,7 @@ func (a *App) LoginPage(c echo.Context) error {
 }
 
 // LoginSetupPage renders the first time user login page and handles the login form.
-func (a *App) LoginSetupPage(c echo.Context) error {
+func (a *App) LoginSetupPage(c *echo.Context) error {
 	// Process POST login request.
 	var loginErr error
 	if c.Request().Method == http.MethodPost {
@@ -125,7 +125,7 @@ func (a *App) LoginSetupPage(c echo.Context) error {
 }
 
 // TwofaPage renders the 2FA verification page and handles the 2FA form submission.
-func (a *App) TwofaPage(c echo.Context) error {
+func (a *App) TwofaPage(c *echo.Context) error {
 	var token, next string
 
 	if c.Request().Method == http.MethodPost {
@@ -166,7 +166,7 @@ func (a *App) TwofaPage(c echo.Context) error {
 }
 
 // Logout logs a user out.
-func (a *App) Logout(c echo.Context) error {
+func (a *App) Logout(c *echo.Context) error {
 	sess := c.Get(auth.SessionKey).(*simplesessions.Session)
 	token, err := sess.String(sess.Get("oidc_token"))
 	if err != nil {
@@ -192,7 +192,7 @@ func (a *App) Logout(c echo.Context) error {
 }
 
 // OIDCLogin initializes an OIDC request and redirects to the OIDC provider for login.
-func (a *App) OIDCLogin(c echo.Context) error {
+func (a *App) OIDCLogin(c *echo.Context) error {
 	// Verify that the request came from the login page (CSRF).
 	nonce, err := c.Cookie("nonce")
 	if err != nil || nonce.Value == "" || nonce.Value != c.FormValue("nonce") {
@@ -228,7 +228,7 @@ func (a *App) OIDCLogin(c echo.Context) error {
 }
 
 // setOIDCVerifierCookie stores the PKCE verifier or deletes it if it's empty.
-func (a *App) setOIDCVerifierCookie(c echo.Context, verifier string) {
+func (a *App) setOIDCVerifierCookie(c *echo.Context, verifier string) {
 	ck := &http.Cookie{
 		Name:     "oidc_code_verifier",
 		Value:    verifier,
@@ -246,7 +246,7 @@ func (a *App) setOIDCVerifierCookie(c echo.Context, verifier string) {
 }
 
 // OIDCFinish receives the redirect callback from the OIDC provider and completes the handshake.
-func (a *App) OIDCFinish(c echo.Context) error {
+func (a *App) OIDCFinish(c *echo.Context) error {
 	// Verify that the request actually originated from the login request (which sets the nonce value).
 	nonce, err := c.Cookie("nonce")
 	if err != nil || nonce.Value == "" {
@@ -329,7 +329,7 @@ func (a *App) OIDCFinish(c echo.Context) error {
 }
 
 // ForgotPage renders the forgot password page and handles the forgot password form.
-func (a *App) ForgotPage(c echo.Context) error {
+func (a *App) ForgotPage(c *echo.Context) error {
 	// Process the forgot password request.
 	if c.Request().Method == http.MethodPost {
 		return a.doForgotPassword(c)
@@ -341,7 +341,7 @@ func (a *App) ForgotPage(c echo.Context) error {
 }
 
 // ResetPage renders the reset password page and handles the reset password form.
-func (a *App) ResetPage(c echo.Context) error {
+func (a *App) ResetPage(c *echo.Context) error {
 	var (
 		token = strings.TrimSpace(c.QueryParam("token"))
 		email = strings.ToLower(strings.TrimSpace(c.QueryParam("email")))
@@ -374,7 +374,7 @@ func (a *App) ResetPage(c echo.Context) error {
 }
 
 // renderLoginPage renders the login page and handles the login form.
-func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
+func (a *App) renderLoginPage(c *echo.Context, loginErr error) error {
 	next := utils.SanitizeURI(c.FormValue("next"))
 	if next == "/" {
 		next = uriAdmin
@@ -423,7 +423,7 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 	// If there was an error in the previous state (POST reqest), set it to render in the template.
 	if loginErr != nil {
 		if e, ok := loginErr.(*echo.HTTPError); ok {
-			out.Error = e.Message.(string)
+			out.Error = e.Message
 		} else {
 			out.Error = loginErr.Error()
 		}
@@ -449,7 +449,7 @@ func (a *App) renderLoginPage(c echo.Context, loginErr error) error {
 }
 
 // renderLoginSetupPage renders the first time user setup page.
-func (a *App) renderLoginSetupPage(c echo.Context, loginErr error) error {
+func (a *App) renderLoginSetupPage(c *echo.Context, loginErr error) error {
 	next := utils.SanitizeURI(c.FormValue("next"))
 	if next == "/" {
 		next = uriAdmin
@@ -464,7 +464,7 @@ func (a *App) renderLoginSetupPage(c echo.Context, loginErr error) error {
 	// If there was an error in the previous state (POST reqest), set it to render in the template.
 	if loginErr != nil {
 		if e, ok := loginErr.(*echo.HTTPError); ok {
-			out.Error = e.Message.(string)
+			out.Error = e.Message
 		} else {
 			out.Error = loginErr.Error()
 		}
@@ -474,7 +474,7 @@ func (a *App) renderLoginSetupPage(c echo.Context, loginErr error) error {
 }
 
 // createOIDCUser creates a new user in the DB with the OIDC claims.
-func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, error) {
+func (a *App) createOIDCUser(claims auth.OIDCclaim, c *echo.Context) (auth.User, error) {
 	name := claims.Name
 	if name == "" {
 		name = strings.TrimSpace(claims.PreferredUsername)
@@ -511,7 +511,7 @@ func (a *App) createOIDCUser(claims auth.OIDCclaim, c echo.Context) (auth.User, 
 }
 
 // doLogin logs a user in with a username and password.
-func (a *App) doLogin(c echo.Context) error {
+func (a *App) doLogin(c *echo.Context) error {
 	var (
 		startTime = time.Now()
 		username  = strings.TrimSpace(c.FormValue("username"))
@@ -564,7 +564,7 @@ func (a *App) doLogin(c echo.Context) error {
 }
 
 // doFirstTimeSetup sets a user up for the first time.
-func (a *App) doFirstTimeSetup(c echo.Context) error {
+func (a *App) doFirstTimeSetup(c *echo.Context) error {
 	var (
 		email     = strings.TrimSpace(c.FormValue("email"))
 		username  = strings.TrimSpace(c.FormValue("username"))
@@ -631,7 +631,7 @@ func (a *App) doFirstTimeSetup(c echo.Context) error {
 }
 
 // renderResetPasswordPage renders the reset password page.
-func (a *App) renderResetPasswordPage(c echo.Context, token, email, errMsg string) error {
+func (a *App) renderResetPasswordPage(c *echo.Context, token, email, errMsg string) error {
 	out := resetPasswordTpl{
 		Title: a.i18n.T("users.resetPassword"),
 		Token: token,
@@ -642,7 +642,7 @@ func (a *App) renderResetPasswordPage(c echo.Context, token, email, errMsg strin
 }
 
 // doForgotPassword handles the forgot password form submission.
-func (a *App) doForgotPassword(c echo.Context) error {
+func (a *App) doForgotPassword(c *echo.Context) error {
 	var (
 		email = strings.ToLower(strings.TrimSpace(c.FormValue("email")))
 	)
@@ -709,7 +709,7 @@ func (a *App) doForgotPassword(c echo.Context) error {
 }
 
 // doResetPassword handles the reset password form submission.
-func (a *App) doResetPassword(c echo.Context, token, email string) error {
+func (a *App) doResetPassword(c *echo.Context, token, email string) error {
 	var (
 		password  = c.FormValue("password")
 		password2 = c.FormValue("password2")
@@ -766,7 +766,7 @@ func (a *App) doResetPassword(c echo.Context, token, email string) error {
 }
 
 // renderTwofaPage renders the 2FA verification page.
-func (a *App) renderTwofaPage(c echo.Context, token, next, errMsg string) error {
+func (a *App) renderTwofaPage(c *echo.Context, token, next, errMsg string) error {
 	out := twofaTpl{
 		Title:       a.i18n.T("users.twoFA"),
 		Description: "",
@@ -778,7 +778,7 @@ func (a *App) renderTwofaPage(c echo.Context, token, next, errMsg string) error 
 }
 
 // doTwofaVerify handles the 2FA verification form submission.
-func (a *App) doTwofaVerify(c echo.Context, token string, userID int, next string) error {
+func (a *App) doTwofaVerify(c *echo.Context, token string, userID int, next string) error {
 	totpCode := strings.TrimSpace(c.FormValue("totp_code"))
 
 	// Validate.
@@ -816,7 +816,7 @@ func (a *App) doTwofaVerify(c echo.Context, token string, userID int, next strin
 }
 
 // GenerateTOTPQR generates a TOTP QR code for a user to scan with their authenticator app.
-func (a *App) GenerateTOTPQR(c echo.Context) error {
+func (a *App) GenerateTOTPQR(c *echo.Context) error {
 	u := c.Get(auth.UserHTTPCtxKey).(auth.User)
 
 	// If TOTP is already enabled, don't generate a new key.

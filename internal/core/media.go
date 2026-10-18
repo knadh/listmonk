@@ -9,7 +9,7 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"gopkg.in/volatiletech/null.v6"
 )
 

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/knadh/listmonk/internal/captcha"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	null "gopkg.in/volatiletech/null.v6"
 )
 
@@ -118,7 +118,7 @@ func (a *App) makeAdminJSI18n() json.RawMessage {
 }
 
 // GetServerConfig returns general server config.
-func (a *App) GetServerConfig(c echo.Context) error {
+func (a *App) GetServerConfig(c *echo.Context) error {
 	out, err := a.makeServerConfig()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -129,7 +129,7 @@ func (a *App) GetServerConfig(c echo.Context) error {
 }
 
 // GetDashboardCharts returns chart data points to render ont he dashboard.
-func (a *App) GetDashboardCharts(c echo.Context) error {
+func (a *App) GetDashboardCharts(c *echo.Context) error {
 	// Get the chart data from the DB.
 	out, err := a.core.GetDashboardCharts()
 	if err != nil {
@@ -140,7 +140,7 @@ func (a *App) GetDashboardCharts(c echo.Context) error {
 }
 
 // GetDashboardCounts returns stats counts to show on the dashboard.
-func (a *App) GetDashboardCounts(c echo.Context) error {
+func (a *App) GetDashboardCounts(c *echo.Context) error {
 	// Get the chart data from the DB.
 	out, err := a.core.GetDashboardCounts()
 	if err != nil {
@@ -151,7 +151,7 @@ func (a *App) GetDashboardCounts(c echo.Context) error {
 }
 
 // ReloadApp sends a reload signal to the app, causing a full restart.
-func (a *App) ReloadApp(c echo.Context) error {
+func (a *App) ReloadApp(c *echo.Context) error {
 	go func() {
 		<-time.After(time.Millisecond * 500)
 

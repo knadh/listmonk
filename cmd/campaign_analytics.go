@@ -6,7 +6,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // analyticsData is the chart data embedded into the analytics page for the Chart.js renderer.
@@ -50,16 +50,16 @@ type analyticsView struct {
 }
 
 // ViewCampaignAnalytics renders the HTML view for campaign analytics.
-func (a *App) ViewCampaignAnalytics(c echo.Context) error {
+func (a *App) ViewCampaignAnalytics(c *echo.Context) error {
 	return a.viewAnalytics(c, models.ResourceCampaigns)
 }
 
 // ViewListAnalytics renders analytics for selected lists.
-func (a *App) ViewListAnalytics(c echo.Context) error {
+func (a *App) ViewListAnalytics(c *echo.Context) error {
 	return a.viewAnalytics(c, models.ResourceLists)
 }
 
-func (a *App) viewAnalytics(c echo.Context, resource string) error {
+func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 	user := auth.GetUser(c)
 	ids, err := getQueryInts("id", c.QueryParams())
 	if err != nil {
@@ -190,16 +190,16 @@ func (a *App) viewAnalytics(c echo.Context, resource string) error {
 }
 
 // GetCampaignViewAnalytics retrieves analytics for campaigns.
-func (a *App) GetCampaignViewAnalytics(c echo.Context) error {
+func (a *App) GetCampaignViewAnalytics(c *echo.Context) error {
 	return a.getAnalytics(c, models.ResourceCampaigns)
 }
 
 // GetListAnalytics retrieves analytics for lists.
-func (a *App) GetListAnalytics(c echo.Context) error {
+func (a *App) GetListAnalytics(c *echo.Context) error {
 	return a.getAnalytics(c, models.ResourceLists)
 }
 
-func (a *App) getAnalytics(c echo.Context, resource string) error {
+func (a *App) getAnalytics(c *echo.Context, resource string) error {
 	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,

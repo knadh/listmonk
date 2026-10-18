@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/jmoiron/sqlx/types"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // GetDashboardCharts returns chart data points to render on the dashboard.

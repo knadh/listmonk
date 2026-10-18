@@ -17,7 +17,7 @@ import (
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/lib/pq"
 )
 
@@ -117,7 +117,7 @@ type subLinkClick struct {
 }
 
 // ViewSubscribers renders the HTML view for subscribers, optionally filtered by a list.
-func (a *App) ViewSubscribers(c echo.Context) error {
+func (a *App) ViewSubscribers(c *echo.Context) error {
 	listID, _ := strconv.Atoi(c.Param("id"))
 	if listID > 0 {
 		user := auth.GetUser(c)
@@ -157,7 +157,7 @@ func (a *App) ViewSubscribers(c echo.Context) error {
 }
 
 // ViewNewSubscriber renders the new subscriber page.
-func (a *App) ViewNewSubscriber(c echo.Context) error {
+func (a *App) ViewNewSubscriber(c *echo.Context) error {
 	allLists, err := a.getViewableLists(c)
 	if err != nil {
 		return err
@@ -173,7 +173,7 @@ func (a *App) ViewNewSubscriber(c echo.Context) error {
 }
 
 // ViewSubscriber renders the profile and subscriptions tabs of a subscriber.
-func (a *App) ViewSubscriber(c echo.Context) error {
+func (a *App) ViewSubscriber(c *echo.Context) error {
 	out, err := a.getViewSubscriber(c)
 	if err != nil {
 		return err
@@ -200,7 +200,7 @@ func (a *App) ViewSubscriber(c echo.Context) error {
 }
 
 // ViewSubscriberBounces renders the bounces tab of a subscriber.
-func (a *App) ViewSubscriberBounces(c echo.Context) error {
+func (a *App) ViewSubscriberBounces(c *echo.Context) error {
 	out, err := a.getViewSubscriber(c)
 	if err != nil {
 		return err
@@ -222,7 +222,7 @@ func (a *App) ViewSubscriberBounces(c echo.Context) error {
 }
 
 // ViewSubscriberInfo renders the activity tab (campaign views and link clicks) of a subscriber.
-func (a *App) ViewSubscriberInfo(c echo.Context) error {
+func (a *App) ViewSubscriberInfo(c *echo.Context) error {
 	out, err := a.getViewSubscriber(c)
 	if err != nil {
 		return err
@@ -258,7 +258,7 @@ func (a *App) ViewSubscriberInfo(c echo.Context) error {
 }
 
 // getViewSubscriber fetches the subscriber in the request path after validating permissions.
-func (a *App) getViewSubscriber(c echo.Context) (models.Subscriber, error) {
+func (a *App) getViewSubscriber(c *echo.Context) (models.Subscriber, error) {
 	user := auth.GetUser(c)
 
 	id := getID(c)
@@ -276,7 +276,7 @@ func (a *App) getViewSubscriber(c echo.Context) (models.Subscriber, error) {
 }
 
 // getViewableLists returns all active lists the user has access to.
-func (a *App) getViewableLists(c echo.Context) ([]models.List, error) {
+func (a *App) getViewableLists(c *echo.Context) ([]models.List, error) {
 	user := auth.GetUser(c)
 
 	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
@@ -285,10 +285,10 @@ func (a *App) getViewableLists(c echo.Context) ([]models.List, error) {
 
 // getSubscribers queries subscribers from query params for the HTML view. If listID > 0,
 // results are filtered by that list (the per-list subscribers view).
-func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, models.PageProps, error) {
+func (a *App) getSubscribers(c *echo.Context, listID int) ([]models.Subscriber, models.PageProps, error) {
 	// GET and POST are both supported. `query` (SQL query) is sent by the frontend
 	// as a POST form param.
-	params, err := c.FormParams()
+	params, err := c.FormValues()
 	if err != nil {
 		return nil, models.PageProps{}, err
 	}
@@ -341,7 +341,7 @@ func (a *App) getSubscribers(c echo.Context, listID int) ([]models.Subscriber, m
 }
 
 // GetSubscriber handles the retrieval of a single subscriber by ID.
-func (a *App) GetSubscriber(c echo.Context) error {
+func (a *App) GetSubscriber(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
@@ -362,7 +362,7 @@ func (a *App) GetSubscriber(c echo.Context) error {
 }
 
 // GetSubscriberActivity handles the retrieval of a subscriber's campaign views and link clicks.
-func (a *App) GetSubscriberActivity(c echo.Context) error {
+func (a *App) GetSubscriberActivity(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
@@ -381,7 +381,7 @@ func (a *App) GetSubscriberActivity(c echo.Context) error {
 }
 
 // DeleteSubscriberActivity deletes a subscriber's campaign views or link clicks.
-func (a *App) DeleteSubscriberActivity(c echo.Context) error {
+func (a *App) DeleteSubscriberActivity(c *echo.Context) error {
 	id := getID(c)
 	if err := a.hasSubPerm(auth.GetUser(c), auth.PermTypeManage, []int{id}); err != nil {
 		return err
@@ -395,7 +395,7 @@ func (a *App) DeleteSubscriberActivity(c echo.Context) error {
 }
 
 // QuerySubscribers handles querying subscribers based on an arbitrary SQL expression.
-func (a *App) QuerySubscribers(c echo.Context) error {
+func (a *App) QuerySubscribers(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -448,7 +448,7 @@ func (a *App) QuerySubscribers(c echo.Context) error {
 }
 
 // ExportSubscribers handles querying subscribers based on an arbitrary SQL expression.
-func (a *App) ExportSubscribers(c echo.Context) error {
+func (a *App) ExportSubscribers(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -524,7 +524,7 @@ loop:
 }
 
 // CreateSubscriber handles the creation of a new subscriber.
-func (a *App) CreateSubscriber(c echo.Context) error {
+func (a *App) CreateSubscriber(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -561,7 +561,7 @@ func (a *App) CreateSubscriber(c echo.Context) error {
 }
 
 // UpdateSubscriber handles modification of a subscriber.
-func (a *App) UpdateSubscriber(c echo.Context) error {
+func (a *App) UpdateSubscriber(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -624,7 +624,7 @@ func (a *App) UpdateSubscriber(c echo.Context) error {
 
 // PatchSubscriber handles partially modifying a subscriber.
 // Only fields present in the request body are updated.
-func (a *App) PatchSubscriber(c echo.Context) error {
+func (a *App) PatchSubscriber(c *echo.Context) error {
 	user := auth.GetUser(c)
 	id := getID(c)
 
@@ -695,7 +695,7 @@ func (a *App) PatchSubscriber(c echo.Context) error {
 }
 
 // SubscriberSendOptin sends an optin confirmation e-mail to a subscriber.
-func (a *App) SubscriberSendOptin(c echo.Context) error {
+func (a *App) SubscriberSendOptin(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Fetch the subscriber.
@@ -718,7 +718,7 @@ func (a *App) SubscriberSendOptin(c echo.Context) error {
 }
 
 // BlocklistSubscriber handles the blocklisting of a given subscriber.
-func (a *App) BlocklistSubscriber(c echo.Context) error {
+func (a *App) BlocklistSubscriber(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Update the subscribers in the DB.
@@ -735,7 +735,7 @@ func (a *App) BlocklistSubscriber(c echo.Context) error {
 }
 
 // BlocklistSubscribers handles the blocklisting of one or more subscribers.
-func (a *App) BlocklistSubscribers(c echo.Context) error {
+func (a *App) BlocklistSubscribers(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	var req subQueryReq
@@ -763,7 +763,7 @@ func (a *App) BlocklistSubscribers(c echo.Context) error {
 // ManageSubscriberLists handles bulk addition or removal of subscribers
 // from or to one or more target lists.
 // It takes either an ID in the URI, or a list of IDs in the request body.
-func (a *App) ManageSubscriberLists(c echo.Context) error {
+func (a *App) ManageSubscriberLists(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -831,7 +831,7 @@ func (a *App) ManageSubscriberLists(c echo.Context) error {
 }
 
 // DeleteSubscriber handles deletion of a single subscriber.
-func (a *App) DeleteSubscriber(c echo.Context) error {
+func (a *App) DeleteSubscriber(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Delete the subscribers from the DB.
@@ -848,7 +848,7 @@ func (a *App) DeleteSubscriber(c echo.Context) error {
 }
 
 // DeleteSubscribers handles bulk deletion of one or more subscribers.
-func (a *App) DeleteSubscribers(c echo.Context) error {
+func (a *App) DeleteSubscribers(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Multiple IDs.
@@ -876,7 +876,7 @@ func (a *App) DeleteSubscribers(c echo.Context) error {
 
 // DeleteSubscribersByQuery bulk deletes based on an
 // arbitrary SQL expression.
-func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
+func (a *App) DeleteSubscribersByQuery(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -912,7 +912,7 @@ func (a *App) DeleteSubscribersByQuery(c echo.Context) error {
 
 // BlocklistSubscribersByQuery bulk blocklists subscribers
 // based on an arbitrary SQL expression.
-func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
+func (a *App) BlocklistSubscribersByQuery(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -947,7 +947,7 @@ func (a *App) BlocklistSubscribersByQuery(c echo.Context) error {
 
 // ManageSubscriberListsByQuery bulk adds/removes/unsubscribes subscribers
 // from one or more lists based on an arbitrary SQL expression.
-func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
+func (a *App) ManageSubscriberListsByQuery(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -1002,7 +1002,7 @@ func (a *App) ManageSubscriberListsByQuery(c echo.Context) error {
 }
 
 // DeleteSubscriberBounces deletes all the bounces on a subscriber.
-func (a *App) DeleteSubscriberBounces(c echo.Context) error {
+func (a *App) DeleteSubscriberBounces(c *echo.Context) error {
 	id := getID(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
@@ -1022,7 +1022,7 @@ func (a *App) DeleteSubscriberBounces(c echo.Context) error {
 // list subscriptions, campaign views and clicks and produces
 // a JSON report. This is a privacy feature and depends on the
 // configuration in a.Constants.Privacy.
-func (a *App) ExportSubscriberData(c echo.Context) error {
+func (a *App) ExportSubscriberData(c *echo.Context) error {
 	// Get the subscriber's data. A single query that gets the profile,
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".

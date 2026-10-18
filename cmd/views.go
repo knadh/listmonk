@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type adminView struct {
@@ -16,7 +16,7 @@ type adminView struct {
 	Profile     auth.User
 }
 
-func newAdminView(c echo.Context, title, description, pageID string) adminView {
+func newAdminView(c *echo.Context, title, description, pageID string) adminView {
 	// Admin views like error pages can be rendereded inside/outside auth.
 	profile, _ := c.Get(auth.UserHTTPCtxKey).(auth.User)
 
@@ -59,14 +59,14 @@ func canManageList(user auth.User, id int) bool {
 }
 
 // renderAdminMessage renders a message page.
-func (a *App) renderAdminMessage(c echo.Context, status int, title, description string) error {
+func (a *App) renderAdminMessage(c *echo.Context, status int, title, description string) error {
 	return c.Render(status, "admin-message", newAdminView(c, title, description, ""))
 }
 
 // adminPage captures errors from admin HTML handlers and converts
 // error messages into HTML renders.
 func (a *App) adminPage(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		if err := next(c); err != nil {
 			return a.renderAdminError(c, err)
 		}
@@ -76,8 +76,12 @@ func (a *App) adminPage(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // renderAdminError renders an error as an admin message page.
-func (a *App) renderAdminError(c echo.Context, err error) error {
-	if c.Response().Committed {
+func (a *App) renderAdminError(c *echo.Context, err error) error {
+	response, unwrapErr := echo.UnwrapResponse(c.Response())
+	if unwrapErr != nil {
+		return unwrapErr
+	}
+	if response.Committed {
 		return nil
 	}
 
@@ -85,18 +89,11 @@ func (a *App) renderAdminError(c echo.Context, err error) error {
 		status = http.StatusInternalServerError
 		msg    = http.StatusText(status)
 	)
-	if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok {
-		if internal, ok := httpErr.Internal.(*echo.HTTPError); ok {
-			httpErr = internal
-		}
-
-		status = httpErr.Code
+	if code := echo.StatusCode(err); code != 0 {
+		status = code
 		msg = http.StatusText(status)
-		switch m := httpErr.Message.(type) {
-		case string:
-			msg = m
-		case error:
-			msg = m.Error()
+		if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok && httpErr.Message != "" {
+			msg = httpErr.Message
 		}
 	} else {
 		a.log.Println(err.Error())
@@ -109,7 +106,7 @@ func (a *App) renderAdminError(c echo.Context, err error) error {
 	if err := a.renderAdminMessage(c, status, "Error", msg); err != nil {
 		a.log.Println(err.Error())
 		// The template renderer itself failed!
-		if !c.Response().Committed {
+		if !response.Committed {
 			return c.HTML(http.StatusInternalServerError, "Internal Server Error")
 		}
 	}

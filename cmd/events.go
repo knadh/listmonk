@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // EventStream serves an endpoint that never closes and pushes a
 // live event stream (text/event-stream) such as a error messages.
-func (a *App) EventStream(c echo.Context) error {
+func (a *App) EventStream(c *echo.Context) error {
 	hdr := c.Response().Header()
 	hdr.Set(echo.HeaderContentType, "text/event-stream")
 	hdr.Set(echo.HeaderCacheControl, "no-store")
@@ -35,7 +36,10 @@ func (a *App) EventStream(c echo.Context) error {
 			}
 
 			c.Response().Write([]byte(fmt.Sprintf("retry: 3000\ndata: %s\n\n", b)))
-			c.Response().Flush()
+			if err := http.NewResponseController(c.Response()).Flush(); err != nil {
+				a.events.Unsubscribe(id)
+				return err
+			}
 
 		case <-ctx.Done():
 			// On HTTP connection close, unsubscribe.

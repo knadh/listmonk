@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 type postmarkNotif struct {
@@ -43,14 +43,14 @@ type Postmark struct {
 
 func NewPostmark(username, password string) *Postmark {
 	return &Postmark{
-		authHandler: middleware.BasicAuth(makePostmarkAuthHandler(username, password))(func(c echo.Context) error {
+		authHandler: middleware.BasicAuth(makePostmarkAuthHandler(username, password))(func(c *echo.Context) error {
 			return nil
 		}),
 	}
 }
 
 // ProcessBounce processes Postmark bounce notifications and returns one object.
-func (p *Postmark) ProcessBounce(b []byte, c echo.Context) ([]models.Bounce, error) {
+func (p *Postmark) ProcessBounce(b []byte, c *echo.Context) ([]models.Bounce, error) {
 	// Do basicauth.
 	if err := p.authHandler(c); err != nil {
 		return nil, err
@@ -99,13 +99,13 @@ func (p *Postmark) ProcessBounce(b []byte, c echo.Context) ([]models.Bounce, err
 	}}, nil
 }
 
-func makePostmarkAuthHandler(cfgUser, cfgPassword string) func(username, password string, c echo.Context) (bool, error) {
+func makePostmarkAuthHandler(cfgUser, cfgPassword string) func(c *echo.Context, username, password string) (bool, error) {
 	var (
 		u = []byte(cfgUser)
 		p = []byte(cfgPassword)
 	)
 
-	return func(username, password string, c echo.Context) (bool, error) {
+	return func(c *echo.Context, username, password string) (bool, error) {
 		if len(u) == 0 || len(p) == 0 {
 			return false, errors.New("webhook credentials are not configured")
 		}

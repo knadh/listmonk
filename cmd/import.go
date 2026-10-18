@@ -10,7 +10,7 @@ import (
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/subimporter"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // importView is the admin view for the subscriber import page.
@@ -23,7 +23,7 @@ type importView struct {
 }
 
 // ViewImport renders the HTML view for the subscriber CSV import page.
-func (a *App) ViewImport(c echo.Context) error {
+func (a *App) ViewImport(c *echo.Context) error {
 	// Get the lists the user can access.
 	allLists, err := a.getViewableLists(c)
 	if err != nil {
@@ -58,7 +58,7 @@ func (a *App) ViewImport(c echo.Context) error {
 
 // ImportSubscribers handles the uploading and bulk importing of
 // a ZIP file of one or more CSV files.
-func (a *App) ImportSubscribers(c echo.Context) error {
+func (a *App) ImportSubscribers(c *echo.Context) error {
 	// Is an import already running?
 	if a.importer.GetStats().Status == subimporter.StatusImporting {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("import.alreadyRunning"))
@@ -162,20 +162,20 @@ func (a *App) ImportSubscribers(c echo.Context) error {
 }
 
 // GetImportSubscribers returns import statistics.
-func (a *App) GetImportSubscribers(c echo.Context) error {
+func (a *App) GetImportSubscribers(c *echo.Context) error {
 	s := a.importer.GetStats()
 	return c.JSON(http.StatusOK, okResp{s})
 }
 
 // GetImportSubscriberStats returns import statistics.
-func (a *App) GetImportSubscriberStats(c echo.Context) error {
+func (a *App) GetImportSubscriberStats(c *echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{string(a.importer.GetLogs())})
 }
 
 // StopImportSubscribers sends a stop signal to the importer.
 // If there's an ongoing import, it'll be stopped, and if an import
 // is finished, it's state is cleared.
-func (a *App) StopImportSubscribers(c echo.Context) error {
+func (a *App) StopImportSubscribers(c *echo.Context) error {
 	a.importer.Stop()
 	return c.JSON(http.StatusOK, okResp{a.importer.GetStats()})
 }

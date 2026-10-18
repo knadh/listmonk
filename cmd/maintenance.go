@@ -9,7 +9,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // maintenanceView is the admin page view for the maintenance/garbage-collection page.
@@ -23,7 +23,7 @@ type maintenanceView struct {
 }
 
 // ViewMaintenance renders the HTML view for the maintenance page.
-func (a *App) ViewMaintenance(c echo.Context) error {
+func (a *App) ViewMaintenance(c *echo.Context) error {
 	s, err := a.core.GetSettings()
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (a *App) ViewMaintenance(c echo.Context) error {
 }
 
 // GCSubscribers garbage collects (deletes) orphaned or blocklisted subscribers.
-func (a *App) GCSubscribers(c echo.Context) error {
+func (a *App) GCSubscribers(c *echo.Context) error {
 	var (
 		typ = c.Param("type")
 
@@ -66,7 +66,7 @@ func (a *App) GCSubscribers(c echo.Context) error {
 }
 
 // GCSubscriptions garbage collects (deletes) orphaned or blocklisted subscribers.
-func (a *App) GCSubscriptions(c echo.Context) error {
+func (a *App) GCSubscriptions(c *echo.Context) error {
 	// Validate the date.
 	t, err := time.Parse(time.RFC3339, c.FormValue("before_date"))
 	if err != nil {
@@ -85,7 +85,7 @@ func (a *App) GCSubscriptions(c echo.Context) error {
 }
 
 // GCCampaignAnalytics garbage collects (deletes) campaign analytics.
-func (a *App) GCCampaignAnalytics(c echo.Context) error {
+func (a *App) GCCampaignAnalytics(c *echo.Context) error {
 
 	t, err := time.Parse(time.RFC3339, c.FormValue("before_date"))
 	if err != nil {
@@ -114,7 +114,7 @@ func (a *App) GCCampaignAnalytics(c echo.Context) error {
 }
 
 // ExportCampaignAnalytics streams campaign analytics (views or link clicks) as a CSV file.
-func (a *App) ExportCampaignAnalytics(c echo.Context) error {
+func (a *App) ExportCampaignAnalytics(c *echo.Context) error {
 	since, err := time.Parse(time.RFC3339, c.QueryParam("since"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))

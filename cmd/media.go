@@ -10,7 +10,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -33,7 +33,7 @@ type mediaView struct {
 }
 
 // ViewMedia renders the HTML gallery view for uploaded media.
-func (a *App) ViewMedia(c echo.Context) error {
+func (a *App) ViewMedia(c *echo.Context) error {
 	res, props, err := a.getMedia(c)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (a *App) ViewMedia(c echo.Context) error {
 }
 
 // ViewMediaFragment renders the header/footer-less media gallery for in iframes (popup dialogs).
-func (a *App) ViewMediaFragment(c echo.Context) error {
+func (a *App) ViewMediaFragment(c *echo.Context) error {
 	res, props, err := a.getMedia(c)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ var mediaQueryDefaults = map[string]string{
 }
 
 // getMedia queries paginated media items from the DB.
-func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) {
+func (a *App) getMedia(c *echo.Context) ([]media.Media, models.PageProps, error) {
 	q := makeQuery(c.Request().URL.Query(), mediaQueryDefaults)
 
 	pg := a.pg.NewFromURL(q)
@@ -87,7 +87,7 @@ func (a *App) getMedia(c echo.Context) ([]media.Media, models.PageProps, error) 
 }
 
 // UploadMedia handles media file uploads.
-func (a *App) UploadMedia(c echo.Context) error {
+func (a *App) UploadMedia(c *echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
@@ -204,7 +204,7 @@ func (a *App) UploadMedia(c echo.Context) error {
 }
 
 // GetAllMedia handles retrieval of uploaded media.
-func (a *App) GetAllMedia(c echo.Context) error {
+func (a *App) GetAllMedia(c *echo.Context) error {
 	var (
 		query = c.FormValue("query")
 
@@ -229,7 +229,7 @@ func (a *App) GetAllMedia(c echo.Context) error {
 }
 
 // GetMedia handles retrieval of a media item by ID.
-func (a *App) GetMedia(c echo.Context) error {
+func (a *App) GetMedia(c *echo.Context) error {
 	// Fetch the media item from the DB.
 	id := getID(c)
 	out, err := a.core.GetMedia(id, "", "", a.media)
@@ -241,7 +241,7 @@ func (a *App) GetMedia(c echo.Context) error {
 }
 
 // DeleteMedia handles deletion of uploaded media.
-func (a *App) DeleteMedia(c echo.Context) error {
+func (a *App) DeleteMedia(c *echo.Context) error {
 
 	// Delete the media from the DB. The query returns the filename.
 	id := getID(c)
@@ -258,7 +258,7 @@ func (a *App) DeleteMedia(c echo.Context) error {
 }
 
 // ServeS3Media serves media files stored in S3 when the public URL is a relative path.
-func (a *App) ServeS3Media(c echo.Context) error {
+func (a *App) ServeS3Media(c *echo.Context) error {
 	key := c.Param("filepath")
 	if key == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "missing media file path")

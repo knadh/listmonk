@@ -6,10 +6,11 @@ import (
 	"path"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 const (
@@ -31,6 +32,10 @@ var (
 // registerHandlers registers HTTP handlers.
 func initHTTPHandlers(e *echo.Echo, a *App) {
 	e.HTTPErrorHandler = a.handleHTTPErr
+	e.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.RemoveTrailingSlashConfig{
+		RedirectCode: http.StatusPermanentRedirect,
+		Skipper:      skipAdminTrailingSlash,
+	}))
 
 	// Configure CORS middleware if domains are configured.
 	if corsOrigins := trustedURLsToCORSOrigins(a.cfg.Security.TrustedURLs); len(corsOrigins) > 0 {
@@ -47,7 +52,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 		// Attach a middleware to the group that checks for auth.
 		g := e.Group("", a.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
+			return func(c *echo.Context) error {
 				u := c.Get(auth.UserHTTPCtxKey)
 
 				// On no-auth, redirect to login page
@@ -123,7 +128,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 			// Attach a middleware to the group that checks for auth.
 			g = e.Group("", a.auth.Middleware, func(next echo.HandlerFunc) echo.HandlerFunc {
-				return func(c echo.Context) error {
+				return func(c *echo.Context) error {
 					u := c.Get(auth.UserHTTPCtxKey)
 
 					// On no-auth, respond with a JSON error.
@@ -278,7 +283,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		}
 
 		// Landing page.
-		g.GET("/", func(c echo.Context) error {
+		g.GET("/", func(c *echo.Context) error {
 			return c.Render(http.StatusOK, "home", publicTpl{Title: "listmonk"})
 		})
 
@@ -334,26 +339,26 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.GET("/robots.txt", a.RobotsTxt)
 
 		// 404 pages.
-		g.RouteNotFound("/*", func(c echo.Context) error {
+		g.RouteNotFound("/*", func(c *echo.Context) error {
 			return c.Render(http.StatusNotFound, tplMessage,
 				makeMsgTpl("404 - "+a.i18n.T("globals.terms.notFound"), "", ""))
 		})
-		g.RouteNotFound("/api/*", func(c echo.Context) error {
+		g.RouteNotFound("/api/*", func(c *echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound, "404 unknown endpoint")
 		})
-		g.RouteNotFound("/admin/*", a.adminPage(func(c echo.Context) error {
+		g.RouteNotFound("/admin/*", a.adminPage(func(c *echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound, "404 page not found")
 		}))
 	}
 }
 
 // HealthCheck is a healthcheck endpoint that returns a 200 response.
-func (a *App) HealthCheck(c echo.Context) error {
+func (a *App) HealthCheck(c *echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
 // RobotsTxt serves the robots.txt file from the static filesystem.
-func (a *App) RobotsTxt(c echo.Context) error {
+func (a *App) RobotsTxt(c *echo.Context) error {
 	b, err := a.fs.Read("/public/static/robots.txt")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "robots.txt not found")
@@ -364,7 +369,7 @@ func (a *App) RobotsTxt(c echo.Context) error {
 // serveCustomAppearance serves the given custom CSS/JS appearance blob
 // meant for customizing public and admin pages from the admin settings UI.
 func serveCustomAppearance(name string) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		var (
 			app = c.Get("app").(*App)
 
@@ -396,7 +401,7 @@ func serveCustomAppearance(name string) echo.HandlerFunc {
 
 // hasUUID middleware validates the UUID string format for a given set of params.
 func (a *App) hasUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		for _, p := range params {
 			if !reUUID.MatchString(c.Param(p)) {
 				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "",
@@ -409,7 +414,7 @@ func (a *App) hasUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 
 // hasID middleware validates the :id param in the URL and sets its int value in the context.
 func hasID(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		id, _ := strconv.Atoi(c.Param("id"))
 		if id < 1 {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid ID")
@@ -423,13 +428,13 @@ func hasID(next echo.HandlerFunc) echo.HandlerFunc {
 // hasSub middleware checks if a subscriber exists given the UUID
 // param in a request.
 func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		subUUID := c.Param("subUUID")
 
 		if _, err := a.core.GetSubscriber(0, subUUID, ""); err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
-					makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", er.Message.(string)))
+					makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", er.Message))
 			}
 
 			a.log.Printf("error checking subscriber existence: %v", err)
@@ -442,24 +447,24 @@ func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // handleHTTPErr logs errors and delegates response formatting to Echo.
-func (a *App) handleHTTPErr(err error, c echo.Context) {
-	if _, ok := err.(*echo.HTTPError); !ok {
+func (a *App) handleHTTPErr(c *echo.Context, err error) {
+	if echo.StatusCode(err) == 0 {
 		a.log.Println(err.Error())
 	}
 
-	c.Echo().DefaultHTTPErrorHandler(err, c)
+	echo.DefaultHTTPErrorHandler(false)(c, err)
 }
 
 // noIndex adds the HTTP header requesting robots to not crawl the page.
 func noIndex(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		c.Response().Header().Set("X-Robots-Tag", "noindex")
 		return next(c)
 	}
 }
 
 // getID returns the :id param from the URL parsed and stored as an int by the hasID middleware.
-func getID(c echo.Context) int {
+func getID(c *echo.Context) int {
 	return c.Get("id").(int)
 }
 
@@ -490,7 +495,15 @@ func trustedURLsToCORSOrigins(urls []string) []string {
 }
 
 // renderSandboxedHTML executes the HTML rendering handler with CSP sandboxing headers (for iframes).
-func renderSandboxedHTML(c echo.Context, body string) error {
+func renderSandboxedHTML(c *echo.Context, body string) error {
 	c.Response().Header().Add("Content-Security-Policy", "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox")
 	return c.HTML(http.StatusOK, body)
+}
+
+// skipAdminTrailingSlash excludes assets and non-admin URLs from canonical redirects.
+func skipAdminTrailingSlash(c *echo.Context) bool {
+	p := strings.TrimRight(c.Request().URL.Path, "/")
+	return (p != uriAdmin && !strings.HasPrefix(p, uriAdmin+"/")) ||
+		p == uriAdmin+"/static" || strings.HasPrefix(p, uriAdmin+"/static/") ||
+		p == uriAdmin+"/custom.css" || p == uriAdmin+"/custom.js"
 }

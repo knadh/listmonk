@@ -24,7 +24,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const pwdMask = "•"
@@ -56,7 +56,7 @@ var (
 )
 
 // GetSettings returns settings from the DB.
-func (a *App) GetSettings(c echo.Context) error {
+func (a *App) GetSettings(c *echo.Context) error {
 	s, err := a.core.GetSettings()
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ type settingsView struct {
 }
 
 // ViewSettings renders the HTML view for the settings form.
-func (a *App) ViewSettings(c echo.Context) error {
+func (a *App) ViewSettings(c *echo.Context) error {
 	s, err := a.core.GetSettings()
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func (a *App) ViewSettings(c echo.Context) error {
 }
 
 // UpdateSettings returns settings from the DB.
-func (a *App) UpdateSettings(c echo.Context) error {
+func (a *App) UpdateSettings(c *echo.Context) error {
 	// Unmarshal and marshal the fields once to sanitize the settings blob.
 	var set models.Settings
 	if err := c.Bind(&set); err != nil {
@@ -392,7 +392,7 @@ func (a *App) UpdateSettings(c echo.Context) error {
 }
 
 // UpdateSettingsByKey updates a single setting key-value in the DB.
-func (a *App) UpdateSettingsByKey(c echo.Context) error {
+func (a *App) UpdateSettingsByKey(c *echo.Context) error {
 	key := c.Param("key")
 	if key == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
@@ -442,7 +442,7 @@ func (a *App) validateOIDCSettings(set models.Settings) error {
 
 // handleSettingsRestart checks for running campaigns and either triggers an
 // immediate app restart or marks the app as needing a restart.
-func (a *App) handleSettingsRestart(c echo.Context) error {
+func (a *App) handleSettingsRestart(c *echo.Context) error {
 	// If there are any active campaigns, don't do an auto reload and
 	// warn the user on the frontend.
 	if a.manager.HasRunningCampaigns() {
@@ -472,7 +472,7 @@ type logsView struct {
 }
 
 // ViewLogs renders the HTML view for the application log viewer.
-func (a *App) ViewLogs(c echo.Context) error {
+func (a *App) ViewLogs(c *echo.Context) error {
 	data := logsView{
 		adminView: newAdminView(c, a.i18n.T("globals.terms.logs"), "", "settings.logs"),
 		Lines:     a.bufLog.Lines(),
@@ -482,12 +482,12 @@ func (a *App) ViewLogs(c echo.Context) error {
 }
 
 // GetLogs returns the log entries stored in the log buffer.
-func (a *App) GetLogs(c echo.Context) error {
+func (a *App) GetLogs(c *echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{a.bufLog.Lines()})
 }
 
 // TestSMTPSettings returns the log entries stored in the log buffer.
-func (a *App) TestSMTPSettings(c echo.Context) error {
+func (a *App) TestSMTPSettings(c *echo.Context) error {
 	// Copy the raw JSON post body.
 	reqBody, err := io.ReadAll(c.Request().Body)
 	if err != nil {
@@ -542,7 +542,7 @@ func (a *App) TestSMTPSettings(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{a.bufLog.Lines()})
 }
 
-func (a *App) GetAboutInfo(c echo.Context) error {
+func (a *App) GetAboutInfo(c *echo.Context) error {
 	var mem runtime.MemStats
 	runtime.ReadMemStats(&mem)
 

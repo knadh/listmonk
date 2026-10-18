@@ -13,7 +13,7 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // dashboardCampaignCount is the number of recent campaigns to show on the dashboard.
@@ -74,7 +74,7 @@ type dashboardView struct {
 }
 
 // ViewDashboard renders the admin dashboard (home) page.
-func (a *App) ViewDashboard(c echo.Context) error {
+func (a *App) ViewDashboard(c *echo.Context) error {
 	counts, err := a.core.GetDashboardCounts()
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (a *App) ViewDashboard(c echo.Context) error {
 
 // GetDashboardCampaigns returns recent campaigns to show on the dashboard,
 // with scheduled campaigns on top.
-func (a *App) GetDashboardCampaigns(c echo.Context) error {
+func (a *App) GetDashboardCampaigns(c *echo.Context) error {
 	camps, err := a.getDashboardCampaigns(c)
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (a *App) GetDashboardCampaigns(c echo.Context) error {
 }
 
 // getDashboardCampaigns queries recent campaigns to show on the dashboard.
-func (a *App) getDashboardCampaigns(c echo.Context) (models.Campaigns, error) {
+func (a *App) getDashboardCampaigns(c *echo.Context) (models.Campaigns, error) {
 	user := auth.GetUser(c)
 
 	// Either the user has campaigns:get_all permission and can view all campaigns,

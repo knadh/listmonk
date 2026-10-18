@@ -11,11 +11,11 @@ import (
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // SendTxMessage handles the sending of a transactional message.
-func (a *App) SendTxMessage(c echo.Context) error {
+func (a *App) SendTxMessage(c *echo.Context) error {
 	var m models.TxMessage
 
 	// If it's a multipart form, there may be file attachments.

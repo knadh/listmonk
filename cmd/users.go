@@ -11,7 +11,7 @@ import (
 	"github.com/knadh/listmonk/internal/core"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/pquerna/otp/totp"
 	"gopkg.in/volatiletech/null.v6"
 )
@@ -57,7 +57,7 @@ type userView struct {
 }
 
 // ViewUsers renders the HTML view listing all users.
-func (a *App) ViewUsers(c echo.Context) error {
+func (a *App) ViewUsers(c *echo.Context) error {
 	// Whitelisted filter params.
 	q := makeQuery(c.Request().URL.Query(), usersQueryDefaults)
 	var (
@@ -102,7 +102,7 @@ func (a *App) ViewUsers(c echo.Context) error {
 
 // ViewUser renders the HTML add/edit form for a user. It handles both the "new user"
 // (no ID) and the "edit user" (ID in the URI) cases.
-func (a *App) ViewUser(c echo.Context) error {
+func (a *App) ViewUser(c *echo.Context) error {
 	var (
 		user  auth.User
 		isNew = true
@@ -156,7 +156,7 @@ type profileView struct {
 }
 
 // ViewProfile renders the HTML view for the logged in user's profile.
-func (a *App) ViewProfile(c echo.Context) error {
+func (a *App) ViewProfile(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Blank out the password hash before sending (obviously!).
@@ -184,7 +184,7 @@ func (a *App) getRoles() ([]auth.Role, []auth.ListRole, error) {
 }
 
 // GetUser retrieves a single user by ID.
-func (a *App) GetUser(c echo.Context) error {
+func (a *App) GetUser(c *echo.Context) error {
 	// Get the user from the DB.
 	id := getID(c)
 	out, err := a.core.GetUser(id, "", "")
@@ -199,7 +199,7 @@ func (a *App) GetUser(c echo.Context) error {
 }
 
 // GetUsers retrieves all users.
-func (a *App) GetUsers(c echo.Context) error {
+func (a *App) GetUsers(c *echo.Context) error {
 	// Get all users from the DB.
 	out, err := a.core.GetUsers("", "", 0, 0, c.QueryParam("order_by"), c.QueryParam("order"))
 	if err != nil {
@@ -215,7 +215,7 @@ func (a *App) GetUsers(c echo.Context) error {
 }
 
 // CreateUser handles user creation.
-func (a *App) CreateUser(c echo.Context) error {
+func (a *App) CreateUser(c *echo.Context) error {
 	var u auth.User
 	if err := c.Bind(&u); err != nil {
 		return err
@@ -275,7 +275,7 @@ func (a *App) CreateUser(c echo.Context) error {
 }
 
 // UpdateUser handles user modification.
-func (a *App) UpdateUser(c echo.Context) error {
+func (a *App) UpdateUser(c *echo.Context) error {
 	// Incoming params.
 	var u auth.User
 	if err := c.Bind(&u); err != nil {
@@ -362,7 +362,7 @@ func (a *App) UpdateUser(c echo.Context) error {
 }
 
 // DeleteUser handles the deletion of a single user by ID.
-func (a *App) DeleteUser(c echo.Context) error {
+func (a *App) DeleteUser(c *echo.Context) error {
 	// Delete the user(s) from the DB.
 	id := getID(c)
 	if err := a.core.DeleteUsers([]int{id}); err != nil {
@@ -378,7 +378,7 @@ func (a *App) DeleteUser(c echo.Context) error {
 }
 
 // DeleteUsers handles user deletion, either a single one (ID in the URI), or a list.
-func (a *App) DeleteUsers(c echo.Context) error {
+func (a *App) DeleteUsers(c *echo.Context) error {
 	ids, err := getQueryInts("id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
@@ -398,7 +398,7 @@ func (a *App) DeleteUsers(c echo.Context) error {
 }
 
 // GetUserProfile fetches the uesr profile for the currently logged in user.
-func (a *App) GetUserProfile(c echo.Context) error {
+func (a *App) GetUserProfile(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -410,7 +410,7 @@ func (a *App) GetUserProfile(c echo.Context) error {
 }
 
 // UpdateUserProfile update's the current user's profile.
-func (a *App) UpdateUserProfile(c echo.Context) error {
+func (a *App) UpdateUserProfile(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -457,7 +457,7 @@ func (a *App) UpdateUserProfile(c echo.Context) error {
 }
 
 // EnableTOTP enables TOTP 2FA for a user after verifying the code.
-func (a *App) EnableTOTP(c echo.Context) error {
+func (a *App) EnableTOTP(c *echo.Context) error {
 	u := c.Get(auth.UserHTTPCtxKey).(auth.User)
 
 	// Incoming request.
@@ -502,7 +502,7 @@ func (a *App) EnableTOTP(c echo.Context) error {
 }
 
 // DisableTOTP disables TOTP 2FA for a user after verifying the password.
-func (a *App) DisableTOTP(c echo.Context) error {
+func (a *App) DisableTOTP(c *echo.Context) error {
 	u := c.Get(auth.UserHTTPCtxKey).(auth.User)
 
 	// Incoming request.

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	null "gopkg.in/volatiletech/null.v6"
 )
 

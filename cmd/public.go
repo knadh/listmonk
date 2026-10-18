@@ -19,7 +19,7 @@ import (
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/lib/pq"
 )
 
@@ -143,7 +143,7 @@ var (
 )
 
 // Render executes and renders a template for echo.
-func (t *pubTplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+func (t *pubTplRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
 	return t.templates.ExecuteTemplate(w, name, tplData{
 		SiteName:            t.SiteName,
 		RootURL:             t.RootURL,
@@ -160,7 +160,7 @@ func (t *pubTplRenderer) Render(w io.Writer, name string, data any, c echo.Conte
 }
 
 // Render executes and renders an admin template for echo.
-func (t *adminTplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+func (t *adminTplRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
 	app := c.Get("app").(*App)
 	configJS, err := app.makeServerConfig()
 	if err != nil {
@@ -190,12 +190,12 @@ func (t *adminTplRenderer) Render(w io.Writer, name string, data any, c echo.Con
 }
 
 // Render routes template execution to admin or public templates.
-func (t *appTplRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+func (t *appTplRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
 	if t.AdminRenderer != nil && t.AdminRenderer.templates.Lookup(name) != nil {
-		return t.AdminRenderer.Render(w, name, data, c)
+		return t.AdminRenderer.Render(c, w, name, data)
 	}
 
-	return t.PubRenderer.Render(w, name, data, c)
+	return t.PubRenderer.Render(c, w, name, data)
 }
 
 func jsonForTpl(v any) template.JS {
@@ -205,7 +205,7 @@ func jsonForTpl(v any) template.JS {
 
 // GetPublicLists returns the list of public lists with minimal fields
 // required to submit a subscription.
-func (a *App) GetPublicLists(c echo.Context) error {
+func (a *App) GetPublicLists(c *echo.Context) error {
 	// Get all public lists.
 	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, true, nil)
 	if err != nil {
@@ -230,7 +230,7 @@ func (a *App) GetPublicLists(c echo.Context) error {
 
 // ViewCampaignMessage renders the HTML view of a campaign message.
 // This is the view the {{ MessageURL }} template tag links to in e-mail campaigns.
-func (a *App) ViewCampaignMessage(c echo.Context) error {
+func (a *App) ViewCampaignMessage(c *echo.Context) error {
 	// Get the campaign.
 	campUUID := c.Param("campUUID")
 	camp, err := a.core.GetCampaign(0, campUUID, "")
@@ -282,7 +282,7 @@ func (a *App) ViewCampaignMessage(c echo.Context) error {
 
 // SubscriptionPage renders the subscription management page and handles unsubscriptions.
 // This is the view that {{ UnsubscribeURL }} in campaigns link to.
-func (a *App) SubscriptionPage(c echo.Context) error {
+func (a *App) SubscriptionPage(c *echo.Context) error {
 	var (
 		subUUID       = c.Param("subUUID")
 		showManage, _ = strconv.ParseBool(c.FormValue("manage"))
@@ -338,7 +338,7 @@ func (a *App) SubscriptionPage(c echo.Context) error {
 // SubscriptionPrefs renders the subscription management page and
 // s unsubscriptions. This is the view that {{ UnsubscribeURL }} in
 // campaigns link to.
-func (a *App) SubscriptionPrefs(c echo.Context) error {
+func (a *App) SubscriptionPrefs(c *echo.Context) error {
 	// Read the form.
 	var req struct {
 		Name      string   `form:"name" json:"name"`
@@ -433,7 +433,7 @@ func (a *App) SubscriptionPrefs(c echo.Context) error {
 // OptinPage renders the double opt-in confirmation page that subscribers
 // see when they click on the "Confirm subscription" button in double-optin
 // notifications.
-func (a *App) OptinPage(c echo.Context) error {
+func (a *App) OptinPage(c *echo.Context) error {
 	var (
 		subUUID    = c.Param("subUUID")
 		confirm, _ = strconv.ParseBool(c.FormValue("confirm"))
@@ -478,7 +478,7 @@ func (a *App) OptinPage(c echo.Context) error {
 	return c.Render(http.StatusOK, "optin", out)
 }
 
-func (a *App) confirmOptinSubscription(c echo.Context, subUUID string, listUUIDs []string, lists []models.List) error {
+func (a *App) confirmOptinSubscription(c *echo.Context, subUUID string, listUUIDs []string, lists []models.List) error {
 	if len(listUUIDs) == 0 {
 		listUUIDs = make([]string, 0, len(lists))
 		for _, l := range lists {
@@ -507,7 +507,7 @@ func (a *App) confirmOptinSubscription(c echo.Context, subUUID string, listUUIDs
 
 // SubscriptionFormPage handles subscription requests coming from public
 // HTML subscription forms.
-func (a *App) SubscriptionFormPage(c echo.Context) error {
+func (a *App) SubscriptionFormPage(c *echo.Context) error {
 	if !a.cfg.EnablePublicSubPage {
 		return c.Render(http.StatusNotFound, tplMessage,
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.invalidFeature")))
@@ -546,7 +546,7 @@ func (a *App) SubscriptionFormPage(c echo.Context) error {
 
 // SubscriptionForm handles subscription requests coming from public
 // HTML subscription forms.
-func (a *App) SubscriptionForm(c echo.Context) error {
+func (a *App) SubscriptionForm(c *echo.Context) error {
 	if !a.cfg.EnablePublicSubPage {
 		return echo.NewHTTPError(http.StatusNotFound, a.i18n.T("public.invalidFeature"))
 
@@ -619,7 +619,7 @@ func (a *App) SubscriptionForm(c echo.Context) error {
 
 // PublicSubscription handles subscription requests coming from public
 // API calls.
-func (a *App) PublicSubscription(c echo.Context) error {
+func (a *App) PublicSubscription(c *echo.Context) error {
 	if !a.cfg.EnablePublicSubPage {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.invalidFeature"))
 	}
@@ -637,7 +637,7 @@ func (a *App) PublicSubscription(c echo.Context) error {
 // LinkRedirect redirects a link UUID to its original underlying link
 // after recording the link click for a particular subscriber in the particular
 // campaign. These links are generated by {{ TrackLink }} tags in campaigns.
-func (a *App) LinkRedirect(c echo.Context) error {
+func (a *App) LinkRedirect(c *echo.Context) error {
 	var (
 		linkUUID = c.Param("linkUUID")
 		campUUID = c.Param("campUUID")
@@ -672,7 +672,7 @@ func (a *App) LinkRedirect(c echo.Context) error {
 // the form of an pixel image request. Regardless of errors, this handler
 // should always render the pixel image bytes. The pixel URL is generated by
 // the {{ TrackView }} template tag in campaigns.
-func (a *App) RegisterCampaignView(c echo.Context) error {
+func (a *App) RegisterCampaignView(c *echo.Context) error {
 	// If tracking is globally disabled, return the pixel without recording.
 	if a.cfg.Privacy.DisableTracking {
 		c.Response().Header().Set("Cache-Control", "no-cache")
@@ -701,7 +701,7 @@ func (a *App) RegisterCampaignView(c echo.Context) error {
 // campaign views and clicks and produces a JSON report that is then e-mailed
 // to the subscriber. This is a privacy feature and the data that's exported
 // is dependent on the configuration.
-func (a *App) SelfExportSubscriberData(c echo.Context) error {
+func (a *App) SelfExportSubscriberData(c *echo.Context) error {
 	// Is export allowed?
 	if !a.cfg.Privacy.AllowExport {
 		return c.Render(http.StatusBadRequest, tplMessage,
@@ -757,7 +757,7 @@ func (a *App) SelfExportSubscriberData(c echo.Context) error {
 // WipeSubscriberData allows a subscriber to delete their data. The
 // profile and subscriptions are deleted, while the campaign_views and link
 // clicks remain as orphan data unconnected to any subscriber.
-func (a *App) WipeSubscriberData(c echo.Context) error {
+func (a *App) WipeSubscriberData(c *echo.Context) error {
 	// Is wiping allowed?
 	if !a.cfg.Privacy.AllowWipe {
 		return c.Render(http.StatusBadRequest, tplMessage,
@@ -776,7 +776,7 @@ func (a *App) WipeSubscriberData(c echo.Context) error {
 }
 
 // AltchaChallenge generates a challenge for Altcha captcha.
-func (a *App) AltchaChallenge(c echo.Context) error {
+func (a *App) AltchaChallenge(c *echo.Context) error {
 	// Check if Altcha is enabled.
 	if !a.captcha.IsEnabled() || a.captcha.GetProvider() != captcha.ProviderAltcha {
 		return echo.NewHTTPError(http.StatusNotFound, "captcha not enabled")
@@ -809,7 +809,7 @@ func drawTransparentImage(h, w int) []byte {
 // processSubForm processes an incoming form/public API subscription request.
 // The bool indicates whether there was subscription to an optin list so that
 // an appropriate message can be shown.
-func (a *App) processSubForm(c echo.Context) (bool, error) {
+func (a *App) processSubForm(c *echo.Context) (bool, error) {
 	// Get and validate fields.
 	var req struct {
 		Name          string   `form:"name" json:"name"`

@@ -9,7 +9,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // bouncesQueryDefaults is the allowlist of filter query params.
@@ -32,7 +32,7 @@ type bouncesView struct {
 }
 
 // ViewBounces renders the HTML view for bounces.
-func (a *App) ViewBounces(c echo.Context) error {
+func (a *App) ViewBounces(c *echo.Context) error {
 	q := makeQuery(c.Request().URL.Query(), bouncesQueryDefaults)
 
 	campID, _ := strconv.Atoi(q.Get("campaign_id"))
@@ -54,7 +54,7 @@ func (a *App) ViewBounces(c echo.Context) error {
 }
 
 // GetBounce handles retrieval of a specific bounce record by ID.
-func (a *App) GetBounce(c echo.Context) error {
+func (a *App) GetBounce(c *echo.Context) error {
 	// Fetch one bounce from the DB.
 	id := getID(c)
 	out, err := a.core.GetBounce(id)
@@ -66,7 +66,7 @@ func (a *App) GetBounce(c echo.Context) error {
 }
 
 // GetBounces handles retrieval of bounce records.
-func (a *App) GetBounces(c echo.Context) error {
+func (a *App) GetBounces(c *echo.Context) error {
 	var (
 		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
 		source    = c.FormValue("source")
@@ -101,7 +101,7 @@ func (a *App) GetBounces(c echo.Context) error {
 }
 
 // GetSubscriberBounces retrieves a subscriber's bounce records.
-func (a *App) GetSubscriberBounces(c echo.Context) error {
+func (a *App) GetSubscriberBounces(c *echo.Context) error {
 	subID := getID(c)
 
 	// Check if the user has access to at least one of the lists on the subscriber.
@@ -119,7 +119,7 @@ func (a *App) GetSubscriberBounces(c echo.Context) error {
 }
 
 // DeleteBounces handles bounce deletion of a list.
-func (a *App) DeleteBounces(c echo.Context) error {
+func (a *App) DeleteBounces(c *echo.Context) error {
 	all, _ := strconv.ParseBool(c.QueryParam("all"))
 
 	var ids []int
@@ -151,7 +151,7 @@ func (a *App) DeleteBounces(c echo.Context) error {
 }
 
 // DeleteBounce handles bounce deletion of a single bounce record.
-func (a *App) DeleteBounce(c echo.Context) error {
+func (a *App) DeleteBounce(c *echo.Context) error {
 	// Delete bounces from the DB.
 	id := getID(c)
 	if err := a.core.DeleteBounces([]int{id}, false, 0, "", ""); err != nil {
@@ -162,7 +162,7 @@ func (a *App) DeleteBounce(c echo.Context) error {
 }
 
 // BlocklistBouncedSubscribers blocklists subscribers matching bounce IDs or filters.
-func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
+func (a *App) BlocklistBouncedSubscribers(c *echo.Context) error {
 	ids, err := parseStringIDs(c.QueryParams()["id"])
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
@@ -181,7 +181,7 @@ func (a *App) BlocklistBouncedSubscribers(c echo.Context) error {
 }
 
 // BounceWebhook handles incoming bounce webhook notifications from various providers.
-func (a *App) BounceWebhook(c echo.Context) error {
+func (a *App) BounceWebhook(c *echo.Context) error {
 	// If bounce processing is disabled, a.bounce will be nil.
 	// Return early to prevent nil pointer dereference.
 	if a.bounce == nil {
@@ -294,7 +294,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bs, err := a.bounce.Postmark.ProcessBounce(rawReq, c)
 		if err != nil {
 			a.log.Printf("error processing postmark notification: %v", err)
-			if _, ok := err.(*echo.HTTPError); ok {
+			if echo.StatusCode(err) != 0 {
 				return err
 			}
 
@@ -311,7 +311,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bs, err := a.bounce.Forwardemail.ProcessBounce(sig, rawReq)
 		if err != nil {
 			a.log.Printf("error processing forwardemail notification: %v", err)
-			if _, ok := err.(*echo.HTTPError); ok {
+			if echo.StatusCode(err) != 0 {
 				return err
 			}
 
@@ -325,7 +325,7 @@ func (a *App) BounceWebhook(c echo.Context) error {
 		bs, err := a.bounce.Lettermint.ProcessBounce(sig, rawReq)
 		if err != nil {
 			a.log.Printf("error processing lettermint notification: %v", err)
-			if _, ok := err.(*echo.HTTPError); ok {
+			if echo.StatusCode(err) != 0 {
 				return err
 			}
 

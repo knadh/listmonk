@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx/types"
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // listsQueryDefaults is the allow list of filter query params.
@@ -55,7 +55,7 @@ type publicListForm struct {
 }
 
 // GetLists retrieves lists with additional metadata like subscriber counts.
-func (a *App) GetLists(c echo.Context) error {
+func (a *App) GetLists(c *echo.Context) error {
 	lists, props, err := a.getLists(c)
 	if err != nil {
 		return err
@@ -72,7 +72,7 @@ func (a *App) GetLists(c echo.Context) error {
 }
 
 // ViewLists renders the HTML view for lists.
-func (a *App) ViewLists(c echo.Context) error {
+func (a *App) ViewLists(c *echo.Context) error {
 	lists, props, err := a.getLists(c)
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func (a *App) ViewLists(c echo.Context) error {
 }
 
 // ViewNewList renders the new list page.
-func (a *App) ViewNewList(c echo.Context) error {
+func (a *App) ViewNewList(c *echo.Context) error {
 	data := listView{
 		adminView: newAdminView(c, fmt.Sprintf("%s / %s", a.i18n.T("lists.newList"), a.i18n.T("globals.terms.lists")), "", "lists.all"),
 		IsNew:     true,
@@ -104,7 +104,7 @@ func (a *App) ViewNewList(c echo.Context) error {
 }
 
 // ViewList renders the list overview and editor.
-func (a *App) ViewList(c echo.Context) error {
+func (a *App) ViewList(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	// Check if the user has access to the list.
@@ -149,7 +149,7 @@ func (a *App) ViewList(c echo.Context) error {
 }
 
 // ViewForms renders the HTML view for the public subscription form generator.
-func (a *App) ViewForms(c echo.Context) error {
+func (a *App) ViewForms(c *echo.Context) error {
 	user := auth.GetUser(c)
 	hasAllPerm, permittedIDs := user.GetPermittedLists(auth.PermTypeGet)
 	lists, err := a.core.GetLists(models.ListTypePublic, models.ListStatusActive, hasAllPerm, permittedIDs)
@@ -178,7 +178,7 @@ func (a *App) ViewForms(c echo.Context) error {
 }
 
 // GetList retrieves a single list by id.
-func (a *App) GetList(c echo.Context) error {
+func (a *App) GetList(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -198,7 +198,7 @@ func (a *App) GetList(c echo.Context) error {
 }
 
 // CreateList handles list creation.
-func (a *App) CreateList(c echo.Context) error {
+func (a *App) CreateList(c *echo.Context) error {
 	l := models.List{}
 	if err := c.Bind(&l); err != nil {
 		return err
@@ -218,7 +218,7 @@ func (a *App) CreateList(c echo.Context) error {
 }
 
 // UpdateList handles list modification.
-func (a *App) UpdateList(c echo.Context) error {
+func (a *App) UpdateList(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -249,7 +249,7 @@ func (a *App) UpdateList(c echo.Context) error {
 }
 
 // DeleteList deletes a single list by ID.
-func (a *App) DeleteList(c echo.Context) error {
+func (a *App) DeleteList(c *echo.Context) error {
 	id := getID(c)
 
 	// Check if the user has manage permission for the list.
@@ -268,7 +268,7 @@ func (a *App) DeleteList(c echo.Context) error {
 }
 
 // DeleteLists deletes multiple lists by IDs or by query.
-func (a *App) DeleteLists(c echo.Context) error {
+func (a *App) DeleteLists(c *echo.Context) error {
 	user := auth.GetUser(c)
 
 	var (
@@ -330,7 +330,7 @@ func (a *App) DeleteLists(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-func (a *App) getLists(c echo.Context) ([]models.List, models.PageProps, error) {
+func (a *App) getLists(c *echo.Context) ([]models.List, models.PageProps, error) {
 	q := makeQuery(c.Request().URL.Query(), listsQueryDefaults)
 	if err := a.validateListFilters(q.Get("type"), q.Get("optin"), q.Get("status")); err != nil {
 		return nil, models.PageProps{}, err

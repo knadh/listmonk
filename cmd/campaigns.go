@@ -17,7 +17,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/models"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/lib/pq"
 	"gopkg.in/volatiletech/null.v6"
 )
@@ -85,7 +85,7 @@ type campaignView struct {
 }
 
 // ViewNewCampaign renders the new campaign page (only the "campaign" tab).
-func (a *App) ViewNewCampaign(c echo.Context) error {
+func (a *App) ViewNewCampaign(c *echo.Context) error {
 	var tpls []models.Template
 	if can(auth.GetUser(c), auth.PermTemplatesGet) {
 		var err error
@@ -124,7 +124,7 @@ func (a *App) ViewNewCampaign(c echo.Context) error {
 // tabs (campaign/content/attribs/archive) are inline on this page, deep-linked
 // via the URL hash (#tab=<id>). Legacy per-tab paths (/campaigns/:id/:tab) are
 // redirected to the canonical hash form for backward compatibility.
-func (a *App) ViewCampaign(c echo.Context) error {
+func (a *App) ViewCampaign(c *echo.Context) error {
 	id := getID(c)
 
 	switch c.Param("tab") {
@@ -197,7 +197,7 @@ func (a *App) ViewCampaign(c echo.Context) error {
 }
 
 // ViewCampaigns renders the HTML list view for campaigns.
-func (a *App) ViewCampaigns(c echo.Context) error {
+func (a *App) ViewCampaigns(c *echo.Context) error {
 	camps, props, err := a.getViewCampaigns(c)
 	if err != nil {
 		return err
@@ -213,7 +213,7 @@ func (a *App) ViewCampaigns(c echo.Context) error {
 }
 
 // getViewCampaigns queries paginated campaigns for the HTML list view.
-func (a *App) getViewCampaigns(c echo.Context, listIDs ...int) ([]models.Campaign, models.PageProps, error) {
+func (a *App) getViewCampaigns(c *echo.Context, listIDs ...int) ([]models.Campaign, models.PageProps, error) {
 	q := makeQuery(c.Request().URL.Query(), campaignsQueryDefaults)
 
 	// Get the authenticated user.
@@ -249,7 +249,7 @@ func (a *App) getViewCampaigns(c echo.Context, listIDs ...int) ([]models.Campaig
 }
 
 // GetCampaigns handles retrieval of campaigns.
-func (a *App) GetCampaigns(c echo.Context) error {
+func (a *App) GetCampaigns(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -309,7 +309,7 @@ func (a *App) GetCampaigns(c echo.Context) error {
 }
 
 // GetCampaign handles retrieval of campaigns.
-func (a *App) GetCampaign(c echo.Context) error {
+func (a *App) GetCampaign(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -334,7 +334,7 @@ func (a *App) GetCampaign(c echo.Context) error {
 }
 
 // PreviewCampaign renders the HTML preview of a campaign body.
-func (a *App) PreviewCampaign(c echo.Context) error {
+func (a *App) PreviewCampaign(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -396,7 +396,7 @@ func (a *App) PreviewCampaign(c echo.Context) error {
 }
 
 // PreviewCampaignArchive renders the public campaign archives page.
-func (a *App) PreviewCampaignArchive(c echo.Context) error {
+func (a *App) PreviewCampaignArchive(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -434,7 +434,7 @@ func (a *App) PreviewCampaignArchive(c echo.Context) error {
 }
 
 // CampaignContent handles campaign content (body) format conversions.
-func (a *App) CampaignContent(c echo.Context) error {
+func (a *App) CampaignContent(c *echo.Context) error {
 	var camp campContentReq
 	if err := c.Bind(&camp); err != nil {
 		return err
@@ -451,7 +451,7 @@ func (a *App) CampaignContent(c echo.Context) error {
 
 // CreateCampaign handles campaign creation.
 // Newly created campaigns are always drafts.
-func (a *App) CreateCampaign(c echo.Context) error {
+func (a *App) CreateCampaign(c *echo.Context) error {
 	var o campReq
 	if err := c.Bind(&o); err != nil {
 		return err
@@ -500,7 +500,7 @@ func (a *App) CreateCampaign(c echo.Context) error {
 
 // UpdateCampaign handles campaign modification.
 // Campaigns that are done cannot be modified.
-func (a *App) UpdateCampaign(c echo.Context) error {
+func (a *App) UpdateCampaign(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -551,7 +551,7 @@ func (a *App) UpdateCampaign(c echo.Context) error {
 }
 
 // UpdateCampaignStatus handles campaign status modification.
-func (a *App) UpdateCampaignStatus(c echo.Context) error {
+func (a *App) UpdateCampaignStatus(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -582,7 +582,7 @@ func (a *App) UpdateCampaignStatus(c echo.Context) error {
 }
 
 // UpdateCampaignArchive handles campaign status modification.
-func (a *App) UpdateCampaignArchive(c echo.Context) error {
+func (a *App) UpdateCampaignArchive(c *echo.Context) error {
 	id := getID(c)
 
 	// Check if the user has access to the campaign.
@@ -617,7 +617,7 @@ func (a *App) UpdateCampaignArchive(c echo.Context) error {
 
 // DeleteCampaign handles campaign deletion.
 // Only scheduled campaigns that have not started yet can be deleted.
-func (a *App) DeleteCampaign(c echo.Context) error {
+func (a *App) DeleteCampaign(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -635,7 +635,7 @@ func (a *App) DeleteCampaign(c echo.Context) error {
 }
 
 // DeleteCampaigns deletes multiple campaigns by IDs or by query.
-func (a *App) DeleteCampaigns(c echo.Context) error {
+func (a *App) DeleteCampaigns(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 
@@ -685,7 +685,7 @@ func (a *App) DeleteCampaigns(c echo.Context) error {
 }
 
 // GetRunningCampaignStats returns stats of a given set of campaign IDs.
-func (a *App) GetRunningCampaignStats(c echo.Context) error {
+func (a *App) GetRunningCampaignStats(c *echo.Context) error {
 	// Get the running campaign stats from the DB.
 	out, err := a.core.GetRunningCampaignStats()
 	if err != nil {
@@ -719,7 +719,7 @@ func (a *App) GetRunningCampaignStats(c echo.Context) error {
 
 // TestCampaign handles the sending of a campaign message to
 // arbitrary subscribers for testing.
-func (a *App) TestCampaign(c echo.Context) error {
+func (a *App) TestCampaign(c *echo.Context) error {
 	// Get the campaign ID.
 	id := getID(c)
 
@@ -961,7 +961,7 @@ func (a *App) makeOptinCampaignMessage(o campReq) (campReq, error) {
 // checkCampaignPerm checks if the user has get or manage access to the given campaign.
 // Either the user has blanket get_all/manage_all permissions, or the campaign
 // belongs to lists that the user has access to.
-func (a *App) checkCampaignPerm(types auth.PermType, id int, c echo.Context) error {
+func (a *App) checkCampaignPerm(types auth.PermType, id int, c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
 

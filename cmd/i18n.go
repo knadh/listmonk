@@ -9,7 +9,7 @@ import (
 
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/stuffbin"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type i18nLang struct {
@@ -25,7 +25,7 @@ type i18nLangRaw struct {
 var reLangCode = regexp.MustCompile(`[^a-zA-Z_0-9\\-]`)
 
 // GetI18nLang returns the JSON language pack given the language code.
-func (a *App) GetI18nLang(c echo.Context) error {
+func (a *App) GetI18nLang(c *echo.Context) error {
 	lang := c.Param("lang")
 	if len(lang) > 6 || reLangCode.MatchString(lang) {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid language code.")
