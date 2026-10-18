@@ -499,7 +499,7 @@
     "settings.general.faviconURL": "URL de reteja piktogramo",
     "settings.general.faviconURLHelp": "(Nedeviga) Plena URL de la statika reteja piktogramo montrata sur publikaj paĝoj, ekzemple la malabonpaĝo.",
     "settings.general.fromEmail": "Retpoŝtadresoj de sendintoj",
-    "settings.general.fromEmailHelp": "Defaŭlta sendinta retpoŝtadreso montrata en elirantaj kampanjaj retmesaĝoj. Tio povas esti ŝanĝita por ĉiu kampanjo.",
+    "settings.general.fromEmailHelp": "Unu adreso en ĉiu linio. Almenaŭ unu estas bezonata. La unua estas la defaŭlta por kampanjoj kaj sistemaj retmesaĝoj kaj ne povas enhavi ŝablonajn esprimojn.",
     "settings.general.logoURL": "URL de emblemo",
     "settings.general.logoURLHelp": "(Nedeviga) Plena URL de la statika emblemo montrata sur publikaj paĝoj, ekzemple la malabonpaĝo.",
     "settings.general.rootURL": "Radika URL",
