@@ -57,8 +57,8 @@
 		<legend>{{ .L.T "settings.privacy.domainBlocklist" }}</legend>
 		<ot-tabs class="settings-subtabs">
 			<div role="tablist">
-				<button type="button" role="tab">{{ .L.T "settings.privacy.domainBlocklist" }} (<span x-text="countLines(form['privacy.domain_blocklist'])"></span>)</button>
-				<button type="button" role="tab">{{ .L.T "settings.privacy.domainAllowlist" }} (<span x-text="countLines(form['privacy.domain_allowlist'])"></span>)</button>
+				<button type="button" role="tab"><span>{{ .L.T "settings.privacy.domainBlocklist" }} (<span x-text="countLines(form['privacy.domain_blocklist'])"></span>)</span></button>
+				<button type="button" role="tab"><span>{{ .L.T "settings.privacy.domainAllowlist" }} (<span x-text="countLines(form['privacy.domain_allowlist'])"></span>)</span></button>
 			</div>
 			<div role="tabpanel">
 				<label data-field>
