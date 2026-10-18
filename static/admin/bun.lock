@@ -17,11 +17,9 @@
         "@knadh/oat": "^0.8.1",
         "@lezer/highlight": "^1.2.3",
         "alpinejs": "^3.15.12",
+        "altcha": "^2.3.0",
         "chart.js": "^4.4.1",
         "squire-rte": "2.4.8",
-      },
-      "devDependencies": {
-        "altcha": "^2.3.0",
       },
     },
   },

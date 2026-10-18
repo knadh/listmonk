@@ -6,8 +6,7 @@
   "description": "Build pipeline for the listmonk SSR admin frontend (Bun + Alpine + Oat).",
   "scripts": {
     "build": "bun ./build.mjs",
-    "watch": "bun ./build.mjs --watch",
-    "postinstall": "cp node_modules/altcha/dist/altcha.umd.cjs ../public/static/altcha.umd.js"
+    "watch": "bun ./build.mjs --watch"
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.4",
@@ -22,10 +21,8 @@
     "@knadh/oat": "^0.8.1",
     "@lezer/highlight": "^1.2.3",
     "alpinejs": "^3.15.12",
+    "altcha": "^2.3.0",
     "chart.js": "^4.4.1",
     "squire-rte": "2.4.8"
-  },
-  "devDependencies": {
-    "altcha": "^2.3.0"
   }
 }
