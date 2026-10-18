@@ -1,5 +1,5 @@
-import Alpine from 'alpinejs';
 import '@knadh/oat';
+import Alpine from 'alpinejs';
 import { I18n } from './i18n.js';
 import { register as registerTable } from './table.js';
 import * as u from './utils.js';
@@ -64,6 +64,12 @@ function setupAlpine() {
           }
         }).catch(() => { });
       }, 500);
+    },
+
+    async onLogout(logoutURL, loginURL) {
+      const resp = await fetch(logoutURL, { method: 'POST' });
+      const out = await resp.json();
+      window.location.href = out.redirect_url || loginURL;
     },
   }));
 }

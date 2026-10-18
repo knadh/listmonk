@@ -62,7 +62,12 @@
 
 				<hr />
 
-				<label data-field>
+				<label data-field class="w-100">
+					<input type="checkbox" role="switch" x-model="form['security.oidc'].logout" />
+					{{ .L.T "settings.security.OIDCLogout" }}
+				</label>
+
+				<label data-field class="w-100">
 					<input type="checkbox" role="switch" x-model="form['security.oidc'].auto_create_users" />
 					{{ .L.T "settings.security.OIDCAutoCreateUsers" }}
 					<small data-hint>{{ .L.T "settings.security.OIDCAutoCreateUsersHelp" }}</small>

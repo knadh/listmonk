@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"slices"
 	"strings"
 	"sync"
@@ -36,6 +37,7 @@ type OIDCclaim struct {
 
 type OIDCConfig struct {
 	Enabled           bool   `json:"enabled"`
+	Logout            bool   `json:"logout"`
 	ProviderURL       string `json:"provider_url"`
 	RedirectURL       string `json:"redirect_url"`
 	ClientID          string `json:"client_id"`
@@ -440,6 +442,39 @@ func (o *Auth) SaveSession(u User, oidcToken string, c echo.Context) error {
 	}
 
 	return nil
+}
+
+// GetOIDCLogoutURL returns the provider's logout URL if logout is enabled and supported, or an empty string.
+func (o *Auth) GetOIDCLogoutURL(token, redirectURL string) (string, error) {
+	if token == "" || !o.cfg.OIDC.Enabled || !o.cfg.OIDC.Logout {
+		return "", nil
+	}
+
+	provider, err := o.getProvider()
+	if err != nil {
+		return "", err
+	}
+
+	var meta struct {
+		EndSessionEndpoint string `json:"end_session_endpoint"`
+	}
+	if err := provider.Claims(&meta); err != nil {
+		return "", err
+	}
+	if meta.EndSessionEndpoint == "" {
+		return "", nil
+	}
+
+	u, err := url.Parse(meta.EndSessionEndpoint)
+	if err != nil {
+		return "", err
+	}
+	q := u.Query()
+	q.Set("id_token_hint", token)
+	q.Set("post_logout_redirect_uri", redirectURL)
+	u.RawQuery = q.Encode()
+
+	return u.String(), nil
 }
 
 // GetSessionID returns the current session ID from the echo context.

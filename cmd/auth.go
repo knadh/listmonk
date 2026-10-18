@@ -167,11 +167,28 @@ func (a *App) TwofaPage(c echo.Context) error {
 
 // Logout logs a user out.
 func (a *App) Logout(c echo.Context) error {
-	// Delete the session from the DB and cookie.
 	sess := c.Get(auth.SessionKey).(*simplesessions.Session)
+	token, err := sess.String(sess.Get("oidc_token"))
+	if err != nil {
+		a.log.Printf("error reading OIDC session token: %v", err)
+	}
+
+	// Delete the session from the DB and cookie.
 	_ = sess.Destroy()
 
-	return c.JSON(http.StatusOK, okResp{true})
+	// There might be an OIDC logout URL to redirect to.
+	var logoutURL string
+	if err == nil && token != "" {
+		logoutURL, err = a.auth.GetOIDCLogoutURL(token, a.urlCfg.RootURL+uriAdmin+"/login")
+		if err != nil {
+			a.log.Printf("error getting OIDC logout URL: %v", err)
+		}
+	}
+
+	return c.JSON(http.StatusOK, struct {
+		okResp
+		RedirectURL null.String `json:"redirect_url"`
+	}{okResp{true}, null.NewString(logoutURL, logoutURL != "")})
 }
 
 // OIDCLogin initializes an OIDC request and redirects to the OIDC provider for login.

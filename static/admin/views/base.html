@@ -69,7 +69,7 @@
 						</button>
 						<menu popover id="user-menu">
 							<a href="{{ URI "/admin/user/profile" }}" role="menuitem" class="button ghost">{{ Icon "user" }} {{ $.L.T "users.profile" }}</a>
-							<button type="button" role="menuitem" class="ghost" onclick="fetch('{{ URI "/api/logout" }}', { method: 'POST' }).then(() => { document.location.href = '{{ URI "/admin/login" }}'; })">
+							<button type="button" role="menuitem" class="ghost" @click="onLogout('{{ URI "/api/logout" }}', '{{ URI "/admin/login" }}')">
 								{{ Icon "log-out" }} {{ $.L.T "users.logout" }}
 							</button>
 							<hr />

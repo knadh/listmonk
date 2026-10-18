@@ -3,6 +3,8 @@
 
 Listmonk supports single sign-on with OIDC (OpenID Connect). Any standards compliant OIDC provider can be configured in Settings -> Security -> OIDC
 
+Enable **OIDC RP-initiated logout** in Settings → Security to redirect to the provider's logout endpoint when logging out of an OIDC session, if the provider supports OIDC logout. This option is disabled by default. Register `https://listmonk.yoursite.com/admin/login` (including any configured root URL path) as an allowed post-logout redirect URI with the provider.
+
 ### User auto-creation
 If `Settings -> Security -> OIDC -> Auto-create users` is turned on, when users login via OIDC, an account is auto-created if an existing account is not found (based on the OIDC e-mail ID). If role mapping is enabled, newly created users (on first OIDC login) can be auto-assigned roles mapped to OIDC claims.
 

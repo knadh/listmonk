@@ -9,18 +9,17 @@ import (
 )
 
 func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
-	// Migrate existing `from_email` to `from_email[]`.
-	if _, err := db.Exec(`UPDATE settings SET value = JSONB_BUILD_ARRAY(value) WHERE key = 'app.from_email' AND JSONB_TYPEOF(value) = 'string';`); err != nil {
-		return err
-	}
-
-	// Login session duration.
-	if _, err := db.Exec(`INSERT INTO settings (key, value) VALUES ('security.session_duration', '"7d"') ON CONFLICT (key) DO NOTHING;`); err != nil {
-		return err
-	}
-
-	// Add `exclude_from_default` field to all SMTP servers.
+	// Settings.
 	if _, err := db.Exec(`
+        -- Migrate existing from_email to from_email[].
+        UPDATE settings SET value = JSONB_BUILD_ARRAY(value)
+        WHERE key = 'app.from_email' AND JSONB_TYPEOF(value) = 'string';
+
+        -- Login session duration.
+        INSERT INTO settings (key, value) VALUES ('security.session_duration', '"7d"')
+        ON CONFLICT (key) DO NOTHING;
+
+        -- Add exclude_from_default field to all SMTP servers.
         UPDATE settings
         SET value = (
             SELECT JSONB_AGG(
@@ -33,12 +32,15 @@ func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
             SELECT 1 FROM JSONB_ARRAY_ELEMENTS(value) AS v
             WHERE NOT (v ? 'exclude_from_default')
         );
-    `); err != nil {
-		return err
-	}
 
-	// OIDC claim mapping.
-	if _, err := db.Exec(`UPDATE settings SET value = JSONB_SET(value, '{roles}', '[]'::JSONB) WHERE key = 'security.oidc' AND NOT (value ? 'roles');`); err != nil {
+        -- OIDC RP-initiated logout option.
+        UPDATE settings SET value = JSONB_SET(value, '{logout}', 'false'::JSONB)
+        WHERE key = 'security.oidc' AND NOT (value ? 'logout');
+
+        -- OIDC claim mapping.
+        UPDATE settings SET value = JSONB_SET(value, '{roles}', '[]'::JSONB)
+        WHERE key = 'security.oidc' AND NOT (value ? 'roles');
+	`); err != nil {
 		return err
 	}
 

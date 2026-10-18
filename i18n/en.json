@@ -582,6 +582,7 @@
     "settings.privacy.recordOptinIP": "Record opt-in IP address",
     "settings.privacy.recordOptinIPHelp": "Record IP address of double opt-ins in subscriber attributes.",
     "settings.restart": "Restart",
+    "settings.security.OIDCLogout": "OIDC RP-initiated logout",
     "settings.security.OIDCClientID": "Client ID",
     "settings.security.OIDCClientSecret": "Client secret",
     "settings.security.OIDCHelp": "Enable OpenID Connect OAuth2 login via an OAuth provider.",

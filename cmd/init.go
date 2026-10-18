@@ -110,6 +110,7 @@ type Config struct {
 	Security struct {
 		OIDC struct {
 			Enabled           bool                     `koanf:"enabled"`
+			Logout            bool                     `koanf:"logout"`
 			ProviderURL       string                   `koanf:"provider_url"`
 			ProviderName      string                   `koanf:"provider_name"`
 			ClientID          string                   `koanf:"client_id"`
@@ -1404,6 +1405,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 	if ko.Bool("security.oidc.enabled") {
 		oidcCfg = auth.OIDCConfig{
 			Enabled:           true,
+			Logout:            ko.Bool("security.oidc.logout"),
 			ProviderURL:       ko.String("security.oidc.provider_url"),
 			ClientID:          ko.String("security.oidc.client_id"),
 			ClientSecret:      ko.String("security.oidc.client_secret"),
