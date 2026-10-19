@@ -21,6 +21,36 @@ Supported variables:
 | `LISTMONK_db__ssl_mode`        | disable        |
 
 
+### Security middleware (optional)
+listmonk can run the [Guard Core](https://github.com/Guard-Core/echo-guard) security engine in front of all HTTP routes. It is off by default and nothing is registered unless `[security] enabled = true` in config.toml. It screens requests for attack payloads (SQL injection, XSS, path traversal and so on), applies per-route policies, and bans IPs that misbehave. State is in memory, so bans and counters are per instance and reset on restart.
+
+```toml
+[security]
+enabled = true
+trusted_proxies = ["10.0.0.0/8"]
+admin_allowlist = ["203.0.113.0/24"]
+```
+
+Each key can also be set as an environment variable, for example `LISTMONK_security__enabled=true`. `config.toml.sample` lists every key with its default.
+
+| Policy         | Routes                                                                              | What it does |
+| -------------- | ----------------------------------------------------------------------------------- | ------------ |
+| admin          | `/admin/*` incl. the login pages, and `/api/*` (not `/api/public/*` or static files) | `admin_allowlist`, `block_cloud_providers`. The `query` param (raw SQL expressions) and request bodies are not scanned. |
+| login          | `POST` `/admin/login`, `/admin/login/twofa`, `/admin/forgot`, `/admin/reset`, `/auth/oidc` | `login_rate_limit` per `login_rate_window`, plus the admin policy's allowlist and cloud blocking. |
+| subscription   | `POST /subscription/form`, `POST /api/public/subscription`                          | `subscription_rate_limit` per window and `block_cloud_providers`. `POST /subscription/form` also has the honeypot. |
+| tracking       | `/link/*`, `/campaign/*/px.png`                                                     | Off unless `tracking_usage_limit` is set. 404s here do not count toward `scanner_404_limit`. |
+
+Everything else gets the global settings only (`allowlist`, `blocklist`, countries, `blocked_user_agents`, `rate_limit`, `emergency_mode`, `scanner_404_limit` and so on).
+
+The honeypot is the hidden `nonce` field that listmonk's subscription forms already have. A bot that fills it is banned on the first hit. Set `honeypot_field = ""` to turn it off.
+
+If listmonk runs behind a reverse proxy, set `trusted_proxies` to the proxy addresses. Without it every request comes from the proxy's IP, and a ban or rate limit would hit all your users at once.
+
+!!! note
+
+    Link and pixel tracking requests often come from a few shared IPs: Gmail fetches pixels through Google's image proxy and Microsoft Safe Links prefetches links. For this reason the tracking policy never blocks cloud providers, and `tracking_usage_action` defaults to `log`. Do not set it to `ban` unless you know your traffic, or every recipient behind those IPs loses opens and clicks.
+
+
 ### Customizing system templates
 See [system templates](templating.md#system-templates).
 

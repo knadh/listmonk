@@ -43,6 +43,7 @@ import (
 	"github.com/knadh/listmonk/internal/bounce/mailbox"
 	"github.com/knadh/listmonk/internal/captcha"
 	"github.com/knadh/listmonk/internal/core"
+	"github.com/knadh/listmonk/internal/guard"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/media"
@@ -1006,6 +1007,15 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 			return next(c)
 		}
 	})
+
+	// Optional security middleware.
+	guardMw, err := guard.New(ko, lo)
+	if err != nil {
+		lo.Fatalf("%v", err)
+	}
+	if guardMw != nil {
+		srv.Use(guardMw)
+	}
 
 	tplFuncs := initTplFuncs(i, urlCfg)
 	pubTpl, err := stuffbin.ParseTemplatesGlob(tplFuncs, fs, "/public/templates/*.html")

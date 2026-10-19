@@ -22,3 +22,71 @@ max_lifetime = "300s"
 
 # Optional space separated Postgres DSN params. eg: "application_name=listmonk gssencmode=disable"
 params = ""
+
+# Optional security middleware (echo-guard). Off by default. Lists are TOML
+# arrays of IPs or CIDRs, e.g. ["10.0.0.0/8", "203.0.113.7"]. State is in memory
+# and per instance. Every key can also be set as LISTMONK_security__<key>.
+[security]
+enabled = false
+
+# Run the checks and log, but never block or ban.
+passive_mode = false
+
+# Proxies whose X-Forwarded-For is trusted. Empty = always use the TCP peer.
+trusted_proxies = []
+
+# Only these IPs can reach the admin (/admin incl. login, /api). Empty = anyone.
+admin_allowlist = []
+
+# Only these IPs can reach anything (empty = anyone), and these never can.
+allowlist = []
+blocklist = []
+
+# Cloud provider names to block on admin, login and subscription ("AWS", "GCP", "Azure").
+block_cloud_providers = []
+
+# Country codes. Needs geoip_db_path (an MMDB file) or an ipinfo_token.
+blocked_countries = []
+allowed_countries = []
+geoip_db_path = ""
+ipinfo_token = ""
+
+# Regexes matched against the User-Agent.
+blocked_user_agents = []
+
+# Block everything except emergency_allowlist.
+emergency_mode = false
+emergency_allowlist = []
+
+# Bans: after this many detected attacks an IP is banned for auto_ban_duration seconds.
+auto_ban_threshold = 5
+auto_ban_duration = 3600
+
+# Global rate limit per IP. 0 = off.
+rate_limit = 0
+rate_limit_window = 60
+
+# Admin login, password reset and OIDC login: requests per IP per window. Too many bans the IP.
+login_rate_limit = 10
+login_rate_window = 60
+
+# Public subscription form and API: requests per IP per window.
+subscription_rate_limit = 10
+subscription_rate_window = 60
+
+# Hidden form field that only bots fill. The first hit bans the IP. "" disables it.
+# The default "nonce" is the field already in listmonk's subscription forms.
+honeypot_field = "nonce"
+
+# Scanners: more than this many 404s per IP in the window ban the IP (not counted
+# on link and pixel tracking).
+scanner_404_limit = 30
+scanner_404_window = 300
+
+# Link and pixel tracking: more than tracking_usage_limit hits per IP in the window
+# triggers tracking_usage_action ("log", "alert" or "ban"). 0 = off.
+# Keep it at "log" unless you know your traffic: Gmail and Microsoft Safe Links fetch
+# pixels and links through a few shared IPs, and banning them breaks opens and clicks.
+tracking_usage_limit = 0
+tracking_usage_window = 3600
+tracking_usage_action = "log"
