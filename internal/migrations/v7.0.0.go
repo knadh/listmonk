@@ -9,6 +9,8 @@ import (
 )
 
 func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
+	lo.Println("IMPORTANT: this upgrade might take a while if you have a large database. Please be patient ...")
+
 	// Settings.
 	if _, err := db.Exec(`
         -- Migrate existing from_email to from_email[].
