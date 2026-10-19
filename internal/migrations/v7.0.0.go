@@ -46,6 +46,9 @@ func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 
 	// List analytics.
 	if _, err := db.Exec(`
+CREATE INDEX IF NOT EXISTS idx_sub_lists_created_at ON subscriber_lists(created_at);
+CREATE INDEX IF NOT EXISTS idx_sub_lists_unsubscribed_updated_at ON subscriber_lists(updated_at) WHERE status = 'unsubscribed';
+
 DROP MATERIALIZED VIEW IF EXISTS mat_list_charts;
 CREATE MATERIALIZED VIEW mat_list_charts AS
     WITH views AS (

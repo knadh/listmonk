@@ -72,6 +72,8 @@ CREATE TABLE subscriber_lists (
 DROP INDEX IF EXISTS idx_sub_lists_sub_id; CREATE INDEX idx_sub_lists_sub_id ON subscriber_lists(subscriber_id);
 DROP INDEX IF EXISTS idx_sub_lists_list_id; CREATE INDEX idx_sub_lists_list_id ON subscriber_lists(list_id);
 DROP INDEX IF EXISTS idx_sub_lists_status; CREATE INDEX idx_sub_lists_status ON subscriber_lists(status);
+CREATE INDEX IF NOT EXISTS idx_sub_lists_created_at ON subscriber_lists(created_at);
+CREATE INDEX IF NOT EXISTS idx_sub_lists_unsubscribed_updated_at ON subscriber_lists(updated_at) WHERE status = 'unsubscribed';
 
 -- templates
 DROP TABLE IF EXISTS templates CASCADE;

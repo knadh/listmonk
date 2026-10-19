@@ -58,6 +58,7 @@ type Queries struct {
 	GetListUnsubscriptionCounts *sqlx.Stmt `query:"get-list-unsubscription-counts"`
 	GetListLinkCounts           *sqlx.Stmt `query:"get-list-link-counts"`
 	GetListCharts               *sqlx.Stmt `query:"get-list-charts"`
+	GetListChartsLive           string     `query:"get-list-charts-live"`
 
 	CreateList      *sqlx.Stmt `query:"create-list"`
 	QueryLists      string     `query:"query-lists"`

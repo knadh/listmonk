@@ -116,6 +116,55 @@ SELECT JSON_BUILD_OBJECT(
 )
 FROM weeks w LEFT JOIN mat_list_charts c ON c.list_id = $1 AND c.date = w.date;
 
+-- name: get-list-charts-live
+-- raw: true
+-- Compute the requested list live when slow-query caching is disabled.
+-- Executed as a raw unprepared query so that different intervals don't end up using
+-- the same cached query plan which may be suboptimal. This was discovered through
+-- a bunch of profile exercises.
+WITH subscriptions AS (
+    SELECT DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
+    FROM subscriber_lists
+    WHERE
+        list_id = $1
+        AND created_at >= CURRENT_DATE - INTERVAL '3 months'
+        AND created_at <= NOW()
+    GROUP BY date
+), unsubscriptions AS (
+    SELECT DATE_TRUNC('week', updated_at)::DATE AS date, COUNT(*) AS count
+    FROM subscriber_lists
+    WHERE
+        list_id = $1
+        AND status = 'unsubscribed'
+        AND updated_at >= CURRENT_DATE - INTERVAL '3 months'
+        AND updated_at <= NOW()
+    GROUP BY date
+), views AS (
+    SELECT DATE_TRUNC('week', v.created_at)::DATE AS date, COUNT(*) AS count
+    FROM campaign_views v JOIN campaign_lists cl ON cl.campaign_id = v.campaign_id
+    WHERE
+        $2::BOOLEAN AND cl.list_id = $1
+        AND v.created_at >= CURRENT_DATE - INTERVAL '3 months'
+        AND v.created_at <= NOW()
+    GROUP BY date
+), weeks AS (
+    SELECT GENERATE_SERIES(DATE_TRUNC('week', CURRENT_DATE - INTERVAL '3 months'),
+                           DATE_TRUNC('week', CURRENT_DATE), INTERVAL '1 week')::DATE AS date
+)
+SELECT JSON_BUILD_OBJECT(
+    'unsubscriptions', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(u.count, 0)) ORDER BY w.date),
+    'subscriptions', JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(s.count, 0)) ORDER BY w.date),
+    'campaign_views',
+        CASE WHEN $2::BOOLEAN
+            THEN JSON_AGG(JSON_BUILD_OBJECT('date', w.date, 'count', COALESCE(v.count, 0)) ORDER BY w.date)
+            ELSE '[]'::JSON
+        END
+)
+FROM weeks w
+LEFT JOIN subscriptions s ON s.date = w.date
+LEFT JOIN unsubscriptions u ON u.date = w.date
+LEFT JOIN views v ON v.date = w.date;
+
 -- name: get-list-analytics-counts
 -- raw: true
 WITH counts AS (
