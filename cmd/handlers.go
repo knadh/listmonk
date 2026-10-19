@@ -41,7 +41,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 	if corsOrigins := trustedURLsToCORSOrigins(a.cfg.Security.TrustedURLs); len(corsOrigins) > 0 {
 		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: corsOrigins,
-			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		}))
 	}
 
