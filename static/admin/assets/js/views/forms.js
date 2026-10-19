@@ -78,7 +78,7 @@ function component(lists = []) {
       if (sub.captcha_enabled) {
         if (sub.captcha_provider === 'altcha') {
           h += '\n'
-            + `    <altcha-widget challengeurl="${root}/api/public/captcha/altcha"></altcha-widget>\n`
+            + `    <altcha-widget challenge="${root}/api/public/captcha/altcha"></altcha-widget>\n`
             + `    <${'script'} type="module" src="${root}/public/static/altcha.umd.js" async defer></${'script'}>\n`;
         } else if (sub.captcha_provider === 'hcaptcha') {
           h += '\n'

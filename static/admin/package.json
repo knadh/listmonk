@@ -21,7 +21,7 @@
     "@knadh/oat": "^1.0.0",
     "@lezer/highlight": "^1.2.3",
     "alpinejs": "^3.15.12",
-    "altcha": "^2.3.0",
+    "altcha": "^3.4.1",
     "chart.js": "^4.4.1",
     "squire-rte": "2.4.8"
   }

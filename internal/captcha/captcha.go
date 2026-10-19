@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/altcha-org/altcha-lib-go"
+	"github.com/altcha-org/altcha-lib-go/v2"
 	"github.com/knadh/listmonk/internal/tmptokens"
 )
 
@@ -117,21 +118,35 @@ func (c *Captcha) GetProvider() string {
 func (c *Captcha) GenerateChallenge() (string, error) {
 	switch c.provider {
 	case ProviderAltcha:
+		if c.altcha.Complexity < 0 {
+			c.altcha.Complexity = 30000
+		}
+
+		// Keep complexity as the maximum number of SHA-256 attempts.
+		// The complexity param from Altcha v1 is gone, so retrofit the
+		// value in user settings to the next config.
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(c.altcha.Complexity)+1))
+		if err != nil {
+			return "", fmt.Errorf("error generating Altcha counter: %w", err)
+		}
+
+		counter := int(n.Int64())
 		exp := time.Now().Add(5 * time.Minute)
-		challenge, err := altcha.CreateChallenge(altcha.ChallengeOptions{
-			Algorithm:  altcha.SHA256,
-			MaxNumber:  int64(c.altcha.Complexity),
-			SaltLength: 12,
-			HMACKey:    c.altcha.HMACKey,
-			Expires:    &exp,
+		challenge, err := altcha.CreateChallenge(altcha.CreateChallengeOptions{
+			Algorithm:           string(altcha.SHA256),
+			Cost:                1,
+			Counter:             &counter,
+			DeriveKey:           altcha.DeriveKeySHA(),
+			HMACSignatureSecret: c.altcha.HMACKey,
+			ExpiresAt:           &exp,
 		})
 		if err != nil {
-			return "", fmt.Errorf("failed to create Altcha challenge: %w", err)
+			return "", fmt.Errorf("error creating Altcha challenge: %w", err)
 		}
 
 		challengeJSON, err := json.Marshal(challenge)
 		if err != nil {
-			return "", fmt.Errorf("failed to marshal Altcha challenge: %w", err)
+			return "", fmt.Errorf("error marshalling Altcha challenge: %w", err)
 		}
 
 		return string(challengeJSON), nil
@@ -185,20 +200,36 @@ func (c *Captcha) verifyHCaptcha(token string) (error, bool) {
 
 // verifyAltcha verifies an Altcha response.
 func (c *Captcha) verifyAltcha(payload string) (error, bool) {
-	valid, err := altcha.VerifySolution(payload, c.altcha.HMACKey, true)
+	data, err := base64.StdEncoding.DecodeString(payload)
 	if err != nil {
-		return fmt.Errorf("failed to verify captcha solution: %w", err), false
+		return fmt.Errorf("error decoding captcha solution: %w", err), false
 	}
 
-	if !valid {
+	var solution altcha.Payload
+	if err := json.Unmarshal(data, &solution); err != nil {
+		return fmt.Errorf("error parsing captcha solution: %w", err), false
+	}
+
+	result, err := altcha.VerifySolution(altcha.VerifySolutionOptions{
+		Challenge:           solution.Challenge,
+		Solution:            solution.Solution,
+		DeriveKey:           altcha.DeriveKeySHA(),
+		HMACSignatureSecret: c.altcha.HMACKey,
+	})
+	if err != nil {
+		return fmt.Errorf("error verifying captcha solution: %w", err), false
+	}
+
+	if !result.Verified || result.Expired {
 		return fmt.Errorf("captcha verification failed"), false
 	}
 
 	// Disallow token reuse.
-	if _, err := tmptokens.Check(payload); err == nil {
+	id := "altcha:" + solution.Challenge.Signature
+	if _, err := tmptokens.Check(id); err == nil {
 		return fmt.Errorf("captcha token already used"), false
 	}
-	tmptokens.Set(payload, 5*time.Minute, nil)
+	tmptokens.Set(id, 5*time.Minute, nil)
 
 	return nil, true
 }

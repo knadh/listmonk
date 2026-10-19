@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/altcha-org/altcha-lib-go v1.0.0
+	github.com/altcha-org/altcha-lib-go/v2 v2.4.1
 	github.com/coreos/go-oidc/v3 v3.21.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/emersion/go-message v0.18.2
