@@ -407,7 +407,7 @@
     "lists.optins.double": "Double opt-in",
     "lists.optins.single": "Single opt-in",
     "lists.sendOptinCampaign": "Send opt-in campaign",
-    "lists.typeHelp": "Public lists are open to the world to subscribe and their names may appear on public pages such as the subscription management page.",
+    "lists.typeHelp": "Public lists are open to anyone to subscribe and their names may appear on public pages. On the subscription management page, subscribres only see the names of the public lists they are subscribed to.",
     "maintenance.database.vacuumHelp": "PostgreSQL VACUUM ANALYZE reclaims storage used by deleted rows and significantly speeds up database performance on large databases. IMPORTANT: For large databases, this is a slow, blocking operation. Schedule to run this during off-peak hours.",
     "maintenance.help": "Some actions may take a while to complete depending on the amount of data.",
     "maintenance.maintenance.unconfirmedOptins": "Unconfirmed opt-in subscriptions",
