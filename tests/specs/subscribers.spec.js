@@ -628,15 +628,19 @@ test.describe('Subscriber detail: lists & subscriptions', () => {
 });
 
 test.describe('Subscriber detail: activity tab', () => {
+  const chartEmptyState = (page, name) => page.getByRole('article')
+    .filter({ has: page.getByRole('heading', { name, exact: true }) })
+    .locator('.chart-box .empty-state');
+
   test.beforeAll(async ({ browser }) => {
     await resetDB(browser);
   });
 
-  test('shows the overview and weekly charts by default', async ({ page }) => {
+  test('shows the overview and empty charts with zero weekly activity by default', async ({ page }) => {
     await page.goto(`${SUBSCRIBERS}/1`);
     await expect(page.getByRole('tab').first()).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('#chart-subscriber-views')).toBeVisible();
-    await expect(page.locator('#chart-subscriber-clicks')).toBeVisible();
+    await expect(chartEmptyState(page, 'Views')).toBeVisible();
+    await expect(chartEmptyState(page, 'Clicks')).toBeVisible();
     const charts = await page.evaluate(() => window._subscriberCharts);
     for (const rows of [charts.campaign_views, charts.link_clicks]) {
       expect(rows.length).toBeGreaterThanOrEqual(52);
@@ -653,13 +657,13 @@ test.describe('Subscriber detail: activity tab', () => {
 
   test('subscriber overview links to edit and back to the overview', async ({ page }) => {
     await page.goto(`${SUBSCRIBERS}/1`);
-    await expect(page.locator('#chart-subscriber-views')).toBeVisible();
+    await expect(chartEmptyState(page, 'Views')).toBeVisible();
     await page.getByRole('tab', { name: 'Edit', exact: true }).click();
     await expect(page).toHaveURL(/\/subscribers\/1\/edit$/);
     await expect(page.locator('input[name=email]')).toBeVisible();
     await page.getByRole('tab', { name: 'View', exact: true }).click();
     await expect(page).toHaveURL(/\/subscribers\/1$/);
-    await expect(page.locator('#chart-subscriber-clicks')).toBeVisible();
+    await expect(chartEmptyState(page, 'Clicks')).toBeVisible();
   });
 });
 
