@@ -43,6 +43,7 @@ archives:
       - README.md
       - LICENSE
 
+# Prereleases update beta; stable releases update latest.
 dockers:
   - use: buildx
     goos: linux
@@ -50,9 +51,9 @@ dockers:
     ids:
       - listmonk
     image_templates:
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-amd64"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-amd64"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
-      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-amd64"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-amd64"
       - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
     build_flag_templates:
       - --platform=linux/amd64
@@ -74,9 +75,9 @@ dockers:
     ids:
       - listmonk
     image_templates:
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-arm64v8"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-arm64v8"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
-      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-arm64v8"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-arm64v8"
       - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
     build_flag_templates:
       - --platform=linux/arm64/v8
@@ -99,9 +100,9 @@ dockers:
     ids:
       - listmonk
     image_templates:
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-armv6"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv6"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv6"
-      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-armv6"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv6"
       - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv6"
     build_flag_templates:
       - --platform=linux/arm/v6
@@ -124,9 +125,9 @@ dockers:
     ids:
       - listmonk
     image_templates:
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-armv7"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv7"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv7"
-      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-armv7"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv7"
       - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv7"
     build_flag_templates:
       - --platform=linux/arm/v7
@@ -144,24 +145,24 @@ dockers:
       - docker-entrypoint.sh
 
 docker_manifests:
-  - name_template: "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest"
+  - name_template: "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}"
     image_templates:
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-amd64"
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-arm64v8"
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-armv6"
-      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:latest-armv7"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-amd64"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-arm64v8"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv6"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv7"
   - name_template: "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}"
     image_templates:
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv6"
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv7"
-  - name_template: ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest
+  - name_template: ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}
     image_templates:
-      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-amd64
-      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-arm64v8
-      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-armv6
-      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest-armv7
+      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-amd64
+      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-arm64v8
+      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv6
+      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-armv7
   - name_template: ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}
     image_templates:
       - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-amd64

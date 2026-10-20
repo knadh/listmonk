@@ -94,12 +94,13 @@ test:
 # Bundle all static assets including the SSR admin frontend into the ./listmonk binary
 # using stuffbin.
 .PHONY: dist
-dist: $(STUFFBIN) build build-frontend pack-bin
+dist: $(STUFFBIN) build build-frontend
+	$(MAKE) pack-bin
 
 # pack-bin runs stuffbin packing on the given binary. This is used
 # in the .goreleaser post-build hook.
 .PHONY: pack-bin
-pack-bin: build-frontend $(BIN) $(STUFFBIN)
+pack-bin: build-frontend $(STUFFBIN)
 	$(STUFFBIN) -a stuff -in ${BIN} -out ${BIN} ${STATIC}
 
 # Use goreleaser to do a dry run producing local builds.
