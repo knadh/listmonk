@@ -30,6 +30,9 @@ Windows</a></div><p>Download the binary and:</p><pre><code># Generate config.tom
 <a href=https://github.com/knadh/listmonk/blob/master/docker-compose.yml>docker-compose.yml</a></p><pre><code># Download the compose file to the current directory.
 curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
 
+# To run the latest v7 beta, edit the compose file and
+# change the image to: listmonk/listmonk:beta
+
 # Run Postgres and listmonk in the background.
 docker compose up -d</code></pre><p>Visit <code>http://localhost:9000</code></p><div class="hstack justify-between"><a href=/docs/installation>Installation docs &rarr;</a>
 <a href="https://hub.docker.com/r/listmonk/listmonk/tags?page=1&ordering=last_updated&name=latest">listmonk@DockerHub</a></div></article></div></div></section><section id=hosting class="container align-center"><h2>3rd party hosting</h2><p class=text-light>One-click hosted listmonk instances from various 3rd party providers</p><div class="hstack justify-center gap-6 mt-8 mb-6"><a href=https://www.nodion.com/en/deploy/listmonk/><img loading=lazy src=static/images/host-nodion.svg alt="Deploy to Nodion"></a>
