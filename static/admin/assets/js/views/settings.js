@@ -445,16 +445,20 @@ function component(settings, userRoles, listRoles) {
       this._awaitRestart();
     },
 
-    // The settings save request returns instantly, and the the backend thjen restarts.
-    // Poll the health endpoint  until its back.
+    // The settings save request returns instantly, but the backend restarts after
+    // that. Poll for completeion and then refresh the settings on the form.
     _awaitRestart() {
       this.isRestarting = true;
       const poll = setInterval(() => {
-        fetch(`${urls.api}/health`).then((r) => {
+        fetch(`${urls.api}/health`).then(async (r) => {
           if (r.ok) {
             clearInterval(poll);
-            this.isRestarting = false;
-            u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('globals.terms.settings') }), 'success');
+            try {
+              this.form = normalize(await api('settings', '/settings'));
+              u.toast(i18n.ts('globals.messages.updated', { name: i18n.t('globals.terms.settings') }), 'success');
+            } finally {
+              this.isRestarting = false;
+            }
           }
         }).catch(() => { });
       }, 500);
