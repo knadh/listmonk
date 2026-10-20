@@ -7,9 +7,8 @@ services:
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
-    ports:
-      - "127.0.0.1:1025:1025" # SMTP
-      - "127.0.0.1:8025:8025" # UI
+    # Share 'localhost' with the dev container.
+    network_mode: "service:dev"
 
   db:
     image: postgres:18
@@ -40,15 +39,15 @@ services:
       LISTMONK_db__password: listmonk-dev
       LISTMONK_db__database: listmonk-dev
       MAILHOG_EXTERNAL: "1"
-      MAILHOG_URL: http://mailhog:8025
-      MAILHOG_SMTP_HOST: mailhog
+      MAILHOG_URL: http://localhost:8025
+      MAILHOG_SMTP_HOST: localhost
     ports:
       - "127.0.0.1:9000:9000"
+      - "127.0.0.1:1025:1025" # MailHog SMTP
+      - "127.0.0.1:8025:8025" # MailHog UI
     depends_on:
       db:
         condition: service_healthy
-      mailhog:
-        condition: service_started
     volumes:
       - ../:/app
       - go-mod:/go/pkg/mod
