@@ -135,16 +135,16 @@
 			<ot-dropdown>
 				<button type="button" class="ghost" popovertarget="rte-find" title="{{ $L.T "editor.findReplace" }}" aria-label="{{ $L.T "editor.findReplace" }}">{{ Icon "search" $f }}</button>
 				<div popover id="rte-find" class="rte-menu rte-find" data-rte-find>
-					<div data-field><input type="text" name="find" placeholder="{{ $L.T "globals.buttons.find" }}" /></div>
-					<div data-field><input type="text" name="replace" placeholder="{{ $L.T "globals.fields.replaceWith" }}" /></div>
-					<label class="rte-find-opt"><input type="checkbox" name="matchcase" /> {{ $L.T "editor.matchCase" }}</label>
-					<div class="rte-find-foot">
+					<input type="text" name="find" placeholder="{{ $L.T "globals.buttons.find" }}" />
+					<input type="text" name="replace" placeholder="{{ $L.T "globals.fields.replaceWith" }}" />
+					<div class="hstack justify-between">
+						<label class="rte-find-opt"><input type="checkbox" name="matchcase" /> {{ $L.T "editor.matchCase" }}</label>
 						<small data-hint><span data-rte-findcount></span></small>
-						<div class="hstack gap-1">
-							<button type="button" class="outline small" data-rte-act="replace">{{ $L.T "globals.buttons.replace" }}</button>
-							<button type="button" class="outline small" data-rte-act="replaceAll">{{ $L.T "globals.buttons.replaceAll" }}</button>
-							<button type="button" class="small" data-variant="primary" data-rte-act="next">{{ $L.T "editor.findNext" }}</button>
-						</div>
+					</div>
+					<div class="hstack gap-1">
+						<button type="button" class="outline small" data-rte-act="next">{{ $L.T "editor.findNext" }}</button>
+						<button type="button" class="outline small" data-rte-act="replace">{{ $L.T "globals.buttons.replace" }}</button>
+						<button type="button" class="small" data-rte-act="replaceAll">{{ $L.T "globals.buttons.replaceAll" }}</button>
 					</div>
 				</div>
 			</ot-dropdown>
@@ -206,9 +206,9 @@
 				<div data-field><label>{{ $L.T "editor.altText" }}</label><input type="text" name="alt" /></div>
 				<div class="hstack gap-2">
 					<div class="rte-img-dims">
-						<div data-field><label>{{ $L.T "globals.fields.width" }}</label><input type="text" name="width" inputmode="numeric" /></div>
+						<div data-field><label>{{ $L.T "globals.fields.width" }}</label><input type="number" name="width" min="1" step="1" inputmode="numeric" /></div>
 						<button type="button" class="ghost rte-img-lock is-active" data-rte-act="lock" aria-pressed="true" title="{{ $L.T "editor.constrain" }}" aria-label="{{ $L.T "editor.constrain" }}">{{ Icon "lock" $f }}</button>
-						<div data-field><label>{{ $L.T "globals.fields.height" }}</label><input type="text" name="height" inputmode="numeric" /></div>
+						<div data-field><label>{{ $L.T "globals.fields.height" }}</label><input type="number" name="height" min="1" step="1" inputmode="numeric" /></div>
 					</div>
 					<div data-field>
 						<label>{{ $L.T "editor.float" }}</label>

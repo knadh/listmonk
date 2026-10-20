@@ -34,7 +34,8 @@ richtext-editor {
     margin-inline-end: 0;
 }
 
-.rte-toolbar button {
+.rte-toolbar .rte-group > button,
+.rte-toolbar ot-dropdown > button {
     flex: none;
     padding: 0.4rem;
     line-height: 0;
@@ -83,6 +84,7 @@ richtext-editor {
 }
 
 .rte-content {
+    position: relative;
     min-height: 500px;
     padding: var(--space-4);
     font-family: "Geist", var(--font-sans), sans-serif;
@@ -98,7 +100,6 @@ richtext-editor {
 
 .rte-content img {
     max-width: 100%;
-    height: auto;
 }
 
 .rte-content img.img-float-left {
@@ -204,13 +205,14 @@ richtext-editor {
 }
 
 .rte-menu {
-    * {
+    [role="menuitem"] > :is(h1, h2, h3, h4, h5, h6) {
         line-height: 1;
         margin: 0;
         padding: 0;
     }
-    [role="menuitem"] {
+    > [role="menuitem"] {
         line-height: 1;
+        margin: 0;
         padding: var(--space-1) 0;
     }
 }
@@ -290,14 +292,13 @@ richtext-editor {
     padding: var(--space-1) var(--space-3);
 }
 
-/* Find & replace highlights. */
-mark.rte-find {
-    background: #fff2a8;
+:is(.rte-content, .rte-content *)::highlight(rte-find) {
+    background-color: #fff2a8;
     color: inherit;
 }
 
-mark.rte-find.is-current {
-    background: #ffcf33;
+:is(.rte-content, .rte-content *)::highlight(rte-find-current) {
+    background-color: #ffcf33;
 }
 
 /* Table grid-size picker popover. */
@@ -356,13 +357,6 @@ mark.rte-find.is-current {
     font-size: var(--text-7);
 }
 
-.rte-find-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-}
-
 /* Floating table cell toolbar (shown only when a cell is focused). */
 .rte-table-tools {
     position: absolute;
@@ -396,28 +390,6 @@ mark.rte-find.is-current {
     width: 14px;
     height: 14px;
 }
-
-/* Image resize overlay. */
-.rte-resize {
-    position: absolute;
-    z-index: 4;
-    border: 1px dashed var(--primary);
-    pointer-events: none;
-}
-
-.rte-resize-handle {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: var(--primary);
-    border: 1px solid #fff;
-    pointer-events: auto;
-}
-
-.rte-nw { top: -5px; left: -5px; cursor: nwse-resize; }
-.rte-ne { top: -5px; right: -5px; cursor: nesw-resize; }
-.rte-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
-.rte-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
 
 /* Fullscreen. */
 richtext-editor.is-fullscreen {

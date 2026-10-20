@@ -32,7 +32,7 @@ async function build() {
   await cp(path.join(root, 'node_modules/@knadh/oat/oat.min.css'), path.join(dist, 'oat.min.css'));
 
   // ALTCHA is loaded directly by public subscription forms.
-  await cp(path.join(root, 'node_modules/altcha/dist/main/altcha.umd.cjs'), path.join(root, '../public/static/altcha.umd.js'));
+  await cp(path.join(root, 'node_modules/altcha/dist/main/altcha.umd.min.cjs'), path.join(root, '../public/static/altcha.umd.js'));
 
   // Entry points = modules loaded directly by a <script> tag: the global main.js and
   // every per-view module under assets/js/views/.

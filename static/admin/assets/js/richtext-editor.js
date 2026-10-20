@@ -2,7 +2,6 @@
 import Squire from 'squire-rte';
 import { beautifyHTML } from './content.js';
 import { setupTable } from './richtext/table.js';
-import { setupResize } from './richtext/resize.js';
 import {
   i18n, t, closestInSelection, PALETTE, EMOJIS, CHARS,
 } from './richtext/data.js';
@@ -34,7 +33,10 @@ class RichtextEditor extends HTMLElement {
   #toolbar = null;
   #pending = null;
   #mute = false;
+  #resizing = false;
   #resizeObs = null;
+  #clearFind = null;
+  #refreshFind = null;
 
   connectedCallback() {
     if (Object.hasOwn(this, 'value')) {
@@ -66,7 +68,35 @@ class RichtextEditor extends HTMLElement {
       this.#fillGrids();
       this.#setupColorInputs();
       setupTable(this);
-      setupResize(this);
+      this.content.addEventListener('click', (e) => {
+        const el = e.target.closest('img, a[href]');
+        if (!el || !this.content.contains(el) || e.detail !== (el.matches('img') ? 2 : 3)) {
+          return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        // Deselect Squire's image resizer before the dialog opens.
+        this.content.click();
+        const range = document.createRange();
+        range.selectNode(el);
+        this.editor.setSelection(range);
+        this.#run(el.matches('img') ? 'image' : 'link');
+      });
+
+      // Squire's getHTML() temporarily detaches its handles. Serialize after
+      // the drag ends so live input sync does not break its pointer capture.
+      this.content.addEventListener('gotpointercapture', (e) => {
+        if (e.target.matches('.squire-resize-handle')) {
+          this.#resizing = true;
+        }
+      });
+      this.content.addEventListener('lostpointercapture', () => {
+        if (this.#resizing) {
+          this.#resizing = false;
+          this.sync();
+        }
+      });
 
       // Generic cancel buttons close their dialog.
       this.querySelectorAll('[data-rte-act="cancel"]').forEach((b) => {
@@ -91,6 +121,7 @@ class RichtextEditor extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.#clearFind?.();
     this.#resizeObs?.disconnect();
     this.#resizeObs = null;
     this.editor?.destroy();
@@ -112,6 +143,8 @@ class RichtextEditor extends HTMLElement {
       this.#mute = true;
       this.editor.setHTML(v);
       this.#mute = false;
+      this.#refreshFind?.();
+      this.#updateWordcount();
     }
 
     if (this.#source) {
@@ -121,7 +154,7 @@ class RichtextEditor extends HTMLElement {
 
   // Push the current content to the host.
   sync() {
-    if (!this.editor || this.#mute) {
+    if (!this.editor || this.#mute || this.#resizing) {
       return;
     }
     if (this.#source) {
@@ -294,7 +327,9 @@ class RichtextEditor extends HTMLElement {
   }
 
   #updateWordcount() {
-    const text = this.content.textContent.trim();
+    const range = document.createRange();
+    range.selectNodeContents(this.content);
+    const text = this.editor.getSelectedText(range).trim();
     const n = text ? text.split(/\s+/).length : 0;
     this.querySelector('[data-rte-wordcount]').textContent = i18n.tc('editor.words', n, { num: n });
   }
@@ -415,8 +450,8 @@ class RichtextEditor extends HTMLElement {
 
     f.src.value = img?.getAttribute('src') ?? '';
     f.alt.value = img?.getAttribute('alt') ?? '';
-    f.width.value = img?.getAttribute('width') ?? '';
-    f.height.value = img?.getAttribute('height') ?? '';
+    f.width.value = img ? Math.round(img.getBoundingClientRect().width) || '' : '';
+    f.height.value = img ? Math.round(img.getBoundingClientRect().height) || '' : '';
     f.float.value = (img && ['img-float-left', 'img-float-right'].find((c) => img.classList.contains(c))) || '';
     f.embed.checked = img?.hasAttribute('data-embed') ?? false;
 
@@ -424,18 +459,36 @@ class RichtextEditor extends HTMLElement {
     const lock = d.querySelector('[data-rte-act="lock"]');
     const locked = () => lock.getAttribute('aria-pressed') === 'true';
     const rat = (w, h) => (w > 0 && h > 0 ? w / h : null);
-    let ratio = img?.naturalWidth
-      ? rat(img.naturalWidth, img.naturalHeight)
-      : rat(parseFloat(f.width.value), parseFloat(f.height.value));
+    let ratio = rat(Number(f.width.value), Number(f.height.value))
+      || (img && rat(img.naturalWidth, img.naturalHeight));
+    let lastDimension = 'width';
+    let request = 0;
+
+    const scale = () => {
+      const from = f.elements[lastDimension];
+      const to = f.elements[lastDimension === 'width' ? 'height' : 'width'];
+      const v = Number(from.value);
+      if (locked() && ratio && Number.isFinite(v) && v > 0) {
+        to.value = Math.max(1, Math.round(lastDimension === 'width' ? v / ratio : v * ratio));
+      }
+    };
 
     // Get the ratio from an image's actual size.
     const loadRatio = (src) => {
+      const id = ++request;
       if (src) {
         const probe = new Image();
-        probe.onload = () => { ratio = rat(probe.naturalWidth, probe.naturalHeight); };
+        probe.onload = () => {
+          if (id !== request) {
+            return;
+          }
+          ratio = rat(probe.naturalWidth, probe.naturalHeight);
+          scale();
+        };
         probe.src = src;
       }
     };
+    d.addEventListener('close', () => { request += 1; }, { once: true });
     if (!ratio) {
       loadRatio(f.src.value.trim());
     }
@@ -444,14 +497,14 @@ class RichtextEditor extends HTMLElement {
       loadRatio(f.src.value.trim());
     };
 
-    const scale = (from, to, fn) => {
-      const v = parseFloat(from.value);
-      if (locked() && ratio && Number.isFinite(v)) {
-        to.value = Math.round(fn(v));
-      }
+    f.width.oninput = () => {
+      lastDimension = 'width';
+      scale();
     };
-    f.width.oninput = () => scale(f.width, f.height, (w) => w / ratio);
-    f.height.oninput = () => scale(f.height, f.width, (h) => h * ratio);
+    f.height.oninput = () => {
+      lastDimension = 'height';
+      scale();
+    };
 
     lock.onclick = () => {
       const on = !locked();
@@ -459,6 +512,7 @@ class RichtextEditor extends HTMLElement {
       lock.classList.toggle('is-active', on);
       const use = lock.querySelector('use');
       use.setAttribute('href', `${(use.getAttribute('href') || '').split('#')[0]}#icon-${on ? 'lock' : 'unlock'}`);
+      scale();
     };
 
     d.querySelector('[data-rte-act="browse"]').onclick = () => {
@@ -475,6 +529,9 @@ class RichtextEditor extends HTMLElement {
     };
 
     d.querySelector('[data-rte-act="submit"]').onclick = () => {
+      if (!f.reportValidity()) {
+        return;
+      }
       const src = f.src.value.trim();
       if (!src) {
         d.close();
@@ -500,6 +557,8 @@ class RichtextEditor extends HTMLElement {
             img.removeAttribute(k);
           }
         }
+        img.style.removeProperty('width');
+        img.style.removeProperty('height');
 
         // Only replace the float classes managed by this dialog.
         img.classList.remove('img-float-left', 'img-float-right');
@@ -525,7 +584,7 @@ class RichtextEditor extends HTMLElement {
     const code = document.createElement('code-editor');
     code.setAttribute('lang', 'html');
     const ta = document.createElement('textarea');
-    ta.value = name === 'source' ? this.editor.getHTML() : '';
+    ta.value = name === 'source' ? beautifyHTML(this.editor.getHTML()) : '';
     code.append(ta);
     body.replaceChildren(code);
 
@@ -555,11 +614,30 @@ class RichtextEditor extends HTMLElement {
     let matches = [];
     let idx = -1;
 
-    const clearMarks = () => {
-      for (const m of this.content.querySelectorAll('mark.rte-find')) {
-        const parent = m.parentNode;
-        m.replaceWith(...m.childNodes);
-        parent.normalize();
+    const highlights = ['rte-find', 'rte-find-current'].map((name, priority) => {
+      if (!CSS.highlights.has(name)) {
+        const highlight = new Highlight();
+        highlight.priority = priority;
+        CSS.highlights.set(name, highlight);
+      }
+      return CSS.highlights.get(name);
+    });
+
+    const clear = () => {
+      for (const range of matches) {
+        highlights.forEach((highlight) => highlight.delete(range));
+      }
+      matches = [];
+    };
+    this.#clearFind = clear;
+
+    const showCurrent = (scroll) => {
+      const range = matches[idx];
+      if (range) {
+        highlights[1].add(range);
+        if (scroll) {
+          range.startContainer.parentElement.scrollIntoView({ block: 'center' });
+        }
       }
     };
 
@@ -567,54 +645,45 @@ class RichtextEditor extends HTMLElement {
       if (!matches.length) {
         return;
       }
-
-      matches[idx]?.classList.remove('is-current');
+      highlights[1].delete(matches[idx]);
       idx = (idx + 1) % matches.length;
-      matches[idx].classList.add('is-current');
-      matches[idx].scrollIntoView({ block: 'center' });
+      showCurrent(true);
     };
 
-    const doFind = () => {
-      clearMarks();
-      matches = [];
-      idx = -1;
-
+    const doFind = (scroll = true) => {
+      clear();
       const term = f('find').value;
       if (!term) {
+        idx = -1;
         count.textContent = '';
         return;
       }
 
-      const re = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, f('matchcase').checked ? '' : 'i');
+      const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), f('matchcase').checked ? 'g' : 'gi');
       const walker = document.createTreeWalker(this.content, NodeFilter.SHOW_TEXT);
-      const nodes = [];
       while (walker.nextNode()) {
-        nodes.push(walker.currentNode);
-      }
-      for (const node of nodes) {
-        const parts = node.nodeValue.split(re);
-        if (parts.length < 2) {
-          continue;
+        const node = walker.currentNode;
+        for (const match of node.data.matchAll(re)) {
+          const range = document.createRange();
+          range.setStart(node, match.index);
+          range.setEnd(node, match.index + match[0].length);
+          matches.push(range);
+          highlights[0].add(range);
         }
-
-        const frag = document.createDocumentFragment();
-        parts.forEach((part, i) => {
-          if (i % 2) {
-            const mark = Object.assign(document.createElement('mark'), { className: 'rte-find', textContent: part });
-            frag.append(mark);
-            matches.push(mark);
-          } else if (part) {
-            frag.append(part);
-          }
-        });
-        node.replaceWith(frag);
       }
 
+      idx = scroll ? 0 : Math.max(0, Math.min(idx, matches.length - 1));
       count.textContent = i18n.ts('editor.findCount', { num: matches.length });
-      if (matches.length) {
-        next();
+      showCurrent(scroll);
+    };
+    this.#refreshFind = () => {
+      if (panel.matches(':popover-open')) {
+        doFind(false);
+      } else {
+        clear();
       }
     };
+    this.editor.addEventListener('input', this.#refreshFind);
 
     const replaceOne = () => {
       if (!matches[idx]) {
@@ -622,19 +691,21 @@ class RichtextEditor extends HTMLElement {
         return;
       }
 
-      matches[idx].replaceWith(f('replace').value);
-      matches.splice(idx, 1);
-      idx -= 1;
-      this.sync();
-      next();
+      this.editor.setSelection(matches[idx]);
+      this.editor.insertPlainText(f('replace').value, false);
     };
 
     const replaceAll = () => {
-      matches.forEach((mark) => mark.replaceWith(f('replace').value));
-      matches = [];
-      idx = -1;
-      count.textContent = '';
-      this.sync();
+      if (!matches.length) {
+        return;
+      }
+
+      this.editor.saveUndoState();
+      doFind(false);
+      for (const range of [...matches].reverse()) {
+        range.deleteContents();
+        range.insertNode(document.createTextNode(f('replace').value));
+      }
     };
 
     f('find').addEventListener('input', doFind);
@@ -658,8 +729,7 @@ class RichtextEditor extends HTMLElement {
           doFind();
         }
       } else {
-        clearMarks();
-        this.sync();
+        clear();
       }
     });
   }
@@ -692,7 +762,7 @@ class RichtextEditor extends HTMLElement {
         // Keep the popover open so multiple glyphs can be inserted in sequence.
         b.addEventListener('click', () => {
           this.editor.focus();
-          this.editor.insertHTML(ch);
+          this.editor.insertPlainText(ch, false);
         });
 
         grid.append(b);
@@ -780,9 +850,8 @@ class RichtextEditor extends HTMLElement {
       'Ctrl-k': link,
       'Meta-k': link,
 
-      // Capture Enter+Shift/Enter to porperly handle para line and line
-      // break insertion across contexts. Squire's own implementation doesn't
-      // work properly inside <td>
+      // Squire handles both keys; add a trailing BR when its line break
+      // would otherwise leave no visible line for the caret (including TDs).
       Enter: (self, e) => this.#splitBlock(self, e),
       'Shift-Enter': (self, e) => this.#splitBlock(self, e),
     };
@@ -790,7 +859,7 @@ class RichtextEditor extends HTMLElement {
     Object.entries(keys).forEach(([key, fn]) => this.editor.setKeyHandler(key, fn));
   }
 
-  // Handle Enter (<p>) and Shift+Enter (<br>) separateely. Squire doesn't have this out of the box.
+  // Delegate splitting to Squire, then keep a trailing line break visible.
   #splitBlock(ed, e) {
     e.preventDefault();
     ed.splitBlock(e.shiftKey);
