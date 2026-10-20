@@ -25,6 +25,9 @@ The recommended method is to download the [docker-compose.yml](https://github.co
 # Download the compose file to the current directory.
 curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
 
+# To run the latest v7 beta, edit the compose file and
+# change the image to: listmonk/listmonk:beta
+
 # Run the services in the background.
 docker compose up -d
 ```
