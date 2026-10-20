@@ -30,6 +30,18 @@ jobs:
         with:
           hugo-version: '0.68.3'
 
+      # Fetch the latest release (and overwrite the local committed file).
+      - name: Fetch latest releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -sfL -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
+            | jq -ec '{version: .tag_name, date: .published_at, url: .html_url, assets: [.assets[] | select(.browser_download_url? | contains("arm") or contains("checksum") | not) | {name: (.browser_download_url | split("_") | .[-2]), url: .browser_download_url}]} | select(.version != null)' \
+            > /tmp/github.json \
+            && mv /tmp/github.json docs/site/data/github.json \
+            || echo "::warning::Failed to fetch latest release. Using committed github.json."
+          cat docs/site/data/github.json
+
       # Build the main site to the docs/publish directory. This will be the root (/) in gh-pages.
       # The -d (output) path is relative to the -s (source) path
       - name: Build main site

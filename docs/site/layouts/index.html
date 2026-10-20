@@ -1,231 +1,265 @@
 {{ partial "header.html" . }}
-<div class="splash container center">
-      <img class="s4" src="static/images/s4.webp" />
-      <div class="hero">
-        <h1 class="title">Self-hosted newsletter and mailing list manager</h1>
-        <h3 class="sub">
-          Performance and features packed into a single binary.<br />
-          <strong>Free and open source.</strong>
-        </h3>
-        <p class="center demo">
-          <a href="https://demo.listmonk.app" class="button">Live demo</a>
-        </p>
-      </div>
+<main id="main">
+<section class="hero container align-center">
+  <img class="s4" src="static/images/s4.webp" alt="" aria-hidden="true" />
+  <a class="badge outline" href="{{ .Site.Data.github.url }}">
+    {{ .Page.Site.Data.github.date | dateFormat "02 Jan 2006" }} &rarr; <strong>{{ .Site.Data.github.version }}</strong> is released
+  </a>
 
-      <div class="confetti">
-        <img class="s1" src="static/images/s1.webp" />
-        <img class="s2" src="static/images/s2.webp" />
-        <img class="s3" src="static/images/s3.webp" />
-        <img class="box" src="{{ .Site.BaseURL }}static/images/splash.webp" alt="listmonk screenshot" />
-      </div>
+  <h1>Self-hosted newsletter and mailing list manager</h1>
+  <p class="text-light">
+    Performance and features packed into a single binary.<br />
+    <strong>Free and open source.</strong>
+  </p>
+
+  <div class="hstack justify-center">
+    <a href="https://demo.listmonk.app" class="button large">Live demo</a>
+    <a href="#download" class="button large outline">Download</a>
   </div>
-</div>
 
-<section id="download">
-  <div class="container">
-    <h2 class="center">Download</h2>
-    <p class="center">
+  <div class="confetti">
+  <img class="s1" src="static/images/s1.webp" alt="" aria-hidden="true" />
+  <img class="s2" src="static/images/s2.webp" alt="" aria-hidden="true" />
+  <img class="s3" src="static/images/s3.webp" alt="" aria-hidden="true" />
+  <figure class="card preview">
+    <header class="hstack justify-between">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <small>listmonk</small>
+      <small>Since 2018</small>
+    </header>
+    <img src="{{ .Site.BaseURL }}static/images/splash.webp"
+      width="1440" height="1100"
+      alt="listmonk dashboard with subscriber totals, campaign activity, engagement charts, and system statistics"
+      fetchpriority="high" />
+  </figure>
+  </div>
+</section>
+
+<section id="download" class="band">
+<div class="container">
+  <header class="align-center">
+    <h2>Download</h2>
+    <p class="text-light">
       The latest version is <strong>{{ .Page.Site.Data.github.version }}</strong>
       released on {{ .Page.Site.Data.github.date | dateFormat "02 Jan 2006" }}.
-      See <a href="{{ .Page.Site.Data.github.url }}">release notes.</a>
-    </p><br />
+      See <a href="{{ .Page.Site.Data.github.url }}">release notes</a>.
+    </p>
+  </header>
 
-    <div class="row">
-      <div class="col-6">
-        <div class="box">
-          <h3>Binary</h3>
-          <p>Download binary (64 bit)</p>
-          <div class="download-links">
-            {{ range.Page.Site.Data.github.assets }}
-            <a href="{{ .url }}" class="item">
-              <span class="icon">
-                <img src="{{ .Site.BaseURL }}static/images/logo-{{ .name }}.{{ if eq .name "openbsd" }}webp{{ else }}svg{{ end }}" alt="{{ .name | title }}" title="{{ .name | title }}" />
-              </span>
-              <span class="name">{{ .name | title }}</span>
-            </a>
-            {{ end }}
-          </div>
-          
-          <p>Install</p>
-          <ul class="install-steps">
-            <li>
-              <code>./listmonk --new-config</code> to generate config.toml. Edit it.
-            </li>
-            <li><code>./listmonk --install</code> to setup the Postgres DB or <code>--upgrade</code> to upgrade an existing DB.</li>
-            <li>Run <code>./listmonk</code> and visit <code>http://localhost:9000</code></li>
-          </ul>
-          <p><a href="/docs/installation">Installation docs &rarr;</a></p>
-        </div>
+  <div class="row">
+    <article class="card col-6">
+      <header>
+        <h3>Binary</h3>
+      </header>
+
+      <div class="hstack mt-6 mb-6">
+        {{ range .Page.Site.Data.github.assets }}
+        <a href="{{ .url }}" class="button outline small">
+          <img loading="lazy" width="16" height="16"
+            src="{{ $.Site.BaseURL }}static/images/logo-{{ .name }}.{{ if eq .name "openbsd" }}webp{{ else }}svg{{ end }}"
+            alt="" />
+          {{ .name | title }}
+        </a>
+        {{ end }}
       </div>
-      <div class="col-6">
-        <div class="box">
-          <h3>Docker</h3>
-          <p><a href="https://hub.docker.com/r/listmonk/listmonk/tags?page=1&ordering=last_updated&name=latest"><code>listmonk/listmonk:latest</code></a></p>
-          <p>
-            Download and use the sample <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a> 
-          </p>
 
-<pre>
-# Download the compose file to the current directory.
+      <p>Download the binary and:</p>
+
+<pre><code># Generate config.toml and then edit it.
+./listmonk --new-config
+
+# Setup the Postgres DB (or --upgrade an existing one).
+./listmonk --install
+
+# Run the app.
+./listmonk</code></pre>
+      <p>Visit <code>http://localhost:9000</code></p>
+      <p><a href="/docs/installation">Installation docs &rarr;</a></p>
+    </article>
+
+    <article class="card col-6">
+      <header>
+        <h3>Docker</h3>
+      </header>
+
+      <p class="mt-4">
+        Download and use the sample
+        <a href="https://github.com/knadh/listmonk/blob/master/docker-compose.yml">docker-compose.yml</a>
+      </p>
+
+<pre><code># Download the compose file to the current directory.
 curl -LO https://github.com/knadh/listmonk/raw/master/docker-compose.yml
 
-# Run the services in the background.
-docker compose up -d
-</pre>
-          <p>Visit <code>http://localhost:9000</code></p>
-
-          <p><a href="/docs/installation">Installation docs &rarr;</a></p>
-        </div>
+# Run Postgres and listmonk in the background.
+docker compose up -d</code></pre>
+      <p>Visit <code>http://localhost:9000</code></p>
+      <div class="hstack justify-between">
+        <a href="/docs/installation">Installation docs &rarr;</a>
+        <a href="https://hub.docker.com/r/listmonk/listmonk/tags?page=1&ordering=last_updated&name=latest">listmonk@DockerHub</a>
       </div>
-    </div>
+    </article>
   </div>
+</div>
 </section>
 
-<section class="hosting">
-  <div class="container">
-    <h2 class="center">Hosting providers</h2><br />
-    <div>
-      <a href="https://www.nodion.com/en/deploy/listmonk/"><img src="static/images/host-nodion.svg" alt="Deploy to Nodion" style="max-height: 32px;" /></a>
-      <a href="https://www.kloudbean.com/listmonk-self-hosted"><img src="static/images/host-kloudbean.svg" alt="One-click deploy on Kloudbean" style="max-height: 32px;" /></a>
-      <a href="https://northflank.com/stacks/deploy-listmonk"><img src="static/images/host-northflank.webp" alt="One-click deploy on Northflank" style="height: 32px; width: 150px; border-radius: 6px; object-fit: contain;" /></a>
-      <a href="https://railway.app/new/template/listmonk"><img src="static/images/host-railway.svg" alt="One-click deploy on Railway" style="max-height: 32px;" /></a>
-      <a href="https://zenith.hosting/host/listmonk"><img src="static/images/host-zenith.svg" alt="Deploy with Zenith" style="max-height: 32px;" /></a>
-      <a href="https://www.pikapods.com/pods?run=listmonk"><img src="static/images/host-pikapods.svg" alt="Deploy on PikaPod" /></a>
-      <a href="https://elest.io/open-source/listmonk"><img height="33" src="static/images/host-elestio.webp" alt="Deploy on Elestio" /></a>
-      <a href="https://zeabur.com/templates/5EDMN6"><img width="148" src="static/images/host-zeabur.svg" alt="Deploy on Zeabur"/></a>
-      <a href="https://cloudzy.com/marketplace/listmonk/"><img src="static/images/host-cloudzy.svg" alt="Deploy to Cloudzy" style="max-height: 32px;" /></a>
-      <a href="https://lumadock.com/vps-hosting/listmonk"><img src="static/images/host-lumadock.svg" alt="Runs faster on LumaDock" style="max-height: 32px;" /></a>
-      <a href="https://pethost.dev/templates/listmonk/"><img src="static/images/host-pethost.svg" alt="Deploy on Pethost" style="max-height: 32px;" /></a>
-      <a href="https://podway.io/start?app=listmonk&ref=docs-listmonk"><img src="static/images/host-podway.svg" alt="Deploy on podway" style="max-height: 32px;" /></a>
-    </div>
-    <p class="disclaimer">*listmonk has no affiliation with these providers</p>
+<section id="hosting" class="container align-center">
+  <h2>3rd party hosting</h2>
+  <p class="text-light">One-click hosted listmonk instances from various 3rd party providers</p>
+
+  <div class="hstack justify-center gap-6 mt-8 mb-6">
+    <a href="https://www.nodion.com/en/deploy/listmonk/"><img loading="lazy" src="static/images/host-nodion.svg" alt="Deploy to Nodion" /></a>
+    <a href="https://www.kloudbean.com/listmonk-self-hosted"><img loading="lazy" src="static/images/host-kloudbean.svg" alt="One-click deploy on Kloudbean" /></a>
+    <a href="https://northflank.com/stacks/deploy-listmonk"><img loading="lazy" src="static/images/host-northflank.webp" alt="One-click deploy on Northflank" /></a>
+    <a href="https://railway.app/new/template/listmonk"><img loading="lazy" src="static/images/host-railway.svg" alt="One-click deploy on Railway" /></a>
+    <a href="https://zenith.hosting/host/listmonk"><img loading="lazy" src="static/images/host-zenith.svg" alt="Deploy with Zenith" /></a>
+    <a href="https://www.pikapods.com/pods?run=listmonk"><img loading="lazy" src="static/images/host-pikapods.svg" alt="Deploy on PikaPod" /></a>
+    <a href="https://elest.io/open-source/listmonk"><img loading="lazy" src="static/images/host-elestio.webp" alt="Deploy on Elestio" /></a>
+    <a href="https://zeabur.com/templates/5EDMN6"><img loading="lazy" src="static/images/host-zeabur.svg" alt="Deploy on Zeabur" /></a>
+    <a href="https://cloudzy.com/marketplace/listmonk/"><img loading="lazy" src="static/images/host-cloudzy.svg" alt="Deploy to Cloudzy" /></a>
+    <a href="https://lumadock.com/vps-hosting/listmonk"><img loading="lazy" src="static/images/host-lumadock.svg" alt="Runs faster on LumaDock" /></a>
+    <a href="https://pethost.dev/templates/listmonk/"><img loading="lazy" src="static/images/host-pethost.svg" alt="Deploy on Pethost" /></a>
+    <a href="https://podway.io/start?app=listmonk&ref=docs-listmonk"><img loading="lazy" src="static/images/host-podway.svg" alt="Deploy on podway" /></a>
   </div>
+
+  <small class="text-light">*listmonk has no affiliation with the listed 3rd party providers</small>
 </section>
 
-<div class="container">
-  <section class="row feature">
+<section id="features" class="features container">
+  <header class="align-center">
+    <h2>Packed with features</h2>
+    <p class="text-light">Single binary alongside a Postgres database.</p>
+  </header>
+
+  <div class="row items-center">
     <div class="col-5">
-      <h2>One-way mailing lists</h2>
+      <h3>One-way mailing lists</h3>
       <p>
-        Manage millions of subscribers across single and double opt-in lists. Query and segment subscribers with SQL expressions.
+        Manage millions of subscribers across single and double opt-in lists.
+        Query and segment subscribers with SQL expressions.
       </p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6 right">
-      <img class="box" src="static/images/lists.webp" alt="Screenshot of list management feature" />
-    </div>
-  </section>
+    <figure class="card col-6 offset-1">
+      <img loading="lazy" src="static/images/lists.webp" width="554" height="401" alt="Mailing lists with public and private visibility, opt-in types, and subscriber counts" />
+    </figure>
+  </div>
 
-  <section class="row media feature">
+  <div class="row items-center">
     <div class="col-5">
-      <h2>Analytics</h2>
+      <h3>Analytics</h3>
       <p>
         Built-in analytics to visualize campaign performance, bounces, top links and more across campaigns.
       </p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6 right">
-      <img class="box" src="static/images/analytics.webp" alt="Screenshot of analytics feature" />
-    </div>
-  </section>
+    <figure class="card col-6 offset-1">
+      <img loading="lazy" src="static/images/analytics.webp" width="784" height="432" alt="Campaign views compared with a line chart and a breakdown by campaign" />
+    </figure>
+  </div>
 
-  <section class="row templating feature">
+  <div class="row items-center">
     <div class="col-5">
-      <h2>Templating</h2>
+      <h3>Templating</h3>
       <p>
-        Create powerful, dynamic e-mail templates with the <a href="https://golang.org/pkg/text/template/">Go templating language</a>.
+        Create powerful, dynamic e-mail templates with the
+        <a href="https://golang.org/pkg/text/template/">Go templating language</a>.
         Use template expressions, logic, and 100+ functions in subject lines and content.
-        Write HTML e-mails using a visual drag-and-drop builder, a WYSIWYG editor, Markdown, raw syntax-highlighted HTML, or just plain text.
+        Write HTML e-mails using a visual drag-and-drop builder, a WYSIWYG editor, Markdown,
+        raw syntax-highlighted HTML, or just plain text.
       </p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6 right">
-      <img class="box" src="static/images/templating.webp" alt="Screenshot of templating feature" />
-    </div>
-  </section>
+    <figure class="card col-6 offset-1">
+      <img loading="lazy" src="static/images/templating.webp" width="958" height="440" alt="Visual email builder with a personalized newsletter and heading design controls" />
+    </figure>
+  </div>
 
-  <section class="row performance feature">
+  <div class="row items-center">
     <div class="col-5">
-      <h2>Performance</h2>
+      <h3>Performance</h3>
       <p>
         Multi-threaded, high-throughput, multi-SMTP e-mail queues.
-        Throughput and sliding window rate limiting for fine grained control.  
+        Throughput and sliding window rate limiting for fine grained control.
         Single binary application with nominal CPU and memory footprint that runs everywhere.
       </p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6 right">
-      <figure class="box">
-        <img src="static/images/performance.webp" alt="Screenshot of performance metrics" />
-
-        <figcaption style="font-size:">
-          A production listmonk instance sending a campaign of 7+ million e-mails.<br />
+    <figure class="card col-6 offset-1">
+      <img loading="lazy" src="static/images/performance.webp" alt="Screenshot of performance metrics" />
+      <figcaption class="text-light mt-4">
+        <small>
+          A production listmonk instance sending a campaign of 7+ million e-mails.
           CPU usage is a fraction of a single core with peak RAM usage of 57 MB.
-        </figcaption>
-      </figure>
-    </div>
-  </section>
+        </small>
+      </figcaption>
+    </figure>
+  </div>
 
-  <section class="row tx feature">
+  <div class="row items-center">
     <div class="col-5">
-      <h2>Transactional mails</h2>
+      <h3>Transactional mails</h3>
       <p>
-        Simple API to send arbitrary transactional messages to subscribers
-        using pre-defined templates. Send messages as e-mail, SMS, Whatsapp messages or any medium via Messenger interfaces.
+        Simple API to send arbitrary transactional messages to subscribers using pre-defined templates.
+        Send messages as e-mail, SMS, Whatsapp messages or any medium via Messenger interfaces.
       </p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6 right">
-      <img class="box" src="static/images/tx.webp" alt="Screenshot of transactional API" />
-    </div>
-  </section>
+    <figure class="card col-6 offset-1">
+      <img loading="lazy" src="static/images/tx.webp" width="784" height="322" alt="Transactional email template using subscriber names, order numbers, and shipping dates" />
+    </figure>
+  </div>
 
-  <section class="row lists feature">
+  <div class="row items-center">
     <div class="col-5">
-      <h2>Extensible</h2>
+      <h3>Extensibility</h3>
       <p>
         More than just e-mail campaigns. Messenger HTTP webhooks to send SMS,
         Whatsapp, FCM notifications, or any type of messages.
         Extensive API coverage for all features.
       </p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6 right">
-      <img class="box" src="static/images/messengers.webp" alt="Screenshot of Messenger feature" />
-    </div>
-  </section>
-
-  <section class="row feature center">
-    <h2>And a lot more ...</h2>
-    <p>
-      Full privacy control for subscribers, OIDC SSO authentication with granular roles and permissions, granular API tokens, media library with S3-compatible backend and a lot more.
-    </p>
-  </section>
-
-  <div class="center">
-    <a href="#download" class="button">Download</a>
+    <figure class="card col-6 offset-1">
+      <img loading="lazy" src="static/images/messengers.webp" width="774" height="448" alt="Custom SMS messenger configuration with an HTTP endpoint and authentication fields" />
+    </figure>
   </div>
+</section>
 
-  <section class="banner">
-    <div class="row">
-      <div class="col-2">&nbsp;</div>
-      <div class="col-8">
-        <div class="confetti">
-          <img class="s2" src="static/images/s3.webp" />
-          <div class="box">
-            <h2>Developers</h2>
-            <p>
-              listmonk is free and open source software licensed under AGPLv3.
-              If you are interested in contributing, check out the <a href="https://github.com/knadh/listmonk">GitHub repository</a>
-              and refer to the <a href="/docs/developer-setup">developer setup</a>.
-              The backend is written in Go and the frontend is Vue with Buefy for UI. 
-            </p>
-          </div>
+<section class="container">
+  <hr />
+  <h2>And a lot more</h2>
+  <div class="row mt-8">
+    <div class="col-4">
+      <h4>Privacy</h4>
+      <p class="text-light">Full privacy control for subscribers, including getting their own data exported or completely removed.</p>
+    </div>
+    <div class="col-4">
+      <h4>Access</h4>
+      <p class="text-light">OIDC single sign-on, granular roles and permissions, and scoped API tokens.</p>
+    </div>
+    <div class="col-4">
+      <h4>Media</h4>
+      <p class="text-light">A built-in media library with support for S3-compatible storage.</p>
+    </div>
+  </div>
+</section>
+
+<section class="container">
+  <div class="confetti">
+  <img class="s3" src="static/images/s3.webp" alt="" aria-hidden="true" />
+  <article class="card tinted">
+    <div class="row items-center">
+      <div class="col-6">
+        <h2>Built for everyone.</h2>
+        <p>And works for everyone too.</p>
+      </div>
+      <div class="col-6">
+        <p class="text-light">
+          listmonk works well whether you are an individual running a newsletter with a few hundred subscribers on a tiny VPS,
+          or a large organisation serving millions of subscribers. Extremely tiny footprint and very low maintenance.
+        </p>
+        <div class="hstack gap-6 mt-4">
+          <a href="https://github.com/knadh/listmonk/issues">Issues &nearr;</a>
+          <a href="/docs/developer-setup">For developers &rarr;</a>
         </div>
       </div>
-      <div class="col-2">&nbsp;</div>
     </div>
-  </section>
-</div>
-
-{{ partial "footer.html" }}
+  </article>
+  </div>
+</section>
+</main>
+{{ partial "footer.html" . }}

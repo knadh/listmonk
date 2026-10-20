@@ -1,6 +1,8 @@
 {{ partial "header" . }}
-<article class="page">
-	<h1>{{ .Title }}</h1> 
-	{{ .Content }}
-</article>
+<main id="main">
+  <article class="container mb-8">
+    <h1>{{ .Title }}</h1>
+    {{ .Content }}
+  </article>
+</main>
 {{ partial "footer" }}
