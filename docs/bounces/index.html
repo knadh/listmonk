@@ -1576,6 +1576,10 @@
 ]
 </code></pre></div>
 <p>Some mail servers may also return the bounce to the <code>Reply-To</code> address, which can also be added to the header settings.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not use a primary POP3 inbox as the bounce mailbox. Create a dedicated mailbox specifically for bounces. listmonk downloads e-mails in the configured mailbox and deletes them from the mailbox after processing.</p>
+</div>
 <h3 id="bounce-classification">Bounce classification<a class="headerlink" href="#bounce-classification" title="Permanent link">&para;</a></h3>
 <p>listmonk applies a series of heuristics looking for keywords in the bounced mail body to guess if it is a 'soft' bounce or a 'hard' bounce. For instance, 4.x.x and 5.x.x error status codes, common strings such as "mailbox not found" etc. If none of the heuristics match, then the bounce mail is considered to be 'soft' by default.</p>
 <h2 id="webhook-api">Webhook API<a class="headerlink" href="#webhook-api" title="Permanent link">&para;</a></h2>
