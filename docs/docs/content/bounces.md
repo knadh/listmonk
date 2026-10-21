@@ -14,6 +14,10 @@ Configure the bounce mailbox in Settings -> Bounces. Either the "From" e-mail th
 
 Some mail servers may also return the bounce to the `Reply-To` address, which can also be added to the header settings.
 
+!!! Warning
+    Do not use a primary POP3 inbox as the bounce mailbox. Create a dedicated mailbox specifically for bounces. listmonk downloads e-mails in the configured mailbox and deletes them from the mailbox after processing.
+
+
 ### Bounce classification
 listmonk applies a series of heuristics looking for keywords in the bounced mail body to guess if it is a 'soft' bounce or a 'hard' bounce. For instance, 4.x.x and 5.x.x error status codes, common strings such as "mailbox not found" etc. If none of the heuristics match, then the bounce mail is considered to be 'soft' by default.
 
