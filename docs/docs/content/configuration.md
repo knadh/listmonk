@@ -39,14 +39,15 @@ When configuring auth proxies and web application firewalls, use this table.
 
 #### Public endpoints to expose to the internet.
 
-| Methods     | Route                 | Description                                   |
-| ----------- | --------------------- | --------------------------------------------- |
-| `GET, POST` | `/subscription/*`     | HTML subscription pages                       |
-| `GET, `     | `/link/*`             | Tracked link redirection                      |
-| `GET`       | `/campaign/*`         | Pixel tracking image                          |
-| `GET`       | `/public/*`           | Static files for HTML subscription pages      |
-| `POST`      | `/webhooks/service/*` | Bounce webhook endpoints for SES, Azure ACS, Sendgrid, and other supported providers |
-| `GET`       | `/uploads/*`          | The file upload path configured in media settings |
+| Methods     | Route                        | Description                                   |
+| ----------- | ---------------------------- | --------------------------------------------- |
+| `GET, POST` | `/subscription/*`            | HTML subscription pages                       |
+| `GET, `     | `/link/*`                    | Tracked link redirection                      |
+| `GET`       | `/campaign/*`                | Pixel tracking image                          |
+| `GET`       | `/public/*`                  | Static files for HTML subscription pages      |
+| `POST`      | `/webhooks/service/*`        | Bounce webhook endpoints for SES, Azure ACS, Sendgrid, and other supported providers |
+| `GET`       | `/uploads/*`                 | The file upload path configured in media settings |
+| `GET`       | `/api/public/captcha/altcha` | (if using altcha captcha) The api endpoint for altcha |
 
 
 ## Media uploads
