@@ -1,6 +1,6 @@
 FROM oven/bun:1.4.3 AS bun
 
-FROM golang:1.27.2-trixie
+FROM golang:1.27.3-trixie
 
 RUN apt-get update && apt-get install -y --no-install-recommends python3 postgresql-client procps \
     && rm -rf /var/lib/apt/lists/* \
