@@ -309,8 +309,10 @@ func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDC
 		return "", OIDCclaim{}, errors.New("error getting raw claims from OIDC")
 	}
 
-	// If claims doesn't have the e-mail, attempt to fetch it from the userinfo endpoint.
-	if claims.Email == "" {
+	// If the IdP makes no assertion about e-mail verification (the claim is
+	// OPTIONAL per OIDC Core 5.1), or doesn't supply an e-mail, fetch userinfo.
+	_, hasEmailVerified := claims.RawClaims["email_verified"]
+	if claims.Email == "" || !hasEmailVerified {
 		provider, err := o.getProvider()
 		if err != nil {
 			return "", OIDCclaim{}, fmt.Errorf("error getting provider: %v", err)
