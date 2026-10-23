@@ -309,8 +309,9 @@ func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDC
 		return "", OIDCclaim{}, errors.New("error getting raw claims from OIDC")
 	}
 
-	// If claims doesn't have the e-mail, attempt to fetch it from the userinfo endpoint.
-	if claims.Email == "" {
+	// If there's no e-mail verification claim (OIDC Core 5.1), or if there's no e-mail, fetch userinfo.
+	_, hasEmailVerified := claims.RawClaims["email_verified"]
+	if claims.Email == "" || !hasEmailVerified {
 		provider, err := o.getProvider()
 		if err != nil {
 			return "", OIDCclaim{}, fmt.Errorf("error getting provider: %v", err)
@@ -326,11 +327,15 @@ func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDC
 		}
 
 		// Verification must apply to the email supplied by UserInfo.
+		claims.Email = ""
 		claims.EmailVerified = false
 
 		// Parse the UserInfo claims into the claims struct
 		if err := userInfo.Claims(&claims); err != nil {
 			return "", OIDCclaim{}, errors.New("error parsing user info claims")
+		}
+		if claims.Email == "" {
+			return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, "OIDC email is missing")
 		}
 	}
 
