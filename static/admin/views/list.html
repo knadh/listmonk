@@ -32,6 +32,10 @@
 	{{ end }}
 </section>
 
+{{ if and (not $d.IsNew) (ne $d.Tab "edit") $d.CacheSlowQueries }}
+	<p class="text-small text-light">{{ .L.T "globals.messages.slowQueriesCached" }}</p>
+{{ end }}
+
 <script type="module" src="{{ URI "/admin/static/js/views/lists.js" }}?v={{ .AssetVersion }}" defer></script>
 
 {{ if and (eq $d.Tab "list") ($d.Can "campaigns:get" "campaigns:get_all") }}

@@ -72,9 +72,6 @@
 		</div>
 		{{ end }}
 	</section>
-	{{ if $d.CacheSlowQueries }}
-	<p class="text-small text-light">{{ .L.T "globals.messages.slowQueriesCached" }}</p>
-	{{ end }}
 	<script>window._listCharts = {{ ToJSON $d.Charts }};</script>
 	{{ if $d.Can "campaigns:get" "campaigns:get_all" }}
 	<section class="campaigns" x-data="campaignsView">

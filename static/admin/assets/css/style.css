@@ -645,6 +645,10 @@ main {
         padding-block-start: var(--space-6);
         padding-inline: 0;
         margin-bottom: var(--space-6);
+
+        > section {
+            margin-block-end: var(--space-6);
+        }
     }
 }
 
