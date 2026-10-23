@@ -63,9 +63,18 @@
 				<hr />
 
 				<label data-field class="w-100">
+					<input type="checkbox" role="switch" x-model="form['security.oidc'].verify_email" />
+					{{ .L.T "settings.security.OIDCVerifyEmail" }}
+					<small data-hint>{{ .L.T "settings.security.OIDCVerifyEmailHelp" }}</small>
+				</label>
+
+				<label data-field class="w-100">
 					<input type="checkbox" role="switch" x-model="form['security.oidc'].logout" />
 					{{ .L.T "settings.security.OIDCLogout" }}
+					<small data-hint>{{ .L.T "settings.security.OIDCLogoutHelp" }}</small>
 				</label>
+
+				<hr />
 
 				<label data-field class="w-100">
 					<input type="checkbox" role="switch" x-model="form['security.oidc'].auto_create_users" />

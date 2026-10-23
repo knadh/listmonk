@@ -263,7 +263,7 @@ INSERT INTO settings (key, value) VALUES
     ('privacy.domain_allowlist', '[]'),
     ('privacy.record_optin_ip', 'false'),
     ('security.captcha', '{"altcha": {"enabled": false, "complexity": 300000}, "hcaptcha": {"enabled": false, "key": "", "secret": ""}}'),
-    ('security.oidc', '{"enabled": false, "provider_url": "", "provider_name": "", "client_id": "", "client_secret": "", "auto_create_users": false, "logout": false, "default_user_role_id": null, "default_list_role_id": null, "roles": []}'),
+    ('security.oidc', '{"enabled": false, "provider_url": "", "provider_name": "", "client_id": "", "client_secret": "", "auto_create_users": false, "logout": false, "verify_email": true, "default_user_role_id": null, "default_list_role_id": null, "roles": []}'),
     ('security.trusted_urls', '[]'),
     ('security.session_duration', '"7d"'),
     ('upload.provider', '"filesystem"'),

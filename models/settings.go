@@ -65,6 +65,7 @@ type Settings struct {
 	OIDC struct {
 		Enabled           bool              `json:"enabled"`
 		Logout            bool              `json:"logout"`
+		VerifyEmail       bool              `json:"verify_email"`
 		ProviderURL       string            `json:"provider_url"`
 		ProviderName      string            `json:"provider_name"`
 		ClientID          string            `json:"client_id"`

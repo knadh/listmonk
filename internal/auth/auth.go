@@ -38,6 +38,7 @@ type OIDCclaim struct {
 type OIDCConfig struct {
 	Enabled           bool   `json:"enabled"`
 	Logout            bool   `json:"logout"`
+	VerifyEmail       bool   `json:"verify_email"`
 	ProviderURL       string `json:"provider_url"`
 	RedirectURL       string `json:"redirect_url"`
 	ClientID          string `json:"client_id"`
@@ -309,9 +310,9 @@ func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDC
 		return "", OIDCclaim{}, errors.New("error getting raw claims from OIDC")
 	}
 
-	// If there's no e-mail verification claim (OIDC Core 5.1), or if there's no e-mail, fetch userinfo.
+	// Fetch UserInfo if the e-mail is missing or a required verification claim is missing.
 	_, hasEmailVerified := claims.RawClaims["email_verified"]
-	if claims.Email == "" || !hasEmailVerified {
+	if claims.Email == "" || (o.cfg.OIDC.VerifyEmail && !hasEmailVerified) {
 		provider, err := o.getProvider()
 		if err != nil {
 			return "", OIDCclaim{}, fmt.Errorf("error getting provider: %v", err)
@@ -339,7 +340,7 @@ func (o *Auth) ExchangeOIDCToken(code, nonce, codeVerifier string) (string, OIDC
 		}
 	}
 
-	if !claims.EmailVerified {
+	if o.cfg.OIDC.VerifyEmail && !claims.EmailVerified {
 		return "", OIDCclaim{}, echo.NewHTTPError(http.StatusUnauthorized, "OIDC email is not verified")
 	}
 

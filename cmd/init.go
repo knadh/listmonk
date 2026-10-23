@@ -1406,6 +1406,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 		oidcCfg = auth.OIDCConfig{
 			Enabled:           true,
 			Logout:            ko.Bool("security.oidc.logout"),
+			VerifyEmail:       ko.Bool("security.oidc.verify_email"),
 			ProviderURL:       ko.String("security.oidc.provider_url"),
 			ClientID:          ko.String("security.oidc.client_id"),
 			ClientSecret:      ko.String("security.oidc.client_secret"),
