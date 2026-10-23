@@ -1,0 +1,46 @@
+# Stack Portainer per listmonk (immagine custom da GHCR).
+# Variabili da impostare in Portainer → Stack → Environment variables:
+#   DB_PASSWORD     password del database (scegline una lunga)
+#   APP_PORT        porta esposta sul server (default 9000)
+# L'URL pubblico si imposta in listmonk: Impostazioni → Generali → URL principale.
+
+services:
+  app:
+    image: ghcr.io/dario993/listmonk:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-9000}:9000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [sh, -c, "./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && ./listmonk --config ''"]
+    environment:
+      LISTMONK_app__address: 0.0.0.0:9000
+      LISTMONK_db__host: db
+      LISTMONK_db__port: 5432
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: ${DB_PASSWORD}
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__ssl_mode: disable
+      TZ: Europe/Rome
+    volumes:
+      - listmonk-uploads:/listmonk/uploads
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: listmonk
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: listmonk
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listmonk"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    volumes:
+      - listmonk-data:/var/lib/postgresql/data
+
+volumes:
+  listmonk-data:
+  listmonk-uploads:
