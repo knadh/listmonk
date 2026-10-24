@@ -1068,11 +1068,28 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		uploadFsURI    = ko.String("upload.filesystem.upload_uri")
 		publicURL      = ko.String("upload.s3.public_url")
 	)
+
+	// Security headers middleware for uploaded media files.
+	uploadSecurityHeaders := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			h := c.Response().Header()
+			h.Set("X-Content-Type-Options", "nosniff")
+
+			ext := strings.ToLower(filepath.Ext(c.Request().URL.Path))
+			if ext == ".svg" || ext == ".html" || ext == ".htm" || ext == ".xml" || ext == ".xhtml" {
+				h.Set("Content-Security-Policy", "sandbox")
+				h.Set("Content-Disposition", "attachment")
+			}
+
+			return next(c)
+		}
+	}
+
 	switch {
 	case uploadProvider == media.ProviderFilesystem && uploadFsURI != "":
-		srv.Static(uploadFsURI, ko.String("upload.filesystem.upload_path"))
+		srv.Group(uploadFsURI, uploadSecurityHeaders).Static("/", ko.String("upload.filesystem.upload_path"))
 	case uploadProvider == media.ProviderS3 && strings.HasPrefix(publicURL, "/"):
-		srv.GET(path.Join(publicURL, "/:filepath"), app.ServeS3Media)
+		srv.GET(path.Join(publicURL, "/:filepath"), app.ServeS3Media, uploadSecurityHeaders)
 	}
 
 	// Register all HTTP handlers.
@@ -1386,11 +1403,17 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 		},
 	}
 
-	// Copy spring functions.
+	// Copy sprig functions, removing dangerous ones.
 	sprigFuncs := sprig.GenericFuncMap()
-	delete(sprigFuncs, "env")
-	delete(sprigFuncs, "expandenv")
-	delete(sprigFuncs, "getHostByName")
+	for _, fn := range []string{
+		"env", "expandenv", "getHostByName",
+		"genPrivateKey", "genCA", "genCAWithKey",
+		"genSelfSignedCert", "genSelfSignedCertWithKey",
+		"genSignedCert", "genSignedCertWithKey",
+		"buildCustomCert", "derivePassword",
+	} {
+		delete(sprigFuncs, fn)
+	}
 
 	maps.Copy(funcs, sprigFuncs)
 

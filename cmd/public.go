@@ -277,7 +277,7 @@ func (a *App) ViewCampaignMessage(c *echo.Context) error {
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	return c.HTML(http.StatusOK, string(msg.Body()))
+	return renderSandboxedHTML(c, string(msg.Body()))
 }
 
 // SubscriptionPage renders the subscription management page and handles unsubscriptions.

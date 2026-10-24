@@ -685,11 +685,17 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 		},
 	}
 
-	// Copy spring functions.
+	// Copy sprig functions, removing dangerous ones.
 	sprigFuncs := sprig.GenericFuncMap()
-	delete(sprigFuncs, "env")
-	delete(sprigFuncs, "expandenv")
-	delete(sprigFuncs, "getHostByName")
+	for _, fn := range []string{
+		"env", "expandenv", "getHostByName",
+		"genPrivateKey", "genCA", "genCAWithKey",
+		"genSelfSignedCert", "genSelfSignedCertWithKey",
+		"genSignedCert", "genSignedCertWithKey",
+		"buildCustomCert", "derivePassword",
+	} {
+		delete(sprigFuncs, fn)
+	}
 
 	maps.Copy(funcs, sprigFuncs)
 
