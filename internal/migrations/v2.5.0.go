@@ -13,7 +13,7 @@ func V2_5_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 	// Insert new preference settings.
 	if _, err := db.Exec(`
 		INSERT INTO settings (key, value) VALUES
- 			('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),
+ 			('upload.extensions', '["jpg","jpeg","png","gif","svg"]'),
  			('app.enable_public_archive_rss_content', 'false'),
  			('bounce.actions', '{"soft": {"count": 2, "action": "none"}, "hard": {"count": 2, "action": "blocklist"}, "complaint" : {"count": 2, "action": "blocklist"}}'),
 			('privacy.record_optin_ip', 'false')

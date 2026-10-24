@@ -12,7 +12,8 @@ import (
 const (
 	// maxTries is the maximum number of verification attempts allowed for a token.
 	// After this many failed checks, the token is automatically deleted.
-	maxTries = 15
+	// Kept low to prevent brute-force attacks on TOTP codes.
+	maxTries = 5
 )
 
 // Token represents a temporary token with TTL and arbitrary data.
