@@ -54,6 +54,13 @@ type Queries struct {
 	GetListTotalViewCounts      *sqlx.Stmt `query:"get-list-total-view-counts"`
 	GetListTotalClickCounts     *sqlx.Stmt `query:"get-list-total-click-counts"`
 	GetListBounceCounts         *sqlx.Stmt `query:"get-list-bounce-counts"`
+	GetListAnalyticsTotal       string     `query:"get-list-analytics-total"`
+	GetListAnalyticsUniqueTotal string     `query:"get-list-analytics-unique-total"`
+	GetListViewTotal            *sqlx.Stmt `query:"get-list-view-total"`
+	GetListClickTotal           *sqlx.Stmt `query:"get-list-click-total"`
+	GetListTotalViewTotal       *sqlx.Stmt `query:"get-list-total-view-total"`
+	GetListTotalClickTotal      *sqlx.Stmt `query:"get-list-total-click-total"`
+	GetListBounceTotal          *sqlx.Stmt `query:"get-list-bounce-total"`
 	GetListSubscriptionCounts   *sqlx.Stmt `query:"get-list-subscription-counts"`
 	GetListUnsubscriptionCounts *sqlx.Stmt `query:"get-list-unsubscription-counts"`
 	GetListLinkCounts           *sqlx.Stmt `query:"get-list-link-counts"`

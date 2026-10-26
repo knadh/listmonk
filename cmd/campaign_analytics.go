@@ -183,6 +183,25 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 			data.Counts.Views = sumAnalyticsCounts(data.Data.Views)
 			data.Counts.Clicks = sumAnalyticsCounts(data.Data.Clicks)
 			data.Counts.Bounces = sumAnalyticsCounts(data.Data.Bounces)
+
+			// The list series have a row per list, so summing them counts a campaign
+			// sent to several selected lists more than once. Get the totals separately.
+			if resource == models.ResourceLists {
+				counts := map[string]*int{
+					models.AnalyticsTypeTotalViews:  &data.Counts.Views,
+					models.AnalyticsTypeTotalClicks: &data.Counts.Clicks,
+					models.AnalyticsTypeBounces:     &data.Counts.Bounces,
+				}
+				if data.ShowUnique {
+					counts[models.AnalyticsTypeViews] = &data.Counts.UniqueViews
+					counts[models.AnalyticsTypeClicks] = &data.Counts.UniqueClicks
+				}
+				for typ, count := range counts {
+					if *count, err = a.core.GetListAnalyticsTotal(ids, typ, fromStr, toStr); err != nil {
+						return err
+					}
+				}
+			}
 		}
 	}
 

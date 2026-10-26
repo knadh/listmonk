@@ -218,6 +218,20 @@ FROM counts c JOIN campaign_lists cl ON cl.campaign_id = c.campaign_id
 WHERE cl.list_id = ANY($1)
 GROUP BY cl.list_id, c.timestamp ORDER BY c.timestamp;
 
+-- name: get-list-analytics-total
+-- raw: true
+-- Totals across the selected lists. A campaign sent to several of them is counted once,
+-- unlike get-list-analytics-counts, which returns a row per list for the charts.
+SELECT COUNT(*)::BIGINT FROM %s
+WHERE campaign_id IN (SELECT campaign_id FROM campaign_lists WHERE list_id = ANY($1))
+    AND created_at >= $2 AND created_at <= $3;
+
+-- name: get-list-analytics-unique-total
+-- raw: true
+SELECT COUNT(DISTINCT (subscriber_id, campaign_id))::BIGINT FROM %s
+WHERE campaign_id IN (SELECT campaign_id FROM campaign_lists WHERE list_id = ANY($1))
+    AND created_at >= $2 AND created_at <= $3;
+
 -- name: get-list-analytics-items
 SELECT id, name FROM lists
 WHERE id = ANY($1::INT[]) AND ($2 OR id = ANY($3::INT[]))
