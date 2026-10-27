@@ -31,6 +31,13 @@ const (
 	CampaignContentTypeVisual   = "visual"
 )
 
+// CampOpt is a campaign manager option type.
+type CampOpt int
+
+const (
+	CampPreview CampOpt = iota
+)
+
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 

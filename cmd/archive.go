@@ -238,7 +238,7 @@ func (a *App) getCampaignArchives(offset, limit int, renderBody bool) ([]campArc
 }
 
 // compileArchiveCampaigns compiles the campaign template with the subscriber data.
-func (a *App) compileArchiveCampaigns(camps []models.Campaign) ([]manager.CampaignMessage, error) {
+func (a *App) compileArchiveCampaigns(camps []models.Campaign, opts ...models.CampOpt) ([]manager.CampaignMessage, error) {
 
 	var (
 		b   = bytes.Buffer{}
@@ -250,7 +250,7 @@ func (a *App) compileArchiveCampaigns(camps []models.Campaign) ([]manager.Campai
 		// Resolve data-embed images to media URLs as cid: cannot resolve on a web page.
 		a.manager.ApplyArchiveImages(&camp)
 
-		if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
+		if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp, opts...)); err != nil {
 			a.log.Printf("error compiling template: %v", err)
 			return nil, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorFetchingCampaign"))
 		}

@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"path"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -374,7 +375,7 @@ func (m *Manager) GetTpl(id int) (*models.Template, error) {
 
 // TemplateFuncs returns the template functions to be applied into
 // compiled campaign templates.
-func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
+func (m *Manager) TemplateFuncs(c *models.Campaign, opts ...models.CampOpt) template.FuncMap {
 	f := template.FuncMap{
 		"TrackLink": func(url string, msg *CampaignMessage) string {
 			if m.cfg.DisableTracking {
@@ -425,12 +426,20 @@ func (m *Manager) TemplateFuncs(c *models.Campaign) template.FuncMap {
 		},
 	}
 
-	maps.Copy(f, m.tplFuncs)
+	maps.Copy(f, m.GenericTemplateFuncs(opts...))
 
 	return f
 }
 
-func (m *Manager) GenericTemplateFuncs() template.FuncMap {
+func (m *Manager) GenericTemplateFuncs(opts ...models.CampOpt) template.FuncMap {
+	// Campaign is in preview mode. Override the func.
+	if slices.Contains(opts, models.CampPreview) {
+		f := maps.Clone(m.tplFuncs)
+		f["IsPreview"] = func() bool { return true }
+
+		return f
+	}
+
 	return m.tplFuncs
 }
 
@@ -671,6 +680,7 @@ func (m *Manager) sendNotif(c *models.Campaign, status, reason string) error {
 // functions and sprig template functions.
 func (m *Manager) makeGnericFuncMap() template.FuncMap {
 	funcs := template.FuncMap{
+		"IsPreview": func() bool { return false },
 		"Date": func(layout string) string {
 			if layout == "" {
 				layout = time.ANSIC

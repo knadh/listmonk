@@ -317,7 +317,7 @@ func (a *App) previewTemplate(tpl models.Template) ([]byte, error) {
 			Body:         dummyTpl,
 		}
 
-		if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
+		if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp, models.CampPreview)); err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest,
 				a.i18n.Ts("templates.errorCompiling", "error", err.Error()))
 		}
@@ -331,7 +331,8 @@ func (a *App) previewTemplate(tpl models.Template) ([]byte, error) {
 		out = msg.Body()
 	} else {
 		// Compile transactional template.
-		if err := tpl.Compile(a.manager.GenericTemplateFuncs()); err != nil {
+		funcs := a.manager.GenericTemplateFuncs(models.CampPreview)
+		if err := tpl.Compile(funcs); err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
@@ -340,7 +341,7 @@ func (a *App) previewTemplate(tpl models.Template) ([]byte, error) {
 		}
 
 		// Render the message.
-		if err := m.Render(dummySubscriber, &tpl, a.manager.GenericTemplateFuncs()); err != nil {
+		if err := m.Render(dummySubscriber, &tpl, funcs); err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		out = m.Body

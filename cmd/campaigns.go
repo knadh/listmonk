@@ -373,7 +373,7 @@ func (a *App) PreviewCampaign(c *echo.Context) error {
 	// Use a dummy campaign ID to prevent views and clicks from {{ TrackView }}
 	// and {{ TrackLink }} being registered on preview.
 	camp.UUID = dummySubscriber.UUID
-	if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp)); err != nil {
+	if err := camp.CompileTemplate(a.manager.TemplateFuncs(&camp, models.CampPreview)); err != nil {
 		a.log.Printf("error compiling template: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("templates.errorCompiling", "error", err.Error()))
@@ -415,7 +415,7 @@ func (a *App) PreviewCampaignArchive(c *echo.Context) error {
 	camp.ArchiveMeta = json.RawMessage([]byte(c.FormValue("archive_meta")))
 
 	// "Compile" the campaign template with appropriate data.
-	res, err := a.compileArchiveCampaigns([]models.Campaign{camp})
+	res, err := a.compileArchiveCampaigns([]models.Campaign{camp}, models.CampPreview)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))

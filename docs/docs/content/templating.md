@@ -55,6 +55,7 @@ There are several template functions and expressions that can be used in campaig
 | `{{ TrackLink "https://link.com" }}` | Takes a URL and generates a tracking URL over it. For use in campaign bodies and templates.                                                           |
 | `https://link.com@TrackLink`         | Shorthand for `TrackLink`. Eg: `<a href="https://link.com@TrackLink">Link</a>`                                                                        |
 | `{{ TrackView }}`                    | Inserts a single tracking pixel. Should only be used once, ideally in the template footer.                                                            |
+| `{{ IsPreview }}`                    | Returns `true` when previewing a campaign or template in the editor, and `false` otherwise.                                                            |
 | `{{ UnsubscribeURL }}`               | Unsubscription and Manage preferences URL. Ideal for use in the template footer.                                                                      |
 | `{{ UnsubscribeURL }}?manage=true`   | Direct URL to Manage Preferences page.                                                                                                                |
 | `{{ MessageURL }}`                   | URL to view the hosted version of an e-mail message.                                                                                                  |
