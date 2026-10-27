@@ -1068,11 +1068,38 @@ func initHTTPServer(cfg *Config, urlCfg *UrlConfig, i *i18n.I18n, fs stuffbin.Fi
 		uploadFsURI    = ko.String("upload.filesystem.upload_uri")
 		publicURL      = ko.String("upload.s3.public_url")
 	)
+
+	// Sandbox uploaded media.
+	uploadSecurityHdrs := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			// All uploaded media is sandboxed.
+			c.Response().Header().Set("Content-Security-Policy", "sandbox")
+			c.Response().Header().Set("X-Content-Type-Options", "nosniff")
+
+			resp, err := echo.UnwrapResponse(c.Response())
+			if err != nil {
+				return err
+			}
+
+			resp.Before(func() {
+				h := c.Response().Header()
+				// Render images and PDFs inline; force a download for all other types.
+				typ, _, _ := mime.ParseMediaType(h.Get("Content-Type"))
+				if strings.HasPrefix(typ, "image/") || typ == "application/pdf" {
+					h.Set("Content-Disposition", "inline")
+				} else {
+					h.Set("Content-Disposition", "attachment")
+				}
+			})
+			return next(c)
+		}
+	}
+
 	switch {
 	case uploadProvider == media.ProviderFilesystem && uploadFsURI != "":
-		srv.Static(uploadFsURI, ko.String("upload.filesystem.upload_path"))
+		srv.Static(uploadFsURI, ko.String("upload.filesystem.upload_path"), uploadSecurityHdrs)
 	case uploadProvider == media.ProviderS3 && strings.HasPrefix(publicURL, "/"):
-		srv.GET(path.Join(publicURL, "/:filepath"), app.ServeS3Media)
+		srv.GET(path.Join(publicURL, "/:filepath"), app.ServeS3Media, uploadSecurityHdrs)
 	}
 
 	// Register all HTTP handlers.
