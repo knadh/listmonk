@@ -27,7 +27,7 @@
 <body>
 <nav data-topnav>
   <div class="container hstack justify-between">
-    <a href="{{ .Site.BaseURL }}" aria-label="listmonk home"><img src="{{ .Site.BaseURL }}static/images/logo.svg" alt="listmonk" width="130" height="24" /></a>
+    <a href="{{ .Site.BaseURL }}" class="logo" aria-label="listmonk home">{{ readFile "static/static/images/logo.svg" | safeHTML }}</a>
     <div class="hstack gap-6">
       <a href="/#download">Download</a>
       <a href="/#hosting">Hosting</a>
