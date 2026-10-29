@@ -32,6 +32,12 @@ nav[data-topnav] {
   background-color: rgb(from var(--background) r g b / 0.8);
   backdrop-filter: saturate(1.8) blur(12px);
 
+  .logo > svg {
+    width: 130px;
+    height: 24px;
+    color: var(--foreground);
+  }
+
   a {
     color: var(--muted-foreground);
 
