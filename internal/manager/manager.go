@@ -2,6 +2,7 @@ package manager
 
 import (
 	"crypto/sha1"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -773,11 +774,21 @@ func (m *Manager) applyInlineImages(body string, cache map[string]string) (strin
 
 		cid, ok := cache[src]
 		if !ok {
-			if a, c, err := m.store.GetInlineAttachmentByFilename(fname); err == nil {
+			var (
+				a   models.Attachment
+				c   string
+				err error
+			)
+			if isDataURI(src) {
+				a, c, err = makeDataURIAttachment(src)
+			} else {
+				a, c, err = m.store.GetInlineAttachmentByFilename(fname)
+			}
+			if err == nil {
 				atts = append(atts, a)
 				cid = c
 			} else {
-				m.log.Printf("inline image %q not embedded: %v", src, err)
+				m.log.Printf("inline image %q not embedded: %v", shortSrc(src), err)
 			}
 			cache[src] = cid
 		}
@@ -809,8 +820,9 @@ func (m *Manager) applyArchiveImages(body string, cache map[string]string) strin
 	}
 
 	return reInlineImage.ReplaceAllStringFunc(body, func(tag string) string {
+		// data: URIs render as-is in a browser.
 		src := extractSrc(tag)
-		if src == "" || strings.HasPrefix(strings.ToLower(src), "cid:") {
+		if src == "" || strings.HasPrefix(strings.ToLower(src), "cid:") || isDataURI(src) {
 			return tag
 		}
 
@@ -823,7 +835,7 @@ func (m *Manager) applyArchiveImages(body string, cache map[string]string) strin
 		if !ok {
 			s, err := m.store.GetMediaURLByFilename(fname)
 			if err != nil {
-				m.log.Printf("archive image %q not resolved: %v", src, err)
+				m.log.Printf("archive image %q not resolved: %v", shortSrc(src), err)
 			}
 			u = s
 			cache[src] = u
@@ -852,6 +864,51 @@ func filenameFromSrc(src string) string {
 		p = u.Path
 	}
 	return path.Base(p)
+}
+
+// isDataURI checks whether an <img src> value is an inline data: URI.
+func isDataURI(src string) bool {
+	return len(src) > 5 && strings.EqualFold(src[:5], "data:")
+}
+
+// makeDataURIAttachment decodes a base64 image data: URI (eg: an image pasted
+// into the editor) into an inline attachment and returns it with its Content-ID.
+func makeDataURIAttachment(src string) (models.Attachment, string, error) {
+	meta, data, ok := strings.Cut(src[5:], ",")
+	if !ok {
+		return models.Attachment{}, "", errors.New("invalid data URI")
+	}
+
+	params := strings.Split(meta, ";")
+	contentType := strings.ToLower(strings.TrimSpace(params[0]))
+	if !strings.HasPrefix(contentType, "image/") || !slices.Contains(params[1:], "base64") {
+		return models.Attachment{}, "", errors.New("only base64 image data URIs are supported")
+	}
+
+	b, err := base64.StdEncoding.DecodeString(strings.Join(strings.Fields(data), ""))
+	if err != nil {
+		return models.Attachment{}, "", fmt.Errorf("error decoding data URI: %v", err)
+	}
+
+	// eg: image/svg+xml => svg
+	ext, _, _ := strings.Cut(strings.TrimPrefix(contentType, "image/"), "+")
+
+	cid := MakeContentID(src)
+	fname := strings.TrimSuffix(cid, "@email") + "." + ext
+	return models.Attachment{
+		Name:     fname,
+		Content:  b,
+		Header:   MakeInlineAttachmentHeader(fname, "", contentType, cid),
+		IsInline: true,
+	}, cid, nil
+}
+
+// shortSrc truncates long <img src> values (eg: data: URIs) for logging.
+func shortSrc(src string) string {
+	if len(src) > 100 {
+		return src[:100] + "..."
+	}
+	return src
 }
 
 // MakeAttachmentHeader returns a textproto.MIMEHeader for an email
