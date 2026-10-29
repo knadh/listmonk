@@ -270,6 +270,36 @@ func (c *Core) GetListAnalyticsCounts(ids []int, typ, fromDate, toDate, interval
 	return c.getAnalyticsCounts(stmt, ids, fromDate, toDate, interval)
 }
 
+// GetListAnalyticsTotal returns the total for a campaign metric across the given lists,
+// counting each campaign once even if it was sent to more than one of them.
+func (c *Core) GetListAnalyticsTotal(ids []int, typ, fromDate, toDate string) (int, error) {
+	var stmt *sqlx.Stmt
+	switch typ {
+	case models.AnalyticsTypeViews:
+		stmt = c.q.GetListViewTotal
+	case models.AnalyticsTypeClicks:
+		stmt = c.q.GetListClickTotal
+	case models.AnalyticsTypeTotalViews:
+		stmt = c.q.GetListTotalViewTotal
+	case models.AnalyticsTypeTotalClicks:
+		stmt = c.q.GetListTotalClickTotal
+	case models.AnalyticsTypeBounces:
+		stmt = c.q.GetListBounceTotal
+	default:
+		return 0, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
+	}
+
+	var total int
+	if err := stmt.Get(&total, pq.Array(ids), fromDate, toDate); err != nil {
+		c.log.Printf("error fetching analytics total: %v", err)
+
+		return 0, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+	}
+
+	return total, nil
+}
+
 // GetListAnalyticsLinks returns link counts across campaigns by lists.
 func (c *Core) GetListAnalyticsLinks(ids []int, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
 	return c.getAnalyticsLinks(c.q.GetListLinkCounts, ids, fromDate, toDate)

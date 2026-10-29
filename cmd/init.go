@@ -457,6 +457,27 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 	}
 	qMap["get-list-link-counts"].Query = fmt.Sprintf(qMap["get-list-link-counts"].Query, linkSel)
 
+	// Combined totals for the selected lists, counting each campaign once.
+	for _, t := range []struct {
+		name, table string
+		unique      bool
+	}{
+		{"get-list-view-total", "campaign_views", true},
+		{"get-list-click-total", "link_clicks", true},
+		{"get-list-total-view-total", "campaign_views", false},
+		{"get-list-total-click-total", "link_clicks", false},
+		{"get-list-bounce-total", "bounces", false},
+	} {
+		query := "get-list-analytics-total"
+		if t.unique && ko.Bool("privacy.individual_tracking") {
+			query = "get-list-analytics-unique-total"
+		}
+		qMap[t.name] = &goyesql.Query{
+			Query: fmt.Sprintf(qMap[query].Query, t.table),
+			Tags:  map[string]string{"name": t.name},
+		}
+	}
+
 	// Scan and prepare all queries.
 	var q models.Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db); err != nil {
