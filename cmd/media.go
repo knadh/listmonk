@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"mime"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
@@ -270,7 +271,13 @@ func (a *App) ServeS3Media(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "error fetching media")
 	}
 
-	return c.Stream(http.StatusOK, http.DetectContentType(b), bytes.NewReader(b))
+	// Sniffing can't identify text based formats like SVG, so prefer the extension.
+	ctype := mime.TypeByExtension(filepath.Ext(key))
+	if ctype == "" {
+		ctype = http.DetectContentType(b)
+	}
+
+	return c.Stream(http.StatusOK, ctype, bytes.NewReader(b))
 }
 
 // processImage reads the image file and returns thumbnail bytes and
