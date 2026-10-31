@@ -124,7 +124,7 @@ func (s *SES) ProcessBounce(b []byte) (models.Bounce, error) {
 		return bounce, fmt.Errorf("error unmarshalling SES notification: %v", err)
 	}
 
-	if (m.EventType != "" && m.EventType != "Bounce") ||
+	if (m.EventType != "" && m.EventType != "Bounce" && m.EventType != "Complaint") ||
 		(m.NotifType != "" && (m.NotifType != "Bounce" && m.NotifType != "Complaint")) {
 		return bounce, errors.New("notification type is not bounce")
 	}
@@ -143,7 +143,7 @@ func (s *SES) ProcessBounce(b []byte) (models.Bounce, error) {
 			typ = models.BounceTypeHard
 		}
 	}
-	if m.NotifType == "Complaint" {
+	if m.NotifType == "Complaint" || m.EventType == "Complaint" {
 		typ = models.BounceTypeComplaint
 	}
 
