@@ -271,10 +271,15 @@ func (a *App) ServeS3Media(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "error fetching media")
 	}
 
-	// Sniffing can't identify text based formats like SVG, so prefer the extension.
-	ctype := mime.TypeByExtension(filepath.Ext(key))
-	if ctype == "" {
-		ctype = http.DetectContentType(b)
+	// Detect content type from file bites.
+	ctype := http.DetectContentType(b)
+	switch ctype {
+	// Images like SVGs will be detected as text/plain, so for those types, fall back
+	// to using the simple file extension check.
+	case "text/plain; charset=utf-8", "text/xml; charset=utf-8", "application/octet-stream":
+		if typ := mime.TypeByExtension(filepath.Ext(key)); typ != "" {
+			ctype = typ
+		}
 	}
 
 	return c.Stream(http.StatusOK, ctype, bytes.NewReader(b))
