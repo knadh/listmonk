@@ -97,15 +97,12 @@
 html,
 body {
     height: 100%;
-}
-
-html,
-body {
     background: var(--body);
 }
 
 body {
     font-family: var(--font-sans);
+    min-width: 320px;
 }
 
 a {
@@ -1869,6 +1866,28 @@ section.users {
         padding: var(--space-1);
     }
 }
+
+/* Public admin pages */
+body.admin-public {
+    height: auto;
+    padding: 60px 16px 30px;
+
+    .page-title {
+        margin-bottom: var(--space-6);
+    }
+
+    .public-container {
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+    .auth-logo img {
+        width: auto;
+        max-height: 24px;
+    }
+}
+
 
 /* Responsive */
 @media (max-width: 769px) {

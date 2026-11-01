@@ -1,45 +1,41 @@
 {{ define "admin-login" }}
-{{ template "header" .}}
+{{ template "admin-public-header" .}}
 
-<section class="login">
-	<h2>{{ .L.T "globals.buttons.login"}}</h2>
+<section>
+	<h4 class="page-title">{{ .L.T "globals.buttons.login"}}</h4>
 	{{ if .Data.PasswordEnabled }}
-	<form method="post" action="/admin/login" class="form">
-		<div>
-			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
-			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
-			<p>
-				<label for="username">{{ .L.T "globals.fields.username" }}</label>
-				<input id="username" type="text" name="username" autofocus required minlength="3" />
-			</p>
-			<p>
-				<label for="password">{{ .L.T "globals.fields.password" }}</label>
-				<input id="password" type="password" name="password" required minlength="8" />
-			</p>
-
-			{{ if .Data.Error }}<p><span class="error">{{ .Data.Error }}</span></p>{{ end }}
-
-			<p class="submit"><button class="button" type="submit">{{ .L.T "globals.buttons.login" }}</button></p>
+	<form method="post" action="/admin/login">
+		<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+		<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+		<div data-field>
+			<label for="username">{{ .L.T "globals.fields.username" }}</label>
+			<input id="username" type="text" name="username" autofocus required minlength="3" />
 		</div>
+		<div data-field>
+			<label for="password">{{ .L.T "globals.fields.password" }}</label>
+			<input id="password" type="password" name="password" required minlength="8" />
+		</div>
+
+		{{ if .Data.Error }}<div role="alert" data-variant="danger" class="mb-4">{{ .Data.Error }}</div>{{ end }}
+
+		<button class="w-100" type="submit">{{ .L.T "globals.buttons.login" }}</button>
 	</form>
 	{{ end }}
 	
 	{{ if .Data.OIDCProvider }}
-	<form method="post" action="/auth/oidc">
-		<div>
-			<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
-			<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
-			<p><button class="button button-outline" type="submit">
-				<img src="{{ .RootURL }}/public/static/auth/{{ .Data.OIDCProviderLogo }}" alt="" />
-				{{ .L.Ts "users.loginOIDC" "name" .Data.OIDCProvider }}
-			</button></p>
-		</div>
+	<form method="post" action="/auth/oidc" class="mt-4">
+		<input type="hidden" name="nonce" value="{{ .Data.Nonce }}" />
+		<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
+		<button type="submit" data-variant="secondary" class="w-100">
+			<img src="{{ .RootURL }}/public/static/auth/{{ .Data.OIDCProviderLogo }}" alt="" width="24" height="24" />
+			{{ .L.Ts "users.loginOIDC" "name" .Data.OIDCProvider }}
+		</button>
 	</form>
 	{{ end }}
 
-	<p class="center small"><a href="{{ .RootURL }}/admin/forgot">{{ .L.T "users.forgotPassword" }}</a></p>
+	<p class="align-center mt-4"><a href="{{ .RootURL }}/admin/forgot">{{ .L.T "users.forgotPassword" }}</a></p>
 
 </section>
 
-{{ template "footer" .}}
+{{ template "admin-public-footer" .}}
 {{ end }}
