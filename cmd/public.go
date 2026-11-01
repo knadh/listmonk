@@ -144,6 +144,11 @@ var (
 
 // Render executes and renders a template for echo.
 func (t *pubTplRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
+	// Auth confirmations and errors use the public admin layout.
+	if name == tplMessage && (strings.HasPrefix(c.Path(), "/admin/") || strings.HasPrefix(c.Path(), "/auth/")) {
+		name = "admin-public-message"
+	}
+
 	return t.templates.ExecuteTemplate(w, name, tplData{
 		SiteName:            t.SiteName,
 		RootURL:             t.RootURL,
