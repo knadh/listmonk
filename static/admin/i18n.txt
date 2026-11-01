@@ -37,6 +37,7 @@ globals.messages.statusChanged
 editor.confirmSwitchFormat
 globals.messages.confirmOverwriteContent
 campaigns.testSent
+campaigns.attachmentAdded
 
 # Rich-text editor (strings used by JS in richtext-editor.js).
 globals.terms.none

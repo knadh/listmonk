@@ -26,7 +26,7 @@
 				<span>({{ $d.Page.Total }})</span>
 			</h1>
 			{{- if $d.CurrentList }} {{ template "filter-badge" dict "Label" $d.CurrentList.Name "LabelURL" (printf "%s/%d" (URI "/admin/lists") $d.CurrentList.ID) "Avatar" (dict "Size" "xsmall" "Kind" "list" "Name" $d.CurrentList.Name "Disabled" (eq $d.CurrentList.Status "archived")) "URL" (URI "/admin/subscribers") }}{{ end }}
-			{{- if eq $subStatus "none" }} {{ template "filter-badge" dict "Label" (.L.T "dashboard.orphanSubs") "URL" ($d.Page.FilterURL $base "subscription_status") }}
+			{{- if eq $subStatus "none" }} {{ template "filter-badge" dict "Label" (.L.Tc "dashboard.orphanSubs" 2) "URL" ($d.Page.FilterURL $base "subscription_status") }}
 			{{- else if $subStatus }} {{ template "filter-badge" dict "Label" (list (Dot) (.L.T (printf "globals.terms.%s" $subStatus))) "Class" (printf "status-%s" $subStatus) "URL" ($d.Page.FilterURL $base "subscription_status") }}{{ end }}
 			{{- if $status }} {{ template "filter-badge" dict "Label" (list (Dot) (.L.T (printf "globals.terms.%s" $status))) "Class" (printf "status-%s" $status) "URL" ($d.Page.FilterURL $base "status") }}{{ end }}
 			{{- if gt $d.Page.Page 1 }} {{ template "filter-badge" dict "Label" (.L.Ts "globals.terms.page" "n" (printf "%d" $d.Page.Page)) "URL" ($d.Page.FilterURL $base) }}{{ end }}
@@ -36,7 +36,7 @@
 				{{- $d.Page.FormFields "search" "query" "page" -}}
 				<ot-dropdown>
 					<fieldset class="group">
-						<input name="search" aria-label="Search" data-testid="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
+						<input name="search" aria-label="{{ .L.T "globals.buttons.search" }}" data-testid="search" placeholder="{{ .L.T "subscribers.queryPlaceholder" }}" value="{{ $d.Page.Search }}" :disabled="isSqlOpen || advanced" autofocus />
 						<button type="button" class="outline sql-btn dot-indicator" :class="{ 'is-active': advanced, external: !advanced }" popovertarget="sql-editor" data-testid="btn-advanced-search" :data-variant="advanced ? 'primary' : null" aria-label="{{ .L.T "globals.terms.advanced" }}">SQL {}</button>
 						<button type="submit" data-testid="btn-search" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 					</fieldset>

@@ -89,6 +89,7 @@ type AnalyticsItem struct {
 }
 
 type CampaignAnalyticsCount struct {
+	Total      *int      `db:"total" json:"-"`
 	ListID     int       `db:"list_id" json:"list_id,omitempty"`
 	CampaignID int       `db:"campaign_id" json:"campaign_id"`
 	Count      int       `db:"count" json:"count"`

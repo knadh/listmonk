@@ -159,7 +159,7 @@ func makeQuery(q url.Values, defaults map[string]string) url.Values {
 }
 
 // compactDate, given a date, omits the current year and returns a date/time string.
-func compactDate(t, now time.Time, withTime bool, omitYear ...bool) string {
+func compactDate(t, now time.Time, format func(time.Time, string) string, withTime bool, omitYear ...bool) string {
 	t = t.In(now.Location())
 	layout := "Mon, 2 Jan"
 	if t.Year() != now.Year() && !(len(omitYear) > 0 && omitYear[0]) {
@@ -168,12 +168,12 @@ func compactDate(t, now time.Time, withTime bool, omitYear ...bool) string {
 	if withTime {
 		layout += ", 15:04"
 	}
-	return t.Format(layout)
+	return format(t, layout)
 }
 
 // formatTimestamps takes 2 timestamps and returns an A - B formatted date
 // omitting shared components (same month etc.).
-func formatTimestamps(from, to, now time.Time) string {
+func formatTimestamps(from, to, now time.Time, format func(time.Time, string) string) string {
 	from, to = from.In(now.Location()), to.In(now.Location())
 	if from.IsZero() || to.IsZero() || to.Before(from) {
 		return ""
@@ -181,7 +181,7 @@ func formatTimestamps(from, to, now time.Time) string {
 
 	endLayout := "Mon 02 Jan 2006"
 	if from.Year() == to.Year() && from.YearDay() == to.YearDay() {
-		return from.Format("15:04") + " - " + to.Format("15:04") + "\n" + to.Format(endLayout)
+		return from.Format("15:04") + " - " + to.Format("15:04") + "\n" + format(to, endLayout)
 	}
 
 	startLayout := "Mon 02"
@@ -191,7 +191,7 @@ func formatTimestamps(from, to, now time.Time) string {
 	if from.Year() != to.Year() && from.Year() != now.Year() {
 		startLayout += " 2006"
 	}
-	return from.Format(startLayout) + " - " + to.Format(endLayout)
+	return format(from, startLayout) + " - " + format(to, endLayout)
 }
 
 // parseDateTime parses datetime formats.
@@ -209,7 +209,7 @@ func parseDateTime(s string) (time.Time, bool) {
 	case 19:
 		layout = "2006-01-02T15:04:05"
 	default:
-		return time.Time{}, false
+		layout = time.RFC3339
 	}
 	t, err := time.ParseInLocation(layout, s, time.Local)
 

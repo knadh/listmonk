@@ -1,5 +1,7 @@
 {{ define "analytics-date-range" -}}
 <label>{{ .L.T "globals.terms.range" }}</label>
+<input type="hidden" name="from" :value="from" />
+<input type="hidden" name="to" :value="to" />
 <ot-dropdown>
 	<button type="button" class="outline" popovertarget="analytics-dates"><span x-text="rangeLabel"></span> {{ Icon "chevron-down" }}</button>
 	<div popover id="analytics-dates" class="analytics-dates" x-ref="dates">
@@ -11,10 +13,10 @@
 		<hr />
 		<div class="custom-dates">
 			<label data-field>{{ .L.T "globals.fields.fromDate" }}
-				<input type="datetime-local" name="from" x-model="from" required />
+				<input type="datetime-local" x-model="fromLocal" required />
 			</label>
 			<label data-field>{{ .L.T "globals.fields.toDate" }}
-				<input type="datetime-local" name="to" x-model="to" :min="from" required />
+				<input type="datetime-local" x-model="toLocal" :min="fromLocal" required />
 			</label>
 			<button type="submit" data-variant="secondary" :disabled="submitting">{{ .L.T "globals.buttons.apply" }}</button>
 		</div>

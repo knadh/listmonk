@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"mime"
 	"net/textproto"
 	"net/url"
 	"path"
@@ -872,13 +873,18 @@ func makeAttachmentHeader(disposition, filename, encoding, contentType, contentI
 	if encoding == "" {
 		encoding = "base64"
 	}
-	if contentType == "" {
+
+	// Preserve existing MIME properties before adding the filename.
+	contentType, params, err := mime.ParseMediaType(contentType)
+	if err != nil || !strings.Contains(contentType, "/") {
 		contentType = "application/octet-stream"
+		params = make(map[string]string)
 	}
+	params["name"] = filename
 
 	h := textproto.MIMEHeader{}
-	h.Set("Content-Disposition", disposition+"; filename="+filename)
-	h.Set("Content-Type", fmt.Sprintf("%s; name=\""+filename+"\"", contentType))
+	h.Set("Content-Disposition", mime.FormatMediaType(disposition, map[string]string{"filename": filename}))
+	h.Set("Content-Type", mime.FormatMediaType(contentType, params))
 	h.Set("Content-Transfer-Encoding", encoding)
 	if contentID != "" {
 		h.Set("Content-ID", "<"+contentID+">")

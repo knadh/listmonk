@@ -137,14 +137,21 @@ function analyticsForm(from, to) {
     from,
     to,
 
+    // Keep absolute timestamps so unchanged inputs preserve seconds and DST offsets.
+    get fromLocal() { return this.from ? toLabel(this.from).replace(' ', 'T') : ''; },
+    set fromLocal(value) { this.from = value ? new Date(value).toISOString() : ''; },
+    get toLocal() { return this.to ? toLabel(this.to).replace(' ', 'T') : ''; },
+    set toLocal(value) { this.to = value ? new Date(value).toISOString() : ''; },
+
     get rangeLabel() {
       return [this.from, this.to]
-        .map((value) => value ? value.slice(0, 16).replace('T', ' ') : '…')
+        .map((value) => value ? toLabel(value) : '…')
         .join(' – ');
     },
 
     onDateRange(amount, unit) {
       const to = new Date();
+      to.setUTCSeconds(0, 0);
       const from = new Date(to);
       if (unit === 'month') {
         // Clamp to the last day when the target month is short.
@@ -159,9 +166,8 @@ function analyticsForm(from, to) {
         from.setTime(from.getTime() - amount * 60 * 60 * 1000);
       }
 
-      const localDate = (date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      this.from = localDate(from);
-      this.to = localDate(to);
+      this.from = from.toISOString();
+      this.to = to.toISOString();
       this.$refs.dates.hidePopover();
       this.$nextTick(() => this.$root.requestSubmit());
     },

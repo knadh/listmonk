@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"unicode/utf8"
 
 	"github.com/gofrs/uuid/v5"
@@ -84,6 +85,7 @@ type Session struct {
 	im       *Importer
 	subQueue chan SubReq
 	log      *log.Logger
+	failed   atomic.Bool
 
 	opt SessionOpt
 }
@@ -167,7 +169,10 @@ func New(opt Options, db *sql.DB, i *i18n.I18n) *Importer {
 // NewSession returns an new instance of Session. It takes the name
 // of the uploaded file, but doesn't do anything with it but retains it for stats.
 func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
-	if !im.isDone() {
+	im.Lock()
+	defer im.Unlock()
+
+	if im.status.Status == StatusImporting || im.status.Status == StatusStopping {
 		return nil, errors.New("an import is already running")
 	}
 
@@ -178,11 +183,15 @@ func (im *Importer) NewSession(opt SessionOpt) (*Session, error) {
 		opt.OverwriteSubStatus = true
 	}
 
-	im.Lock()
+	// Discard stop request that came after the previous CSV was loaded.
+	select {
+	case <-im.stop:
+	default:
+	}
+
 	im.status = Status{Status: StatusImporting,
 		Name:   opt.Filename,
 		logBuf: bytes.NewBuffer(nil)}
-	im.Unlock()
 
 	s := &Session{
 		im:       im,
@@ -235,16 +244,10 @@ func (im *Importer) getStatus() string {
 	return status
 }
 
-// isDone returns true if the importer is working (importing|stopping).
+// isDone returns true if the importer is no longer working.
 func (im *Importer) isDone() bool {
-	s := true
-	im.RLock()
-	if im.getStatus() == StatusImporting || im.getStatus() == StatusStopping {
-		s = false
-	}
-	im.RUnlock()
-
-	return s
+	s := im.getStatus()
+	return s != StatusImporting && s != StatusStopping
 }
 
 // incrementImportCount sets the Importer's "imported" counter.
@@ -334,6 +337,16 @@ func (s *Session) Start() {
 		}
 	}
 
+	// On a failed load, rollback the pending db transaction.
+	if s.failed.Load() {
+		if tx != nil {
+			tx.Rollback()
+		}
+		s.im.setStatus(StatusFailed)
+		s.im.sendNotif(StatusFailed)
+		return
+	}
+
 	// Queue's closed and there's nothing left to commit.
 	if cur == 0 {
 		s.im.setStatus(StatusFinished)
@@ -380,7 +393,8 @@ func (s *Session) ExtractZIP(srcPath string, maxCSVs int) (string, []string, err
 	failed := true
 	defer func() {
 		if failed {
-			s.im.setStatus(StatusFailed)
+			s.failed.Store(true)
+			close(s.subQueue)
 		}
 	}()
 
@@ -463,15 +477,15 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 	// returns at one of the many possible errors.
 	failed := true
 	defer func() {
-		if failed {
-			s.im.setStatus(StatusFailed)
-		}
+		s.failed.Store(failed)
+		close(s.subQueue)
 	}()
 
 	f, err := os.Open(srcPath)
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	// Count the total number of lines in the file. This doesn't distinguish
 	// between "blank" and non "blank" lines, and is only used to derive
@@ -521,7 +535,6 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		select {
 		case <-s.im.stop:
 			failed = false
-			close(s.subQueue)
 			s.log.Println("stop request received")
 			return nil
 		default:
@@ -595,7 +608,6 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 		s.subQueue <- sub
 	}
 
-	close(s.subQueue)
 	failed = false
 
 	return nil
@@ -603,17 +615,21 @@ func (s *Session) LoadCSV(srcPath string, delim rune) error {
 
 // Stop sends a signal to stop the existing import.
 func (im *Importer) Stop() {
-	if im.getStatus() != StatusImporting {
-		im.Lock()
+	im.Lock()
+	defer im.Unlock()
+
+	if im.status.Status == StatusStopping {
+		return
+	}
+	if im.status.Status != StatusImporting {
 		im.status = Status{Status: StatusNone}
-		im.Unlock()
 
 		return
 	}
 
 	select {
 	case im.stop <- true:
-		im.setStatus(StatusStopping)
+		im.status.Status = StatusStopping
 	default:
 	}
 }

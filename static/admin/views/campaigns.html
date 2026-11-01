@@ -22,8 +22,8 @@
 			<form method="get" action="{{ $base }}" class="search-form">
 				{{- $d.Page.FormFields "query" "page" -}}
 				<fieldset class="group">
-					<input name="query" aria-label="Search" placeholder="{{ .L.T "campaigns.queryPlaceholder" }}" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline external" aria-label="Search">{{ Icon "search" }}</button>
+					<input name="query" aria-label="{{ .L.T "globals.buttons.search" }}" placeholder="{{ .L.T "campaigns.queryPlaceholder" }}" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline external" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $d.Can "campaigns:manage" "campaigns:manage_all" }}

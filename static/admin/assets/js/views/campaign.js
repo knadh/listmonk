@@ -461,6 +461,13 @@ function component(camp, sel) {
       this._mediaTarget = null;
     },
 
+    onPasteAttachment(m) {
+      if (this.canEdit && !this.form.media.some((x) => x.id === m.id)) {
+        this.form.media.push(new MediaTag(m));
+        u.toast(i18n.ts('campaigns.attachmentAdded', { name: m.filename }), 'success');
+      }
+    },
+
     onPickMedia(m) {
       const t = this._mediaTarget;
       if (typeof t === 'function') {
