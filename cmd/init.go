@@ -1367,19 +1367,22 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			return p.Sprintf("%d", n)
 		},
 		"NiceDate": func(t any, withTime ...bool) string {
-			layout := "Mon, 02 Jan 2006"
+			layout := i.T("_.date_short")
 			if len(withTime) > 0 && withTime[0] {
 				layout += ", 15:04"
 			}
 
-			return niceDate(t, layout)
+			return niceDate(t, layout, i.FormatDate)
+		},
+		"LongDate": func(t any) string {
+			return niceDate(t, i.T("_.date_long"), i.FormatDate)
 		},
 		"CompactDate": func(v any, withTime ...bool) string {
 			t, ok := toTime(v)
 			if !ok {
 				return ""
 			}
-			return compactDate(t, time.Now(), len(withTime) > 0 && withTime[0], len(withTime) > 1 && withTime[1])
+			return compactDate(t, time.Now(), i.FormatDate, len(withTime) > 0 && withTime[0], len(withTime) > 1 && withTime[1])
 		},
 		"FormatTimestamps": func(from, to any) string {
 			f, fok := toTime(from)
@@ -1387,14 +1390,14 @@ func initTplFuncs(i *i18n.I18n, u *UrlConfig) template.FuncMap {
 			if !fok || !tok {
 				return ""
 			}
-			return formatTimestamps(f, t, time.Now())
+			return formatTimestamps(f, t, time.Now(), i.FormatDate)
 		},
 		"ExactDate": func(v any) string {
 			t, ok := toTime(v)
 			if !ok {
 				return ""
 			}
-			return t.In(time.Local).Format("Mon, 2 Jan 2006, 15:04:05 MST (UTC Z07:00)")
+			return i.FormatDate(t.In(time.Local), "Mon, 2 Jan 2006, 15:04:05 MST (UTC Z07:00)")
 		},
 		"Duration": func(from, to any) string {
 			f, ok := toTime(from)
@@ -1564,12 +1567,12 @@ func toTime(t any) (time.Time, bool) {
 }
 
 // niceDate formats the given date for template rendering.
-func niceDate(v any, layout string) string {
+func niceDate(v any, layout string, format func(time.Time, string) string) string {
 	t, ok := toTime(v)
 	if !ok {
 		return ""
 	}
-	return t.Format(layout)
+	return format(t, layout)
 }
 
 // badgeContent renders the content of a badge. Pre-rendered markup (eg: Icon())

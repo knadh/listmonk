@@ -2,7 +2,11 @@
 import Squire from 'squire-rte';
 import { beautifyHTML } from './content.js';
 import { setupTable } from './richtext/table.js';
+<<<<<<< HEAD
 import { isSafeLinkUrl } from './richtext/url.js';
+=======
+import { toast } from './utils.js';
+>>>>>>> upstream/master
 import {
   i18n, t, closestInSelection, PALETTE, EMOJIS, CHARS,
 } from './richtext/data.js';
@@ -38,6 +42,7 @@ class RichtextEditor extends HTMLElement {
   #resizeObs = null;
   #clearFind = null;
   #refreshFind = null;
+  #mediaUpload = null;
 
   connectedCallback() {
     if (Object.hasOwn(this, 'value')) {
@@ -64,6 +69,7 @@ class RichtextEditor extends HTMLElement {
     } else {
       this.initToolbar();
       this.initShortcuts();
+      this.#setupMediaPaste();
       this.#setupFind();
       this.#setupOverflow();
       this.#fillGrids();
@@ -123,6 +129,7 @@ class RichtextEditor extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.#mediaUpload?.abort();
     this.#clearFind?.();
     this.#resizeObs?.disconnect();
     this.#resizeObs = null;
@@ -455,6 +462,123 @@ class RichtextEditor extends HTMLElement {
     if (name) {
       this.editor.focus();
       this.editor.insertHTML(`<a id="${name.replace(/"/g, '')}"></a>`);
+    }
+  }
+
+  // Capture pasted files and data-URI images, upload them to the server,
+  // then insert them into the editor (images) or add as attachments (non-images).
+  #setupMediaPaste() {
+    // Capture before Squire handles mixed image/file clipboard contents.
+    this.addEventListener('paste', (e) => {
+      const files = [...(e.clipboardData?.files || [])];
+      if (!this.content.contains(e.target) || !this.hasAttribute('allow-attachments')
+        || !files.some((file) => !file.type.startsWith('image/'))) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      this.#pasteMedia(document.createDocumentFragment(), files);
+    }, true);
+
+    this.editor.addEventListener('pasteImage', (e) => {
+      const files = [...e.detail.clipboardData.files].filter((file) => file.type.startsWith('image/'));
+      if (!files.length) {
+        return;
+      }
+
+      this.#pasteMedia(document.createDocumentFragment(), files);
+    });
+
+    this.editor.addEventListener('willPaste', (e) => {
+      const fragment = e.detail.fragment;
+      if (fragment?.querySelector('img[src^="data:image/"]')) {
+        e.preventDefault();
+        this.#pasteMedia(fragment);
+      }
+    });
+  }
+
+  async #pasteMedia(fragment, files = []) {
+    if (this.inert) {
+      return;
+    }
+
+    const ed = this.editor;
+    const range = ed.getSelection().cloneRange();
+    const uploads = files.length ? files.map((file) => {
+      const img = file.type.startsWith('image/') ? document.createElement('img') : null;
+      if (img) {
+        fragment.append(img);
+      }
+      return [img, file];
+    }) : [...fragment.querySelectorAll('img[src^="data:image/"]')].map((img) => [img, null]);
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    this.#mediaUpload = controller;
+
+    const cancel = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        controller.abort();
+      }
+    };
+
+    // The editor is disabled/locked during uploads, so listen outside it.
+    document.addEventListener('keydown', cancel, true);
+    this.setAttribute('data-spinner', 'overlay');
+    this.setAttribute('aria-busy', 'true');
+    this.inert = true;
+
+    try {
+      for (const [img, file] of uploads) {
+        const blob = file || await (await fetch(img.src, { signal })).blob();
+        signal.throwIfAborted();
+
+        const body = new FormData();
+        body.set('file', blob, blob.name || `image.${blob.type.split('/')[1].split('+')[0]}`);
+
+        const resp = await fetch('/api/media', {
+          method: 'POST', body, signal, headers: { Accept: 'application/json' },
+        });
+
+        if (!resp.ok) {
+          const out = await resp.json().catch(() => ({}));
+          throw new Error(out.message || resp.statusText);
+        }
+        const out = await resp.json();
+        signal.throwIfAborted();
+
+        if (img) {
+          img.setAttribute('src', out.data.url);
+          img.removeAttribute('srcset');
+        } else if (this.editor === ed) {
+          this.dispatchEvent(new CustomEvent('richtext-attachment', { bubbles: true, detail: out.data }));
+        }
+      }
+
+      signal.throwIfAborted();
+
+      if (this.editor === ed && fragment.hasChildNodes()) {
+        const holder = document.createElement('div');
+        holder.append(fragment);
+        ed.setSelection(range);
+        ed.insertHTML(holder.innerHTML);
+      }
+    } catch (err) {
+      if (!signal.aborted) {
+        toast(err.message, 'danger');
+      }
+    } finally {
+      document.removeEventListener('keydown', cancel, true);
+      this.#mediaUpload = null;
+      this.inert = false;
+      this.removeAttribute('aria-busy');
+      if (this.editor === ed) {
+        ed.focus();
+      }
     }
   }
 

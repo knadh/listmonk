@@ -19,8 +19,8 @@
 			<form method="get" action="{{ URI "/admin/campaigns/media" }}{{ if $picker }}/fragment{{ end }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
-					<input name="query" aria-label="Search" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline external" aria-label="Search">{{ Icon "search" }}</button>
+					<input name="query" aria-label="{{ $root.L.T "globals.buttons.search" }}" placeholder="{{ $root.L.T "globals.buttons.search" }}" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline external" aria-label="{{ $root.L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $canManage }}

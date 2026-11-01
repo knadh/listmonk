@@ -33,8 +33,8 @@
 			<form method="get" action="{{ URI "/admin/lists" }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
-					<input name="query" aria-label="Search" data-testid="query" placeholder="Search" value="{{ $d.Page.Query }}" autofocus />
-					<button type="submit" class="outline external" data-testid="btn-query" aria-label="Search">{{ Icon "search" }}</button>
+					<input name="query" aria-label="{{ .L.T "globals.buttons.search" }}" data-testid="query" placeholder="{{ .L.T "globals.buttons.search" }}" value="{{ $d.Page.Query }}" autofocus />
+					<button type="submit" class="outline external" data-testid="btn-query" aria-label="{{ .L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
 			{{- if $d.Can "lists:manage_all" }}

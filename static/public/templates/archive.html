@@ -9,9 +9,9 @@
                 <a href="{{ $c.URL }}">{{ $c.Subject }}</a>
                 <span class="date">
                     {{ if $c.SendAt.Valid }}
-                        {{ $c.SendAt.Time.Format "Mon, 02 Jan 2006" }}
+                        {{ NiceDate $c.SendAt }}
                     {{ else }}
-                        {{ $c.CreatedAt.Time.Format "Mon, 02 Jan 2006" }}
+                        {{ NiceDate $c.CreatedAt }}
                     {{ end }}
                 </span>
             </li>

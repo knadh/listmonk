@@ -2,7 +2,7 @@
 {{- $root := .Root -}}
 {{- $L := $root.L -}}
 {{- $f := "richtext-icons.svg" -}}
-<richtext-editor {{ if .Disabled }}disabled{{ end }} @input="form.body = $event.target.value">
+<richtext-editor {{ if .Disabled }}disabled{{ end }} {{ if .Attachments }}allow-attachments{{ end }} @input="form.body = $event.target.value">
 	<textarea data-rte-source hidden>{{ .Body }}</textarea>
 
 	<div class="rte-toolbar" role="toolbar" aria-label="{{ $L.T "editor.toolbar" }}">

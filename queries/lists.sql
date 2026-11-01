@@ -119,7 +119,7 @@ FROM weeks w LEFT JOIN mat_list_charts c ON c.list_id = $1 AND c.date = w.date;
 
 -- name: get-list-charts-live
 -- raw: true
--- Compute the requested list live when slow-query caching is disabled.
+-- Sum up the requested list (live when slow-query shared caching is disabled).
 -- Executed as a raw unprepared query so that different intervals don't end up using
 -- the same cached query plan which may be suboptimal. This was discovered through
 -- a bunch of profile exercises.
@@ -175,7 +175,9 @@ WITH counts AS (
         AND created_at >= $2 AND created_at <= $3
     GROUP BY campaign_id, "timestamp"
 )
-SELECT cl.list_id, SUM(c.count)::BIGINT AS "count", c.timestamp
+-- Sum up the combined total (before the join duplicates shared campaigns across lists).
+SELECT cl.list_id, SUM(c.count)::BIGINT AS "count", c.timestamp,
+    (SELECT SUM(count)::BIGINT FROM counts) AS total
 FROM counts c JOIN campaign_lists cl ON cl.campaign_id = c.campaign_id
 WHERE cl.list_id = ANY($1)
 GROUP BY cl.list_id, c.timestamp ORDER BY c.timestamp;
@@ -214,7 +216,9 @@ WITH uniq AS (
     SELECT campaign_id, COUNT(*) AS "count", "timestamp"
     FROM uniq GROUP BY campaign_id, "timestamp"
 )
-SELECT cl.list_id, SUM(c.count)::BIGINT AS "count", c.timestamp
+-- Sum up the combined total (before the join duplicates shared campaigns across lists).
+SELECT cl.list_id, SUM(c.count)::BIGINT AS "count", c.timestamp,
+    (SELECT SUM(count)::BIGINT FROM counts) AS total
 FROM counts c JOIN campaign_lists cl ON cl.campaign_id = c.campaign_id
 WHERE cl.list_id = ANY($1)
 GROUP BY cl.list_id, c.timestamp ORDER BY c.timestamp;

@@ -16,9 +16,9 @@
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
-						Data
-						<select aria-label="Data" x-model="subscriberType">
-							<option value="orphan">{{ .L.T "dashboard.orphanSubs" }}</option>
+						{{ .L.T "globals.fields.data" }}
+						<select aria-label="{{ .L.T "globals.fields.data" }}" x-model="subscriberType">
+							<option value="orphan">{{ .L.Tc "dashboard.orphanSubs" 2 }}</option>
 							<option value="blocklisted">{{ .L.T "globals.terms.blocklisted" }}</option>
 						</select>
 						<small data-hint>{{ .L.T "maintenance.orphanHelp" }}</small>
@@ -40,8 +40,8 @@
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
-						Data
-						<select aria-label="Data" x-model="subscriptionType">
+						{{ .L.T "globals.fields.data" }}
+						<select aria-label="{{ .L.T "globals.fields.data" }}" x-model="subscriptionType">
 							<option value="optin">{{ .L.T "maintenance.maintenance.unconfirmedOptins" }}</option>
 						</select>
 					</label>
@@ -68,8 +68,8 @@
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
-						Data
-						<select aria-label="Data" x-model="analyticsType">
+						{{ .L.T "globals.fields.data" }}
+						<select aria-label="{{ .L.T "globals.fields.data" }}" x-model="analyticsType">
 							<option value="all">{{ .L.T "globals.terms.all" }}</option>
 							<option value="views">{{ .L.T "dashboard.campaignViews" }}</option>
 							<option value="clicks">{{ .L.T "dashboard.linkClicks" }}</option>
@@ -96,8 +96,8 @@
 			<div class="row">
 				<div class="col-4">
 					<label data-field>
-						Data
-						<select aria-label="Data" x-model="exportType">
+						{{ .L.T "globals.fields.data" }}
+						<select aria-label="{{ .L.T "globals.fields.data" }}" x-model="exportType">
 							<option value="views">{{ .L.T "dashboard.campaignViews" }}</option>
 							<option value="clicks">{{ .L.T "dashboard.linkClicks" }}</option>
 						</select>
@@ -123,7 +123,7 @@
 		<form @submit.prevent="onUpdateDBSettings">
 			<fieldset class="card">
 				<legend>{{ .L.T "globals.terms.database" }}</legend>
-				<h5 class="text-5">Vacuum</h5>
+				<h5 class="text-5">{{ .L.T "maintenance.database.vacuum" }}</h5>
 				<p class="text-light">{{ .L.T "maintenance.database.vacuumHelp" }}</p>
 				<div class="row">
 					<div class="col-3">

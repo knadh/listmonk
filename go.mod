@@ -24,7 +24,7 @@ require (
 	github.com/knadh/koanf/providers/rawbytes v1.0.1
 	github.com/knadh/koanf/v2 v2.4.1
 	github.com/knadh/paginator/v2 v2.0.3
-	github.com/knadh/smtppool/v2 v2.3.1
+	github.com/knadh/smtppool/v2 v2.3.2
 	github.com/knadh/stuffbin v1.3.0
 	github.com/labstack/echo/v5 v5.4.2
 	github.com/lib/pq v1.12.3

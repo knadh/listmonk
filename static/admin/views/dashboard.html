@@ -9,7 +9,7 @@
 
 <section class="dashboard">
 	<header class="page-header">
-		<h3 class="page-title">{{ now | date "January 02, 2006" }}</h3>
+		<h3 class="page-title">{{ LongDate now }}</h3>
 	</header>
 
 	<div class="vstack gap-6">
@@ -19,8 +19,8 @@
 					<small class="text-light">{{ Icon "list" }} {{ .L.T "globals.terms.lists" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/lists" }}" class="unstyled">{{ FormatNumber $c.Lists.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=public" class="unstyled"><strong>{{ FormatNumber $c.Lists.Public }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.public" }}</dd></div>
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=private" class="unstyled"><strong>{{ FormatNumber $c.Lists.Private }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.private" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=public" class="unstyled"><strong>{{ FormatNumber $c.Lists.Public }}</strong></a></dt><dd class="text-light">{{ .L.Tc "globals.terms.public" $c.Lists.Public }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/lists" }}?type=private" class="unstyled"><strong>{{ FormatNumber $c.Lists.Private }}</strong></a></dt><dd class="text-light">{{ .L.Tc "globals.terms.private" $c.Lists.Private }}</dd></div>
 					</dl>
 				</article>
 			</div>
@@ -30,8 +30,8 @@
 					<small class="text-light">{{ Icon "at-sign" }} {{ .L.T "globals.terms.subscribers" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/subscribers" }}" class="unstyled">{{ FormatNumber $c.Subscribers.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?subscription_status=none" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Orphans }}</strong></a></dt><dd class="text-light">{{ .L.T "dashboard.orphanSubs" }}</dd></div>
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?status=blocklisted" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Blocklisted }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.blocklisted" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?subscription_status=none" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Orphans }}</strong></a></dt><dd class="text-light">{{ .L.Tc "dashboard.orphanSubs" $c.Subscribers.Orphans }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/subscribers" }}?status=blocklisted" class="unstyled"><strong>{{ FormatNumber $c.Subscribers.Blocklisted }}</strong></a></dt><dd class="text-light">{{ .L.Tc "globals.terms.blocklisted" $c.Subscribers.Blocklisted }}</dd></div>
 					</dl>
 				</article>
 			</div>
@@ -41,8 +41,8 @@
 					<small class="text-light">{{ Icon "send" }} {{ .L.T "globals.terms.campaigns" }}</small>
 					<div class="stat-value"><a href="{{ URI "/admin/campaigns" }}" class="unstyled">{{ FormatNumber $c.Campaigns.Total }}</a></div>
 					<dl class="stat-meta hstack justify-between">
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=scheduled" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "scheduled") }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.scheduled" }}</dd></div>
-						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=finished" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "finished") }}</strong></a></dt><dd class="text-light">{{ .L.T "globals.terms.finished" }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=scheduled" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "scheduled") }}</strong></a></dt><dd class="text-light">{{ .L.Tc "globals.terms.scheduled" (index $c.Campaigns.ByStatus "scheduled") }}</dd></div>
+						<div class="hstack gap-1"><dt><a href="{{ URI "/admin/campaigns" }}?status=finished" class="unstyled"><strong>{{ FormatNumber (index $c.Campaigns.ByStatus "finished") }}</strong></a></dt><dd class="text-light">{{ .L.Tc "globals.terms.finished" (index $c.Campaigns.ByStatus "finished") }}</dd></div>
 					</dl>
 				</article>
 			</div>
@@ -122,21 +122,21 @@
 				<article class="card float">
 					<h5 class="title">{{ Icon "activity" }} {{ .L.T "globals.terms.system" }}</h5>
 					<dl class="vstack gap-4">
-						<div class="hstack justify-between"><dt>Uptime</dt><dd class="text-light">{{ $s.Uptime }}</dd></div>
-						<div class="hstack justify-between"><dt>App memory</dt><dd class="text-light">{{ FormatNumber (int $s.AppMemMB) }} MB</dd></div>
+						<div class="hstack justify-between"><dt>{{ .L.T "dashboard.uptime" }}</dt><dd class="text-light">{{ $s.Uptime }}</dd></div>
+						<div class="hstack justify-between"><dt>{{ .L.T "dashboard.appMemory" }}</dt><dd class="text-light">{{ FormatNumber (int $s.AppMemMB) }} MB</dd></div>
 						{{- if $s.HasHostMem }}
 						<div class="vstack gap-1">
-							<dt class="hstack justify-between">System memory<span class="text-light">{{ FormatNumber (int $s.MemUsedMB) }} / {{ FormatNumber (int $s.MemTotalMB) }} MB</span></dt>
+							<dt class="hstack justify-between">{{ .L.T "dashboard.systemMemory" }}<span class="text-light">{{ FormatNumber (int $s.MemUsedMB) }} / {{ FormatNumber (int $s.MemTotalMB) }} MB</span></dt>
 							<dd><meter min="0" max="100" value="{{ $s.MemPct }}" optimum="30" low="70" high="90" title="{{ $s.MemPct }}%"></meter></dd>
 						</div>
 						{{- end }}
 						{{- if $s.HasLoad }}
 						<div class="vstack gap-1">
-							<dt class="hstack justify-between">CPU load<span class="text-light">{{ $s.Load1 }} / {{ $s.Load5 }} / {{ $s.Load15 }}</span></dt>
+							<dt class="hstack justify-between">{{ .L.T "dashboard.cpuLoad" }}<span class="text-light">{{ $s.Load1 }} / {{ $s.Load5 }} / {{ $s.Load15 }}</span></dt>
 							<dd><meter min="0" max="100" value="{{ $s.LoadPct }}" optimum="30" low="70" high="90" title="{{ $s.LoadPct }}%"></meter></dd>
 						</div>
 						{{- end }}
-						<div class="hstack justify-between"><dt>CPU cores</dt><dd class="text-light">{{ $s.NumCPU }}</dd></div>
+						<div class="hstack justify-between"><dt>{{ .L.T "dashboard.cpuCores" }}</dt><dd class="text-light">{{ $s.NumCPU }}</dd></div>
 					</dl>
 				</article>
 			</div>
