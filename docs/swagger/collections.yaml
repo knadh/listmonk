@@ -2444,28 +2444,54 @@ components:
           type: integer
         bounce.action:
           type: string
-        bounce.ses_enabled:
-          type: boolean
-        bounce.azure.enabled:
-          type: boolean
-        bounce.azure.shared_secret:
-          type: string
-        bounce.azure.shared_secret_header:
-          type: string
-        bounce.sendgrid_enabled:
-          type: boolean
-        bounce.sendgrid_key:
-          type: string
-        bounce.forwardemail_enabled:
-          type: boolean
-        bounce.forwardemail_key:
-          type: string
-        bounce.postmark_enabled:
-          type: boolean
-        bounce.postmark_username:
-          type: string
-        bounce.postmark_password:
-          type: string
+        bounce.ses:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            topic_arns:
+              type: array
+              items:
+                type: string
+        bounce.azure:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            shared_secret:
+              type: string
+            shared_secret_header:
+              type: string
+        bounce.sendgrid:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            key:
+              type: string
+        bounce.forwardemail:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            key:
+              type: string
+        bounce.postmark:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            username:
+              type: string
+            password:
+              type: string
+        bounce.lettermint:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            key:
+              type: string
         bounce.mailboxes:
           type: array
           items:

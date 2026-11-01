@@ -1721,12 +1721,17 @@
 <li>Enable SES: <code>Enabled</code></li>
 </ul>
 </li>
-<li>In the AWS console, go to <a href="https://console.aws.amazon.com/sns/">Simple Notification Service</a> and create a new topic with the following settings:<ul>
+<li>
+<p>In the AWS console, go to <a href="https://console.aws.amazon.com/sns/">Simple Notification Service</a> and create a new topic with the following settings:</p>
+<ul>
 <li>Type: <code>Standard</code></li>
 <li>Name: <code>ses-bounces</code> (or any other name)</li>
 </ul>
+<p>Copy the topic ARN into "Allowed SNS topic ARNs" in listmonk bounce settings (one ARN per line) and save before creating the subscription.</p>
 </li>
-<li>Create a new subscription to that topic with the following settings:<ul>
+<li>
+<p>Create a new subscription to that topic with the following settings:</p>
+<ul>
 <li>Protocol: <code>HTTPS</code></li>
 <li>Endpoint: <code>https://listmonk.yoursite.com/webhooks/service/ses</code></li>
 <li>Enable raw message delivery: <code>Disabled</code> (unchecked)</li>
@@ -1757,7 +1762,7 @@
 <li>Enable bounce processing: <code>Enabled</code></li>
 <li>Enable bounce webhooks: <code>Enabled</code></li>
 <li>Enable Azure ACS: <code>Enabled</code></li>
-<li>Optional: set <code>Azure Event Grid Shared Secret</code>.</li>
+<li>Set <code>Azure Event Grid Shared Secret</code>.</li>
 <li>Optional: set <code>Azure Shared Secret Header Name</code> if you want listmonk to read the secret from a header (defaults to <code>X-Listmonk-Webhook-Secret</code>).</li>
 </ul>
 </li>
