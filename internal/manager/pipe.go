@@ -25,6 +25,10 @@ type pipe struct {
 	stopped    atomic.Bool
 	withErrors atomic.Bool
 
+	// chStop is closed on Stop() to cut short any sliding window wait.
+	chStop   chan struct{}
+	stopOnce sync.Once
+
 	lastFetched int
 	pending     map[int]struct{}
 	pendingMut  sync.Mutex
@@ -60,6 +64,7 @@ func (m *Manager) newPipe(c *models.Campaign) (*pipe, error) {
 		camp:        c,
 		lastFetched: c.LastSubscriberID,
 		pending:     make(map[int]struct{}),
+		chStop:      make(chan struct{}),
 
 		rate: ratecounter.NewRateCounter(time.Minute),
 		wg:   &sync.WaitGroup{},
@@ -128,6 +133,26 @@ func (p *pipe) NextSubscribers() (bool, error) {
 			return false, nil
 		}
 
+		// If the sliding window is full, wait until it has room for another message.
+		if hasSliding {
+			if wait := p.m.sliding.wait(time.Now()); wait > 0 {
+				// Short waits only pace messages to match the previous window. Log the longer ones.
+				if wait >= time.Second {
+					p.m.log.Printf("messages reached the limit (%d) for the window (%v). Sleeping for %s.",
+						p.m.cfg.SlidingWindowRate,
+						p.m.cfg.SlidingWindowDuration,
+						wait.Round(time.Second))
+				}
+
+				// Wake up early if the campaign is paused or cancelled meanwhile.
+				select {
+				case <-time.After(wait):
+				case <-p.chStop:
+					return false, nil
+				}
+			}
+		}
+
 		msg, err := p.newMessage(s)
 		if err != nil {
 			p.m.log.Printf("error rendering message (%s) (%s): %v", p.camp.Name, s.Email, err)
@@ -139,30 +164,8 @@ func (p *pipe) NextSubscribers() (bool, error) {
 		// the queue is drained.
 		p.m.campMsgQ <- msg
 
-		// Check if the sliding window is active.
 		if hasSliding {
-			diff := time.Since(p.m.slidingStart)
-
-			// Window has expired. Reset the clock.
-			if diff >= p.m.cfg.SlidingWindowDuration {
-				p.m.slidingStart = time.Now()
-				p.m.slidingCount = 0
-			}
-
-			// Have the messages exceeded the limit?
-			p.m.slidingCount++
-			if p.m.slidingCount >= p.m.cfg.SlidingWindowRate {
-				wait := p.m.cfg.SlidingWindowDuration - diff
-
-				p.m.log.Printf("messages exceeded (%d) for the window (%v since %s). Sleeping for %s.",
-					p.m.slidingCount,
-					p.m.cfg.SlidingWindowDuration,
-					p.m.slidingStart.Format(time.RFC822Z),
-					wait.Round(time.Second)*1)
-
-				p.m.slidingCount = 0
-				time.Sleep(wait)
-			}
+			p.m.sliding.add(time.Now())
 		}
 	}
 
@@ -200,6 +203,10 @@ func (p *pipe) Stop(withErrors bool) {
 	}
 
 	p.stopped.Store(true)
+
+	// Wake up NextSubscribers() if it's waiting on the sliding window.
+	// Stop() can be called concurrently by multiple workers on errors.
+	p.stopOnce.Do(func() { close(p.chStop) })
 }
 
 // newMessage returns a campaign message while internally incrementing the

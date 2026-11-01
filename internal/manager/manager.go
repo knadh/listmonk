@@ -107,11 +107,10 @@ type Manager struct {
 	campMsgQ  chan CampaignMessage
 	msgQ      chan models.Message
 
-	// Sliding window keeps track of the total number of messages sent in a period
-	// and on reaching the specified limit, waits until the window is over before
-	// sending further messages.
-	slidingCount int
-	slidingStart time.Time
+	// Sliding window keeps track of the messages sent in the last window duration
+	// and on reaching the specified limit, waits until the oldest of them moves
+	// out of the window before sending further messages.
+	sliding slidingWindow
 
 	tplFuncs template.FuncMap
 }
@@ -188,15 +187,15 @@ func New(cfg Config, store Store, i *i18n.I18n, l *log.Logger) *Manager {
 		fnNotify: func(subject string, data any) error {
 			return notifs.NotifySystem(subject, notifs.TplCampaignStatus, data, nil)
 		},
-		log:          l,
-		messengers:   make(map[string]Messenger),
-		pipes:        make(map[int]*pipe),
-		tpls:         make(map[int]*models.Template),
-		links:        make(map[string]string),
-		nextPipes:    make(chan *pipe, 1000),
-		campMsgQ:     make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
-		msgQ:         make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
-		slidingStart: time.Now(),
+		log:        l,
+		messengers: make(map[string]Messenger),
+		pipes:      make(map[int]*pipe),
+		tpls:       make(map[int]*models.Template),
+		links:      make(map[string]string),
+		nextPipes:  make(chan *pipe, 1000),
+		campMsgQ:   make(chan CampaignMessage, cfg.Concurrency*cfg.MessageRate*2),
+		msgQ:       make(chan models.Message, cfg.Concurrency*cfg.MessageRate*2),
+		sliding:    slidingWindow{rate: cfg.SlidingWindowRate, duration: cfg.SlidingWindowDuration},
 	}
 	m.tplFuncs = m.makeGnericFuncMap()
 
