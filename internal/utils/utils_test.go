@@ -24,6 +24,44 @@ func TestValidateEmail(t *testing.T) {
 	}
 }
 
+func TestIsValidUUID(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"c60a8047-920f-4886-9051-bd1f2e8251e1", true},
+		{"C60A8047-920F-4886-9051-BD1F2E8251E1", true},
+		{"00000000-0000-0000-0000-000000000000", true},
+		{"ffffffff-ffff-ffff-ffff-ffffffffffff", true},
+		// Invalid length
+		{"", false},
+		{"c60a8047-920f-4886-9051-bd1f2e8251e", false},
+		{"c60a8047-920f-4886-9051-bd1f2e8251e11", false},
+		// Invalid hyphen placement
+		{"c60a8047920f-4886-9051-bd1f2e8251e1-", false},
+		{"c60a8047-920f4886--9051-bd1f2e8251e1", false},
+		// Non-hex characters
+		{"c60a8047-920f-4886-9051-bd1f2e8251eg", false},
+		{"c60a8047-920f-4886-9051-bd1f2e8251eZ", false},
+		{"c60a8047-920f-4886-9051-bd1f2e8251e!", false},
+		{"c60a8047-920f-4886-9051-bd1f2e8251e ", false},
+	}
+
+	for _, test := range tests {
+		if result := IsValidUUID(test.input); result != test.expected {
+			t.Errorf("IsValidUUID(%q) = %v; want %v", test.input, result, test.expected)
+		}
+	}
+}
+
+func BenchmarkIsValidUUID(b *testing.B) {
+	uuid := "c60a8047-920f-4886-9051-bd1f2e8251e1"
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = IsValidUUID(uuid)
+	}
+}
+
 func TestGenerateRandomString(t *testing.T) {
 	n := 16
 	s1, err := GenerateRandomString(n)

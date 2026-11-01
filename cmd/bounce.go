@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v5"
 )
@@ -352,7 +353,7 @@ func (a *App) validateBounceFields(b models.Bounce) (models.Bounce, error) {
 		return b, echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "email / subscriber_uuid"))
 	}
 
-	if b.SubscriberUUID != "" && !reUUID.MatchString(b.SubscriberUUID) {
+	if b.SubscriberUUID != "" && !utils.IsValidUUID(b.SubscriberUUID) {
 		return b, echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "subscriber_uuid"))
 	}
 

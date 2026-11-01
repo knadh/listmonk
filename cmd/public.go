@@ -447,7 +447,7 @@ func (a *App) OptinPage(c *echo.Context) error {
 	// Validate list UUIDs if there are incoming UUIDs in the request.
 	if len(req.ListUUIDs) > 0 {
 		for _, l := range req.ListUUIDs {
-			if !reUUID.MatchString(l) {
+			if !utils.IsValidUUID(l) {
 				return c.Render(http.StatusBadRequest, tplMessage,
 					makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("globals.messages.invalidUUID")))
 			}
