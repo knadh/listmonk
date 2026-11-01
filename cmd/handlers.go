@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/knadh/listmonk/internal/auth"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
@@ -24,10 +24,6 @@ const (
 type okResp struct {
 	Data any `json:"data"`
 }
-
-var (
-	reUUID = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-)
 
 // registerHandlers registers HTTP handlers.
 func initHTTPHandlers(e *echo.Echo, a *App) {
@@ -403,7 +399,7 @@ func serveCustomAppearance(name string) echo.HandlerFunc {
 func (a *App) hasUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		for _, p := range params {
-			if !reUUID.MatchString(c.Param(p)) {
+			if !utils.IsValidUUID(c.Param(p)) {
 				return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "",
 					a.i18n.T("globals.messages.invalidUUID")))
 			}

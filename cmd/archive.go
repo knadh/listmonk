@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/feeds"
 	"github.com/knadh/listmonk/internal/manager"
+	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v5"
 	null "gopkg.in/volatiletech/null.v6"
@@ -124,7 +125,7 @@ func (a *App) CampaignArchivePage(c *echo.Context) error {
 		idStr      = c.Param("id")
 		uuid, slug string
 	)
-	if reUUID.MatchString(idStr) {
+	if utils.IsValidUUID(idStr) {
 		uuid = idStr
 	} else {
 		slug = idStr
