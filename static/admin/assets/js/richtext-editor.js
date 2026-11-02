@@ -2,11 +2,8 @@
 import Squire from 'squire-rte';
 import { beautifyHTML } from './content.js';
 import { setupTable } from './richtext/table.js';
-<<<<<<< HEAD
 import { isSafeLinkUrl } from './richtext/url.js';
-=======
 import { toast } from './utils.js';
->>>>>>> upstream/master
 import {
   i18n, t, closestInSelection, PALETTE, EMOJIS, CHARS,
 } from './richtext/data.js';

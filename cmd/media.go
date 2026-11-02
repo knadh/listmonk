@@ -2,11 +2,8 @@ package main
 
 import (
 	"bytes"
-<<<<<<< HEAD
 	"fmt"
-=======
 	"mime"
->>>>>>> upstream/master
 	"mime/multipart"
 	"net/http"
 	"path/filepath"

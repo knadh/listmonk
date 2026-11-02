@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
+## [Unreleased]
+
+### Fixed
+- Upstream sync repair: PR #30 (sync/upstream-20261101) merged with unresolved conflict markers in `cmd/media.go`, `go.sum`, and `static/admin/assets/js/richtext-editor.js`, breaking `go test ./...` and `bun run build` on master and failing PR #31's CI (run 41355154419). Resolved semantically: kept both `fmt` and `mime` imports in `cmd/media.go` (both used), kept both `isSafeLinkUrl` and `toast` imports in `richtext-editor.js` (both used), and took upstream's `smtppool v2.3.2` entries in `go.sum` (matches `go.mod`).
+- Restored upstream's `internal/i18n/i18n.go` date-name machinery (`FormatDate`, `initDateNames`, month/weekday fields) and `internal/i18n/i18n_test.go`, which the same sync's conflict resolution had dropped while `cmd/init.go` already called `i.FormatDate`, leaving master non-compiling.
+
 ## [v26.10.21.2388] - 2026-10-21
 
 ### Added
