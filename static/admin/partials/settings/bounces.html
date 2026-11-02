@@ -129,9 +129,16 @@
 					<fieldset class="card" data-keywords="bounce ses amazon sns aws webhook">
 						<legend>{{ $.L.T "settings.bounces.enableSES" }}</legend>
 						<label data-field>
-							<input type="checkbox" role="switch" x-model="form['bounce.ses_enabled']" />
+							<input type="checkbox" role="switch" x-model="form['bounce.ses'].enabled" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
+						<template x-if="form['bounce.ses'].enabled">
+							<label data-field>
+								{{ $.L.T "settings.bounces.sesTopicARNs" }}
+								<textarea :value="(form['bounce.ses'].topic_arns || []).join('\n')" @input="form['bounce.ses'].topic_arns = $event.target.value.split('\n')"></textarea>
+								<small data-hint>{{ $.L.T "globals.messages.onePerLine" }}</small>
+							</label>
+						</template>
 					</fieldset>
 
 					<fieldset class="card" data-keywords="bounce azure webhook shared secret header">
@@ -159,13 +166,13 @@
 					<fieldset class="card" data-keywords="bounce sendgrid webhook key">
 						<legend>{{ $.L.T "settings.bounces.enableSendgrid" }}</legend>
 						<label data-field>
-							<input type="checkbox" role="switch" x-model="form['bounce.sendgrid_enabled']" />
+							<input type="checkbox" role="switch" x-model="form['bounce.sendgrid'].enabled" />
 							{{ $.L.T "globals.buttons.enable" }}
 						</label>
-						<template x-if="form['bounce.sendgrid_enabled']">
+						<template x-if="form['bounce.sendgrid'].enabled">
 							<label data-field>
 								{{ $.L.T "settings.bounces.sendgridKey" }}
-								<input type="password" x-model="form['bounce.sendgrid_key']" />
+								<input type="password" x-model="form['bounce.sendgrid'].key" />
 								<small data-hint>{{ $.L.T "globals.messages.passwordChange" }}</small>
 							</label>
 						</template>

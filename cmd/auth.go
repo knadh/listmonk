@@ -99,7 +99,7 @@ func (a *App) LoginPage(c *echo.Context) error {
 	if c.Request().Method == http.MethodPost {
 		loginErr = a.doLogin(c)
 		if loginErr == nil {
-			return c.Redirect(http.StatusFound, utils.SanitizeURI(c.FormValue("next")))
+			return nil
 		}
 	}
 
@@ -539,6 +539,15 @@ func (a *App) doLogin(c *echo.Context) error {
 		return err
 	}
 
+	return a.finishPasswordLogin(c, user, c.FormValue("next"))
+}
+
+// finishPasswordLogin handles the last step after a password has been auth'd.
+// If 2FA is enabled, that's prompted, otherwise, the session is set and the user
+// is redirected to the next page.
+func (a *App) finishPasswordLogin(c *echo.Context, user auth.User, next string) error {
+	next = utils.SanitizeURI(next)
+
 	// If TOTP is enabled for the user, create a temp token and redirect to the 2FA page.
 	if user.TwofaType == models.TwofaTypeTOTP {
 		// Generate a random token.
@@ -552,7 +561,6 @@ func (a *App) doLogin(c *echo.Context) error {
 		tmptokens.Set(token, twofaTokenTTL, user.ID)
 
 		// Redirect to 2FA page.
-		next := utils.SanitizeURI(c.FormValue("next"))
 		return c.Redirect(http.StatusFound, fmt.Sprintf("%s/login/twofa?token=%s&next=%s", uriAdmin, token, url.QueryEscape(next)))
 	}
 
@@ -561,7 +569,7 @@ func (a *App) doLogin(c *echo.Context) error {
 		return err
 	}
 
-	return nil
+	return c.Redirect(http.StatusFound, next)
 }
 
 // doFirstTimeSetup sets a user up for the first time.
@@ -757,13 +765,7 @@ func (a *App) doResetPassword(c *echo.Context, token, email string) error {
 		a.log.Printf("error destroying sessions after password reset for user_id=%d: %v", user.ID, err)
 	}
 
-	// Log the user in directly without forcing a manual login right after password change.
-	if err := a.auth.SaveSession(user, "", c); err != nil {
-		return err
-	}
-
-	// Redirect to the admin page.
-	return c.Redirect(http.StatusFound, uriAdmin)
+	return a.finishPasswordLogin(c, user, uriAdmin)
 }
 
 // renderTwofaPage renders the 2FA verification page.
@@ -804,8 +806,10 @@ func (a *App) doTwofaVerify(c *echo.Context, token string, userID int, next stri
 		return a.renderTwofaPage(c, token, next, a.i18n.T("globals.messages.invalidValue"))
 	}
 
-	// Invalidate the token.
-	tmptokens.Delete(token)
+	// Invalidate the token tomically to prevent concurrency/replay.
+	if _, err := tmptokens.Get(token); err != nil {
+		return c.Redirect(http.StatusFound, uriAdmin)
+	}
 
 	// Set the session.
 	if err := a.auth.SaveSession(user, "", c); err != nil {

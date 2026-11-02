@@ -135,10 +135,15 @@ type Settings struct {
 		Count  int    `json:"count"`
 		Action string `json:"action"`
 	} `json:"bounce.actions"`
-	SESEnabled      bool   `json:"bounce.ses_enabled"`
-	SendgridEnabled bool   `json:"bounce.sendgrid_enabled"`
-	SendgridKey     string `json:"bounce.sendgrid_key"`
-	BounceAzure     struct {
+	BounceSES struct {
+		Enabled   bool     `json:"enabled"`
+		TopicARNs []string `json:"topic_arns"`
+	} `json:"bounce.ses"`
+	BounceSendgrid struct {
+		Enabled bool   `json:"enabled"`
+		Key     string `json:"key"`
+	} `json:"bounce.sendgrid"`
+	BounceAzure struct {
 		Enabled            bool   `json:"enabled"`
 		SharedSecret       string `json:"shared_secret"`
 		SharedSecretHeader string `json:"shared_secret_header"`

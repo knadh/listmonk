@@ -306,7 +306,7 @@ test.describe('Settings', () => {
     await page.getByRole('group', { name: 'SES', exact: true }).getByRole('switch').check();
     await save(page);
     expect(await settings(page)).toMatchObject({
-      'bounce.enabled': true, 'bounce.webhooks_enabled': true, 'bounce.ses_enabled': true,
+      'bounce.enabled': true, 'bounce.webhooks_enabled': true, 'bounce.ses': { enabled: true, topic_arns: [] },
       'bounce.actions': { hard: { count: 3, action: 'unsubscribe' } },
       'bounce.mailboxes': [{ enabled: false }],
     });

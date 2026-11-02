@@ -69,15 +69,25 @@ type sesMail struct {
 // SES handles SES/SNS webhook notifications including confirming SNS topic subscription
 // requests and bounce notifications.
 type SES struct {
-	mu    sync.RWMutex
-	certs map[string]*x509.Certificate
+	mu        sync.RWMutex
+	certs     map[string]*x509.Certificate
+	topicARNs map[string]struct{}
 }
 
 // NewSES returns a new SES instance.
-func NewSES() *SES {
-	return &SES{
-		certs: make(map[string]*x509.Certificate),
+func NewSES(topicARNs []string) *SES {
+	s := &SES{
+		certs:     make(map[string]*x509.Certificate),
+		topicARNs: make(map[string]struct{}, len(topicARNs)),
 	}
+
+	for _, arn := range topicARNs {
+		if arn = strings.TrimSpace(arn); arn != "" {
+			s.topicARNs[arn] = struct{}{}
+		}
+	}
+
+	return s
 }
 
 // ProcessSubscription processes an SNS topic subscribe / unsubscribe notification
@@ -204,8 +214,12 @@ func (s *SES) buildSignature(n sesNotif) []byte {
 	return b.Bytes()
 }
 
-// verifyNotif verifies the signature on a notification payload.
+// verifyNotif verifies the topic and signature on a notification payload.
 func (s *SES) verifyNotif(n sesNotif) error {
+	if _, ok := s.topicARNs[n.TopicArn]; !ok {
+		return errors.New("unrecognized SNS topic ARN")
+	}
+
 	// Get the message signing certificate.
 	cert, err := s.getCert(n.SigningCertURL)
 	if err != nil {

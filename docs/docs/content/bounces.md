@@ -78,6 +78,9 @@ If using SES as your SMTP provider, automatic bounce processing is the recommend
 2. In the AWS console, go to [Simple Notification Service](https://console.aws.amazon.com/sns/) and create a new topic with the following settings:
     - Type: `Standard`
     - Name: `ses-bounces` (or any other name)
+
+    Copy the topic ARN into "Allowed SNS topic ARNs" in listmonk bounce settings (one ARN per line) and save before creating the subscription.
+
 3. Create a new subscription to that topic with the following settings:
     - Protocol: `HTTPS`
     - Endpoint: `https://listmonk.yoursite.com/webhooks/service/ses`
@@ -104,7 +107,7 @@ If you use Azure Communication Services Email, listmonk can receive delivery rep
     - Enable bounce processing: `Enabled`
     - Enable bounce webhooks: `Enabled`
     - Enable Azure ACS: `Enabled`
-    - Optional: set `Azure Event Grid Shared Secret`.
+    - Set `Azure Event Grid Shared Secret`.
     - Optional: set `Azure Shared Secret Header Name` if you want listmonk to read the secret from a header (defaults to `X-Listmonk-Webhook-Secret`).
 2. In listmonk settings, go to "SMTP" and use the `Azure ACS` quick preset to fill SMTP defaults.
 3. In Azure, create an Event Grid subscription for your ACS Email events with:

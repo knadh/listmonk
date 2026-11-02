@@ -378,7 +378,6 @@ function component(settings, userRoles, listRoles) {
       // Standalone secrets.
       const secrets = [
         ['upload.s3.aws_secret_access_key', form, 's3'],
-        ['bounce.sendgrid_key', form, 'sendgrid'],
       ];
       secrets.forEach(([key, obj, name]) => {
         if (isDummy(obj[key])) {
@@ -389,6 +388,7 @@ function component(settings, userRoles, listRoles) {
       });
 
       const nested = [
+        [form['bounce.sendgrid'], 'key', 'sendgrid'],
         [form['bounce.azure'], 'shared_secret', 'azure shared secret'],
         [form['security.captcha'].hcaptcha, 'secret', 'captcha'],
         [form['security.oidc'], 'client_secret', 'oidc'],
