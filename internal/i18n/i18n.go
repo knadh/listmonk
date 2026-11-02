@@ -8,16 +8,24 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // I18n offers translation functions over a language map.
 type I18n struct {
-	Code    string `json:"code"`
-	Name    string `json:"name"`
-	langMap map[string]string
+	Code                    string `json:"code"`
+	Name                    string `json:"name"`
+	langMap                 map[string]string
+	months, monthsShort     [12]string
+	weekdays, weekdaysShort [7]string
 }
 
 var reParam = regexp.MustCompile(`(?i)\{([a-z0-9-.]+)\}`)
+
+var dateLayoutReplacer = strings.NewReplacer(
+	"January", "\x00month\x00", "Jan", "\x00shortmonth\x00",
+	"Monday", "\x00weekday\x00", "Mon", "\x00shortweekday\x00",
+)
 
 // New returns an I18n instance.
 func New(b []byte) (*I18n, error) {
@@ -36,11 +44,14 @@ func New(b []byte) (*I18n, error) {
 		return nil, errors.New("missing _.name field in language file")
 	}
 
-	return &I18n{
+	i := &I18n{
 		langMap: l,
 		Code:    code,
 		Name:    name,
-	}, nil
+	}
+	i.initDateNames()
+
+	return i, nil
 }
 
 // Load loads a JSON language map into the instance overwriting
@@ -54,6 +65,7 @@ func (i *I18n) Load(b []byte) error {
 	for k, v := range l {
 		i.langMap[k] = v
 	}
+	i.initDateNames()
 
 	return nil
 }
@@ -120,6 +132,21 @@ func (i *I18n) Tc(key string, n int) string {
 	return i.getSingular(s)
 }
 
+// FormatDate formats a Go time layout with translated month and weekday names.
+// Date name keys contain `|` separated names, starting with January and Sunday respectively.
+func (i *I18n) FormatDate(t time.Time, layout string) string {
+	// Substitute names after formatting so that translated text doesn't get interpreted
+	// as Go layout tokens.
+	layout = dateLayoutReplacer.Replace(layout)
+
+	return strings.NewReplacer(
+		"\x00month\x00", i.months[int(t.Month())-1],
+		"\x00shortmonth\x00", i.monthsShort[int(t.Month())-1],
+		"\x00weekday\x00", i.weekdays[int(t.Weekday())],
+		"\x00shortweekday\x00", i.weekdaysShort[int(t.Weekday())],
+	).Replace(t.Format(layout))
+}
+
 // getSingular returns the singular term from the vuei18n pipe separated value.
 // singular term | plural term
 func (i *I18n) getSingular(s string) string {
@@ -161,4 +188,32 @@ func (i *I18n) subAllParams(s string) string {
 	}
 
 	return i.subAllParams(s)
+}
+
+// initDateNames parses date names once after loading the language map.
+func (i *I18n) initDateNames() {
+	for n := range i.months {
+		i.months[n] = time.Month(n + 1).String()
+		i.monthsShort[n] = i.months[n][:3]
+	}
+	for n := range i.weekdays {
+		i.weekdays[n] = time.Weekday(n).String()
+		i.weekdaysShort[n] = i.weekdays[n][:3]
+	}
+
+	load := func(key string, dst []string) {
+		names := strings.Split(i.langMap[key], "|")
+		if len(names) != len(dst) {
+			return
+		}
+		for n, name := range names {
+			if name = strings.TrimSpace(name); name != "" {
+				dst[n] = name
+			}
+		}
+	}
+	load("dates.months", i.months[:])
+	load("dates.monthsShort", i.monthsShort[:])
+	load("dates.weekdays", i.weekdays[:])
+	load("dates.weekdaysShort", i.weekdaysShort[:])
 }
