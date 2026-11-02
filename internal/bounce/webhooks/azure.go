@@ -144,9 +144,8 @@ func (a *Azure) verifyAuth(req *http.Request) error {
 		querySecretParam    = "code"
 	)
 
-	// If no local credential is configured, allow webhook payloads.
 	if a.sharedSecret == "" {
-		return nil
+		return errors.New("missing azure event grid shared secret")
 	}
 
 	if req == nil {

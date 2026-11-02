@@ -19,17 +19,22 @@ type Mailbox interface {
 
 // Opt represents bounce processing options.
 type Opt struct {
-	MailboxEnabled          bool        `json:"mailbox_enabled"`
-	MailboxType             string      `json:"mailbox_type"`
-	Mailbox                 mailbox.Opt `json:"mailbox"`
-	WebhooksEnabled         bool        `json:"webhooks_enabled"`
-	SESEnabled              bool        `json:"ses_enabled"`
-	AzureEnabled            bool        `json:"azure_enabled"`
-	AzureSharedSecret       string      `json:"azure_shared_secret"`
-	AzureSharedSecretHeader string      `json:"azure_shared_secret_header"`
-	SendgridEnabled         bool        `json:"sendgrid_enabled"`
-	SendgridKey             string      `json:"sendgrid_key"`
-	Postmark                struct {
+	MailboxEnabled  bool        `json:"mailbox_enabled"`
+	MailboxType     string      `json:"mailbox_type"`
+	Mailbox         mailbox.Opt `json:"mailbox"`
+	WebhooksEnabled bool        `json:"webhooks_enabled"`
+	SES             struct {
+		Enabled   bool
+		TopicARNs []string
+	}
+	AzureEnabled            bool   `json:"azure_enabled"`
+	AzureSharedSecret       string `json:"azure_shared_secret"`
+	AzureSharedSecretHeader string `json:"azure_shared_secret_header"`
+	Sendgrid                struct {
+		Enabled bool
+		Key     string
+	}
+	Postmark struct {
 		Enabled  bool
 		Username string
 		Password string
@@ -87,15 +92,15 @@ func New(opt Opt, q *Queries, lo *log.Logger) (*Manager, error) {
 	}
 
 	if opt.WebhooksEnabled {
-		if opt.SESEnabled {
-			m.SES = webhooks.NewSES()
+		if opt.SES.Enabled {
+			m.SES = webhooks.NewSES(opt.SES.TopicARNs)
 		}
 		if opt.AzureEnabled {
 			m.Azure = webhooks.NewAzure(opt.AzureSharedSecret, opt.AzureSharedSecretHeader)
 		}
 
-		if opt.SendgridEnabled {
-			sg, err := webhooks.NewSendgrid(opt.SendgridKey)
+		if opt.Sendgrid.Enabled {
+			sg, err := webhooks.NewSendgrid(opt.Sendgrid.Key)
 			if err != nil {
 				lo.Printf("error initializing sendgrid webhooks: %v", err)
 			} else {

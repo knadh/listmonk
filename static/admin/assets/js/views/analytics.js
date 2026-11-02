@@ -2,6 +2,7 @@ import Alpine from 'alpinejs';
 import Chart from 'chart.js/auto';
 
 import { api } from '../main.js';
+import { tagAutocomplete, tagNode } from '../tag-selector.js';
 
 const chartColorRed = '#ee7d5b';
 const chartColors = [
@@ -120,14 +121,12 @@ class AnalyticsTag {
   }
 
   toString() {
-    return `#${this.id}: ${this.name}`;
+    return this.name;
   }
 }
 
 // analyticsForm is the Alpine component for the analytics page.
 function analyticsForm(from, to) {
-  let queryTimer = null;
-
   return {
     items: (window._selectedItems || []).map((c) => new AnalyticsTag(c)),
 
@@ -172,31 +171,32 @@ function analyticsForm(from, to) {
       this.$nextTick(() => this.$root.requestSubmit());
     },
 
-    // Populate the selector's suggestions with the resource API.
-    onQuery(el) {
-      clearTimeout(queryTimer);
-      queryTimer = setTimeout(async () => {
-        const ti = el.closest('ot-taginput');
-        const chosen = new Set((ti ? ti.value : []).map((c) => c.id));
-        const params = new URLSearchParams({
-          query: el.value.trim(),
-          order_by: 'created_at',
-          order: 'DESC',
-          no_body: 'true',
-          per_page: '10',
-        });
+    itemNode(item, small = false) {
+      return tagNode(item, window._analyticsResource === 'lists' ? 'list' : 'campaign', small, String(item));
+    },
 
-        try {
-          const data = await api(`analytics.${window._analyticsResource}`, `/${window._analyticsResource}?${params.toString()}`, 'GET');
-          el.list.replaceChildren(...(data.results || [])
-            .filter((c) => !chosen.has(c.id))
-            .map((c) => {
-              const o = new Option(`#${c.id}: ${c.name}`);
-              o.data = new AnalyticsTag(c);
-              return o;
-            }));
-        } catch (err) { /* api() shows a toast. */ }
-      }, 200);
+    autocomplete(el) {
+      tagAutocomplete(el, {
+        render: (item, small) => this.itemNode(item, small),
+        debounce: 200,
+        query: async (q) => {
+          const params = new URLSearchParams({
+            query: q.trim(),
+            order_by: 'created_at',
+            order: 'DESC',
+            no_body: 'true',
+            per_page: '10',
+          });
+
+          try {
+            const data = await api(`analytics.${window._analyticsResource}`, `/${window._analyticsResource}?${params}`, 'GET');
+            return (data.results || []).map((c) => new AnalyticsTag(c));
+          } catch {
+            // api() shows a toast; dismiss suggestions on failure.
+            return [];
+          }
+        },
+      });
     },
   };
 }

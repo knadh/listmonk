@@ -1,5 +1,6 @@
 import '@knadh/oat';
 import Alpine from 'alpinejs';
+import { tagAutocomplete, tagNode } from './tag-selector.js';
 import { I18n } from './i18n.js';
 import { register as registerTable } from './table.js';
 import * as u from './utils.js';
@@ -27,6 +28,7 @@ function setupAlpine() {
     isLoading,
     copyToClipboard: u.copyToClipboard,
     listAutocomplete,
+    listTagNode,
 
     theme: localStorage.getItem('theme') || 'auto',
 
@@ -148,21 +150,18 @@ export class ListTag {
   }
 }
 
-// listAutocomplete populates the <ot-taginput> list selector's suggestions with lists.
-export function listAutocomplete(el) {
-  const ti = el.closest('ot-taginput');
-  const chosen = new Set((ti ? ti.value : []).map((l) => l.id));
-  const q = el.value.toLowerCase();
+// List selector rendering and its locally available suggestions.
+export function listTagNode(list, small = false) {
+  return tagNode(list, 'list', small);
+}
 
-  el.list.replaceChildren(...(window._lists || [])
-    .filter((l) => !chosen.has(l.id) && l.name.toLowerCase().includes(q))
-    // Cap suggestions (so focusing with an empty input still shows a usable list of items).
-    .slice(0, 10)
-    .map((l) => {
-      const o = new Option(l.name);
-      o.data = new ListTag(l);
-      return o;
-    }));
+export function listAutocomplete(el) {
+  tagAutocomplete(el, {
+    render: listTagNode,
+    query: (q) => (window._lists || [])
+      .filter((l) => l.name.toLowerCase().includes(q.toLowerCase()))
+      .map((l) => new ListTag(l)),
+  });
 }
 
 // Returns true if the given named api() call is currently loading.

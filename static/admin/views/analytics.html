@@ -20,13 +20,12 @@
 				<h4 class="title">{{ .L.T "globals.terms.analytics" }}</h4>
 				<div class="row">
 					<div class="col-5">
-						<label data-field>
-							{{ .L.T (printf "globals.terms.%s" $d.Resource) }}
-							<ot-taginput x-model="items">
-								<input list="analytics-items" placeholder="{{ .L.T (printf "globals.terms.%s" $d.Resource) }}" @input="onQuery($el)" @pointerdown="onQuery($el)" @focus="onQuery($el)" />
-								<datalist id="analytics-items"></datalist>
+						<div data-field>
+							<label for="analytics-items">{{ .L.T (printf "globals.terms.%s" $d.Resource) }}</label>
+							<ot-taginput x-effect="$el.value = items.map((item) => itemNode(item, true))" @input="items = $el.value.map((tag) => tag.item || tag)">
+								<input id="analytics-items" placeholder="{{ .L.T (printf "globals.terms.%s" $d.Resource) }}" x-init="autocomplete($el)" />
 							</ot-taginput>
-						</label>
+						</div>
 						<template x-for="c in items" :key="c.id">
 							<input type="hidden" name="id" :value="c.id" />
 						</template>

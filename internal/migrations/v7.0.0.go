@@ -17,6 +17,26 @@ func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
         UPDATE settings SET value = JSONB_BUILD_ARRAY(value)
         WHERE key = 'app.from_email' AND JSONB_TYPEOF(value) = 'string';
 
+        -- Migrate SES settings to an object.
+        INSERT INTO settings (key, value)
+        SELECT 'bounce.ses', JSONB_BUILD_OBJECT(
+            'enabled', COALESCE((SELECT (value#>>'{}')::BOOLEAN FROM settings WHERE key = 'bounce.ses_enabled'), false),
+            'topic_arns', '[]'::JSONB
+        )
+        ON CONFLICT (key) DO NOTHING;
+
+        DELETE FROM settings WHERE key = 'bounce.ses_enabled';
+
+        -- Migrate SendGrid settings to an object.
+        INSERT INTO settings (key, value)
+        SELECT 'bounce.sendgrid', JSONB_BUILD_OBJECT(
+            'enabled', COALESCE((SELECT (value#>>'{}')::BOOLEAN FROM settings WHERE key = 'bounce.sendgrid_enabled'), false),
+            'key', COALESCE((SELECT value#>>'{}' FROM settings WHERE key = 'bounce.sendgrid_key'), '')
+        )
+        ON CONFLICT (key) DO NOTHING;
+
+        DELETE FROM settings WHERE key IN ('bounce.sendgrid_enabled', 'bounce.sendgrid_key');
+
         -- Login session duration.
         INSERT INTO settings (key, value) VALUES ('security.session_duration', '"7d"')
         ON CONFLICT (key) DO NOTHING;

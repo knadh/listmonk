@@ -81,7 +81,7 @@ func maskSettings(s *models.Settings) {
 	}
 
 	s.UploadS3AwsSecretAccessKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.UploadS3AwsSecretAccessKey))
-	s.SendgridKey = strings.Repeat(pwdMask, utf8.RuneCountInString(s.SendgridKey))
+	s.BounceSendgrid.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceSendgrid.Key))
 	s.BounceAzure.SharedSecret = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceAzure.SharedSecret))
 	s.BouncePostmark.Password = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BouncePostmark.Password))
 	s.BounceForwardEmail.Key = strings.Repeat(pwdMask, utf8.RuneCountInString(s.BounceForwardEmail.Key))
@@ -309,8 +309,8 @@ func (a *App) UpdateSettings(c *echo.Context) error {
 	if set.UploadS3AwsSecretAccessKey == "" {
 		set.UploadS3AwsSecretAccessKey = cur.UploadS3AwsSecretAccessKey
 	}
-	if set.SendgridKey == "" {
-		set.SendgridKey = cur.SendgridKey
+	if set.BounceSendgrid.Key == "" {
+		set.BounceSendgrid.Key = cur.BounceSendgrid.Key
 	}
 	if set.BounceAzure.SharedSecret == "" {
 		set.BounceAzure.SharedSecret = cur.BounceAzure.SharedSecret
