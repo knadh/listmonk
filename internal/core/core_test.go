@@ -84,6 +84,7 @@ func TestNormalizeTags(t *testing.T) {
 		{[]string{"tag1", "tag 2", "  tag3  "}, []string{"tag1", "tag-2", "tag3"}},
 		{[]string{"  ", ""}, nil},
 		{[]string{"TAG1", "Tag2"}, []string{"tag1", "tag2"}}, // tags should be lower-cased
+		{[]string{"multi   space\ttag"}, []string{"multi-space-tag"}},
 	}
 
 	for _, test := range tests {
@@ -91,6 +92,24 @@ func TestNormalizeTags(t *testing.T) {
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf("normalizeTags(%v) = %v; want %v", test.tags, result, test.expected)
 		}
+	}
+}
+
+func BenchmarkMakeSearchString(b *testing.B) {
+	input := "  hello   world   from   listmonk  search  "
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_ = makeSearchString(input)
+	}
+}
+
+func BenchmarkNormalizeTags(b *testing.B) {
+	tags := []string{"  NewsLetter ", "Weekly   Update", "TECH\ttag", " Announcements "}
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_ = normalizeTags(tags)
 	}
 }
 
