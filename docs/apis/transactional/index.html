@@ -1587,6 +1587,7 @@
 <hr />
 <h4 id="post-apitx">POST /api/tx<a class="headerlink" href="#post-apitx" title="Permanent link">&para;</a></h4>
 <p>Allows sending transactional messages to one or more subscribers via a preconfigured transactional template.</p>
+<p>Refering to an existing subscriber in the DB requires either <code>subscribers:get</code> (via list permissions) or <code>subscribers:get_all</code>. <code>external</code> mode does not require these permission.</p>
 <h5 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
