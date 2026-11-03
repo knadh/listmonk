@@ -717,7 +717,7 @@ func (a *App) SelfExportSubscriberData(c *echo.Context) error {
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
 	subUUID := c.Param("subUUID")
-	data, b, err := a.exportSubscriberData(0, subUUID, a.cfg.Privacy.Exportable)
+	data, b, err := a.exportSubscriberData(0, subUUID, a.cfg.Privacy.Exportable, true, nil)
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,

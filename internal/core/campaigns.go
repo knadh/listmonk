@@ -364,9 +364,9 @@ func (c *Core) CampaignHasLists(id int, listIDs []int) (bool, error) {
 }
 
 // GetRunningCampaignStats returns the progress stats of running campaigns.
-func (c *Core) GetRunningCampaignStats() ([]models.CampaignStats, error) {
+func (c *Core) GetRunningCampaignStats(hasAllPerm bool, permittedLists []int) ([]models.CampaignStats, error) {
 	out := []models.CampaignStats{}
-	if err := c.q.GetCampaignStatus.Select(&out, models.CampaignStatusRunning); err != nil {
+	if err := c.q.GetCampaignStatus.Select(&out, models.CampaignStatusRunning, hasAllPerm, pq.Array(permittedLists)); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}

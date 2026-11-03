@@ -684,10 +684,18 @@ func (a *App) DeleteCampaigns(c *echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{true})
 }
 
-// GetRunningCampaignStats returns stats of a given set of campaign IDs.
+// GetRunningCampaignStats returns stats of permitted running campaigns.
 func (a *App) GetRunningCampaignStats(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	var permittedLists []int
+	hasAllPerm := user.HasPerm(auth.PermCampaignsGetAll)
+	if !hasAllPerm {
+		hasAllPerm, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	}
+
 	// Get the running campaign stats from the DB.
-	out, err := a.core.GetRunningCampaignStats()
+	out, err := a.core.GetRunningCampaignStats(hasAllPerm, permittedLists)
 	if err != nil {
 		return err
 	}

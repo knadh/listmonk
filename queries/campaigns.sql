@@ -164,7 +164,13 @@ LEFT JOIN templates ON (templates.id = (CASE WHEN $2=0 THEN campaigns.template_i
 WHERE campaigns.id = $1;
 
 -- name: get-campaign-status
-SELECT id, status, to_send, sent, started_at, updated_at FROM campaigns WHERE status=$1;
+SELECT id, status, to_send, sent, started_at, updated_at FROM campaigns
+WHERE status=$1
+    AND (
+        $2 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = campaigns.id AND list_id = ANY($3::INT[])
+        )
+    );
 
 -- name: campaign-has-lists
 -- Returns TRUE if the campaign $1 has any of the lists given in $2.

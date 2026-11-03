@@ -33,13 +33,18 @@ type bouncesView struct {
 
 // ViewBounces renders the HTML view for bounces.
 func (a *App) ViewBounces(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+
 	q := makeQuery(c.Request().URL.Query(), bouncesQueryDefaults)
 
 	campID, _ := strconv.Atoi(q.Get("campaign_id"))
 
 	// Query and fetch bounces from the DB.
 	pg := a.pg.NewFromURL(q)
-	res, total, err := a.core.QueryBounces(campID, 0, q.Get("source"), q.Get("type"), q.Get("order_by"), q.Get("order"), pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryBounces(campID, 0, q.Get("source"), q.Get("type"), q.Get("order_by"), q.Get("order"), pg.Offset, pg.Limit, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -55,9 +60,14 @@ func (a *App) ViewBounces(c *echo.Context) error {
 
 // GetBounce handles retrieval of a specific bounce record by ID.
 func (a *App) GetBounce(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+
 	// Fetch one bounce from the DB.
 	id := getID(c)
-	out, err := a.core.GetBounce(id)
+	out, err := a.core.GetBounce(id, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -67,6 +77,11 @@ func (a *App) GetBounce(c *echo.Context) error {
 
 // GetBounces handles retrieval of bounce records.
 func (a *App) GetBounces(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+
 	var (
 		campID, _ = strconv.Atoi(c.QueryParam("campaign_id"))
 		source    = c.FormValue("source")
@@ -78,7 +93,7 @@ func (a *App) GetBounces(c *echo.Context) error {
 	)
 
 	// Query and fetch bounces from the DB.
-	res, total, err := a.core.QueryBounces(campID, 0, source, typ, orderBy, order, pg.Offset, pg.Limit)
+	res, total, err := a.core.QueryBounces(campID, 0, source, typ, orderBy, order, pg.Offset, pg.Limit, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -102,15 +117,20 @@ func (a *App) GetBounces(c *echo.Context) error {
 
 // GetSubscriberBounces retrieves a subscriber's bounce records.
 func (a *App) GetSubscriberBounces(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+
 	subID := getID(c)
 
-	// Check if the user has access to at least one of the lists on the subscriber.
-	if err := a.hasSubPerm(auth.GetUser(c), auth.PermTypeGet|auth.PermTypeManage, []int{subID}); err != nil {
+	// Verify list permissions.
+	if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{subID}); err != nil {
 		return err
 	}
 
 	// Query and fetch bounces from the DB.
-	out, _, err := a.core.QueryBounces(0, subID, "", "", "", "", 0, 1000)
+	out, _, err := a.core.QueryBounces(0, subID, "", "", "", "", 0, 1000, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -120,6 +140,11 @@ func (a *App) GetSubscriberBounces(c *echo.Context) error {
 
 // DeleteBounces handles bounce deletion of a list.
 func (a *App) DeleteBounces(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeManage)
+
 	all, _ := strconv.ParseBool(c.QueryParam("all"))
 
 	var ids []int
@@ -143,7 +168,7 @@ func (a *App) DeleteBounces(c *echo.Context) error {
 	}
 
 	// Delete bounces from the DB.
-	if err := a.core.DeleteBounces(ids, all, campID, c.QueryParam("source"), c.QueryParam("type")); err != nil {
+	if err := a.core.DeleteBounces(ids, all, campID, c.QueryParam("source"), c.QueryParam("type"), allLists, listIDs); err != nil {
 		return err
 	}
 
@@ -152,9 +177,14 @@ func (a *App) DeleteBounces(c *echo.Context) error {
 
 // DeleteBounce handles bounce deletion of a single bounce record.
 func (a *App) DeleteBounce(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeManage)
+
 	// Delete bounces from the DB.
 	id := getID(c)
-	if err := a.core.DeleteBounces([]int{id}, false, 0, "", ""); err != nil {
+	if err := a.core.DeleteBounces([]int{id}, false, 0, "", "", allLists, listIDs); err != nil {
 		return err
 	}
 
@@ -163,6 +193,11 @@ func (a *App) DeleteBounce(c *echo.Context) error {
 
 // BlocklistBouncedSubscribers blocklists subscribers matching bounce IDs or filters.
 func (a *App) BlocklistBouncedSubscribers(c *echo.Context) error {
+	user := auth.GetUser(c)
+
+	// Get the permitted lists for the user to filter bounces by.
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeManage)
+
 	ids, err := parseStringIDs(c.QueryParams()["id"])
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
@@ -173,7 +208,7 @@ func (a *App) BlocklistBouncedSubscribers(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidID"))
 	}
 
-	if err := a.core.BlocklistBouncedSubscribers(ids, campID, c.QueryParam("source"), c.QueryParam("type")); err != nil {
+	if err := a.core.BlocklistBouncedSubscribers(ids, campID, c.QueryParam("source"), c.QueryParam("type"), allLists, listIDs); err != nil {
 		return err
 	}
 
