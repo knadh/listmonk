@@ -16,6 +16,8 @@ const chartColors = [
   '#FFC43D',
 ];
 
+const DONUT_REMAINDER = 'rgba(127, 127, 127, 0.15)';
+
 const DEFAULT_DONUT = {
   type: 'doughnut',
   options: {
@@ -33,9 +35,13 @@ const DEFAULT_DONUT = {
         bodyFont: { size: 15 },
         bodySpacing: 10,
         padding: 10,
+        filter: (item) => !item.dataset.rate || item.dataIndex === 0,
         callbacks: {
           label: (item) => {
-            const data = item.chart.data.datasets[item.datasetIndex];
+            const data = item.dataset;
+            if (data.rate) {
+              return `${data.label}: ${formatCount(data.count, data.sentCount)}`;
+            }
             return formatCount(data.data[item.dataIndex], data.sent[item.dataIndex]);
           },
         },
@@ -264,7 +270,22 @@ function renderCounts(key, items, rows, unsubscriptions) {
   }
 
   draw(`chart-${key}`, DEFAULT_LINE, { datasets });
-  const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, {
+
+  // Campaigns have a sent count, so draw one ring per campaign showing
+  // count/sent (eg: 3 views of 4 sent = 75% of the ring). Without a sent
+  // count (lists), fall back to each item's share of the combined total.
+  const isRate = items.length > 0 && items.every((c) => c.sent > 0);
+  const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, isRate ? {
+    datasets: items.map((c, n) => ({
+      rate: true,
+      label: labels[n],
+      count: totals[n],
+      sentCount: c.sent,
+      data: [totals[n], Math.max(c.sent - totals[n], 0)],
+      backgroundColor: [chartColors[n % chartColors.length], DONUT_REMAINDER],
+      borderWidth: 2,
+    })),
+  } : {
     labels,
     datasets: [{
       data: totals,
@@ -286,7 +307,8 @@ function renderCounts(key, items, rows, unsubscriptions) {
       }
 
       const highlight = () => {
-        donut.setActiveElements(item.matches(':hover, :focus-within') ? [{ datasetIndex: 0, index: n }] : []);
+        const el = isRate ? { datasetIndex: n, index: 0 } : { datasetIndex: 0, index: n };
+        donut.setActiveElements(item.matches(':hover, :focus-within') ? [el] : []);
         donut.update('none');
       };
       ['mouseenter', 'mouseleave', 'focusin', 'focusout'].forEach((event) => {
