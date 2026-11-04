@@ -62,6 +62,22 @@ func BenchmarkIsValidUUID(b *testing.B) {
 	}
 }
 
+func BenchmarkGetTplSubject_NoTitle(b *testing.B) {
+	body := []byte("<html><head><title>Some Normal Title</title></head><body><h1>Hello World</h1><p>This is a test email body with lots of text to simulate a realistic email template.</p></body></html>")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = GetTplSubject("Default", body)
+	}
+}
+
+func BenchmarkGetTplSubject_WithTitle(b *testing.B) {
+	body := []byte("<html><head><title data-i18n>Custom Subject</title></head><body><h1>Hello World</h1><p>This is a test email body with lots of text to simulate a realistic email template.</p></body></html>")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = GetTplSubject("Default", body)
+	}
+}
+
 func TestGenerateRandomString(t *testing.T) {
 	n := 16
 	s1, err := GenerateRandomString(n)
