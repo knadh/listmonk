@@ -5,7 +5,6 @@
 package core
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -68,7 +67,6 @@ var (
 )
 
 var (
-	regexpSpaces            = regexp.MustCompile(`[\s]+`)
 	campQuerySortFields     = []string{"name", "status", models.FieldCreatedAt, "updated_at", "started_at", "send_at"}
 	subQuerySortFields      = []string{"email", "status", "name", models.FieldCreatedAt, "updated_at"}
 	userQuerySortFields     = []string{"username", "email", models.FieldCreatedAt, "loggedin_at"}
@@ -161,11 +159,14 @@ func makeSearchQuery(searchStr, orderBy, order, query string, querySortFields []
 }
 
 // makeSearchString normalizes a search string for use in SQL search queries.
+// Performance optimization: Avoids regexp overhead and allocations by using
+// strings.Fields and strings.Join.
 func makeSearchString(searchStr string) string {
-	if searchStr == "" {
+	fields := strings.Fields(searchStr)
+	if len(fields) == 0 {
 		return ""
 	}
-	return regexpSpaces.ReplaceAllString(strings.TrimSpace(searchStr), " ")
+	return strings.Join(fields, " ")
 }
 
 // strSliceContains checks if a string is present in the string slice.
@@ -180,18 +181,16 @@ func strSliceContains(str string, sl []string) bool {
 }
 
 // normalizeTags takes a list of string tags and normalizes them by
-// lower casing and removing all special characters except for dashes.
+// lower casing and replacing whitespace with dashes.
+// Performance optimization: Avoids regexp overhead, []byte conversions, and allocations
+// by using strings.ToLower, strings.Fields and strings.Join.
 func normalizeTags(tags []string) []string {
-	var (
-		out  []string
-		dash = []byte("-")
-	)
+	var out []string
 
 	for _, t := range tags {
-		rep := regexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(strings.ToLower(t))), dash)
-
-		if len(rep) > 0 {
-			out = append(out, string(rep))
+		fields := strings.Fields(strings.ToLower(t))
+		if len(fields) > 0 {
+			out = append(out, strings.Join(fields, "-"))
 		}
 	}
 	return out
