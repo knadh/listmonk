@@ -1,0 +1,10 @@
+{{ define "admin-public-message" }}
+    {{ template "admin-public-header" .}}
+
+    <h4 class="page-title">{{ .Data.Title }}</h4>
+    <div>
+        {{ .Data.Message }}
+    </div>
+
+    {{ template "admin-public-footer" .}}
+{{ end }}

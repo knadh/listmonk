@@ -8,6 +8,7 @@ import (
 	"net/textproto"
 	"strings"
 
+	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/manager"
 	"github.com/knadh/listmonk/internal/messenger/email"
 	"github.com/knadh/listmonk/models"
@@ -70,6 +71,14 @@ func (a *App) SendTxMessage(c *echo.Context) error {
 		m = r
 	}
 
+	// Enforce subscriber read permission.
+	user := auth.GetUser(c)
+	if m.SubscriberMode != models.TxSubModeExternal &&
+		!user.HasPerm(auth.PermSubscribersGet) && !user.HasPerm(auth.PermSubscribersGetAll) {
+		return echo.NewHTTPError(http.StatusForbidden,
+			a.i18n.Ts("globals.messages.permissionDenied", "name", auth.PermSubscribersGet))
+	}
+
 	// Get the cached tx template.
 	tpl, err := a.manager.GetTpl(m.TemplateID)
 	if err != nil {
@@ -126,6 +135,13 @@ func (a *App) SendTxMessage(c *echo.Context) error {
 				} else {
 					return err
 				}
+			} else {
+				// Make sure the user has permission to read the subscriber.
+				if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{sub.ID}); err != nil {
+					return err
+				}
+
+				maskRestrictedSubLists(user, &sub)
 			}
 		}
 

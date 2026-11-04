@@ -3,6 +3,7 @@ package auth
 import (
 	"encoding/json"
 	"net/http"
+	"slices"
 
 	"github.com/labstack/echo/v5"
 	"github.com/lib/pq"
@@ -217,7 +218,7 @@ func (u *User) hasListPerm(perm string, listID int) bool {
 }
 
 // GetPermittedLists returns a list of IDs the user has access to based on
-// the given get / manage permissions. If the user has the blanket "*_all"
+// either of the given get / manage permissions. If the user has the blanket "*_all"
 // permission (or the user is a super admin), then the bool is set to true and
 // the list is nil as all lists are permitted.
 func (u *User) GetPermittedLists(types PermType) (bool, []int) {
@@ -248,6 +249,7 @@ func (u *User) GetPermittedLists(types PermType) (bool, []int) {
 		}
 	}
 
+<<<<<<< HEAD
 	// Collect all permitted list IDs based on the requested types.
 	resMap := make(map[int]struct{})
 	if get {
@@ -270,6 +272,21 @@ func (u *User) GetPermittedLists(types PermType) (bool, []int) {
 	}
 
 	return false, nil
+=======
+	var out []int
+	if get {
+		out = append(out, u.GetListIDs...)
+	}
+	if manage {
+		for _, id := range u.ManageListIDs {
+			if !slices.Contains(out, id) {
+				out = append(out, id)
+			}
+		}
+	}
+
+	return false, out
+>>>>>>> upstream/master
 }
 
 // FilterListsByPerm returns list IDs filtered by either of the given perms.
@@ -304,8 +321,10 @@ func (u *User) FilterListsByPerm(types PermType, listIDs []int) []int {
 			if get {
 				if _, ok := l[PermListGet]; ok {
 					out = append(out, id)
+					continue
 				}
-			} else if manage {
+			}
+			if manage {
 				if _, ok := l[PermListManage]; ok {
 					out = append(out, id)
 				}

@@ -250,14 +250,14 @@ func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUI
 // GetSubscriberProfileForExport returns the subscriber's profile data as a JSON exportable.
 // Get the subscriber's data. A single query that gets the profile, list subscriptions, campaign views,
 // and link clicks. Names of private lists are replaced with "Private list".
-func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.SubscriberExportProfile, error) {
+func (c *Core) GetSubscriberProfileForExport(id int, uuid string, allLists bool, listIDs []int) (models.SubscriberExportProfile, error) {
 	var uu any
 	if uuid != "" {
 		uu = uuid
 	}
 
 	var out models.SubscriberExportProfile
-	if err := c.q.ExportSubscriberData.Get(&out, id, uu); err != nil {
+	if err := c.q.ExportSubscriberData.Get(&out, id, uu, allLists, pq.Array(listIDs)); err != nil {
 		c.log.Printf("error fetching subscriber export data: %v", err)
 
 		return models.SubscriberExportProfile{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -268,9 +268,9 @@ func (c *Core) GetSubscriberProfileForExport(id int, uuid string) (models.Subscr
 }
 
 // GetSubscriberActivity returns the subscriber's campaign views and link clicks for the Activity tab.
-func (c *Core) GetSubscriberActivity(id int) (models.SubscriberActivity, error) {
+func (c *Core) GetSubscriberActivity(id int, allLists bool, listIDs []int) (models.SubscriberActivity, error) {
 	var out models.SubscriberActivity
-	if err := c.q.GetSubscriberActivity.Get(&out, id); err != nil {
+	if err := c.q.GetSubscriberActivity.Get(&out, id, allLists, pq.Array(listIDs)); err != nil {
 		c.log.Printf("error fetching subscriber activity: %v", err)
 
 		return models.SubscriberActivity{}, echo.NewHTTPError(http.StatusInternalServerError,
@@ -281,9 +281,9 @@ func (c *Core) GetSubscriberActivity(id int) (models.SubscriberActivity, error) 
 }
 
 // GetSubscriberCharts returns subscriber views and clicks.
-func (c *Core) GetSubscriberCharts(id int) (types.JSONText, error) {
+func (c *Core) GetSubscriberCharts(id int, allLists bool, listIDs []int) (types.JSONText, error) {
 	var out types.JSONText
-	if err := c.q.GetSubscriberCharts.Get(&out, id); err != nil {
+	if err := c.q.GetSubscriberCharts.Get(&out, id, allLists, pq.Array(listIDs)); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "subscriber charts", "error", pqErrMsg(err)))
 	}
@@ -480,7 +480,7 @@ func (c *Core) UpdateSubscriber(id int, sub models.Subscriber) (models.Subscribe
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	out, err := c.GetSubscriber(id, "", "")
 	if err != nil {
 		return models.Subscriber{}, err
 	}
@@ -526,7 +526,7 @@ func (c *Core) UpdateSubscriberWithLists(id int, sub models.Subscriber, listIDs 
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
 	}
 
-	out, err := c.GetSubscriber(sub.ID, "", sub.Email)
+	out, err := c.GetSubscriber(id, "", "")
 	if err != nil {
 		return models.Subscriber{}, false, err
 	}

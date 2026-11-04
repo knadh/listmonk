@@ -1,0 +1,65 @@
+{{ define "admin-public-header" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>{{ .Data.Title }} - {{ .SiteName }}</title>
+	<meta name="description" content="{{ .Data.Description }}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+	<meta name="color-scheme" content="light dark" />
+	<script>
+		// Saved admin theme or default browser theme preference.
+		(function () {
+			try {
+				var t = localStorage.getItem('theme');
+				if (t === 'light' || t === 'dark') {
+					document.documentElement.style.colorScheme = t;
+				}
+			} catch (e) {}
+		})();
+	</script>
+
+	{{ if .EnablePublicArchive }}
+		<link rel="alternate" type="application/rss+xml" title="{{ L.T "public.archiveTitle" }} - {{ .SiteName }}"
+			href="{{ .RootURL }}/archive.xml" />
+	{{ end }}
+
+	<link href="{{ URI "/admin/static/oat.min.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="{{ URI "/admin/static/style.css" }}?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="/public/custom.css?v={{ .CustomAssetVersion }}" rel="stylesheet" type="text/css">
+	<script src="/public/custom.js?v={{ .CustomAssetVersion }}" async defer></script>
+
+	{{ if ne .FaviconURL "" }}
+		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />
+	{{ else }}
+		<link rel="icon" href="/public/static/favicon.png?v={{ .AssetVersion }}" type="image/png" />
+	{{ end }}
+</head>
+<body class="admin-public">
+	<div class="public-container">
+		<header class="mb-6">
+			<div class="auth-logo">
+				<a href="{{ if .EnablePublicSubPage }}{{ .RootURL}}/subscription/form{{ end }}">
+				{{ if ne .LogoURL "" }}
+					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
+				{{ else }}
+					<img src="/public/static/logo.svg?v={{ .AssetVersion }}" alt="{{ .Data.Title }}" />
+				{{ end }}
+				</a>
+			</div>
+		</header>
+	<div class="card">
+{{ end }}
+
+{{ define "admin-public-footer" }}
+	</div>
+	
+	<footer class="align-center text-light mt-6">
+		<small>
+		{{ L.T "public.poweredBy" }} <a target="_blank" rel="noreferrer" href="https://listmonk.app">listmonk</a>
+		</small>
+	</footer>
+	</div>
+</body>
+</html>
+{{ end }}

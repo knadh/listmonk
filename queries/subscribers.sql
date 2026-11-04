@@ -434,17 +434,24 @@ subs AS (
     FROM lists
     LEFT JOIN subscriber_lists ON (subscriber_lists.list_id = lists.id)
     WHERE subscriber_lists.subscriber_id = (SELECT id FROM prof)
+        AND ($3 OR lists.id = ANY($4::INT[]))
 ),
 views AS (
     SELECT subject as campaign, COUNT(subscriber_id) as views FROM campaign_views
         LEFT JOIN campaigns ON (campaigns.id = campaign_views.campaign_id)
         WHERE subscriber_id = (SELECT id FROM prof)
+        AND ($3 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = campaign_views.campaign_id AND list_id = ANY($4::INT[])
+        ))
         GROUP BY campaigns.id ORDER BY campaigns.id
 ),
 clicks AS (
     SELECT url, COUNT(subscriber_id) as clicks FROM link_clicks
         LEFT JOIN links ON (links.id = link_clicks.link_id)
         WHERE subscriber_id = (SELECT id FROM prof)
+        AND ($3 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = link_clicks.campaign_id AND list_id = ANY($4::INT[])
+        ))
         GROUP BY links.id ORDER BY links.id
 )
 SELECT (SELECT email FROM prof) as email,
@@ -473,6 +480,9 @@ WITH views AS (
     FROM campaign_views cv
     LEFT JOIN campaigns c ON c.id = cv.campaign_id
     WHERE cv.subscriber_id = $1
+        AND ($2 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = cv.campaign_id AND list_id = ANY($3::INT[])
+        ))
     GROUP BY c.id, c.uuid, c.name, c.subject
     ORDER BY last_viewed_at DESC
 ),
@@ -490,6 +500,9 @@ clicks AS (
     LEFT JOIN links l ON l.id = lc.link_id
     LEFT JOIN campaigns c ON c.id = lc.campaign_id
     WHERE lc.subscriber_id = $1
+        AND ($2 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = lc.campaign_id AND list_id = ANY($3::INT[])
+        ))
     GROUP BY l.id, l.url, c.id, c.uuid, c.name, c.subject
     ORDER BY last_clicked_at DESC
 )
@@ -507,12 +520,18 @@ WITH weeks AS (
     SELECT DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
     FROM campaign_views
     WHERE subscriber_id = $1
+        AND ($2 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = campaign_views.campaign_id AND list_id = ANY($3::INT[])
+        ))
         AND created_at >= CURRENT_DATE - INTERVAL '12 months' AND created_at <= NOW()
     GROUP BY date
 ), clicks AS (
     SELECT DATE_TRUNC('week', created_at)::DATE AS date, COUNT(*) AS count
     FROM link_clicks
     WHERE subscriber_id = $1
+        AND ($2 OR EXISTS (
+            SELECT 1 FROM campaign_lists WHERE campaign_id = link_clicks.campaign_id AND list_id = ANY($3::INT[])
+        ))
         AND created_at >= CURRENT_DATE - INTERVAL '12 months' AND created_at <= NOW()
     GROUP BY date
 )
