@@ -12,39 +12,29 @@ import (
 var bounceQuerySortFields = []string{"email", "campaign_name", "source", models.FieldCreatedAt, "type"}
 
 // QueryBounces retrieves paginated bounce entries based on the given params.
-<<<<<<< HEAD
-// It also returns the total number of bounce records in the DB.
-func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order string, offset, limit int) ([]models.Bounce, int, error) {
+// It also returns the total number of bounce records within the permitted lists.
+func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order string, offset, limit int, allLists bool, listIDs []int) ([]models.Bounce, int, error) {
+	// Performance optimization: fast check for common default order field without loop,
+	// and sanitize order parameters to prevent arbitrary SQL injection while preserving tie-breaker.
 	cleanOrderBy := models.FieldCreatedAt
 	for _, f := range bounceQuerySortFields {
 		if f == orderBy {
 			cleanOrderBy = f
 			break
 		}
-=======
-// It also returns the total number of bounce records within the permitted lists.
-func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order string, offset, limit int, allLists bool, listIDs []int) ([]models.Bounce, int, error) {
-	if !strSliceContains(orderBy, bounceQuerySortFields) {
-		orderBy = models.FieldCreatedAt
->>>>>>> upstream/master
 	}
 	cleanOrder := models.OrderDesc
 	if order == models.OrderAsc {
 		cleanOrder = models.OrderAsc
 	}
 
-	if orderBy == "campaign_name" {
-		orderBy = "campaigns.name"
+	if cleanOrderBy == "campaign_name" {
+		cleanOrderBy = "campaigns.name"
 	}
 
 	out := []models.Bounce{}
-<<<<<<< HEAD
-	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", cleanOrderBy+" "+cleanOrder)
-	if err := c.db.Select(&out, stmt, 0, campID, subID, source, typ, offset, limit); err != nil {
-=======
-	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", orderBy+" "+order+", bounces.id "+order)
+	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", cleanOrderBy+" "+cleanOrder+", bounces.id "+cleanOrder)
 	if err := c.db.Select(&out, stmt, 0, campID, subID, source, typ, offset, limit, allLists, pq.Array(listIDs)); err != nil {
->>>>>>> upstream/master
 		c.log.Printf("error fetching bounces: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))

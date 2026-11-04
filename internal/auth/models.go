@@ -249,30 +249,8 @@ func (u *User) GetPermittedLists(types PermType) (bool, []int) {
 		}
 	}
 
-<<<<<<< HEAD
-	// Collect all permitted list IDs based on the requested types.
-	resMap := make(map[int]struct{})
-	if get {
-		for _, id := range u.GetListIDs {
-			resMap[id] = struct{}{}
-		}
-	}
-	if manage {
-		for _, id := range u.ManageListIDs {
-			resMap[id] = struct{}{}
-		}
-	}
-
-	if len(resMap) > 0 {
-		out := make([]int, 0, len(resMap))
-		for id := range resMap {
-			out = append(out, id)
-		}
-		return false, out
-	}
-
-	return false, nil
-=======
+	// Performance optimization: Avoid allocating a map for deduplication when merging list IDs.
+	// Preserves list order and uses slices.Contains for simple zero-alloc-overhead deduplication.
 	var out []int
 	if get {
 		out = append(out, u.GetListIDs...)
@@ -286,7 +264,6 @@ func (u *User) GetPermittedLists(types PermType) (bool, []int) {
 	}
 
 	return false, out
->>>>>>> upstream/master
 }
 
 // FilterListsByPerm returns list IDs filtered by either of the given perms.
