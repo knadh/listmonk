@@ -201,12 +201,23 @@ func (a *App) ViewSubscriber(c *echo.Context) error {
 
 // ViewSubscriberBounces renders the bounces tab of a subscriber.
 func (a *App) ViewSubscriberBounces(c *echo.Context) error {
-	out, err := a.getViewSubscriber(c)
-	if err != nil {
+	user := auth.GetUser(c)
+	allLists, bounceListIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+
+	// Verify list perms.
+	id := getID(c)
+	if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{id}); err != nil {
 		return err
 	}
 
-	bounces, _, err := a.core.QueryBounces(0, out.ID, "", "", "", "", 0, 1000)
+	out, err := a.core.GetSubscriber(id, "", "")
+	if err != nil {
+		return err
+	}
+	maskRestrictedSubLists(user, &out)
+
+	// Get bounces from the DB.
+	bounces, _, err := a.core.QueryBounces(0, out.ID, "", "", "", "", 0, 1000, allLists, bounceListIDs)
 	if err != nil {
 		return err
 	}
@@ -228,7 +239,9 @@ func (a *App) ViewSubscriberInfo(c *echo.Context) error {
 		return err
 	}
 
-	act, err := a.core.GetSubscriberActivity(out.ID)
+	user := auth.GetUser(c)
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	act, err := a.core.GetSubscriberActivity(out.ID, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -239,7 +252,7 @@ func (a *App) ViewSubscriberInfo(c *echo.Context) error {
 		Subscriber: out,
 	}
 
-	data.Charts, err = a.core.GetSubscriberCharts(out.ID)
+	data.Charts, err = a.core.GetSubscriberCharts(out.ID, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -372,7 +385,8 @@ func (a *App) GetSubscriberActivity(c *echo.Context) error {
 	}
 
 	// Fetch the subscriber activity from the DB.
-	out, err := a.core.GetSubscriberActivity(id)
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	out, err := a.core.GetSubscriberActivity(id, allLists, listIDs)
 	if err != nil {
 		return err
 	}
@@ -1033,7 +1047,9 @@ func (a *App) ExportSubscriberData(c *echo.Context) error {
 		return err
 	}
 
-	_, b, err := a.exportSubscriberData(id, "", a.cfg.Privacy.Exportable)
+	user := auth.GetUser(c)
+	allLists, listIDs := user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
+	_, b, err := a.exportSubscriberData(id, "", a.cfg.Privacy.Exportable, allLists, listIDs)
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
@@ -1050,8 +1066,8 @@ func (a *App) ExportSubscriberData(c *echo.Context) error {
 // subscriptions, campaign_views, link_clicks (if they're enabled in the config)
 // and returns a formatted, indented JSON payload. Either takes a numeric id
 // and an empty subUUID or takes 0 and a string subUUID.
-func (a *App) exportSubscriberData(id int, subUUID string, exportables map[string]bool) (models.SubscriberExportProfile, []byte, error) {
-	data, err := a.core.GetSubscriberProfileForExport(id, subUUID)
+func (a *App) exportSubscriberData(id int, subUUID string, exportables map[string]bool, allLists bool, listIDs []int) (models.SubscriberExportProfile, []byte, error) {
+	data, err := a.core.GetSubscriberProfileForExport(id, subUUID, allLists, listIDs)
 	if err != nil {
 		return data, nil, err
 	}

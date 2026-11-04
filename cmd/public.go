@@ -145,6 +145,11 @@ var (
 
 // Render executes and renders a template for echo.
 func (t *pubTplRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
+	// Auth confirmations and errors use the public admin layout.
+	if name == tplMessage && (strings.HasPrefix(c.Path(), "/admin/") || strings.HasPrefix(c.Path(), "/auth/")) {
+		name = "admin-public-message"
+	}
+
 	return t.templates.ExecuteTemplate(w, name, tplData{
 		SiteName:            t.SiteName,
 		RootURL:             t.RootURL,
@@ -713,7 +718,7 @@ func (a *App) SelfExportSubscriberData(c *echo.Context) error {
 	// list subscriptions, campaign views, and link clicks. Names of
 	// private lists are replaced with "Private list".
 	subUUID := c.Param("subUUID")
-	data, b, err := a.exportSubscriberData(0, subUUID, a.cfg.Privacy.Exportable)
+	data, b, err := a.exportSubscriberData(0, subUUID, a.cfg.Privacy.Exportable, true, nil)
 	if err != nil {
 		a.log.Printf("error exporting subscriber data: %s", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,

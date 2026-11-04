@@ -12,6 +12,7 @@ import (
 var bounceQuerySortFields = []string{"email", "campaign_name", "source", models.FieldCreatedAt, "type"}
 
 // QueryBounces retrieves paginated bounce entries based on the given params.
+<<<<<<< HEAD
 // It also returns the total number of bounce records in the DB.
 func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order string, offset, limit int) ([]models.Bounce, int, error) {
 	cleanOrderBy := models.FieldCreatedAt
@@ -20,15 +21,30 @@ func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order strin
 			cleanOrderBy = f
 			break
 		}
+=======
+// It also returns the total number of bounce records within the permitted lists.
+func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order string, offset, limit int, allLists bool, listIDs []int) ([]models.Bounce, int, error) {
+	if !strSliceContains(orderBy, bounceQuerySortFields) {
+		orderBy = models.FieldCreatedAt
+>>>>>>> upstream/master
 	}
 	cleanOrder := models.OrderDesc
 	if order == models.OrderAsc {
 		cleanOrder = models.OrderAsc
 	}
 
+	if orderBy == "campaign_name" {
+		orderBy = "campaigns.name"
+	}
+
 	out := []models.Bounce{}
+<<<<<<< HEAD
 	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", cleanOrderBy+" "+cleanOrder)
 	if err := c.db.Select(&out, stmt, 0, campID, subID, source, typ, offset, limit); err != nil {
+=======
+	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", orderBy+" "+order+", bounces.id "+order)
+	if err := c.db.Select(&out, stmt, 0, campID, subID, source, typ, offset, limit, allLists, pq.Array(listIDs)); err != nil {
+>>>>>>> upstream/master
 		c.log.Printf("error fetching bounces: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))
@@ -43,10 +59,10 @@ func (c *Core) QueryBounces(campID, subID int, source, typ, orderBy, order strin
 }
 
 // GetBounce retrieves bounce entries based on the given params.
-func (c *Core) GetBounce(id int) (models.Bounce, error) {
+func (c *Core) GetBounce(id int, allLists bool, listIDs []int) (models.Bounce, error) {
 	var out []models.Bounce
 	stmt := strings.ReplaceAll(c.q.QueryBounces, "%order%", "id "+models.OrderAsc)
-	if err := c.db.Select(&out, stmt, id, 0, 0, "", "", 0, 1); err != nil {
+	if err := c.db.Select(&out, stmt, id, 0, 0, "", "", 0, 1, allLists, pq.Array(listIDs)); err != nil {
 		c.log.Printf("error fetching bounces: %v", err)
 		return models.Bounce{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.bounce}", "error", pqErrMsg(err)))
@@ -92,8 +108,8 @@ func (c *Core) RecordBounce(b models.Bounce) error {
 }
 
 // BlocklistBouncedSubscribers blocklists subscribers matching bounce IDs or filters.
-func (c *Core) BlocklistBouncedSubscribers(ids []int, campID int, source, typ string) error {
-	if _, err := c.q.BlocklistBouncedSubscribers.Exec(pq.Array(ids), campID, source, typ); err != nil {
+func (c *Core) BlocklistBouncedSubscribers(ids []int, campID int, source, typ string, allLists bool, listIDs []int) error {
+	if _, err := c.q.BlocklistBouncedSubscribers.Exec(pq.Array(ids), campID, source, typ, allLists, pq.Array(listIDs)); err != nil {
 		c.log.Printf("error blocklisting bounced subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("subscribers.errorBlocklisting", "error", err.Error()))
 	}
@@ -102,13 +118,13 @@ func (c *Core) BlocklistBouncedSubscribers(ids []int, campID int, source, typ st
 }
 
 // DeleteBounce deletes a bounce record.
-func (c *Core) DeleteBounce(id int) error {
-	return c.DeleteBounces([]int{id}, false, 0, "", "")
+func (c *Core) DeleteBounce(id int, allLists bool, listIDs []int) error {
+	return c.DeleteBounces([]int{id}, false, 0, "", "", allLists, listIDs)
 }
 
 // DeleteBounces deletes bounce records by IDs or filters.
-func (c *Core) DeleteBounces(ids []int, all bool, campID int, source, typ string) error {
-	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids), all, campID, source, typ); err != nil {
+func (c *Core) DeleteBounces(ids []int, all bool, campID int, source, typ string, allLists bool, listIDs []int) error {
+	if _, err := c.q.DeleteBounces.Exec(pq.Array(ids), all, campID, source, typ, allLists, pq.Array(listIDs)); err != nil {
 		c.log.Printf("error deleting lists: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.list}", "error", pqErrMsg(err)))

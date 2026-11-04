@@ -10,6 +10,8 @@ ______________________________________________________________________
 
 Allows sending transactional messages to one or more subscribers via a preconfigured transactional template.
 
+Refering to an existing subscriber in the DB requires either `subscribers:get` (via list permissions) or `subscribers:get_all`. `external` mode does not require these permission.
+
 ##### Parameters
 
 | Name              | Type       | Required | Description                                                                |

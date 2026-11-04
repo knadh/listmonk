@@ -102,7 +102,7 @@ input[disabled] {
 
 .container {
   margin: 60px auto 15px auto;
-  max-width: 550px;  
+  max-width: 550px;
 }
 
 .wrap {
@@ -188,26 +188,6 @@ input[disabled] {
   .pg-page.pg-selected {
     text-decoration: underline;
     font-weight: bold;
-  }
-
-.login .submit {
-  margin-top: 20px;
-}
-  .login button {
-    width: 100%;
-    vertical-align: middle;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .login button img {
-    max-width: 24px;
-    margin-right: 10px;
-  }
-  .login input[name=totp_code] {
-    font-size: 2em;
-    letter-spacing: 5px;
-    text-align: center;
   }
 
 footer.container {
