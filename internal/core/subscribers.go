@@ -175,7 +175,12 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	// Handle the special "none" subscription status for orphan subscribers.
 	cond, subStatus = models.ApplyOrphanFilter(cond, subStatus)
 
-	// stmt is the raw SQL query.
+	// The SQL query filter is an intentionally supported feature, documented
+	// in docs/docs/content/security-reports.md and gated by subscribers:sql_query.
+	// sanitizeSQLExp rejects multi-statement input; the read-only transaction and
+	// table allowlist further constrain execution. CodeQL cannot model this
+	// permission-gated SQL-expression feature.
+	// codeql[go/sql-injection]
 	stmt := strings.ReplaceAll(c.q.QuerySubscribers, "%query%", cond)
 	stmt = strings.ReplaceAll(stmt, "%order%", cleanOrderBy+" "+cleanOrder)
 
@@ -344,6 +349,8 @@ func (c *Core) ExportSubscribers(searchStr, query string, subIDs, listIDs []int,
 	// Handle the special "none" subscription status for orphan subscribers.
 	cond, subStatus = models.ApplyOrphanFilter(cond, subStatus)
 
+	// This is the same permission-gated SQL-expression feature described above.
+	// codeql[go/sql-injection]
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersForExport, "%query%", cond)
 
 	// Validate the tables used in the query.
@@ -694,6 +701,9 @@ func (c *Core) getSubscriberCount(searchStr, queryExp, subStatus, subscriberStat
 
 	// Create a readonly transaction that just does COUNT() to obtain the count of results
 	// and to ensure that the arbitrary query is indeed readonly.
+	// This expression has already passed sanitizeSQLExp at each caller and is
+	// executed in a read-only transaction as part of the documented query feature.
+	// codeql[go/sql-injection]
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersCount, "%query%", queryExp)
 	tx, err := c.beginSubQueryTx(true)
 	if err != nil {
@@ -804,6 +814,9 @@ func (c *Core) compileSubscriberQueryTpl(searchStr, queryExp string, subStatus, 
 	}
 
 	// Validate before executing the dry run.
+	// The query expression is intentionally raw SQL, as documented in
+	// docs/docs/content/security-reports.md; it is sanitized and dry-run read-only.
+	// codeql[go/sql-injection]
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersTpl, "%query%", cond)
 	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
 		return "", err
@@ -840,6 +853,9 @@ func (c *Core) execSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs
 	}
 
 	// Insert the subscriber filter query into the target query.
+	// filterExp is produced by compileSubscriberQueryTpl after sanitization and
+	// a read-only dry run. This preserves the documented SQL query feature.
+	// codeql[go/sql-injection]
 	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", filterExp)
 
 	// First argument is the boolean indicating if the query is a dry run.
