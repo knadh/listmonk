@@ -137,6 +137,8 @@ $ helm upgrade \
 <a href="https://pethost.dev/templates/listmonk/"><img src="https://pethost.dev/button.svg" alt="Deploy on Pethost" style="max-width: 150px;"/></a>
 <br />
 <a href="https://podway.io/start?app=listmonk&ref=docs-listmonk"><img src="https://podway.io/img/deploy-on-podway.svg" alt="Deploy on podway" style="max-width: 150px;"/></a>
+<br />
+<a href="https://zop.dev/zopday/app/deploy?image=listmonk/listmonk&port=9000&name=listmonk&utm_source=github&utm_medium=one_click&utm_content=listmonk"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" style="max-width: 150px;"/></a>
 
 ## Tutorials
 * [Listmonk with Forward Email for Secure Newsletter Delivery](https://forwardemail.net/en/guides/newsletter-with-listmonk)
