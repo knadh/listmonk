@@ -235,6 +235,13 @@ function groupCounts(rows, idKey) {
   return groups;
 }
 
+// Build one date-ordered x-axis from every series. Without it, Chart.js builds
+// the axis in dataset order and appends dates only a later series has to the end.
+function axisLabels(rows) {
+  const times = rows.map((row) => new Date(row.timestamp).getTime()).sort((a, b) => a - b);
+  return [...new Set(times.map(toLabel))];
+}
+
 // Render per-item time series and totals, with optional unsubscription lines.
 function renderCounts(key, items, rows, unsubscriptions) {
   const idKey = window._analyticsResource === 'lists' ? 'list_id' : 'campaign_id';
@@ -263,7 +270,7 @@ function renderCounts(key, items, rows, unsubscriptions) {
     })));
   }
 
-  draw(`chart-${key}`, DEFAULT_LINE, { datasets });
+  draw(`chart-${key}`, DEFAULT_LINE, { labels: axisLabels([...rows, ...(unsubscriptions || [])]), datasets });
   const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, {
     labels,
     datasets: [{
