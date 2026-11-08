@@ -719,35 +719,34 @@ func traverseQueryPlan(node map[string]any, tables map[string]struct{}) {
 	}
 }
 
-// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
-// to filter subscribers from the subscribers table and prepares a query
-// using the raw `query-subscribers-template` template. It sanitizes the
-// query by dry-running it as a read only query.
-func (c *Core) compileSubscriberQueryTpl(searchStr, queryExp string, subStatus, subscriberStatus string) (string, error) {
+// querySubscriberIDs resolves an arbitrary WHERE expression to subscriber IDs
+// inside a read-only transaction. Only these IDs may be used in a writable query.
+func (c *Core) querySubscriberIDs(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) ([]int, error) {
 	// There's an arbitrary query condition.
 	cond := "TRUE"
 	if queryExp != "" {
 		cond = queryExp
 	}
 
-	// Validate before executing the dry run.
+	// Validate the same query and arguments used to select the IDs.
 	stmt := strings.ReplaceAll(c.q.QuerySubscribersTpl, "%query%", cond)
-	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
-		return "", err
+	args := []any{false, pq.Array(listIDs), subStatus, searchStr, subscriberStatus}
+	if err := validateQueryTables(c.db, stmt, allowedSubQueryTables, args...); err != nil {
+		return nil, err
 	}
 
 	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer tx.Rollback()
 
-	// Perform the dry run.
-	if _, err := tx.Exec(stmt, true, pq.Int64Array{}, subStatus, searchStr, subscriberStatus); err != nil {
-		return "", err
+	var ids []int
+	if err := tx.Select(&ids, stmt, args...); err != nil {
+		return nil, err
 	}
 
-	return stmt, nil
+	return ids, nil
 }
 
 // execSubQueryTpl takes an arbitrary WHERE expressions and a subscriber
@@ -756,21 +755,21 @@ func (c *Core) compileSubscriberQueryTpl(searchStr, queryExp string, subStatus, 
 func (c *Core) execSubQueryTpl(searchStr, queryExp, baseQueryTpl string, listIDs []int, subStatus, subscriberStatus string, args ...any) error {
 	queryExp, subStatus = models.ApplyOrphanFilter(queryExp, subStatus)
 
-	// Perform a dry run.
-	filterExp, err := c.compileSubscriberQueryTpl(searchStr, queryExp, subStatus, subscriberStatus)
-	if err != nil {
-		return err
-	}
-
 	if len(listIDs) == 0 {
 		listIDs = []int{}
 	}
 
-	// Insert the subscriber filter query into the target query.
-	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", filterExp)
+	ids, err := c.querySubscriberIDs(searchStr, queryExp, listIDs, subStatus, subscriberStatus)
+	if err != nil {
+		return err
+	}
+	if len(ids) == 0 {
+		return nil
+	}
 
-	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]any{false, pq.Array(listIDs), subStatus, searchStr, subscriberStatus}, args...)
+	// Never interpolate the user expression into a writable statement.
+	stmt := strings.ReplaceAll(baseQueryTpl, "%query%", "SELECT UNNEST($1::INT[]) AS id")
+	a := append([]any{pq.Array(ids)}, args...)
 
 	// Execute the query on the DB.
 	if _, err := c.db.Exec(stmt, a...); err != nil {
