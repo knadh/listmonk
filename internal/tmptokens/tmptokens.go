@@ -4,6 +4,7 @@
 package tmptokens
 
 import (
+	"crypto/subtle"
 	"errors"
 	"sync"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 const (
 	// maxTries is the maximum number of verification attempts allowed for a token.
-	// After this many failed checks, the token is automatically deleted.
+	// Further checks are rejected until the token expires.
 	maxTries = 15
 )
 
@@ -54,11 +55,58 @@ func Set(id string, ttl time.Duration, data any) {
 	}
 }
 
+// SetNX stores a token only if the ID does not exist or has expired.
+// Returns data eitherway.
+func SetNX(id string, ttl time.Duration, data any) any {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if token, ok := tokens[id]; ok && time.Since(token.CreatedAt) <= token.TTL {
+		return token.Data
+	}
+
+	tokens[id] = Token{
+		TTL:       ttl,
+		CreatedAt: time.Now(),
+		Data:      data,
+	}
+	return data
+}
+
+// Match checks a token without increasing attempt counts. If consume is true,
+// matching token is deleted atomically; a mismatch leaves it unchanged.
+func Match(id, value string, consume bool) bool {
+	mu.Lock()
+	defer mu.Unlock()
+
+	token, ok := tokens[id]
+	if !ok {
+		return false
+	}
+
+	// Expired.
+	if time.Since(token.CreatedAt) > token.TTL {
+		delete(tokens, id)
+		return false
+	}
+
+	stored, ok := token.Data.(string)
+	if !ok || subtle.ConstantTimeCompare([]byte(stored), []byte(value)) != 1 {
+		return false
+	}
+
+	if consume {
+		delete(tokens, id)
+	}
+
+	return true
+}
+
 // Check retrieves a token by ID without deleting it.
 // An error is returned if the token doesn't exist or has expired.
 // Unlike Get(), this method does not consume/delete the token.
-// It also increments the check counter and deletes the token if maxTries is exceeded,
-// acting as a rate limiter.
+// It allows at most maxTries checks. Exhausted tokens remain until expiry so
+// SetNX cannot recreate them and reset the attempt count.
 func Check(id string) (any, error) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -74,14 +122,11 @@ func Check(id string) (any, error) {
 		return nil, Err
 	}
 
-	// Increment the rate limit counter.
-	token.Count++
-
-	// Check if max attempts exceeded.
-	if token.Count > maxTries {
-		delete(tokens, id)
+	// Retain exhausted tokens until expiry to prevent reset attacks.
+	if token.Count >= maxTries {
 		return nil, Err
 	}
+	token.Count++
 
 	// Update the token with the new count.
 	tokens[id] = token
