@@ -50,8 +50,8 @@
 				<div data-field>
 					<label>{{ .L.T "settings.security.OIDCRedirectURL" }}</label>
 					<fieldset class="group">
-						<input readonly value="{{ $.ConfigJS.RootURL }}/auth/oidc" />
-						<button type="button" class="outline" title="{{ .L.T "globals.messages.clickToCopy" }}" @click="copyToClipboard('{{ $.ConfigJS.RootURL }}/auth/oidc')">{{ Icon "copy" }}</button>
+						<input type="url" pattern="https?://.*" required x-model="form['security.oidc'].redirect_url" />
+						<button type="button" class="outline" title="{{ .L.T "globals.messages.clickToCopy" }}" @click="copyToClipboard(form['security.oidc'].redirect_url)">{{ Icon "copy" }}</button>
 					</fieldset>
 					<template x-if="!isURLOk">
 						<p class="text-danger" data-hint>

@@ -1455,7 +1455,7 @@ func initAuth(co *core.Core, db *sql.DB, ko *koanf.Koanf) (bool, *auth.Auth) {
 			AutoCreateUsers:   ko.Bool("security.oidc.auto_create_users"),
 			DefaultUserRoleID: ko.Int("security.oidc.default_user_role_id"),
 			DefaultListRoleID: ko.Int("security.oidc.default_list_role_id"),
-			RedirectURL:       fmt.Sprintf("%s/auth/oidc", strings.TrimRight(ko.String("app.root_url"), "/")),
+			RedirectURL:       ko.String("security.oidc.redirect_url"),
 		}
 	}
 

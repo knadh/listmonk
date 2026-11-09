@@ -55,6 +55,13 @@ func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
             WHERE NOT (v ? 'exclude_from_default')
         );
 
+        -- Preserve the existing OIDC redirect URL.
+        UPDATE settings SET value = JSONB_SET(value, '{redirect_url}', (
+            SELECT TO_JSONB(RTRIM(value#>>'{}', '/') || '/auth/oidc')
+            FROM settings WHERE key = 'app.root_url'
+        ))
+        WHERE key = 'security.oidc' AND NOT (value ? 'redirect_url');
+
         -- OIDC RP-initiated logout option.
         UPDATE settings SET value = JSONB_SET(value, '{logout}', 'false'::JSONB)
         WHERE key = 'security.oidc' AND NOT (value ? 'logout');

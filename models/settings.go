@@ -67,6 +67,7 @@ type Settings struct {
 		Logout            bool              `json:"logout"`
 		VerifyEmail       bool              `json:"verify_email"`
 		ProviderURL       string            `json:"provider_url"`
+		RedirectURL       string            `json:"redirect_url"`
 		ProviderName      string            `json:"provider_name"`
 		ClientID          string            `json:"client_id"`
 		ClientSecret      string            `json:"client_secret"`

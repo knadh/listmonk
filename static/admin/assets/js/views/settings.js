@@ -106,6 +106,11 @@ function component(settings, userRoles, listRoles) {
 
     init() {
       this.$nextTick(() => this.buildSearchIndex());
+      this.$watch("form['security.oidc'].enabled", (enabled) => {
+        if (enabled && !this.form['security.oidc'].redirect_url) {
+          this.form['security.oidc'].redirect_url = `${this.form['app.root_url'].replace(/\/+$/, '')}/auth/oidc`;
+        }
+      });
     },
 
     // ===============
@@ -194,7 +199,7 @@ function component(settings, userRoles, listRoles) {
     // Getters / setters.
     get isURLOk() {
       try {
-        const url = new URL(config.root_url);
+        const url = new URL(this.form['security.oidc'].redirect_url);
         return url.hostname !== 'localhost' && url.hostname !== '127.0.0.1';
       } catch (e) {
         return false;
