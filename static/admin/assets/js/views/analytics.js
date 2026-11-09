@@ -252,6 +252,7 @@ function renderCounts(key, items, rows, unsubscriptions) {
 
   const labels = datasets.map((d) => d.label);
   const totals = items.map((c) => counts.get(c.id)?.total || 0);
+  const sent = items.map((c) => key === 'views' || key === 'clicks' ? 0 : c.sent);
 
   if (unsubscriptions) {
     const label = document.getElementById(`chart-${key}`)?.dataset.extraLabel;
@@ -268,7 +269,7 @@ function renderCounts(key, items, rows, unsubscriptions) {
     labels,
     datasets: [{
       data: totals,
-      sent: items.map((c) => c.sent),
+      sent,
       backgroundColor: chartColors,
       borderWidth: 6,
     }],
@@ -279,7 +280,7 @@ function renderCounts(key, items, rows, unsubscriptions) {
     legend.querySelectorAll('[data-index]').forEach((item) => {
       const n = Number(item.dataset.index);
       item.querySelector('[data-marker]').style.color = datasets[n].borderColor;
-      item.querySelector('[data-count]').textContent = formatCount(totals[n], items[n].sent);
+      item.querySelector('[data-count]').textContent = formatCount(totals[n], sent[n]);
       const unsubCount = item.querySelector('[data-unsubscription-count]');
       if (unsubCount) {
         unsubCount.textContent = unsubs.get(items[n].id)?.total || 0;
