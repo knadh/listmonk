@@ -71,6 +71,7 @@ type Settings struct {
 		ClientID          string            `json:"client_id"`
 		ClientSecret      string            `json:"client_secret"`
 		AutoCreateUsers   bool              `json:"auto_create_users"`
+		AutoSyncRoles     bool              `json:"auto_sync_roles"`
 		DefaultUserRoleID null.Int          `json:"default_user_role_id"`
 		DefaultListRoleID null.Int          `json:"default_list_role_id"`
 		Roles             []OIDCRoleMapping `json:"roles"`

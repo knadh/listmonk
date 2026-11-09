@@ -116,6 +116,7 @@ type Config struct {
 			ClientID          string                   `koanf:"client_id"`
 			ClientSecret      string                   `koanf:"client_secret"`
 			AutoCreateUsers   bool                     `koanf:"auto_create_users"`
+			AutoSyncRoles     bool                     `koanf:"auto_sync_roles"`
 			DefaultUserRoleID int                      `koanf:"default_user_role_id"`
 			DefaultListRoleID int                      `koanf:"default_list_role_id"`
 			Roles             []models.OIDCRoleMapping `koanf:"roles"`

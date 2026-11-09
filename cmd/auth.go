@@ -314,6 +314,22 @@ func (a *App) OIDCFinish(c *echo.Context) error {
 		return a.renderLoginPage(c, echo.NewHTTPError(http.StatusForbidden, a.i18n.T("users.invalidLogin")))
 	}
 
+	// Sync the roles from claims.
+	if a.cfg.Security.OIDC.AutoSyncRoles {
+		userRoleID, listRoleID := resolveOIDCRoles(claims.RawClaims, a.cfg.Security.OIDC.Roles, a.cfg.Security.OIDC.DefaultUserRoleID, a.cfg.Security.OIDC.DefaultListRoleID)
+		user.UserRoleID = userRoleID
+		user.ListRoleID = nil
+		if listRoleID > 0 {
+			user.ListRoleID = &listRoleID
+		}
+
+		user.Password = null.String{}
+		user, err = a.core.UpdateUser(user.ID, user)
+		if err != nil {
+			return a.renderLoginPage(c, err)
+		}
+	}
+
 	// Update the user login state (avatar, logged in date) in the DB.
 	if err := a.core.UpdateUserLogin(user.ID, claims.Picture); err != nil {
 		return a.renderLoginPage(c, err)
@@ -930,7 +946,7 @@ func validateOIDCRoles(roles []models.OIDCRoleMapping, userRoles []auth.Role, li
 // validateOIDCSettings checks defaults even when automatic user creation is disabled.
 func validateOIDCSettings(set models.Settings, userRoles []auth.Role, listRoles []auth.ListRole) error {
 	o := set.OIDC
-	if o.AutoCreateUsers || o.DefaultUserRoleID.Valid {
+	if o.AutoCreateUsers || o.AutoSyncRoles || o.DefaultUserRoleID.Valid {
 		if !o.DefaultUserRoleID.Valid || !slices.ContainsFunc(userRoles, func(r auth.Role) bool { return r.ID == o.DefaultUserRoleID.Int }) {
 			return fmt.Errorf("OIDC default user role ID %d does not exist", o.DefaultUserRoleID.Int)
 		}

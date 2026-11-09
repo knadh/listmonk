@@ -82,8 +82,13 @@
 					<small data-hint>{{ .L.T "settings.security.OIDCAutoCreateUsersHelp" }}</small>
 				</label>
 
+				<label data-field class="w-100">
+					<input type="checkbox" role="switch" x-model="form['security.oidc'].auto_sync_roles" />
+					{{ .L.T "settings.security.OIDCAutoSyncRoles" }}
+				</label>
 
-				<fieldset :disabled="!form['security.oidc'].auto_create_users">
+
+				<fieldset :disabled="!form['security.oidc'].auto_create_users && !form['security.oidc'].auto_sync_roles">
 					<legend>{{ .L.T "globals.terms.roles" }}</legend>
 					<div data-field>
 						<label for="oidc-user-role">{{ .L.T "settings.security.OIDCDefaultUserRole" }}</label>
@@ -106,10 +111,9 @@
 						</select>
 						<small data-hint>{{ .L.T "settings.security.OIDCDefaultRoleHelp" }}</small>
 					</div>
-
 				</fieldset>
 
-				<fieldset class="card" :disabled="!form['security.oidc'].auto_create_users">
+				<fieldset class="card" :disabled="!form['security.oidc'].auto_create_users && !form['security.oidc'].auto_sync_roles">
 					<legend>{{ .L.T "settings.security.OIDCRoleMapping" }}</legend>
 					<p data-hint>{{ .L.T "settings.security.OIDCRoleMappingHelp" }}</p>
 					<template x-for="(mapping, n) in form['security.oidc'].roles" :key="n">
