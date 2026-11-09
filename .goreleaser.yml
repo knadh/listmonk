@@ -43,7 +43,6 @@ archives:
       - README.md
       - LICENSE
 
-# Prereleases update beta; stable releases update latest.
 dockers:
   - use: buildx
     goos: linux
@@ -145,6 +144,20 @@ dockers:
       - docker-entrypoint.sh
 
 docker_manifests:
+  - name_template: "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:v{{ .Major }}"
+    skip_push: auto
+    image_templates:
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv6"
+      - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv7"
+  - name_template: "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:v{{ .Major }}"
+    skip_push: auto
+    image_templates:
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv6"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Tag }}-armv7"
   - name_template: "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}"
     image_templates:
       - "{{ .Env.DOCKER_ORG }}/{{ .ProjectName }}:{{ if .Prerelease }}beta{{ else }}latest{{ end }}-amd64"
