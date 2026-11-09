@@ -264,7 +264,8 @@ function renderCounts(key, items, rows, unsubscriptions) {
     })));
   }
 
-  draw(`chart-${key}`, DEFAULT_LINE, { datasets });
+  const dates = [...new Set(datasets.flatMap((d) => d.data.map((p) => p.x)))].sort();
+  draw(`chart-${key}`, DEFAULT_LINE, { labels: dates, datasets });
   const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, {
     labels,
     datasets: [{
