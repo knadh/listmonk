@@ -24,7 +24,7 @@
 
     {{ if .EnablePublicSubPage }}
         <div class="right">
-            <a href="{{ .RootURL }}/archive.xml">
+            <a href="{{ .RootURL }}/archive{{ if .Data.ListUUID }}/list/{{ .Data.ListUUID }}{{ end }}.xml">
                 <img src="{{ .RootURL }}/public/static/rss.svg" alt="RSS" class="feed"
                     width="16" height="16" />
             </a>

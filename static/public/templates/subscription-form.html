@@ -22,6 +22,11 @@
                     <li>
                         <input checked="true" id="l-{{ $l.UUID}}" type="checkbox" name="l" value="{{ $l.UUID }}" >
                         <label for="l-{{ $l.UUID}}">{{ $l.Name }}</label>
+                        {{ if $.EnablePublicArchive }}
+                            <a href="{{ $.RootURL }}/archive/list/{{ $l.UUID }}.xml" class="rss">
+                                <img src="{{ $.RootURL }}/public/static/rss.svg" alt="RSS" />
+                            </a>
+                        {{ end }}
                         {{ if ne $l.Description "" }}
                             <p class="description">{{ $l.Description }}</p>
                         {{ end }}

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gorilla/feeds"
 	"github.com/knadh/listmonk/internal/manager"
@@ -27,7 +28,7 @@ type campArchive struct {
 func (a *App) GetCampaignArchives(c *echo.Context) error {
 	// Get archives from the DB.
 	pg := a.pg.NewFromURL(c.Request().URL.Query())
-	camps, total, err := a.getCampaignArchives(pg.Offset, pg.Limit, false)
+	camps, total, err := a.getCampaignArchives(pg.Offset, pg.Limit, false, "")
 	if err != nil {
 		return err
 	}
@@ -59,7 +60,7 @@ func (a *App) GetCampaignArchivesFeed(c *echo.Context) error {
 	)
 
 	// Get archives from the DB.
-	camps, _, err := a.getCampaignArchives(pg.Offset, pg.Limit, showFullContent)
+	camps, _, err := a.getCampaignArchives(pg.Offset, pg.Limit, showFullContent, strings.TrimSuffix(c.Param("listUUID"), ".xml"))
 	if err != nil {
 		return err
 	}
@@ -101,7 +102,7 @@ func (a *App) GetCampaignArchivesFeed(c *echo.Context) error {
 func (a *App) CampaignArchivesPage(c *echo.Context) error {
 	// Get archives from the DB.
 	pg := a.pg.NewFromURL(c.Request().URL.Query())
-	out, total, err := a.getCampaignArchives(pg.Offset, pg.Limit, false)
+	out, total, err := a.getCampaignArchives(pg.Offset, pg.Limit, false, c.Param("listUUID"))
 	if err != nil {
 		return err
 	}
@@ -114,7 +115,8 @@ func (a *App) CampaignArchivesPage(c *echo.Context) error {
 		Campaigns   []campArchive
 		TotalPages  int
 		Pagination  template.HTML
-	}{title, title, out, pg.TotalPages, template.HTML(pg.HTML("", nil))})
+		ListUUID    string
+	}{title, title, out, pg.TotalPages, template.HTML(pg.HTML("", nil)), c.Param("listUUID")})
 }
 
 // CampaignArchivePage renders the public campaign archives page.
@@ -124,6 +126,7 @@ func (a *App) CampaignArchivePage(c *echo.Context) error {
 		idStr      = c.Param("id")
 		uuid, slug string
 	)
+
 	if reUUID.MatchString(idStr) {
 		uuid = idStr
 	} else {
@@ -178,7 +181,7 @@ func (a *App) CampaignArchivePage(c *echo.Context) error {
 // CampaignArchivePageLatest renders the latest public campaign.
 func (a *App) CampaignArchivePageLatest(c *echo.Context) error {
 	// Get the latest campaign from the DB.
-	camps, _, err := a.getCampaignArchives(0, 1, true)
+	camps, _, err := a.getCampaignArchives(0, 1, true, "")
 	if err != nil {
 		return err
 	}
@@ -192,9 +195,23 @@ func (a *App) CampaignArchivePageLatest(c *echo.Context) error {
 	return c.HTML(http.StatusOK, camp.Content)
 }
 
+// ListArchivePage renders a list's public archives or RSS feed.
+func (a *App) ListArchivePage(c *echo.Context) error {
+	listUUID := c.Param("listUUID")
+	if !reUUID.MatchString(strings.TrimSuffix(listUUID, ".xml")) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidUUID"))
+	}
+
+	if strings.HasSuffix(listUUID, ".xml") {
+		return a.GetCampaignArchivesFeed(c)
+	}
+
+	return a.CampaignArchivesPage(c)
+}
+
 // getCampaignArchives fetches the public campaign archives from the DB.
-func (a *App) getCampaignArchives(offset, limit int, renderBody bool) ([]campArchive, int, error) {
-	pubCamps, total, err := a.core.GetArchivedCampaigns(offset, limit)
+func (a *App) getCampaignArchives(offset, limit int, renderBody bool, listUUID string) ([]campArchive, int, error) {
+	pubCamps, total, err := a.core.GetArchivedCampaigns(offset, limit, listUUID)
 	if err != nil {
 		return []campArchive{}, total, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorFetchingCampaign"))
 	}

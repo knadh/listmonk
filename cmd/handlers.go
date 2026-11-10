@@ -327,6 +327,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		if a.cfg.EnablePublicArchive {
 			g.GET("/archive", a.CampaignArchivesPage)
 			g.GET("/archive.xml", a.GetCampaignArchivesFeed)
+			g.GET("/archive/list/:listUUID", a.ListArchivePage)
 			g.GET("/archive/:id", a.CampaignArchivePage)
 			g.GET("/archive/latest", a.CampaignArchivePageLatest)
 		}

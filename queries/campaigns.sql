@@ -106,6 +106,11 @@ SELECT COUNT(*) OVER () AS total, campaigns.*,
         ELSE templates.id = campaigns.archive_template_id END
     )
     WHERE campaigns.archive=true AND campaigns.type='regular' AND campaigns.status=ANY('{running, paused, finished}')
+    AND ($4 = '' OR EXISTS (
+        SELECT 1 FROM campaign_lists
+        JOIN lists ON lists.id = campaign_lists.list_id
+        WHERE campaign_lists.campaign_id = campaigns.id AND lists.uuid = NULLIF($4, '')::UUID AND lists.type = 'public'
+    ))
     ORDER by campaigns.started_at DESC NULLS LAST, campaigns.id DESC OFFSET $1 LIMIT $2;
 
 -- name: get-campaign-stats

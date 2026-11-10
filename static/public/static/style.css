@@ -136,7 +136,11 @@ input[disabled] {
   padding: 0;
 }
   .lists li {
-    margin: 0 0 5px 0;    
+    margin: 0 0 5px 0;
+
+    &:hover {
+      background: #f8f8f8;
+    }
   }
   .lists .description {
     margin: 0 0 15px 0;
@@ -144,6 +148,14 @@ input[disabled] {
     line-height: 1.3rem;
     color: #888;
     margin-left: 25px;
+  }
+  .lists .rss {
+    float: right;
+
+    img {
+      width: 12px;
+      height: 12px;
+    }
   }
   .form .nonce {
     display: none;
