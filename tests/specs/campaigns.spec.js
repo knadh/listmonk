@@ -575,6 +575,8 @@ test('uploads an attachment, persists it and delivers it when starting from the 
   await picker.locator('input[type="file"]').setInputFiles({ name: 'campaign-example.json', mimeType: 'application/json', buffer: Buffer.from('{"hello":"attachment"}') });
   await picker.locator('button[type="submit"]').filter({ hasText: 'Upload' }).click();
   await picker.locator('a.thumb').and(picker.getByTitle('campaign-example.json', { exact: true })).click();
+  await expect(picker.locator('.media-preview .ext')).toHaveText('JSON');
+  await button(picker.locator('.media-preview'), 'Insert').click();
   await expect(page.locator('.media-picker-modal')).not.toBeVisible();
   await save(page, c.id);
   await page.reload();
@@ -637,7 +639,10 @@ for (const format of ['richtext', 'visual']) {
         await button(page, 'Image').click();
         const dialog = page.locator('richtext-editor dialog[open]');
         await button(dialog, 'Media').click();
-        await page.frameLocator('.media-picker-modal iframe').getByRole('link', { name: media.filename, exact: true }).click();
+        const picker = page.frameLocator('.media-picker-modal iframe');
+        await picker.getByRole('link', { name: media.filename, exact: true }).click();
+        await expect(picker.locator('.media-preview img')).toHaveAttribute('src', media.url);
+        await button(picker.locator('.media-preview'), 'Insert').click();
         await expect(dialog.locator('input[name="src"]')).toHaveValue(media.url);
         await dialog.getByRole('checkbox', { name: 'Embed', exact: true }).setChecked(embed);
         await button(dialog, 'Insert').click();

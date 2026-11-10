@@ -209,3 +209,8 @@ export function copyToClipboard(text) {
     toast(i18n.t('globals.messages.copied'), 'success');
   });
 };
+
+// Normalize tags by lowercasing and hyphenating.
+export function normalizeTags(tags) {
+  return tags.map((tag) => tag.trim().toLowerCase().replace(/\s+/g, '-')).filter(Boolean);
+}

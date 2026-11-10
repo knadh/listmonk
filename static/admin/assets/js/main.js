@@ -29,6 +29,7 @@ function setupAlpine() {
     copyToClipboard: u.copyToClipboard,
     listAutocomplete,
     listTagNode,
+    normalizeTags: u.normalizeTags,
 
     theme: localStorage.getItem('theme') || 'auto',
 

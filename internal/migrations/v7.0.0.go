@@ -81,6 +81,14 @@ func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
 		return err
 	}
 
+	// Media tags field.
+	if _, err := db.Exec(`
+        ALTER TABLE media ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}';
+        CREATE INDEX IF NOT EXISTS idx_media_tags ON media USING GIN(tags);
+	`); err != nil {
+		return err
+	}
+
 	// List analytics.
 	if _, err := db.Exec(`
 CREATE INDEX IF NOT EXISTS idx_sub_lists_created_at ON subscriber_lists(created_at);

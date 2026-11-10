@@ -10,18 +10,22 @@ import (
 	"github.com/knadh/listmonk/internal/media"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v5"
+	"github.com/lib/pq"
 	"gopkg.in/volatiletech/null.v6"
 )
 
 // QueryMedia returns media entries optionally filtered by a query string.
-func (c *Core) QueryMedia(provider string, s media.Store, query string, offset, limit int) ([]media.Media, int, error) {
+func (c *Core) QueryMedia(provider string, s media.Store, query string, tags []string, offset, limit int) ([]media.Media, int, error) {
 	out := []media.Media{}
+	if tags == nil {
+		tags = []string{}
+	}
 
 	if query != "" {
 		query = strings.ToLower(query)
 	}
 
-	if err := c.q.QueryMedia.Select(&out, fmt.Sprintf("%%%s%%", query), provider, offset, limit); err != nil {
+	if err := c.q.QueryMedia.Select(&out, fmt.Sprintf("%%%s%%", query), provider, offset, limit, pq.StringArray(tags)); err != nil {
 		return out, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching",
 				"name", "{globals.terms.media}", "error", pqErrMsg(err)))
@@ -69,8 +73,19 @@ func (c *Core) GetMedia(id int, uuid, fileName string, s media.Store) (media.Med
 	return out, nil
 }
 
+// GetMediaTags returns tags for the given provider.
+func (c *Core) GetMediaTags(provider string) ([]media.Tag, error) {
+	out := []media.Tag{}
+	if err := c.q.GetMediaTags.Select(&out, provider); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.tags}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
 // InsertMedia inserts a new media file into the DB.
-func (c *Core) InsertMedia(fileName, thumbName, contentType string, meta models.JSON, provider string, s media.Store) (media.Media, error) {
+func (c *Core) InsertMedia(fileName, thumbName, contentType string, meta models.JSON, tags []string, provider string, s media.Store) (media.Media, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
 		c.log.Printf("error generating UUID: %v", err)
@@ -80,13 +95,28 @@ func (c *Core) InsertMedia(fileName, thumbName, contentType string, meta models.
 
 	// Write to the DB.
 	var newID int
-	if err := c.q.InsertMedia.Get(&newID, uu, fileName, thumbName, contentType, provider, meta); err != nil {
+	if err := c.q.InsertMedia.Get(&newID, uu, fileName, thumbName, contentType, provider, meta, pq.StringArray(normalizeTags(tags))); err != nil {
 		c.log.Printf("error inserting uploaded file to db: %v", err)
 		return media.Media{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
 	}
 
 	return c.GetMedia(newID, "", "", s)
+}
+
+// UpdateMedia updates a media item's tags.
+func (c *Core) UpdateMedia(id int, tags []string, s media.Store) (media.Media, error) {
+	res, err := c.q.UpdateMedia.Exec(id, pq.StringArray(normalizeTags(tags)))
+	if err != nil {
+		return media.Media{}, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
+	}
+
+	if n, _ := res.RowsAffected(); n == 0 {
+		return media.Media{}, ErrNotFound
+	}
+
+	return c.GetMedia(id, "", "", s)
 }
 
 // DeleteMedia deletes a given media item and returns the filename of the deleted item.

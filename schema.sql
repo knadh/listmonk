@@ -176,10 +176,12 @@ CREATE TABLE media (
     filename         TEXT NOT NULL,
     content_type     TEXT NOT NULL DEFAULT 'application/octet-stream',
     thumb            TEXT NOT NULL,
+    tags             TEXT[] NOT NULL DEFAULT '{}',
     meta             JSONB NOT NULL DEFAULT '{}',
     created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 DROP INDEX IF EXISTS idx_media_filename; CREATE INDEX idx_media_filename ON media(provider, filename);
+DROP INDEX IF EXISTS idx_media_tags; CREATE INDEX idx_media_tags ON media USING GIN(tags);
 
 -- campaign_media
 DROP TABLE IF EXISTS campaign_media CASCADE;

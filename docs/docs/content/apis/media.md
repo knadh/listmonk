@@ -3,15 +3,17 @@
 Method | Endpoint                                             | Description
 -------|------------------------------------------------------|---------------------------------
 GET    | [/api/media](#get-apimedia)                          | Get uploaded media file
+GET    | [/api/media/tags](#get-apimediatags)                  | Get media tags and counts
 GET    | [/api/media/{media_id}](#get-apimediamedia_id)       | Get specific uploaded media file
 POST   | [/api/media](#post-apimedia)                         | Upload media file
+PUT    | [/api/media/{media_id}](#put-apimediamedia_id)          | Update media tags
 DELETE | [/api/media/{media_id}](#delete-apimediamedia_id)    | Delete uploaded media file
 
 ______________________________________________________________________
 
 #### GET /api/media
 
-Get an uploaded media file.
+Get uploaded media. The optional `query` parameter searches filenames and tags. Repeat the `tag` parameter to filter by exact tags.
 
 ##### Example Request
 
@@ -36,6 +38,29 @@ curl -u "api_user:token" -X GET 'http://localhost:9000/api/media' \
     ]
 }
 ```
+______________________________________________________________________
+
+#### GET /api/media/tags
+
+Get all tags and item count for each tag for a given provider.
+
+##### Example Request
+
+```shell
+curl -u 'api_user:token' 'http://localhost:9000/api/media/tags'
+```
+
+##### Example Response
+
+```json
+{
+    "data": [
+        {"tag": "newsletter", "count": 12},
+        {"tag": "summer-sale", "count": 4}
+    ]
+}
+```
+
 ______________________________________________________________________
 
 #### GET /api/media/{media_id}
@@ -83,6 +108,7 @@ Upload a media file.
 | Field | Type      | Required | Description         |
 |-------|-----------|----------|---------------------|
 | file  | File      | Yes      | Media file to upload|
+| tags  | String    | No       | Tag to assign. Repeat this multipart field for multiple tags. |
 
 ##### Example Request
 
@@ -106,6 +132,20 @@ curl -u "api_user:token" -X POST 'http://localhost:9000/api/media' \
     }
 }
 ```
+
+______________________________________________________________________
+
+#### PUT /api/media/{media_id}
+
+Update a media item's tags.
+
+```shell
+curl -u 'api_user:token' -X PUT 'http://localhost:9000/api/media/1' \
+--header 'Content-Type: application/json' \
+--data '{"tags": ["newsletter", "summer-sale"]}'
+```
+
+Returns the updated media item.
 
 ______________________________________________________________________
 

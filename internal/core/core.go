@@ -5,7 +5,6 @@
 package core
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -173,19 +172,12 @@ func strSliceContains(str string, sl []string) bool {
 	return false
 }
 
-// normalizeTags takes a list of string tags and normalizes them by
-// lower casing and removing all special characters except for dashes.
+// normalizeTags lowercases tags and replaces whitespace with dashes.
 func normalizeTags(tags []string) []string {
-	var (
-		out  []string
-		dash = []byte("-")
-	)
-
+	out := make([]string, 0, len(tags))
 	for _, t := range tags {
-		rep := regexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
-
-		if len(rep) > 0 {
-			out = append(out, string(rep))
+		if t = regexpSpaces.ReplaceAllString(strings.ToLower(strings.TrimSpace(t)), "-"); t != "" {
+			out = append(out, t)
 		}
 	}
 	return out

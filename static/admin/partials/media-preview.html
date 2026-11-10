@@ -1,0 +1,41 @@
+{{ define "media-preview" -}}
+{{- $root := .Root -}}
+<dialog class="media-preview" x-ref="previewDialog" aria-labelledby="media-preview-title">
+	<template x-if="media">
+		<div class="dialog-card">
+			<header class="dialog-head">
+				<h4 class="dialog-title" id="media-preview-title" x-text="media.filename"></h4>
+			</header>
+			<section class="dialog-body align-center">
+				<a :href="media.url" target="_blank" rel="noopener noreferrer" :title="media.filename">
+					<template x-if="media.content_type.startsWith('image/')">
+						<img :src="media.url" :alt="media.filename" />
+					</template>
+					<template x-if="!media.content_type.startsWith('image/')">
+						<span class="ext" x-text="fileExt(media.filename)"></span>
+					</template>
+				</a>
+			</section>
+			<footer class="dialog-foot">
+				<div class="hstack gap-2 text-8">
+					<template x-for="(tag, idx) in media.tags" :key="idx">
+						<a :href="tagURL(tag)" x-text="'#' + tag"></a>
+					</template>
+				</div>
+				<form class="hstack" @submit.prevent="onSaveTags">
+					{{- if .CanManage }}
+						<ot-taginput x-effect="$el.value = editTags" @input="editTags = normalizeTags($el.value)">
+							<input aria-label="{{ $root.L.T "globals.terms.tags" }}" placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="100" x-init="autocomplete($el, true)" />
+						</ot-taginput>
+						<button type="submit" data-variant="primary" data-spinner="small" :disabled="!hasTagChanges || isLoading('media.save')" :aria-busy="isLoading('media.save')">{{ $root.L.T "globals.buttons.save" }}</button>
+					{{- end }}
+					{{- if .Picker }}
+						<button type="button" data-variant="primary" @click="onPick(media)">{{ $root.L.T "globals.buttons.insert" }}</button>
+					{{- end }}
+					<button type="button" class="outline" autofocus @click="$refs.previewDialog.close()">{{ $root.L.T "globals.buttons.close" }}</button>
+				</form>
+			</footer>
+		</div>
+	</template>
+</dialog>
+{{- end }}

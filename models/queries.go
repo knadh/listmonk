@@ -107,10 +107,12 @@ type Queries struct {
 	DeleteCampaign           *sqlx.Stmt `query:"delete-campaign"`
 	DeleteCampaigns          *sqlx.Stmt `query:"delete-campaigns"`
 
-	InsertMedia *sqlx.Stmt `query:"insert-media"`
-	GetMedia    *sqlx.Stmt `query:"get-media"`
-	QueryMedia  *sqlx.Stmt `query:"query-media"`
-	DeleteMedia *sqlx.Stmt `query:"delete-media"`
+	UpdateMedia  *sqlx.Stmt `query:"update-media"`
+	GetMediaTags *sqlx.Stmt `query:"get-media-tags"`
+	InsertMedia  *sqlx.Stmt `query:"insert-media"`
+	GetMedia     *sqlx.Stmt `query:"get-media"`
+	QueryMedia   *sqlx.Stmt `query:"query-media"`
+	DeleteMedia  *sqlx.Stmt `query:"delete-media"`
 
 	CreateTemplate     *sqlx.Stmt `query:"create-template"`
 	GetTemplates       string     `query:"get-templates"`

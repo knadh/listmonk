@@ -34,8 +34,8 @@
 		</header>
 
 		<div class="page-content">
-			<ot-tabs class="settings-tabs" x-ref="tabs" data-anchor="tab">
-				<div class="settings-sidebar" role="tablist" aria-orientation="vertical" @click="onTabClick($event)" @keydown="onTabKeydown($event)">
+			<ot-tabs class="settings-tabs sidebar-layout" x-ref="tabs" data-anchor="tab">
+				<div class="sidebar-nav" role="tablist" aria-orientation="vertical" @click="onTabClick($event)" @keydown="onTabKeydown($event)">
 					<button type="button" role="tab" id="general">{{ .L.T "globals.terms.general" }}</button>
 					<button type="button" role="tab" id="performance">{{ .L.T "globals.terms.performance" }}</button>
 					<button type="button" role="tab" id="privacy">{{ .L.T "globals.terms.privacy" }}</button>
@@ -47,15 +47,15 @@
 					<button type="button" role="tab" id="appearance">{{ .L.T "globals.terms.appearance" }}</button>
 				</div>
 
-				<div role="tabpanel">{{ template "settings-general" . }}</div>
-				<div role="tabpanel">{{ template "settings-performance" . }}</div>
-				<div role="tabpanel">{{ template "settings-privacy" . }}</div>
-				<div role="tabpanel">{{ template "settings-security" . }}</div>
-				<div role="tabpanel">{{ template "settings-media" . }}</div>
-				<div role="tabpanel">{{ template "settings-smtp" . }}</div>
-				<div role="tabpanel">{{ template "settings-bounces" . }}</div>
-				<div role="tabpanel">{{ template "settings-messengers" . }}</div>
-				<div role="tabpanel">{{ template "settings-appearance" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-general" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-performance" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-privacy" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-security" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-media" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-smtp" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-bounces" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-messengers" . }}</div>
+				<div class="sidebar-content" role="tabpanel">{{ template "settings-appearance" . }}</div>
 			</ot-tabs>
 		</div>
 </form>

@@ -293,7 +293,8 @@ dialog {
         justify-content: flex-end;
         padding: var(--space-3) var(--space-4) var(--space-4) var(--space-3);
 
-        button {
+        > button,
+        > form > button {
             min-width: 75px;
         }
     }
@@ -1121,6 +1122,7 @@ td > .empty-state {
 }
 
 .media-picker-modal {
+    border-color: light-dark(var(--faint-foreground), var(--border));
     padding: 0;
     min-width: min(90vw, 900px);
     max-height: calc(100vh - 40px);
@@ -1602,6 +1604,53 @@ section.import {
 }
 
 /* Media */
+.media-tags {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    white-space: nowrap;
+    mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+
+    a {
+        flex-shrink: 0;
+    }
+}
+
+.media-preview {
+    width: 900px;
+
+    img {
+        max-width: 100%;
+        max-height: 65vh;
+        object-fit: contain;
+    }
+
+    .ext {
+        display: inline-block;
+        padding: var(--space-8);
+        font-size: var(--text-1);
+    }
+
+    .dialog-foot {
+        flex-direction: column;
+        align-items: stretch;
+
+        form {
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+
+        ot-taginput {
+            flex: 1;
+            min-width: 0;
+        }
+
+        > form > button {
+            flex-shrink: 0;
+        }
+    }
+}
+
 .media-files,
 .attachments {
     .gallery {
@@ -1662,47 +1711,55 @@ section.import {
     }
 }
 
+/* Shared sidebar navigation. */
+.sidebar-layout {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-6);
+    min-width: 0;
+
+    > .sidebar-content {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}
+
+.sidebar-nav {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: calc(var(--space-1) * 2);
+    width: 12rem;
+    padding: 0;
+    background: transparent;
+    align-self: flex-start;
+    position: sticky;
+    top: var(--space-4);
+
+    > :is(a, [role="tab"]) {
+        display: flex;
+        justify-content: flex-start;
+        font-size: var(--text-7);
+        font-weight: normal;
+        padding: var(--space-1) var(--space-2);
+        color: var(--muted-foreground);
+        border-radius: var(--radius-small);
+        box-shadow: none;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+
+    > :is(a, [role="tab"]):is(:hover, [aria-selected="true"], [aria-current="page"]) {
+        background: light-dark(rgb(0 85 212 / 0.08), rgb(255 255 255 / 0.08));
+        color: var(--foreground);
+    }
+}
+
 /* Settings */
 .settings {
-    .settings-tabs {
-        display: flex;
-        align-items: stretch;
-        gap: var(--space-6);
-        min-width: 0;
-
-        .settings-sidebar {
-            display: flex;
-            flex: 0 0 auto;
-            flex-direction: column;
-            align-items: stretch;
-            gap: calc(var(--space-1) * 2);
-            width: 12rem;
-            padding: 0;
-            background: transparent;
-            align-self: flex-start;
-            position: sticky;
-            top: var(--space-4);
-
-            [role="tab"] {
-                justify-content: flex-start;
-                font-weight: normal;
-                padding: var(--space-1) var(--space-2);
-                color: var(--muted-foreground);
-                border-radius: var(--radius-small);
-                box-shadow: none;
-            }
-
-            [role="tab"]:is(:hover, [aria-selected="true"]) {
-                background: light-dark(rgb(0 85 212 / 0.08), rgb(255 255 255 / 0.08));
-                color: var(--foreground);
-            }
-        }
-
-        >[role="tabpanel"] {
-            flex: 1 1 auto;
-            min-width: 0;
-            padding-block: 0;
-        }
+    .settings-tabs > [role="tabpanel"] {
+        padding-block: 0;
     }
 
     [role="tabpanel"] > hr,
@@ -1988,10 +2045,10 @@ body.admin-public {
         }
     }
 
-    .settings .settings-tabs {
+    .sidebar-layout {
         display: block;
 
-        > [role="tablist"] {
+        > .sidebar-nav {
             margin: 0 0 var(--space-4);
             position: static;
             width: auto;

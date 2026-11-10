@@ -251,7 +251,7 @@ function component(camp, sel) {
         from_email: this.form.from_email,
         messenger: this.form.messenger,
         type: 'regular',
-        tags: this.form.tags,
+        tags: u.normalizeTags(this.form.tags),
         send_at: (this.form.sendLater && this.form.sendAtLocal) ? new Date(this.form.sendAtLocal).toISOString() : null,
         headers,
         attribs,

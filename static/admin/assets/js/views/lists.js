@@ -102,7 +102,7 @@ function component(list = null) {
         type: this.form.type,
         optin: this.form.optin,
         status: this.form.status,
-        tags: this.form.tags,
+        tags: u.normalizeTags(this.form.tags),
         description: this.form.description || '',
       };
     },

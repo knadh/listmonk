@@ -3,8 +3,10 @@
 {{- $d := $root.Data -}}
 {{- $mode := .Mode -}}
 {{- $picker := eq .Mode "picker" -}}
+{{- $base := URI "/admin/campaigns/media" -}}
+{{- if $picker }}{{ $base = printf "%s/fragment" $base }}{{ end -}}
 {{- $canManage := $d.Can "media:manage" -}}
-<section class="media-files" x-data="mediaView({{ if $picker }}'picker'{{ else }}'manage'{{ end }})">
+<section class="media-files" x-data="mediaView({{ if $picker }}'picker'{{ else }}'manage'{{ end }}, {{ ToJSON $d.Tags }})">
 	<header class="row page-header">
 		<div class="col-4">
 			<div class="hstack">
@@ -16,10 +18,10 @@
 			</div>
 		</div>
 		<div class="col-8 hstack justify-end buttons">
-			<form method="get" action="{{ URI "/admin/campaigns/media" }}{{ if $picker }}/fragment{{ end }}" class="search-form">
+			<form method="get" action="{{ $base }}" class="search-form">
 				{{- $d.Page.FormFields "query" -}}
 				<fieldset class="group">
-					<input name="query" aria-label="{{ $root.L.T "globals.buttons.search" }}" placeholder="{{ $root.L.T "globals.buttons.search" }}" value="{{ $d.Page.Query }}" autofocus />
+					<input x-init="autocomplete($el)" name="query" aria-label="{{ $root.L.T "globals.buttons.search" }}" placeholder="{{ $root.L.T "globals.buttons.search" }}" value="{{ $d.Page.Query }}" autofocus />
 					<button type="submit" class="outline external" aria-label="{{ $root.L.T "globals.buttons.search" }}">{{ Icon "search" }}</button>
 				</fieldset>
 			</form>
@@ -39,6 +41,9 @@
 									</div>
 								</ot-upload>
 							</div>
+							<div data-field>
+								<ot-taginput x-effect="$el.value = tags" @input="tags = normalizeTags($el.value)"><input aria-label="{{ $root.L.T "globals.terms.tags" }}" id="media-tags" placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="100" x-init="autocomplete($el, true)" /></ot-taginput>
+							</div>
 							<div class="hstack justify-end buttons">
 								<button type="submit" data-variant="primary" data-spinner="small" :disabled="files.length === 0 || isUploading" :aria-busy="isUploading">
 									{{ Icon "upload" }} {{ $root.L.T "globals.buttons.upload" }}
@@ -51,20 +56,30 @@
 		</div>
 	</header>
 
-	<div class="card page-content">
-		{{- if $d.Media }}
-			<ul class="unstyled gallery">
-				{{- range $d.Media }}
-					<li>
-						{{- template "media-gallery-item" dict "Root" $root "Mode" $mode "CanManage" $canManage "Media" . }}
-					</li>
-				{{- end }}
-			</ul>
-		{{- else }}
-			{{- template "empty-state" }}
-		{{- end }}
+	<div class="page-content sidebar-layout">
+		<nav class="sidebar-nav" aria-label="{{ $root.L.T "globals.terms.tags" }}">
+			<a href="{{ $d.Page.FilterURL $base "tag" }}"{{ if not ($d.Page.Param "tag") }} aria-current="page"{{ end }}>{{ $root.L.T "globals.terms.all" }}</a>
+			{{- range $d.Tags }}
+				<a class="gap-1" href="?{{ $d.Page.Encode "tag" "page" }}&tag={{ .Tag }}"{{ if eq ($d.Page.Param "tag") .Tag }} aria-current="page"{{ end }}># {{ .Tag }} <span class="text-lighter">({{ .Count }})</span></a>
+			{{- end }}
+		</nav>
+		<div class="card float sidebar-content">
+			<h4 class="title">{{ if $d.Page.Param "tag" }}# {{ $d.Page.Param "tag" }}{{ else }}{{ $root.L.T "globals.terms.all" }}{{ end }}</h4>
+			{{- if $d.Media }}
+				<ul class="unstyled gallery">
+					{{- range $d.Media }}
+						<li>
+							{{- template "media-gallery-item" dict "Root" $root "Mode" $mode "CanManage" $canManage "Media" . }}
+						</li>
+					{{- end }}
+				</ul>
+			{{- else }}
+				{{- template "empty-state" }}
+			{{- end }}
 
-		{{- template "pagination" $d.Page.Pagination }}
+			{{- template "pagination" $d.Page.Pagination }}
+		</div>
 	</div>
+	{{ template "media-preview" dict "Root" $root "CanManage" $canManage "Picker" $picker }}
 </section>
 {{- end }}

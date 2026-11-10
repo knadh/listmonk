@@ -30,7 +30,7 @@
 
 			<label data-field>
 				{{ $root.L.T "globals.terms.tags" }}
-				<ot-taginput x-model="form.tags"><input name="tags" placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="50" /></ot-taginput>
+				<ot-taginput x-effect="$el.value = form.tags" @input="form.tags = normalizeTags($el.value)"><input name="tags" placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="50" /></ot-taginput>
 			</label>
 
 			<label data-field>

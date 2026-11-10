@@ -22,11 +22,10 @@
 	</ot-dropdown>
 </figure>
 {{- else -}}
-{{- $picker := eq .Mode "picker" -}}
 {{- $canManage := .CanManage -}}
 {{- $m := .Media -}}
 <figure class="card">
-	<a class="thumb" href="{{ $m.URL }}" {{ if $picker }}@click.prevent="onPick({{ ToJSON $m }})"{{ else }}target="_blank" rel="noopener noreferrer"{{ end }} title="{{ $m.Filename }}">
+	<a class="thumb" href="{{ $m.URL }}" @click.prevent="onPreview({{ ToJSON $m }})" target="_blank" rel="noopener noreferrer" title="{{ $m.Filename }}">
 		{{- if $m.ThumbURL.Valid }}
 			<img src="{{ $m.ThumbURL.String }}" alt="{{ $m.Filename }}" />
 		{{- else }}
@@ -36,11 +35,17 @@
 	<figcaption>
 		<span class="filename" title="{{ $m.Filename }}">{{ $m.Filename }}</span>
 		<span class="text-light text-8">{{ NiceDate $m.CreatedAt }}</span>
+		{{- if $m.Tags }}
+			<div class="media-tags hstack gap-2 text-8 mt-2">
+				{{ range $m.Tags }}<a class="text-light" href="?{{ $root.Data.Page.Encode "tag" "page" }}&tag={{ . }}" title="{{ $root.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a>{{ end }}
+			</div>
+		{{- end }}
 	</figcaption>
 	{{- if $canManage }}
 		<ot-dropdown class="actions">
 			<button popovertarget="media-actions-{{ $m.ID }}" type="button" class="ghost more icon" aria-label="{{ $root.L.T "globals.buttons.more" }}">{{ Icon "more-vertical" }}</button>
 			<menu popover id="media-actions-{{ $m.ID }}">
+				<button type="button" role="menuitem" class="ghost" @click.prevent="onPreview({{ ToJSON $m }})">{{ Icon "edit-2" }} {{ $root.L.T "globals.buttons.edit" }}</button>
 				<button type="button" role="menuitem" class="ghost" data-variant="danger" @click.prevent="onDelete({{ $m.ID }}, {{ ToJSON $m.Filename }})">{{ Icon "trash-2" }} {{ $root.L.T "globals.buttons.delete" }}</button>
 			</menu>
 		</ot-dropdown>

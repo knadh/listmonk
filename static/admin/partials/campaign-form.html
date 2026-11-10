@@ -21,7 +21,7 @@
 
 				<label data-field>
 					{{ $root.L.T "globals.terms.tags" }}
-					<ot-taginput x-model="form.tags" :disabled="!canEdit"><input placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="200" /></ot-taginput>
+					<ot-taginput x-effect="$el.value = form.tags" @input="form.tags = normalizeTags($el.value)" :disabled="!canEdit"><input placeholder="{{ $root.L.T "globals.terms.tags" }}" maxlength="200" /></ot-taginput>
 				</label>
 			</fieldset>
 
