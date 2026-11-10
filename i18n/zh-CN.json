@@ -595,6 +595,7 @@
     "settings.privacy.recordOptinIPHelp": "在订阅者属性中记录双选订阅的IP地址。",
     "settings.security.OIDCAutoCreateUsers": "自动创建用户",
     "settings.security.OIDCAutoCreateUsersHelp": "如果账户不存在，首次登录时自动创建用户。",
+    "settings.security.OIDCAutoSyncRoles": "每次登录时自动同步角色",
     "settings.security.OIDCClaim": "声明",
     "settings.security.OIDCClientID": "客户端ID",
     "settings.security.OIDCClientSecret": "客户端密钥",

@@ -595,6 +595,7 @@
     "settings.privacy.recordOptinIPHelp": "在訂閱者屬性中記錄 double opt-ins 的 IP 位址。",
     "settings.security.OIDCAutoCreateUsers": "自動建立使用者",
     "settings.security.OIDCAutoCreateUsersHelp": "若帳號不存在，首次登入時自動建立使用者。",
+    "settings.security.OIDCAutoSyncRoles": "每次登入時自動同步角色",
     "settings.security.OIDCClaim": "宣告",
     "settings.security.OIDCClientID": "用戶端ID",
     "settings.security.OIDCClientSecret": "用戶端密鑰",
