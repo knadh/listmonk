@@ -1357,19 +1357,11 @@
 
 
 <h1 id="archives">Archives<a class="headerlink" href="#archives" title="Permanent link">&para;</a></h1>
-<p>A global public archive is maintained on the public web interface. It can be
-enabled under Settings -&gt; Settings -&gt; General -&gt; Enable public mailing list
-archive.</p>
-<p>To make a campaign available in the public archive (provided it has been
-enabled in the settings as described above), enable the option
-'Publish to public archive' under Campaigns -&gt; Create new -&gt; Archive.</p>
-<p>When using template variables that depend on subscriber data (such as any
-template variable referencing <code>.Subscriber</code>), such data must be supplied
-as 'Campaign metadata', which is a JSON object that will be used in place
-of <code>.Subscriber</code> when rendering the archive template and content.</p>
-<p>When individual subscriber tracking is enabled, TrackLink requires that a UUID
-of an existing user is provided as part of the campaign metadata. Any clicks on
-a TrackLink from the archived campaign will be counted towards that subscriber.</p>
+<p>A global public archive is maintained on the public web interface. It can be enabled under Settings -&gt; Settings -&gt; General -&gt; Enable public mailing list archive.</p>
+<p>To make a campaign available in the public archive (provided it has been enabled in the settings as described above), enable the option 'Publish to public archive' under Campaigns -&gt; Archive.</p>
+<p>The global archive RSS feed is available at <code>/archive.xml</code>. Each public list also has its own archive at <code>/archive/list/&lt;list-uuid&gt;</code> and RSS feed at <code>/archive/list/&lt;list-uuid&gt;.xml</code>.</p>
+<p>When using template variables that depend on subscriber data (such as any template variable referencing <code>.Subscriber</code>), such data must be supplied as 'Campaign metadata', which is a JSON object that will be used in place of <code>.Subscriber</code> when rendering the archive template and content.</p>
+<p>When individual subscriber tracking is enabled, TrackLink requires that a UUID of an existing user is provided as part of the campaign metadata. Any clicks on a TrackLink from the archived campaign will be counted towards that subscriber.</p>
 <p>As an example:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"UUID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5a837423-a186-5623-9a87-82691cbe3631"</span><span class="p">,</span>
