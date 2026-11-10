@@ -18,6 +18,39 @@ function label(iso) {
   return niceDate(`${iso}T00:00:00`) || iso;
 }
 
+// Render the timestamp as a separate heading above labels.
+export function lineTooltip(timestamp = (item) => item.label) {
+  return {
+    backgroundColor: chartThemeColor('card'),
+    borderColor: chartThemeColor('border'),
+    borderWidth: 1,
+    cornerRadius: 8,
+    padding: 12,
+    titleColor: chartThemeColor('foreground'),
+    titleFont: { family: FONT_FAMILY, size: 12, weight: '500' },
+    titleMarginBottom: 12,
+    bodyColor: chartThemeColor('muted-foreground'),
+    bodyFont: { family: FONT_FAMILY, size: 13 },
+    bodySpacing: 8,
+    boxWidth: 10,
+    boxHeight: 4,
+    boxPadding: 6,
+
+    callbacks: {
+      title: (items) => {
+        if (!items.length) return '';
+        const date = new Date(timestamp(items[0]));
+        return `${niceDate(date)} · ${date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
+      },
+      label: (item) => `${item.dataset.label}:  ${item.formattedValue}`,
+      labelColor: (item) => ({
+        backgroundColor: item.dataset.borderColor,
+        borderColor: 'transparent',
+      }),
+    },
+  };
+}
+
 // Draw {count, date} rows, optionally adding a dashed comparison series.
 export function lineChart(id, rows, comparison) {
   const canvas = document.getElementById(id);
@@ -68,7 +101,11 @@ export function lineChart(id, rows, comparison) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: !!comparison } },
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: !!comparison },
+        tooltip: lineTooltip((item) => `${data[item.dataIndex].date}T00:00:00`),
+      },
       scales: {
         x: {
           grid: { display: false },

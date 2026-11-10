@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 
 import { api } from '../main.js';
 import { niceDate } from '../utils.js';
-import { chartThemeColor } from '../charts.js';
+import { chartThemeColor, lineTooltip } from '../charts.js';
 import { tagAutocomplete, tagNode } from '../tag-selector.js';
 
 const chartColorRed = '#ee7d5b';
@@ -52,26 +52,10 @@ const DEFAULT_LINE = {
     responsive: true,
     lineTension: 0.5,
     maintainAspectRatio: false,
-    interaction: { intersect: false, axis: 'index' },
+    interaction: { intersect: false, mode: 'index' },
     plugins: {
       legend: { display: false },
-      tooltip: {
-        backgroundColor: '#fff',
-        borderColor: '#ddd',
-        borderWidth: 1,
-        bodyColor: '#666',
-        displayColors: true,
-        bodyFont: { size: 15 },
-        bodySpacing: 10,
-        padding: 10,
-        callbacks: {
-          title: (items) => niceDate(items[0]?.label),
-          labelColor: (item) => ({
-            backgroundColor: item.dataset.borderColor,
-            borderColor: 'transparent',
-          }),
-        },
-      },
+      tooltip: lineTooltip(),
     },
     scales: {
       x: {
