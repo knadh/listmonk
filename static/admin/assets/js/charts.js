@@ -13,13 +13,13 @@ export function chartThemeColor(name) {
   return color;
 }
 
-// Format date-only buckets without shifting the day in western timezones.
-function label(iso) {
-  return niceDate(`${iso}T00:00:00`) || iso;
+// Format date-only buckets retaining the DB's date.
+export function chartDate(iso, interval = 'day') {
+  return niceDate(interval === 'hour' ? iso : `${iso.slice(0, 10)}T00:00:00`) || iso;
 }
 
 // Render the timestamp as a separate heading above labels.
-export function lineTooltip(timestamp = (item) => item.label) {
+export function lineTooltip(timestamp = (item) => item.label, interval = 'day') {
   return {
     backgroundColor: chartThemeColor('card'),
     borderColor: chartThemeColor('border'),
@@ -39,8 +39,12 @@ export function lineTooltip(timestamp = (item) => item.label) {
     callbacks: {
       title: (items) => {
         if (!items.length) return '';
-        const date = new Date(timestamp(items[0]));
-        return `${niceDate(date)} · ${date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
+        const iso = timestamp(items[0]);
+        const heading = chartDate(iso, interval);
+        if (interval !== 'hour') return heading;
+
+        const date = new Date(iso);
+        return `${heading} · ${date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'short' })}`;
       },
       label: (item) => `${item.dataset.label}:  ${item.formattedValue}`,
       labelColor: (item) => ({
@@ -97,14 +101,14 @@ export function lineChart(id, rows, comparison) {
   // eslint-disable-next-line no-new
   new Chart(canvas, {
     type: 'line',
-    data: { labels: data.map((d) => label(d.date)), datasets },
+    data: { labels: data.map((d) => chartDate(d.date)), datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
       plugins: {
         legend: { display: !!comparison },
-        tooltip: lineTooltip((item) => `${data[item.dataIndex].date}T00:00:00`),
+        tooltip: lineTooltip((item) => data[item.dataIndex].date),
       },
       scales: {
         x: {

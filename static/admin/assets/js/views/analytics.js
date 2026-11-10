@@ -2,8 +2,7 @@ import Alpine from 'alpinejs';
 import Chart from 'chart.js/auto';
 
 import { api } from '../main.js';
-import { niceDate } from '../utils.js';
-import { chartThemeColor, lineTooltip } from '../charts.js';
+import { chartDate, chartThemeColor, lineTooltip } from '../charts.js';
 import { tagAutocomplete, tagNode } from '../tag-selector.js';
 
 const chartColorRed = '#ee7d5b';
@@ -55,7 +54,7 @@ const DEFAULT_LINE = {
     interaction: { intersect: false, mode: 'index' },
     plugins: {
       legend: { display: false },
-      tooltip: lineTooltip(),
+      tooltip: lineTooltip(undefined, window._analytics?.interval),
     },
     scales: {
       x: {
@@ -63,7 +62,7 @@ const DEFAULT_LINE = {
         ticks: {
           font: { size: 10 },
           color: chartThemeColor('muted-foreground'),
-          callback(value) { return niceDate(this.getLabelForValue(value)); },
+          callback(value) { return chartDate(this.getLabelForValue(value), window._analytics?.interval); },
         },
       },
       y: { grid: { display: false }, ticks: { precision: 0 } },
@@ -223,7 +222,7 @@ function groupCounts(rows, idKey) {
       groups.set(id, { points: [], total: 0 });
     }
     const group = groups.get(id);
-    group.points.push({ x: new Date(row.timestamp).toISOString(), y: row.count });
+    group.points.push({ x: row.timestamp, y: row.count });
     group.total += row.count;
   });
   return groups;
@@ -258,7 +257,7 @@ function renderCounts(key, items, rows, unsubscriptions) {
     })));
   }
 
-  const dates = [...new Set(datasets.flatMap((d) => d.data.map((p) => p.x)))].sort();
+  const dates = [...new Set(datasets.flatMap((d) => d.data.map((p) => p.x)))].sort((a, b) => new Date(a) - new Date(b));
   draw(`chart-${key}`, DEFAULT_LINE, { labels: dates, datasets });
   const donut = draw(`chart-${key}-donut`, DEFAULT_DONUT, {
     labels,

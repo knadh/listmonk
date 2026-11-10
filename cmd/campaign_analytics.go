@@ -12,6 +12,7 @@ import (
 
 // analyticsData is the chart data embedded into the analytics page for the Chart.js renderer.
 type analyticsData struct {
+	Interval        string                          `json:"interval"`
 	Items           []models.AnalyticsItem          `json:"items"`
 	Subscriptions   []models.CampaignAnalyticsCount `json:"subscriptions"`
 	Unsubscriptions []models.CampaignAnalyticsCount `json:"unsubscriptions"`
@@ -120,6 +121,7 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 	if data.Interval == "" {
 		data.Interval = models.AnalyticsIntervalDay
 	}
+	data.Data.Interval = data.Interval
 
 	// Set the query params for the paginator and the activity tab.
 	q := c.QueryParams()

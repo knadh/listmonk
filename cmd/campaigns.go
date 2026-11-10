@@ -209,7 +209,8 @@ func (a *App) ViewCampaign(c *echo.Context) error {
 		}
 
 		data.Analytics = &analyticsData{
-			Items: []models.AnalyticsItem{{ID: camp.ID, Name: camp.Name, Sent: camp.Sent}},
+			Interval: intVal,
+			Items:    []models.AnalyticsItem{{ID: camp.ID, Name: camp.Name, Sent: camp.Sent}},
 		}
 
 		data.Analytics.Views, err = a.core.GetCampaignAnalyticsCounts(ids, models.AnalyticsTypeTotalViews, from, now.Format(time.RFC3339), intVal)
