@@ -3,7 +3,7 @@
 <section class="hero container align-center">
   <img class="s4" src="static/images/s4.webp" alt="" aria-hidden="true" />
   <a class="badge outline" href="{{ .Site.Data.github.url }}">
-    {{ .Page.Site.Data.github.date | dateFormat "02 Jan 2006" }} &rarr; <strong>{{ .Site.Data.github.version }}</strong> is released
+    <strong>{{ .Site.Data.github.version }}</strong> relased on {{ .Page.Site.Data.github.date | dateFormat "02 Jan 2006" }}
   </a>
 
   <h1>Self-hosted newsletter and mailing list manager</h1>
