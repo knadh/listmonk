@@ -28,12 +28,12 @@ export async function confirm(page) {
   await page.locator('dialog[open] [data-confirm-ok]').click();
 }
 
-// Pick a list by name in an <ot-taginput> list selector. Filling the input
-// matches a datalist option, which the component turns into a tag/badge.
+// Pick a list by name from the <ot-taginput> autocomplete suggestions.
 export async function selectList(scope, name) {
   const input = scope.locator('ot-taginput input');
   await input.click();
   await input.fill(name);
+  await scope.getByRole('option', { name, exact: true }).click();
   await expect(scope.locator('ot-taginput .badge').filter({ hasText: name })).toBeVisible();
 }
 

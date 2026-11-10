@@ -1,18 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { confirm, resetDB } from '../helpers.js';
+import { confirm, resetDB, selectList } from '../helpers.js';
 
 const IMPORT = '/admin/subscribers/import';
 const SUBSCRIBERS = '/admin/subscribers';
 const CSV = new URL('../fixtures/subs.csv', import.meta.url).pathname;
-
-// Pick a list in the taginput selector. Filling the input matches a datalist
-// option, which the component turns into a tag carrying the list's ID.
-async function selectList(page, name) {
-  const input = page.locator('ot-taginput input');
-  await input.click();
-  await input.fill(name);
-  await expect(page.locator('ot-taginput .badge')).toContainText(name);
-}
 
 test.describe.configure({ mode: 'serial' });
 

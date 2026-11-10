@@ -76,6 +76,7 @@ test.describe('Settings', () => {
     await expect(options.nth(2)).toHaveAttribute('value', templated);
 
     await page.goto('/admin/campaigns/1');
+    await tab(page, 'Campaign').click();
     // Native datalist selections set the input value, just like typing it.
     for (const address of [second, custom]) {
       await input.fill(address);

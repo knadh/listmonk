@@ -108,8 +108,11 @@ test.describe('Bounces: bulk actions', () => {
     const role = await data(await page.request.post('/api/roles/users', { data: {
       name: 'Bounce manager', permissions: ['bounces:get', 'bounces:manage'],
     } }));
+    const listRole = await data(await page.request.post('/api/roles/lists', { data: {
+      name: 'Bounce list manager', lists: [{ id: 1, permissions: ['list:get', 'list:manage'] }],
+    } }));
     const user = await data(await page.request.post('/api/users', { data: {
-      username: 'bounce-manager', type: 'api', status: 'enabled', user_role_id: role.id,
+      username: 'bounce-manager', type: 'api', status: 'enabled', user_role_id: role.id, list_role_id: listRole.id,
     } }));
     const context = await browser.newContext({
       storageState: { cookies: [], origins: [] },
