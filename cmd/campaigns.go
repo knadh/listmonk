@@ -82,6 +82,7 @@ type campaignView struct {
 	AllLists        []models.List
 	SelectedListIDs []int
 	ArchiveURL      string
+	Analytics       *analyticsView
 }
 
 // ViewNewCampaign renders the new campaign page (only the "campaign" tab).
@@ -191,6 +192,20 @@ func (a *App) ViewCampaign(c *echo.Context) error {
 		Templates:  tpls,
 		AllLists:   allLists,
 		ArchiveURL: archiveURL,
+	}
+
+	// Non-draft/scheduled campaigns, show the analytics on the page (first 'View' tab).
+	if camp.Status != models.CampaignStatusDraft && camp.Status != models.CampaignStatusScheduled && data.Can(auth.PermCampaignsGetAnalytics) {
+		// Since the interval is fixed for the default view, remove the from/to query params
+		// so they don't clutter all the links on the campaign page.
+		to := time.Now()
+		c.QueryParams().Del("from")
+		c.QueryParams().Del("to")
+
+		data.Analytics, err = a.loadAnalytics(c, models.ResourceCampaigns, []int{id}, to.AddDate(0, 0, -90), to)
+		if err != nil {
+			return err
+		}
 	}
 
 	return c.Render(http.StatusOK, "admin-campaign", data)

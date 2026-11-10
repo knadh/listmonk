@@ -3,12 +3,6 @@
 {{- $d := .Data -}}
 {{ template "breadcrumbs" dict "Root" . "Current" .Data.Title "Parents" (list (dict "Label" (.L.T (printf "globals.terms.%s" $d.Resource)) "URL" (URI (printf "/admin/%s" $d.Resource)) "CanLink" (or (eq $d.Resource "lists") ($d.Can "campaigns:get" "campaigns:get_all")))) }}
 
-<script>
-	window._analyticsResource = {{ $d.Resource }};
-	window._selectedItems = {{ ToJSON $d.Items }};
-	window._analytics = {{ if $d.HasData }}{{ ToJSON $d.Data }}{{ else }}null{{ end }};
-</script>
-
 <section class="analytics">
 	<header class="page-header">
 		<h1 class="page-title">{{ .L.T "globals.terms.analytics" }}</h1>
@@ -73,43 +67,9 @@
 			</div>
 		</form>
 
-		{{- if and $d.HasData $d.CanViewActivity }}
-		<div role="tablist" data-variant="primary" style="margin: 0">
-			<a role="tab" href="{{ $d.Page.FilterURL (URI "/admin/campaigns/analytics") "tab" "subscriber_id" }}" aria-selected="{{ ne $d.Tab "activity" }}">{{ .L.T "globals.terms.stats" }}</a>
-			<a role="tab" href="{{ $d.Page.FilterURL (printf "%s?tab=activity" (URI "/admin/campaigns/analytics")) "tab" "subscriber_id" }}" aria-selected="{{ eq $d.Tab "activity" }}">{{ .L.T "globals.terms.activity" }}</a>
-		</div>
-		{{- end }}
-		{{- if eq $d.Tab "activity" }}
-			{{ template "analytics-activity" . }}
-		{{- else if $d.HasData }}
-			{{- if eq $d.Resource "lists" }}
-				{{ template "analytics-chart" dict "Title" (.L.Tc "globals.terms.subscriptions" 2) "Count" $d.Counts.Subscriptions "Key" "subscriptions" "ExtraCount" $d.Counts.Unsubscriptions "ExtraLabel" (.L.T "globals.terms.unsubscribed") "Items" $d.Items "Resource" $d.Resource }}
-			{{- end }}
-			{{- if $d.CanViewCampaignCharts }}
-				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.views") "Count" $d.Counts.Views "Key" "views" "Items" $d.Items "Resource" $d.Resource }}
-				{{- if $d.ShowUnique }}
-					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "globals.terms.views") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueViews "Key" "unique_views" "Items" $d.Items "Resource" $d.Resource }}
-				{{- end }}
-				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.clicks") "Count" $d.Counts.Clicks "Key" "clicks" "Items" $d.Items "Resource" $d.Resource }}
-				{{- if $d.ShowUnique }}
-					{{ template "analytics-chart" dict "Title" (printf "%s (%s)" (.L.T "globals.terms.clicks") (.L.T "globals.terms.unique")) "Count" $d.Counts.UniqueClicks "Key" "unique_clicks" "Items" $d.Items "Resource" $d.Resource }}
-				{{- end }}
-				{{ template "analytics-chart" dict "Title" (.L.T "globals.terms.bounces") "Count" $d.Counts.Bounces "Key" "bounces" "Items" $d.Items "Resource" $d.Resource }}
-
-				<article class="card float">
-					<h4 class="title">{{ .L.T "globals.terms.links" }}</h4>
-					{{- if $d.Data.Links }}
-						<div class="chart-box"><canvas id="chart-links"></canvas></div>
-					{{- else }}
-						{{- template "empty-state" }}
-					{{- end }}
-				</article>
-			{{- end }}
-		{{- end }}
+		{{ template "analytics-results" dict "Data" $d "L" .L "AssetVersion" .AssetVersion }}
 	</div>
 </section>
-
-<script type="module" src="{{ URI "/admin/static/js/views/analytics.js" }}?v={{ .AssetVersion }}" defer></script>
 
 {{ template "admin-footer" . -}}
 {{ end }}

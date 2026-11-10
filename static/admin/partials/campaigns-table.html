@@ -217,7 +217,7 @@
 									{{- end }}
 								{{- end }}
 								<hr />
-								<a href="{{ $base }}/{{ .ID }}" role="menuitem" class="button ghost">{{ Icon "edit-2" }} {{ $root.L.T "globals.buttons.edit" }}</a>
+								<a href="{{ $base }}/{{ .ID }}#tab=campaign" role="menuitem" class="button ghost">{{ Icon "edit-2" }} {{ $root.L.T "globals.buttons.edit" }}</a>
 								{{- if and (not $readonly) ($d.Can "campaigns:manage" "campaigns:manage_all") }}
 									<button type="button" role="menuitem" class="ghost" @click.prevent="onClone({{ .ID }}, {{ ToJSON .Name }})">{{ Icon "copy" }} {{ $root.L.T "globals.buttons.clone" }}</button>
 								{{- end }}
