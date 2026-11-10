@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
@@ -35,6 +36,13 @@ type analyticsView struct {
 	DisableTracking       bool
 	IndividualTracking    bool
 	ShowUnique            bool
+
+	Tab             string
+	CanViewActivity bool
+	Page            models.PageProps
+	Activity        []models.CampaignActivity
+	ActivityEvents  []models.CampaignActivityEvent
+	Subscriber      *models.Subscriber
 
 	HasData bool
 	Counts  struct {
@@ -93,6 +101,7 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 	data := analyticsView{
 		adminView:          newAdminView(c, a.i18n.T("globals.terms.analytics"), "", resource+".analytics"),
 		Items:              items,
+		HasData:            len(items) > 0,
 		Resource:           resource,
 		FromInput:          from.Format(time.RFC3339),
 		ToInput:            to.Format(time.RFC3339),
@@ -102,24 +111,46 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 		ShowUnique:         a.cfg.Privacy.IndividualTracking && c.QueryParam("unique") == "true",
 	}
 
-	data.CanViewCampaignCharts = resource == models.ResourceCampaigns || (data.Can(auth.PermCampaignsGet, auth.PermCampaignsGetAll) && data.Can(auth.PermCampaignsGetAnalytics))
+	// Filtered object IDs.
+	ids = make([]int, len(items))
+	for i, item := range items {
+		ids[i] = item.ID
+	}
 
 	if data.Interval == "" {
 		data.Interval = models.AnalyticsIntervalDay
 	}
 
-	// Pull analytics for the selected campaigns or lists.
-	if len(items) > 0 {
-		var (
-			fromStr = from.Format(time.RFC3339)
-			toStr   = to.Format(time.RFC3339)
-			ids     = make([]int, len(items))
-		)
-		for i, item := range items {
-			ids[i] = item.ID
+	// Set the query params for the paginator and the activity tab.
+	q := c.QueryParams()
+	q.Set("from", data.FromInput)
+	q.Set("to", data.ToInput)
+
+	data.Page = models.NewPageProps(q, 0, 1, 20)
+	data.CanViewActivity = resource == models.ResourceCampaigns && data.Can(auth.PermSubscribersGet, auth.PermSubscribersGetAll)
+	if c.QueryParam("tab") == "activity" {
+		if !data.CanViewActivity {
+			return auth.ErrPermDenied
 		}
 
-		data.HasData = true
+		data.Tab = "activity"
+		if from.After(to) {
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
+		}
+
+		// Load activity for the selected campaigns.
+		if err := a.loadCampaignActivity(c, &data, ids); err != nil {
+			return err
+		}
+
+		return c.Render(http.StatusOK, "admin-analytics", data)
+	}
+
+	data.CanViewCampaignCharts = resource == models.ResourceCampaigns ||
+		(data.Can(auth.PermCampaignsGet, auth.PermCampaignsGetAll) && data.Can(auth.PermCampaignsGetAnalytics))
+
+	// Pull analytics for the selected campaigns or lists.
+	if len(items) > 0 {
 		data.Data.Items = items
 		getCounts := a.core.GetCampaignAnalyticsCounts
 		getLinks := a.core.GetCampaignAnalyticsLinks
@@ -127,14 +158,14 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 		if resource == models.ResourceLists {
 			getCounts = a.core.GetListAnalyticsCounts
 			getLinks = a.core.GetListAnalyticsLinks
-			rows, err := getCounts(ids, models.AnalyticsTypeSubscriptions, fromStr, toStr, data.Interval)
+			rows, err := getCounts(ids, models.AnalyticsTypeSubscriptions, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
 				return err
 			}
 
 			data.Data.Subscriptions = rows
 			data.Counts.Subscriptions = sumAnalyticsCounts(rows)
-			rows, err = getCounts(ids, models.AnalyticsTypeUnsubscriptions, fromStr, toStr, data.Interval)
+			rows, err = getCounts(ids, models.AnalyticsTypeUnsubscriptions, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
 				return err
 			}
@@ -145,23 +176,23 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 
 		if data.CanViewCampaignCharts {
 			var err error
-			data.Data.Views, err = getCounts(ids, models.AnalyticsTypeTotalViews, fromStr, toStr, data.Interval)
+			data.Data.Views, err = getCounts(ids, models.AnalyticsTypeTotalViews, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
 				return err
 			}
 
-			data.Data.Clicks, err = getCounts(ids, models.AnalyticsTypeTotalClicks, fromStr, toStr, data.Interval)
+			data.Data.Clicks, err = getCounts(ids, models.AnalyticsTypeTotalClicks, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
 				return err
 			}
 
 			if data.ShowUnique {
-				data.Data.UniqueViews, err = getCounts(ids, models.AnalyticsTypeViews, fromStr, toStr, data.Interval)
+				data.Data.UniqueViews, err = getCounts(ids, models.AnalyticsTypeViews, data.FromInput, data.ToInput, data.Interval)
 				if err != nil {
 					return err
 				}
 
-				data.Data.UniqueClicks, err = getCounts(ids, models.AnalyticsTypeClicks, fromStr, toStr, data.Interval)
+				data.Data.UniqueClicks, err = getCounts(ids, models.AnalyticsTypeClicks, data.FromInput, data.ToInput, data.Interval)
 				if err != nil {
 					return err
 				}
@@ -170,12 +201,12 @@ func (a *App) viewAnalytics(c *echo.Context, resource string) error {
 				data.Counts.UniqueClicks = sumAnalyticsCounts(data.Data.UniqueClicks)
 			}
 
-			data.Data.Bounces, err = getCounts(ids, models.AnalyticsTypeBounces, fromStr, toStr, data.Interval)
+			data.Data.Bounces, err = getCounts(ids, models.AnalyticsTypeBounces, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
 				return err
 			}
 
-			data.Data.Links, err = getLinks(ids, fromStr, toStr)
+			data.Data.Links, err = getLinks(ids, data.FromInput, data.ToInput)
 			if err != nil {
 				return err
 			}
@@ -290,4 +321,64 @@ func sumAnalyticsCounts(rows []models.CampaignAnalyticsCount) int {
 	}
 
 	return total
+}
+
+// loadCampaignActivity fetches the selected tab results.
+func (a *App) loadCampaignActivity(c *echo.Context, data *analyticsView, ids []int) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	q := data.Page.QueryParams
+	q.Set("per_page", "20")
+
+	var (
+		pg    = a.pg.NewFromURL(q)
+		user  = auth.GetUser(c)
+		total = 0
+	)
+
+	// Individual subscriber activity.
+	if subID := q.Get("subscriber_id"); subID != "" {
+		id, err := strconv.Atoi(subID)
+		if err != nil || id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+		}
+
+		// Check if the user has permission to view this subscriber's activity.
+		if !user.HasPerm(auth.PermSubscribersGetAll) {
+			if err := a.hasSubPerm(user, auth.PermTypeGet, []int{id}); err != nil {
+				return err
+			}
+		}
+
+		sub, err := a.core.GetSubscriber(id, "", "")
+		if err != nil {
+			return err
+		}
+
+		data.Subscriber = &sub
+		data.ActivityEvents, err = a.core.GetCampaignActivityEvents(ids, data.FromInput, data.ToInput, id, pg.Offset, pg.Limit)
+		if err != nil {
+			return err
+		}
+
+		if len(data.ActivityEvents) > 0 {
+			total = data.ActivityEvents[0].Total
+		}
+	} else {
+		all, lists := user.GetPermittedLists(auth.PermTypeGet)
+		rows, err := a.core.GetCampaignActivity(ids, data.FromInput, data.ToInput, all || user.HasPerm(auth.PermSubscribersGetAll), lists, pg.Offset, pg.Limit)
+		if err != nil {
+			return err
+		}
+
+		data.Activity = rows
+		if len(rows) > 0 {
+			total = rows[0].Total
+		}
+	}
+
+	data.Page = models.NewPageProps(q, total, pg.Page, pg.PerPage)
+	return nil
 }

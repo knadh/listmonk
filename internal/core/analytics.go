@@ -63,3 +63,23 @@ func (c *Core) getAnalyticsLinks(stmt *sqlx.Stmt, ids []int, fromDate, toDate st
 
 	return out, nil
 }
+
+// GetCampaignActivity returns clicks, views activity for a given set of campaigns/lists.
+func (c *Core) GetCampaignActivity(ids []int, from, to string, allLists bool, listIDs []int, offset, limit int) ([]models.CampaignActivity, error) {
+	out := []models.CampaignActivity{}
+	if err := c.q.GetCampaignActivity.Select(&out, pq.Array(ids), from, to, allLists, pq.Array(listIDs), offset, limit); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
+// GetCampaignActivityEvents returns clicks, views activity for a given set of campaigns/lists for a subscriber.
+func (c *Core) GetCampaignActivityEvents(ids []int, from, to string, subscriberID, offset, limit int) ([]models.CampaignActivityEvent, error) {
+	out := []models.CampaignActivityEvent{}
+	if err := c.q.GetCampaignActivityEvents.Select(&out, pq.Array(ids), from, to, subscriberID, offset, limit); err != nil {
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}

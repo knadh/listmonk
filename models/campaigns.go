@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"strings"
 	txttpl "text/template"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
@@ -126,6 +127,28 @@ type CampaignMeta struct {
 	StartedAt null.Time `db:"started_at" json:"started_at"`
 	ToSend    int       `db:"to_send" json:"to_send"`
 	Sent      int       `db:"sent" json:"sent"`
+}
+
+// CampaignActivity summarizes a subscriber's activity in a campaign selection.
+type CampaignActivity struct {
+	ID           int       `db:"id"`
+	Email        string    `db:"email"`
+	Name         string    `db:"name"`
+	Views        int       `db:"views"`
+	Clicks       int       `db:"clicks"`
+	LastActivity time.Time `db:"last_activity"`
+	Total        int       `db:"total"`
+}
+
+// CampaignActivityEvent is a single tracked open or click.
+type CampaignActivityEvent struct {
+	CampaignID      int       `db:"campaign_id"`
+	CampaignSubject string    `db:"campaign_subject"`
+	Campaign        string    `db:"campaign"`
+	Type            string    `db:"type"`
+	URL             string    `db:"url"`
+	CreatedAt       time.Time `db:"created_at"`
+	Total           int       `db:"total"`
 }
 
 // ParsedLists unmarshals the campaign's raw Lists JSON into a slice for

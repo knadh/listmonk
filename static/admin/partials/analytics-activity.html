@@ -1,0 +1,91 @@
+{{ define "analytics-activity" -}}
+{{- $d := .Data -}}
+{{- $base := URI "/admin/campaigns/analytics" -}}
+{{- if $d.Subscriber }}
+<div class="hstack gap-1">
+	<a class="flex items-center" style="font-size: var(--text-3)" href="{{ $d.Page.FilterURL $base "subscriber_id" }}" aria-label="{{ .L.T "globals.buttons.back" }}" title="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+	{{ template "analytics-subscriber" dict "Subscriber" $d.Subscriber "Page" $d.Page "L" .L }}
+</div>
+{{- end }}
+{{- if not $d.IndividualTracking }}
+<p class="text-light">{{ Icon "alert-triangle" }} {{ .L.T "settings.privacy.individualSubTracking" }}: {{ .L.T "globals.terms.disabled" }}</p>
+{{- end }}
+<article class="card float has-table">
+	<h4 class="title">{{ .L.T "globals.terms.activity" }}</h4>
+	{{- if $d.Subscriber }}
+		{{- if $d.ActivityEvents }}
+		<div class="table-wrapper">
+			<table>
+				<thead><tr>
+					<th>{{ .L.T "globals.terms.activity" }}</th>
+					<th>{{ .L.T "globals.terms.campaign" }}</th>
+					<th>{{ .L.T "globals.terms.url" }}</th>
+					<th>{{ .L.T "globals.fields.updatedAt" }}</th>
+				</tr></thead>
+				<tbody>
+				{{- range $d.ActivityEvents }}
+					<tr>
+						<td data-label="{{ $.L.T "globals.terms.activity" }}">{{ $.L.T (printf "globals.terms.%s" .Type) }}</td>
+						<td class="name" data-label="{{ $.L.T "globals.terms.campaign" }}">
+							<div class="avatar">
+								{{ template "avatar-icon" dict "Kind" "campaign" "Name" .Campaign "Href" (printf "%s/%d" (URI "/admin/campaigns") .CampaignID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Campaign) }}
+								<div class="avatar-label vstack gap-1">
+									<div>
+										<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}" class="unstyled">{{ .Campaign }}</a>
+										<div class="subject text-8 text-light">
+											<a href="{{ URI "/admin/campaigns" }}/{{ .CampaignID }}" class="unstyled">{{ .CampaignSubject }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</td>
+						<td data-label="{{ $.L.T "globals.terms.url" }}" style="overflow-wrap: anywhere; max-width: 30rem">{{ if .URL }}<a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a>{{ else }}—{{ end }}</td>
+						<td data-label="{{ $.L.T "globals.fields.updatedAt" }}"><time datetime="{{ .CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}" title="{{ .CreatedAt.Format "2006-01-02 15:04:05 MST" }}">{{ NiceDate .CreatedAt true }}</time></td>
+					</tr>
+				{{- end }}
+				</tbody>
+			</table>
+		</div>
+		{{- else }}
+			{{ template "empty-state" }}
+		{{- end }}
+	{{- else if $d.Activity }}
+		<div class="table-wrapper">
+			<table>
+				<thead><tr>
+					<th>{{ .L.Tc "globals.terms.subscriber" 1 }}</th>
+					<th class="align-center">{{ .L.T "globals.terms.views" }}</th>
+					<th class="align-center">{{ .L.T "globals.terms.clicks" }}</th>
+					<th>{{ .L.T "globals.fields.updatedAt" }}</th>
+				</tr></thead>
+				<tbody>
+				{{- range $d.Activity }}
+					<tr>
+						<td data-label="{{ $.L.Tc "globals.terms.subscriber" 1 }}">{{ template "analytics-subscriber" dict "Subscriber" . "Page" $d.Page "L" $.L }}</td>
+						<td data-label="{{ $.L.T "globals.terms.views" }}" class="align-center"><a href="{{ $d.Page.FilterURL (printf "%s?subscriber_id=%d" $base .ID) "subscriber_id" }}">{{ FormatNumber .Views }}</a></td>
+						<td data-label="{{ $.L.T "globals.terms.clicks" }}" class="align-center"><a href="{{ $d.Page.FilterURL (printf "%s?subscriber_id=%d" $base .ID) "subscriber_id" }}">{{ FormatNumber .Clicks }}</a></td>
+						<td data-label="{{ $.L.T "globals.fields.updatedAt" }}"><time datetime="{{ .LastActivity.Format "2006-01-02T15:04:05Z07:00" }}" title="{{ .LastActivity.Format "2006-01-02 15:04:05 MST" }}">{{ NiceDate .LastActivity true }}</time></td>
+					</tr>
+				{{- end }}
+				</tbody>
+			</table>
+		</div>
+	{{- else }}
+		{{ template "empty-state" }}
+	{{- end }}
+	{{ template "pagination" $d.Page.Pagination }}
+</article>
+{{- end }}
+
+{{ define "analytics-subscriber" -}}
+{{- $s := .Subscriber -}}
+{{- $url := printf "%s/%d" (URI "/admin/subscribers") $s.ID -}}
+{{- $activityURL := .Page.FilterURL (printf "%s?subscriber_id=%d" (URI "/admin/campaigns/analytics") $s.ID) "subscriber_id" -}}
+<div class="avatar">
+	{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or $s.Name $s.Email) "Href" $url "Title" (printf "%s %s" (.L.T "globals.buttons.view") (or $s.Name $s.Email)) }}
+	<div class="avatar-label">
+		<a class="unstyled" href="{{ $activityURL }}">{{ $s.Email }}</a>
+		<div class="text-small text-light"><a class="unstyled" href="{{ $activityURL }}">{{ $s.Name }}</a></div>
+	</div>
+</div>
+{{- end }}
