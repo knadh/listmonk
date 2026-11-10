@@ -4,9 +4,10 @@
 {{- $base := printf "%s/%d" (URI "/admin/lists") $l.ID -}}
 {{- $subs := printf "%s/%d" (URI "/admin/subscribers/lists") $l.ID -}}
 <div class="vstack gap-6">
-	<div class="card">
+	<div class="card float">
+		<h5 class="title">{{ .L.Tc "globals.terms.list" 1 }}</h5>
 		<div class="row">
-			<div class="col-3">
+			<div class="col-4">
 				<div class="hstack gap-2">
 					{{- $typeIcon := "eye-off" }}{{ if eq $l.Type "public" }}{{ $typeIcon = "eye" }}{{ end }}
 					<a href="{{ URI "/admin/lists" }}?type={{ $l.Type }}" title="{{ .L.T "globals.buttons.filter" }} {{ .L.T (printf "globals.terms.%s" $l.Type) }}">{{ Badge (list (Icon $typeIcon) (.L.T (printf "globals.terms.%s" $l.Type))) (printf "enum type-%s" $l.Type) }}</a>
@@ -16,18 +17,20 @@
 				</div>
 				<div class="text-small text-light mt-2">{{ NiceDate $l.CreatedAt }}</div>
 			</div>
-			<div class="col-9">
+			<div class="col-4">
 				{{ if or $l.Description $l.Tags }}
 				<p class="text-small text-light mb-2">
 					{{ $l.Description }}
 					{{ range $l.Tags }} <a href="{{ URI "/admin/lists" }}?tag={{ . }}" class="tag" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a>{{ end }}
 				</p>
 				{{ end }}
+			</div>
+			<div class="col-4">
 				<div class="hstack gap-2 justify-end">
 					<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
 						<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
 					</button>
-					<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+					<button type="button" class="small auto" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
 						<strong>{{ .L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
 					</button>
 				</div>

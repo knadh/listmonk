@@ -1,17 +1,28 @@
 {{ define "subscriber-info" -}}
 {{- $d := .Data -}}
 <div class="vstack gap-6 activity">
-	<div class="card">
+	<div class="card float">
+		<h5 class="title">{{ .L.Tc "globals.terms.subscriber" 1 }}</h5>
 		<div class="row">
-			<div class="col-6">
+			<div class="col-4">
 				<strong>{{ $d.Subscriber.Name }}</strong>
 				<div class="text-small text-light">{{ NiceDate $d.Subscriber.CreatedAt }}</div>
 			</div>
-			<div class="col-6 hstack gap-2 justify-end">
+			<div class="col-4">
+				<div class="hstack gap-2">
+					{{ range $d.Subscriber.ParsedLists }}
+					<div class="avatar xsmall center">
+						{{ template "avatar-icon" dict "Kind" "list" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/lists") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
+						<a class="unstyled text-light avatar-label" href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
+					</div>
+					{{ end }}
+				</div>
+			</div>
+			<div class="col-4 hstack gap-2 justify-end">
 				<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
 					<strong>{{ .L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
 				</button>
-				<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+				<button type="button" class="small auto" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
 					<strong>{{ .L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
 				</button>
 			</div>

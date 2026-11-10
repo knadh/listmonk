@@ -158,8 +158,8 @@
 					</td>
 					<td class="stats analytics" data-label="{{ $root.L.T "globals.terms.analytics" }}">
 						<div class="vstack gap-1">
-							<div>{{ FormatNumber .Views }} <span class="text-8 text-light">{{ $root.L.T "globals.terms.views" | lower }}</span></div>
-								<div>{{ FormatNumber .Clicks }} <span class="text-8 text-light">{{ $root.L.T "globals.terms.clicks" | lower }}</span></div>
+							<div><a class="unstyled" href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}">{{ FormatNumber .Views }} <span class="text-8 text-light">{{ $root.L.T "globals.terms.views" | lower }}</span></a></div>
+								<div><a class="unstyled" href="{{ URI "/admin/campaigns/analytics" }}?id={{ .ID }}">{{ FormatNumber .Clicks }} <span class="text-8 text-light">{{ $root.L.T "globals.terms.clicks" | lower }}</span></a></div>
 						</div>
 					</td>
 					<td class="timestamp" data-label="{{ $dateLabel }}">

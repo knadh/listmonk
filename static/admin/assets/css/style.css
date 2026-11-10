@@ -164,6 +164,17 @@ table {
 }
 
 
+:is(.button, button).auto {
+    display: inline-block;
+    min-width: 0;
+    max-width: min(20rem, 100%);
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
 svg.icon {
     display: inline-block;
     height: 1em;
@@ -1246,6 +1257,7 @@ visual-editor {
 /* Sections */
 
 section.dashboard,
+section.campaign,
 section.lists,
 section.subscribers {
     .chart-box {

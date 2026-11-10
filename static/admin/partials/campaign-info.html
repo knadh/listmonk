@@ -1,0 +1,87 @@
+{{ define "campaign-info" -}}
+{{- $d := .Data -}}
+{{- $c := $d.Campaign -}}
+<div class="vstack gap-6">
+	<div class="card float">
+		<h5 class="title">{{ .L.Tc "globals.terms.campaign" 1 }}</h5>
+		<div class="row">
+			<div class="col-4">
+				<div>{{ $c.Subject }}</div>
+				<div class="text-small text-light">{{ $c.FromEmail }}</div>
+				<div class="text-small text-light mt-2" title="{{ .L.T "globals.fields.createdAt" }}">{{ NiceDate $c.CreatedAt }}</div>
+			</div>
+			<div class="col-4">
+				<div class="hstack gap-2 mb-2">
+					{{ range $c.ParsedLists }}
+					<div class="avatar xsmall center">
+						{{ template "avatar-icon" dict "Kind" "list" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/lists") .ID) "Title" (printf "%s %s" ($.L.T "globals.buttons.view") .Name) }}
+						<a class="unstyled text-light avatar-label" href="{{ URI "/admin/lists" }}/{{ .ID }}">{{ .Name }}</a>
+					</div>
+					{{ end }}
+				</div>
+				{{ if $c.Tags }}
+				<p class="text-small text-light mb-2">
+					{{ range $c.Tags }}<a href="{{ URI "/admin/campaigns" }}?tag={{ . }}" class="tag" title="{{ $.L.T "globals.buttons.filter" }} {{ . }}">#{{ . }}</a> {{ end }}
+				</p>
+				{{ end }}
+			</div>
+			<div class="col-4">
+				<div class="hstack gap-2 justify-end">
+					<button type="button" class="small" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
+						<strong>{{ .L.T "globals.fields.id" }}</strong> {{ $c.ID }}
+					</button>
+					<button type="button" class="small auto" data-variant="secondary" title="{{ .L.T "globals.messages.clickToCopy" }}" aria-label="{{ .L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
+						<strong>{{ .L.T "globals.fields.uuid" }}</strong> {{ $c.UUID }}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{{ if $d.Analytics }}
+	<section class="row">
+		{{ range list (dict "Key" "sent" "Count" $c.Sent) (dict "Key" "views" "Count" $c.Views) (dict "Key" "clicks" "Count" $c.Clicks) (dict "Key" "bounces" "Count" $c.Bounces) }}
+		<div class="col-3">
+			<article class="card float stat-card">
+				<h4 class="title">{{ $.L.T (printf "globals.terms.%s" .Key) }}</h4>
+				<div class="stat-value">
+					{{ if eq .Key "sent" }}
+						{{ FormatNumber .Count }}
+					{{ else if eq .Key "bounces" }}
+						<a class="unstyled" href="{{ URI "/admin/subscribers/bounces" }}?campaign_id={{ $c.ID }}">{{ FormatNumber .Count }}</a>
+					{{ else }}
+						<a class="unstyled" href="{{ URI "/admin/campaigns/analytics" }}?id={{ $c.ID }}">{{ FormatNumber .Count }}</a>
+					{{ end }}
+				</div>
+			</article>
+		</div>
+		{{ end }}
+	</section>
+	<section class="row">
+		{{ range list (dict "Key" "views" "Rows" $d.Analytics.Views) (dict "Key" "clicks" "Rows" $d.Analytics.Clicks) }}
+		<div class="col-6">
+			<article class="card float">
+				<h5 class="title">{{ $.L.T (printf "globals.terms.%s" .Key) }}</h5>
+				{{ if .Rows }}
+				<div class="chart-box"><canvas id="chart-{{ .Key }}" role="img" aria-label="{{ $.L.T (printf "globals.terms.%s" .Key) }}"></canvas></div>
+				{{ else }}
+					{{ template "empty-state" }}
+				{{ end }}
+			</article>
+		</div>
+		{{ end }}
+	</section>
+	<article class="card float">
+		<h4 class="title">{{ .L.T "globals.terms.links" }}</h4>
+		{{ if $d.Analytics.Links }}
+			<div class="chart-box"><canvas id="chart-links" role="img" aria-label="{{ .L.T "globals.terms.links" }}"></canvas></div>
+		{{ else }}
+			{{ template "empty-state" }}
+		{{ end }}
+	</article>
+	{{ end }}
+</div>
+{{ if $d.Analytics }}
+<script>window._analytics = {{ ToJSON $d.Analytics }};</script>
+<script type="module" src="{{ URI "/admin/static/js/views/analytics.js" }}?v={{ .AssetVersion }}" defer></script>
+{{ end }}
+{{ end }}

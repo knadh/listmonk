@@ -68,39 +68,13 @@ func (a *App) ViewListAnalytics(c *echo.Context) error {
 }
 
 func (a *App) viewAnalytics(c *echo.Context, resource string) error {
+	user := auth.GetUser(c)
 	ids, err := getQueryInts("id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))
 	}
 
-	// Parse from/to dates.
-	var (
-		q    = c.QueryParams()
-		to   = time.Now()
-		from = to.AddDate(0, 0, -7)
-	)
-	if t, ok := parseDateTime(q.Get("from")); ok {
-		from = t
-	}
-	if t, ok := parseDateTime(q.Get("to")); ok {
-		to = t
-	}
-
-	q.Set("from", from.Format(time.RFC3339))
-	q.Set("to", to.Format(time.RFC3339))
-
-	data, err := a.loadAnalytics(c, resource, ids, from, to)
-	if err != nil {
-		return err
-	}
-
-	return c.Render(http.StatusOK, "admin-analytics", data)
-}
-
-// loadAnalytics returns the shared analytics view for the given date range.
-func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, to time.Time) (*analyticsView, error) {
-	user := auth.GetUser(c)
 	getAll, permittedLists := user.GetPermittedLists(auth.PermTypeGet)
 	if resource == models.ResourceCampaigns {
 		getAll, permittedLists = user.GetPermittedLists(auth.PermTypeGet | auth.PermTypeManage)
@@ -109,10 +83,20 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 
 	items, err := a.core.GetAnalyticsItems(resource, ids, getAll, permittedLists)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	q := c.QueryParams()
+	// Resolve the date range, defaulting to the last 7 days.
+	var (
+		to   = time.Now()
+		from = to.AddDate(0, 0, -7)
+	)
+	if t, ok := parseDateTime(c.QueryParam("from")); ok {
+		from = t
+	}
+	if t, ok := parseDateTime(c.QueryParam("to")); ok {
+		to = t
+	}
 
 	data := analyticsView{
 		adminView:          newAdminView(c, a.i18n.T("globals.terms.analytics"), "", resource+".analytics"),
@@ -121,10 +105,10 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 		Resource:           resource,
 		FromInput:          from.Format(time.RFC3339),
 		ToInput:            to.Format(time.RFC3339),
-		Interval:           q.Get("interval"),
+		Interval:           c.QueryParam("interval"),
 		DisableTracking:    a.cfg.Privacy.DisableTracking,
 		IndividualTracking: a.cfg.Privacy.IndividualTracking,
-		ShowUnique:         a.cfg.Privacy.IndividualTracking && q.Get("unique") == "true",
+		ShowUnique:         a.cfg.Privacy.IndividualTracking && c.QueryParam("unique") == "true",
 	}
 
 	// Filtered object IDs.
@@ -137,24 +121,29 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 		data.Interval = models.AnalyticsIntervalDay
 	}
 
+	// Set the query params for the paginator and the activity tab.
+	q := c.QueryParams()
+	q.Set("from", data.FromInput)
+	q.Set("to", data.ToInput)
+
 	data.Page = models.NewPageProps(q, 0, 1, 20)
 	data.CanViewActivity = resource == models.ResourceCampaigns && data.Can(auth.PermSubscribersGet, auth.PermSubscribersGetAll)
-	if q.Get("tab") == "activity" {
+	if c.QueryParam("tab") == "activity" {
 		if !data.CanViewActivity {
-			return nil, auth.ErrPermDenied
+			return auth.ErrPermDenied
 		}
 
 		data.Tab = "activity"
 		if from.After(to) {
-			return nil, echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
+			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("analytics.invalidDates"))
 		}
 
 		// Load activity for the selected campaigns.
 		if err := a.loadCampaignActivity(c, &data, ids); err != nil {
-			return nil, err
+			return err
 		}
 
-		return &data, nil
+		return c.Render(http.StatusOK, "admin-analytics", data)
 	}
 
 	data.CanViewCampaignCharts = resource == models.ResourceCampaigns ||
@@ -171,14 +160,14 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 			getLinks = a.core.GetListAnalyticsLinks
 			rows, err := getCounts(ids, models.AnalyticsTypeSubscriptions, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			data.Data.Subscriptions = rows
 			data.Counts.Subscriptions = sumAnalyticsCounts(rows)
 			rows, err = getCounts(ids, models.AnalyticsTypeUnsubscriptions, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			data.Data.Unsubscriptions = rows
@@ -189,23 +178,23 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 			var err error
 			data.Data.Views, err = getCounts(ids, models.AnalyticsTypeTotalViews, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			data.Data.Clicks, err = getCounts(ids, models.AnalyticsTypeTotalClicks, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			if data.ShowUnique {
 				data.Data.UniqueViews, err = getCounts(ids, models.AnalyticsTypeViews, data.FromInput, data.ToInput, data.Interval)
 				if err != nil {
-					return nil, err
+					return err
 				}
 
 				data.Data.UniqueClicks, err = getCounts(ids, models.AnalyticsTypeClicks, data.FromInput, data.ToInput, data.Interval)
 				if err != nil {
-					return nil, err
+					return err
 				}
 
 				data.Counts.UniqueViews = sumAnalyticsCounts(data.Data.UniqueViews)
@@ -214,12 +203,12 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 
 			data.Data.Bounces, err = getCounts(ids, models.AnalyticsTypeBounces, data.FromInput, data.ToInput, data.Interval)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			data.Data.Links, err = getLinks(ids, data.FromInput, data.ToInput)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			data.Counts.Views = sumAnalyticsCounts(data.Data.Views)
@@ -228,7 +217,7 @@ func (a *App) loadAnalytics(c *echo.Context, resource string, ids []int, from, t
 		}
 	}
 
-	return &data, nil
+	return c.Render(http.StatusOK, "admin-analytics", data)
 }
 
 // GetCampaignViewAnalytics retrieves analytics for campaigns.

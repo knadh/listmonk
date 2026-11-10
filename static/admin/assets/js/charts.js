@@ -1,17 +1,21 @@
 import Chart from 'chart.js/auto';
+import { niceDate } from './utils.js';
 
 const FONT_FAMILY = "'Geist', sans-serif";
 
-// Format an ISO date ('2024-06-01') to a short 'DD Mon' label.
-function label(iso) {
-  // Parse date-only buckets as local dates so western timezones do not show
-  // the previous day.
-  const d = new Date(`${iso}T00:00:00`);
-  if (Number.isNaN(d.getTime())) {
-    return iso;
-  }
+// Resolve theme variables to a concrete color for canvas rendering.
+export function chartThemeColor(name) {
+  const el = document.createElement('div');
+  el.style.color = `var(--${name})`;
+  document.documentElement.appendChild(el);
+  const color = getComputedStyle(el).color;
+  el.remove();
+  return color;
+}
 
-  return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
+// Format date-only buckets without shifting the day in western timezones.
+function label(iso) {
+  return niceDate(`${iso}T00:00:00`) || iso;
 }
 
 // Draw {count, date} rows, optionally adding a dashed comparison series.
@@ -31,11 +35,7 @@ export function lineChart(id, rows, comparison) {
   }
 
   // Get the primary colour.
-  const el = document.createElement('div');
-  el.style.color = 'var(--primary)';
-  document.documentElement.appendChild(el);
-  const color = getComputedStyle(el).color || '#0055d4';
-  el.remove();
+  const color = chartThemeColor('primary') || '#0055d4';
 
   Chart.defaults.font.family = FONT_FAMILY;
 
@@ -70,7 +70,11 @@ export function lineChart(id, rows, comparison) {
       maintainAspectRatio: false,
       plugins: { legend: { display: !!comparison } },
       scales: {
-        x: { grid: { display: false }, border: { display: false } },
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { font: { size: 10 }, color: chartThemeColor('muted-foreground') },
+        },
         y: { grid: { display: false }, border: { display: false }, ticks: { precision: 0 } },
       },
     },

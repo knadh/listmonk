@@ -82,7 +82,7 @@ type campaignView struct {
 	AllLists        []models.List
 	SelectedListIDs []int
 	ArchiveURL      string
-	Analytics       *analyticsView
+	Analytics       *analyticsData
 }
 
 // ViewNewCampaign renders the new campaign page (only the "campaign" tab).
@@ -194,15 +194,35 @@ func (a *App) ViewCampaign(c *echo.Context) error {
 		ArchiveURL: archiveURL,
 	}
 
-	// Non-draft/scheduled campaigns, show the analytics on the page (first 'View' tab).
-	if camp.Status != models.CampaignStatusDraft && camp.Status != models.CampaignStatusScheduled && data.Can(auth.PermCampaignsGetAnalytics) {
-		// Since the interval is fixed for the default view, remove the from/to query params
-		// so they don't clutter all the links on the campaign page.
-		to := time.Now()
-		c.QueryParams().Del("from")
-		c.QueryParams().Del("to")
+	// Show the overview with stats/analytics for the last 90 days.
+	if data.Can(auth.PermCampaignsGetAnalytics) {
+		var (
+			now  = time.Now()
+			from = now.AddDate(0, 0, -90).Format(time.RFC3339)
+			ids  = []int{id}
+		)
 
-		data.Analytics, err = a.loadAnalytics(c, models.ResourceCampaigns, []int{id}, to.AddDate(0, 0, -90), to)
+		// If the campaign is up to 4 weeks old, show daily interval, otherwise weekly.
+		intVal := models.AnalyticsIntervalDay
+		if camp.UpdatedAt.Valid && camp.UpdatedAt.Time.Before(now.AddDate(0, 0, -28)) {
+			intVal = models.AnalyticsIntervalWeek
+		}
+
+		data.Analytics = &analyticsData{
+			Items: []models.AnalyticsItem{{ID: camp.ID, Name: camp.Name, Sent: camp.Sent}},
+		}
+
+		data.Analytics.Views, err = a.core.GetCampaignAnalyticsCounts(ids, models.AnalyticsTypeTotalViews, from, now.Format(time.RFC3339), intVal)
+		if err != nil {
+			return err
+		}
+
+		data.Analytics.Clicks, err = a.core.GetCampaignAnalyticsCounts(ids, models.AnalyticsTypeTotalClicks, from, now.Format(time.RFC3339), intVal)
+		if err != nil {
+			return err
+		}
+
+		data.Analytics.Links, err = a.core.GetCampaignAnalyticsLinks(ids, from, now.Format(time.RFC3339))
 		if err != nil {
 			return err
 		}

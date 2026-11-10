@@ -105,15 +105,7 @@
 	</form>
 
 	{{- if not $isNew }}
-		<footer class="hstack justify-between mt-6">
-			<div class="hstack gap-1">
-				<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.id" }}" @click="copyToClipboard(form.id)">
-					<strong>{{ $root.L.T "globals.fields.id" }}</strong> <span x-text="form.id"></span>
-				</button>
-				<button type="button" class="small" data-variant="secondary" title="{{ $root.L.T "globals.messages.clickToCopy" }}" aria-label="{{ $root.L.T "globals.fields.uuid" }}" @click="copyToClipboard(form.uuid)">
-					<strong>{{ $root.L.T "globals.fields.uuid" }}</strong> <span x-text="form.uuid"></span>
-				</button>
-			</div>
+		<footer class="hstack justify-end mt-6">
 			{{- if $canSend }}
 				<div class="hstack justify-end gap-1">
 					<template x-if="canStart">

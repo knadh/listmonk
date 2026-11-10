@@ -1,8 +1,9 @@
 {{ define "analytics-activity" -}}
 {{- $d := .Data -}}
+{{- $base := URI "/admin/campaigns/analytics" -}}
 {{- if $d.Subscriber }}
 <div class="hstack gap-1">
-	<a class="flex items-center" style="font-size: var(--text-3)" href="{{ $d.Page.FilterURL "" "subscriber_id" }}" aria-label="{{ .L.T "globals.buttons.back" }}" title="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
+	<a class="flex items-center" style="font-size: var(--text-3)" href="{{ $d.Page.FilterURL $base "subscriber_id" }}" aria-label="{{ .L.T "globals.buttons.back" }}" title="{{ .L.T "globals.buttons.back" }}">{{ Icon "chevron-left" }}</a>
 	{{ template "analytics-subscriber" dict "Subscriber" $d.Subscriber "Page" $d.Page "L" .L }}
 </div>
 {{- end }}
@@ -61,8 +62,8 @@
 				{{- range $d.Activity }}
 					<tr>
 						<td data-label="{{ $.L.Tc "globals.terms.subscriber" 1 }}">{{ template "analytics-subscriber" dict "Subscriber" . "Page" $d.Page "L" $.L }}</td>
-						<td data-label="{{ $.L.T "globals.terms.views" }}" class="align-center"><a href="{{ $d.Page.FilterURL (printf "?subscriber_id=%d" .ID) "subscriber_id" }}">{{ FormatNumber .Views }}</a></td>
-						<td data-label="{{ $.L.T "globals.terms.clicks" }}" class="align-center"><a href="{{ $d.Page.FilterURL (printf "?subscriber_id=%d" .ID) "subscriber_id" }}">{{ FormatNumber .Clicks }}</a></td>
+						<td data-label="{{ $.L.T "globals.terms.views" }}" class="align-center"><a href="{{ $d.Page.FilterURL (printf "%s?subscriber_id=%d" $base .ID) "subscriber_id" }}">{{ FormatNumber .Views }}</a></td>
+						<td data-label="{{ $.L.T "globals.terms.clicks" }}" class="align-center"><a href="{{ $d.Page.FilterURL (printf "%s?subscriber_id=%d" $base .ID) "subscriber_id" }}">{{ FormatNumber .Clicks }}</a></td>
 						<td data-label="{{ $.L.T "globals.fields.updatedAt" }}"><time datetime="{{ .LastActivity.Format "2006-01-02T15:04:05Z07:00" }}" title="{{ .LastActivity.Format "2006-01-02 15:04:05 MST" }}">{{ NiceDate .LastActivity true }}</time></td>
 					</tr>
 				{{- end }}
@@ -79,7 +80,7 @@
 {{ define "analytics-subscriber" -}}
 {{- $s := .Subscriber -}}
 {{- $url := printf "%s/%d" (URI "/admin/subscribers") $s.ID -}}
-{{- $activityURL := .Page.FilterURL (printf "?subscriber_id=%d" $s.ID) "subscriber_id" -}}
+{{- $activityURL := .Page.FilterURL (printf "%s?subscriber_id=%d" (URI "/admin/campaigns/analytics") $s.ID) "subscriber_id" -}}
 <div class="avatar">
 	{{ template "avatar-icon" dict "Kind" "subscriber" "Name" (or $s.Name $s.Email) "Href" $url "Title" (printf "%s %s" (.L.T "globals.buttons.view") (or $s.Name $s.Email)) }}
 	<div class="avatar-label">

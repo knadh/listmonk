@@ -2,6 +2,8 @@ import Alpine from 'alpinejs';
 import Chart from 'chart.js/auto';
 
 import { api } from '../main.js';
+import { niceDate } from '../utils.js';
+import { chartThemeColor } from '../charts.js';
 import { tagAutocomplete, tagNode } from '../tag-selector.js';
 
 const chartColorRed = '#ee7d5b';
@@ -63,6 +65,7 @@ const DEFAULT_LINE = {
         bodySpacing: 10,
         padding: 10,
         callbacks: {
+          title: (items) => niceDate(items[0]?.label),
           labelColor: (item) => ({
             backgroundColor: item.dataset.borderColor,
             borderColor: 'transparent',
@@ -71,7 +74,14 @@ const DEFAULT_LINE = {
       },
     },
     scales: {
-      x: { grid: { display: false } },
+      x: {
+        grid: { display: false },
+        ticks: {
+          font: { size: 10 },
+          color: chartThemeColor('muted-foreground'),
+          callback(value) { return niceDate(this.getLabelForValue(value)); },
+        },
+      },
       y: { grid: { display: false }, ticks: { precision: 0 } },
     },
   },
@@ -107,7 +117,7 @@ const DEFAULT_BAR = {
 // Zero-pad a number to two digits.
 const pad = (n) => String(n).padStart(2, '0');
 
-// Format a timestamp string into a chart axis label.
+// Format a timestamp string for the date-range inputs and summary.
 function toLabel(s) {
   const d = new Date(s);
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -229,7 +239,7 @@ function groupCounts(rows, idKey) {
       groups.set(id, { points: [], total: 0 });
     }
     const group = groups.get(id);
-    group.points.push({ x: toLabel(row.timestamp), y: row.count });
+    group.points.push({ x: new Date(row.timestamp).toISOString(), y: row.count });
     group.total += row.count;
   });
   return groups;

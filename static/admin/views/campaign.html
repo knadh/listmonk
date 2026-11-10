@@ -77,7 +77,7 @@
 	{{- else }}
 		<ot-tabs data-anchor="tab">
 			<div role="tablist" data-variant="primary">
-				{{ if $d.Analytics }}<button type="button" role="tab" id="view">{{ Icon "bar-chart-2" }} {{ .L.T "globals.buttons.view" }}</button>{{ end }}
+				<button type="button" role="tab" id="view">{{ Icon "bar-chart-2" }} {{ .L.T "globals.buttons.view" }}</button>
 				<button type="button" role="tab" id="campaign">{{ Icon "send" }} {{ .L.Tc "globals.terms.campaign" 1 }}</button>
 				<button type="button" role="tab" id="content">{{ Icon "align-left" }} {{ .L.T "globals.fields.content" }}</button>
 				<button type="button" role="tab" id="attribs">{{ Icon "code" }} {{ .L.T "globals.terms.attribs" }} <span x-cloak x-show="form.attribsStr.trim() !== '' && form.attribsStr.trim() !== '{}'">{{ Icon "check-circle" }}</span></button>
@@ -129,11 +129,9 @@
 				</div>
 			</ot-dropdown>
 
-			{{ if $d.Analytics }}
 			<div role="tabpanel">
-				<section class="analytics vstack gap-6">{{ template "analytics-results" dict "Data" $d.Analytics "L" .L "AssetVersion" .AssetVersion "AdvancedURL" (printf "%s?id=%d&from=%s&to=%s&interval=%s&unique=%t" (URI "/admin/campaigns/analytics") $d.Campaign.ID (urlquery $d.Analytics.FromInput) (urlquery $d.Analytics.ToInput) (urlquery $d.Analytics.Interval) $d.Analytics.ShowUnique) }}</section>
+				{{ template "campaign-info" . }}
 			</div>
-			{{ end }}
 			<div role="tabpanel">{{ template "campaign-form" dict "Root" . "IsNew" $isNew "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-content" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
 			<div role="tabpanel">{{ template "campaign-attribs" dict "Root" . "CanManage" $canManage "CanSend" $canSend }}</div>
