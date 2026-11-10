@@ -76,7 +76,6 @@ function component() {
         altbody: c.altbody,
         headers: c.headers,
         attribs: c.attribs,
-        send_at: c.send_at,
         archive: c.archive,
         archive_template_id: c.archive_template_id,
         archive_meta: c.archive_meta,
