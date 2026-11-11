@@ -19,7 +19,7 @@ Some mail servers may also return the bounce to the `Reply-To` address, which ca
 
 
 ### Bounce classification
-listmonk applies a series of heuristics looking for keywords in the bounced mail body to guess if it is a 'soft' bounce or a 'hard' bounce. For instance, 4.x.x and 5.x.x error status codes, common strings such as "mailbox not found" etc. If none of the heuristics match, then the bounce mail is considered to be 'soft' by default.
+listmonk applies a series of heuristics looking for keywords in the bounced mail body to guess if it is a 'soft' bounce or a 'hard' bounce. For instance, 4.x.x and 5.x.x error status codes, common strings such as "mailbox not found" etc. The exception is 5.6.x status codes (message content or media errors, such as `5.6.7` where the destination does not support SMTPUTF8), which are considered 'soft' as they do not mean that the recipient address is invalid. If none of the heuristics match, then the bounce mail is considered to be 'soft' by default.
 
 ## Webhook API
 The bounce webhook API can be used to record bounce events with custom scripting. This could be by reading a mailbox, a database, or mail server logs.
