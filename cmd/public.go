@@ -625,7 +625,7 @@ func (a *App) SubscriptionForm(c *echo.Context) error {
 // PublicSubscription handles subscription requests coming from public
 // API calls.
 func (a *App) PublicSubscription(c *echo.Context) error {
-	if !a.cfg.EnablePublicSubPage {
+	if !a.cfg.EnablePublicSubAPI {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("public.invalidFeature"))
 	}
 

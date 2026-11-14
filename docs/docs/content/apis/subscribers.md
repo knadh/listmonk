@@ -367,6 +367,8 @@ ______________________________________________________________________
 
 Create a public subscription, accepts both form encoded or JSON encoded body.
 
+Requires `Enable public subscription API` turned on in Settings → General. This is independent of the public subscription page. Note that this API does not enforce CAPTCHA and if you are turning it on, you might want to configure rate limits and other protections in a reverse proxy or WAF.
+
 ##### Parameters
 
 | Name       | Type       | Required | Description                 |

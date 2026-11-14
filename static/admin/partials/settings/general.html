@@ -56,13 +56,19 @@
 		</label>
 	</fieldset>
 
-	<fieldset class="card" data-keywords="subscription public page opt-in optin confirmation double signup">
+	<fieldset class="card" data-keywords="subscription public page api opt-in optin confirmation double signup">
 		<legend>{{ .L.T "globals.terms.subscriptions" }}</legend>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['app.enable_public_subscription_page']" />
 			{{ .L.T "settings.general.enablePublicSubPage" }}
 			<small data-hint>{{ .L.T "settings.general.enablePublicSubPageHelp" }}</small>
 		</label>
+		<div data-field>
+			<label>
+				<input type="checkbox" role="switch" x-model="form['app.enable_public_subscription_api']" />
+				{{ .L.T "settings.general.enablePublicSubAPI" }}
+			</label>
+		</div>
 		<label data-field>
 			<input type="checkbox" role="switch" x-model="form['app.send_optin_confirmation']" />
 			{{ .L.T "subscribers.sendOptinConfirm" }}

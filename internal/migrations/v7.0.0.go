@@ -77,6 +77,10 @@ func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger
         -- OIDC claim mapping.
         UPDATE settings SET value = JSONB_SET(value, '{roles}', '[]'::JSONB)
         WHERE key = 'security.oidc' AND NOT (value ? 'roles');
+
+        -- Enable the public subscription API.
+        INSERT INTO settings (key, value) VALUES ('app.enable_public_subscription_api', 'false')
+        ON CONFLICT (key) DO NOTHING;
 	`); err != nil {
 		return err
 	}

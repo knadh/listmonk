@@ -89,6 +89,7 @@ type Config struct {
 	FromEmails                    []string `koanf:"from_email"`
 	NotifyEmails                  []string `koanf:"notify_emails"`
 	EnablePublicSubPage           bool     `koanf:"enable_public_subscription_page"`
+	EnablePublicSubAPI            bool     `koanf:"enable_public_subscription_api"`
 	EnablePublicArchive           bool     `koanf:"enable_public_archive"`
 	EnablePublicArchiveRSSContent bool     `koanf:"enable_public_archive_rss_content"`
 	ShowOptinPage                 bool     `koanf:"show_optin_page"`
