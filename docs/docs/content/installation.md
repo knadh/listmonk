@@ -138,6 +138,8 @@ $ helm upgrade \
 <br />
 <a href="https://podway.io/start?app=listmonk&ref=docs-listmonk"><img src="https://podway.io/img/deploy-on-podway.svg" alt="Deploy on podway" style="max-width: 150px;"/></a>
 <br />
+<a href="https://www.simafri.com/en/guides/self-host-listmonk/"><img src="https://listmonk.app/static/images/host-simafri.svg" alt="Self-host on Simafri" style="max-width: 150px;"/></a>
+<br />
 <a href="https://zop.dev/zopday/app/deploy?image=listmonk/listmonk&port=9000&name=listmonk&utm_source=github&utm_medium=one_click&utm_content=listmonk"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" style="max-width: 150px;"/></a>
 
 ## Tutorials
@@ -155,3 +157,4 @@ $ helm upgrade \
 * [Install Listmonk on Self-hosting with *Pre-Configured AMI Package at AWS* by Single Click](https://meetrix.io/articles/how-to-install-llama-2-on-aws-with-pre-configured-ami-package/)
 * [*Fly.io* working example](https://gitlab.com/votelog/apps/newsletter)
 * [*Docker via Ansible* with the MASH playbook](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/components/listmonk/README.md)
+* [*Docker Compose* on a managed VPS, with Caddy or Nginx (Simafri)](https://www.simafri.com/en/guides/self-host-listmonk/)
