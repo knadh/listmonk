@@ -315,12 +315,12 @@ func parseBounce(raw []byte) ([]models.Bounce, error) {
 		switch {
 		case strings.HasPrefix(status, "2."), action == "delivered", action == "relayed", action == "expanded":
 			continue
-		case strings.HasPrefix(status, "5."):
-			b.Type = models.BounceTypeHard
-		case strings.HasPrefix(status, "4."):
-			b.Type = models.BounceTypeSoft
 		default:
-			return nil, fmt.Errorf("invalid delivery status %q", status)
+			t := statusBounceType(status)
+			if t == "" {
+				return nil, fmt.Errorf("invalid delivery status %q", status)
+			}
+			b.Type = t
 		}
 
 		if len(recipients) > 1 {
@@ -352,6 +352,25 @@ func parseBounce(raw []byte) ([]models.Bounce, error) {
 	return out, nil
 }
 
+// statusBounceType maps an enhanced SMTP status code (RFC 3463, eg: 5.1.1) to
+// a bounce type. 4.x.x codes are soft bounces and 5.x.x codes are hard bounces,
+// except 5.6.x, which signal a problem with the message content or media (eg: 5.6.7
+// for SMTPUTF8 not being supported by the destination) rather than the recipient
+// address, and are thus not a reason to treat the subscriber as permanently
+// undeliverable. An empty string is returned for any other status.
+func statusBounceType(status string) string {
+	switch {
+	case strings.HasPrefix(status, "5.6."):
+		return models.BounceTypeSoft
+	case strings.HasPrefix(status, "5."):
+		return models.BounceTypeHard
+	case strings.HasPrefix(status, "4."):
+		return models.BounceTypeSoft
+	}
+
+	return ""
+}
+
 // classifyBounce analyzes the bounce message content and determines if it's a hard or soft bounce.
 // It checks SMTP status codes, diagnostic headers, and bounce keywords (using string heuristics).
 // soft is the default preference.
@@ -361,16 +380,9 @@ func classifyBounce(b []byte) (string, string) {
 		for _, m := range matches {
 			if len(m) >= 2 && len(m[0]) > 1 {
 				// Full status code (e.g., "5.1.1").
-				status := m[1]
-
-				// 5.x.x is hard bounce.
-				if status[0] == '5' {
-					return models.BounceTypeHard, fmt.Sprintf("smtp_status=%s", status)
-				}
-
-				// 4.x.x  is soft bounce.
-				if status[0] == '4' {
-					return models.BounceTypeSoft, fmt.Sprintf("smtp_status=%s", status)
+				status := string(m[1])
+				if t := statusBounceType(status); t != "" {
+					return t, fmt.Sprintf("smtp_status=%s", status)
 				}
 			}
 		}
