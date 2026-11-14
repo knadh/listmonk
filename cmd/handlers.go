@@ -246,6 +246,7 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 
 		g.GET("/api/profile", a.GetUserProfile)
 		g.PUT("/api/profile", a.UpdateUserProfile)
+		g.POST("/api/profile/email", a.RequestEmailChange)
 		g.GET("/api/users", pm(a.GetUsers, auth.PermUsersGet))
 		g.GET("/api/users/:id", pm(hasID(a.GetUser), auth.PermUsersGet))
 		g.POST("/api/users", pm(a.CreateUser, auth.PermUsersManage))
@@ -296,6 +297,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.POST(path.Join(uriAdmin, "/login/twofa"), a.adminPage(a.TwofaPage))
 		g.GET(path.Join(uriAdmin, "/forgot"), a.adminPage(a.ForgotPage))
 		g.POST(path.Join(uriAdmin, "/forgot"), a.adminPage(a.ForgotPage))
+		g.GET(path.Join(uriAdmin, "/verify-email"), a.VerifyEmail)
+		g.POST(path.Join(uriAdmin, "/verify-email"), a.VerifyEmail)
 		g.GET(path.Join(uriAdmin, "/reset"), a.adminPage(a.ResetPage))
 		g.POST(path.Join(uriAdmin, "/reset"), a.adminPage(a.ResetPage))
 

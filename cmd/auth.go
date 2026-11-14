@@ -697,11 +697,15 @@ func (a *App) doForgotPassword(c *echo.Context) error {
 	// Prepare the email.
 	var msg bytes.Buffer
 	data := struct {
-		ResetURL string
-		L        *i18n.I18n
+		ResetURL  string
+		IP        string
+		UserAgent string
+		L         *i18n.I18n
 	}{
-		ResetURL: resetURL,
-		L:        a.i18n,
+		ResetURL:  resetURL,
+		IP:        c.RealIP(),
+		UserAgent: c.Request().UserAgent(),
+		L:         a.i18n,
 	}
 
 	// Render the email template.

@@ -116,9 +116,9 @@ func (c *Core) UpdateUser(id int, u auth.User) (auth.User, error) {
 	return out, err
 }
 
-// UpdateUserProfile updates the basic fields of a given uesr (name, email, password).
+// UpdateUserProfile updates the name and password of a given user.
 func (c *Core) UpdateUserProfile(id int, u auth.User) (auth.User, error) {
-	res, err := c.q.UpdateUserProfile.Exec(id, u.Name, u.Email, u.PasswordLogin, u.Password)
+	res, err := c.q.UpdateUserProfile.Exec(id, u.Name, u.PasswordLogin, u.Password)
 	if err != nil {
 		return auth.User{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
@@ -137,6 +137,25 @@ func (c *Core) UpdateUserLogin(id int, avatar string) error {
 	if _, err := c.q.UpdateUserLogin.Exec(id, avatar); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.user}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
+// UpdateUserEmail changes a verified e-mail.
+func (c *Core) UpdateUserEmail(id int, oldEmail, email string) error {
+	res, err := c.q.UpdateUserEmail.Exec(id, oldEmail, email)
+	if err != nil {
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n == 0 {
+		return sql.ErrNoRows
 	}
 
 	return nil

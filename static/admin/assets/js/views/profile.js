@@ -12,9 +12,16 @@ function profileView() {
   return {
     form: {
       name: user.name || '',
-      email: user.email || '',
       password: '',
       password2: '',
+    },
+
+    newEmail: '',
+    emailSent: false,
+
+    async changeEmail() {
+      await api('profile.email', '/profile/email', 'POST', { email: this.newEmail });
+      this.emailSent = true;
     },
 
     // TOTP enable flow.
@@ -28,7 +35,7 @@ function profileView() {
     disablePassword: '',
 
     async onSubmit() {
-      const payload = { name: this.form.name, email: this.form.email };
+      const payload = { name: this.form.name };
 
       if (this.form.password) {
         if (this.form.password !== this.form.password2) {

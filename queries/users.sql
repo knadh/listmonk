@@ -151,8 +151,8 @@ WITH u AS (
 UPDATE users SET loggedin_at = NOW() WHERE id = (SELECT id FROM u) RETURNING *;
 
 -- name: update-user-profile
-UPDATE users SET name=$2, email=(CASE WHEN password_login THEN $3 ELSE email END),
-    password=(CASE WHEN $4 = TRUE THEN (CASE WHEN $5 != '' THEN CRYPT($5, GEN_SALT('bf')) ELSE password END) ELSE NULL END)
+UPDATE users SET name=$2,
+    password=(CASE WHEN $3 = TRUE THEN (CASE WHEN $4 != '' THEN CRYPT($4, GEN_SALT('bf')) ELSE password END) ELSE NULL END)
     WHERE id=$1;
 
 -- name: update-user-login
@@ -163,3 +163,7 @@ UPDATE users SET twofa_type=$2::twofa_type, twofa_key=$3, updated_at=NOW() WHERE
 
 -- name: delete-user-sessions
 DELETE FROM sessions WHERE data->>'user_id' = $1 AND ($2 = '' OR id != $2);
+
+-- name: update-user-email
+UPDATE users SET email=$3, updated_at=NOW()
+    WHERE id=$1 AND email=$2 AND status='enabled' AND password_login=TRUE AND type='user';

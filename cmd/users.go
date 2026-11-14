@@ -6,9 +6,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/knadh/listmonk/internal/auth"
 	"github.com/knadh/listmonk/internal/core"
+	"github.com/knadh/listmonk/internal/notifs"
+	"github.com/knadh/listmonk/internal/tmptokens"
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v5"
@@ -29,6 +32,13 @@ var (
 		"order":        models.OrderAsc,
 	}
 )
+
+// emailChange binds a verification link to an account and its current e-mail.
+type emailChange struct {
+	UserID   int
+	OldEmail string
+	Email    string
+}
 
 // usersView is the admin page view for the users list page.
 type usersView struct {
@@ -409,7 +419,7 @@ func (a *App) GetUserProfile(c *echo.Context) error {
 	return c.JSON(http.StatusOK, okResp{user})
 }
 
-// UpdateUserProfile update's the current user's profile.
+// UpdateUserProfile updates the current user's profile.
 func (a *App) UpdateUserProfile(c *echo.Context) error {
 	// Get the authenticated user.
 	user := auth.GetUser(c)
@@ -421,15 +431,6 @@ func (a *App) UpdateUserProfile(c *echo.Context) error {
 	}
 	u.PasswordLogin = user.PasswordLogin
 	u.Name = strings.TrimSpace(u.Name)
-	email := strings.TrimSpace(u.Email.String)
-
-	// Validate fields.
-	if user.PasswordLogin {
-		if !utils.ValidateEmail(email) {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "email"))
-		}
-		u.Email = null.String{String: email, Valid: true}
-	}
 
 	if u.PasswordLogin && u.Password.String != "" {
 		if !strHasLen(u.Password.String, 8, stdInputMaxLen) {
@@ -454,6 +455,102 @@ func (a *App) UpdateUserProfile(c *echo.Context) error {
 	out.Password = null.String{}
 
 	return c.JSON(http.StatusOK, okResp{out})
+}
+
+// RequestEmailChange sends a verification link to the proposed e-mail address.
+func (a *App) RequestEmailChange(c *echo.Context) error {
+	user := auth.GetUser(c)
+	if !user.PasswordLogin || user.Type == auth.UserTypeAPI {
+		return echo.NewHTTPError(http.StatusForbidden, a.i18n.T("public.invalidFeature"))
+	}
+
+	// Validate e-mail.
+	var req struct {
+		Email string `json:"email"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
+	if !utils.ValidateEmail(req.Email) || strings.EqualFold(req.Email, user.Email.String) {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidFields", "name", "email"))
+	}
+
+	// Reject addresses already assigned to another account before sending mail.
+	if _, err := a.core.GetUser(0, "", req.Email); err == nil {
+		return echo.NewHTTPError(http.StatusConflict, a.i18n.T("subscribers.emailExists"))
+	} else if httpErr, ok := err.(*echo.HTTPError); !ok || httpErr.Code != http.StatusNotFound {
+		return err
+	}
+
+	// Set up a temp request ID to e-mail.
+	token, err := generateRandomString(tmpAuthTokenLen)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
+	}
+
+	// Allow one verification e-mail per minute per user.
+	rateKey := fmt.Sprintf("email-change-rate:%d", user.ID)
+	if tmptokens.SetNX(rateKey, time.Minute, token).(string) != token {
+		return echo.NewHTTPError(http.StatusTooManyRequests, a.i18n.T("users.emailChangeRateLimit"))
+	}
+
+	// Set the token.
+	key := "email-change:" + token
+	tmptokens.Set(key, 30*time.Minute, emailChange{UserID: user.ID, OldEmail: user.Email.String, Email: req.Email})
+
+	// Send the verification e-mail.
+	data := struct {
+		VerifyURL string
+		OldEmail  string
+		Email     string
+		IP        string
+		UserAgent string
+	}{
+		OldEmail:  user.Email.String,
+		Email:     req.Email,
+		IP:        c.RealIP(),
+		UserAgent: c.Request().UserAgent(),
+		VerifyURL: fmt.Sprintf("%s/admin/verify-email?token=%s", a.urlCfg.RootURL, token),
+	}
+	if err := notifs.Notify([]string{req.Email}, a.i18n.T("email.emailChange.subject"), notifs.TplVerifyEmail, data, nil); err != nil {
+		tmptokens.Delete(key)
+		a.log.Printf("error sending e-mail verification: %v", err)
+
+		return echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("globals.messages.internalError"))
+	}
+
+	return c.JSON(http.StatusOK, okResp{true})
+}
+
+// VerifyEmail renders the verification page and consumes the link on POST.
+func (a *App) VerifyEmail(c *echo.Context) error {
+	c.Response().Header().Set("Cache-Control", "no-store")
+	c.Response().Header().Set("Referrer-Policy", "no-referrer")
+	if c.Request().Method == http.MethodGet {
+		return c.Render(http.StatusOK, "verify-email", struct {
+			publicTpl
+			Token string
+		}{publicTpl: publicTpl{Title: a.i18n.T("users.verifyEmail")}, Token: c.QueryParam("token")})
+	}
+
+	// Verify the token.
+	data, err := tmptokens.Get("email-change:" + c.FormValue("token"))
+	if err != nil {
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.verifyEmail"), "", a.i18n.T("users.invalidRequest")))
+	}
+
+	change, ok := data.(emailChange)
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("users.invalidRequest"))
+	}
+
+	// Verified. Update the user's e-mail.
+	if err := a.core.UpdateUserEmail(change.UserID, change.OldEmail, change.Email); err != nil {
+		return c.Render(http.StatusBadRequest, tplMessage, makeMsgTpl(a.i18n.T("users.verifyEmail"), "", a.i18n.T("users.invalidRequest")))
+	}
+
+	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("users.verifyEmail"), "", a.i18n.T("users.emailChanged")))
 }
 
 // EnableTOTP enables TOTP 2FA for a user after verifying the code.

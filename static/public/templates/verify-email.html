@@ -1,0 +1,14 @@
+{{ define "verify-email" }}
+{{ template "admin-public-header" . }}
+
+<section>
+	<h4 class="page-title">{{ .L.T "users.verifyEmail" }}</h4>
+	<form method="post" id="verify-email" action="{{ .RootURL }}/admin/verify-email">
+		<input type="hidden" name="token" value="{{ .Data.Token }}" />
+		<button type="submit" class="w-100">{{ .L.T "globals.buttons.continue" }}</button>
+	</form>
+</section>
+<script>document.getElementById('verify-email').submit();</script>
+
+{{ template "admin-public-footer" . }}
+{{ end }}

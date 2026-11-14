@@ -22,7 +22,12 @@
 				{{- if ne $u.Type "api" }}
 				<label data-field>
 					{{ .L.T "globals.fields.email" }}
-					<input name="email" type="email" maxlength="200" required {{ if not $u.PasswordLogin }}disabled{{ end }} x-model="form.email" autofocus />
+					<div class="hstack gap-2">
+						<input name="email" type="email" disabled value="{{ $u.Email.String }}" />
+						{{- if $u.PasswordLogin }}
+						<button type="button" class="small outline" @click="newEmail = ''; emailSent = false; $refs.emailDialog.showModal()">{{ .L.T "globals.buttons.change" }}</button>
+						{{- end }}
+					</div>
 				</label>
 				{{- end }}
 
@@ -52,6 +57,25 @@
 	</div>
 
 	{{- if $u.PasswordLogin }}
+	<dialog x-ref="emailDialog">
+		<form class="dialog-card content" @submit.prevent="changeEmail">
+			<header class="dialog-head">
+				<h4 class="dialog-title">{{ .L.T "users.changeEmail" }}</h4>
+			</header>
+			<section class="dialog-body">
+				<label data-field x-show="!emailSent">
+					{{ .L.T "globals.fields.email" }}
+					<input type="email" x-model="newEmail" maxlength="200" required :disabled="emailSent" autocomplete="email" />
+				</label>
+				<p x-show="emailSent" x-cloak>{{ .L.T "users.emailChangeSent" }}</p>
+			</section>
+			<footer class="dialog-foot hstack justify-end">
+				<button type="button" class="outline" @click="$refs.emailDialog.close()">{{ .L.T "globals.buttons.close" }}</button>
+				<button type="submit" data-variant="primary" x-show="!emailSent" :disabled="isLoading('profile.email')" :aria-busy="isLoading('profile.email')">{{ .L.T "globals.buttons.continue" }}</button>
+			</footer>
+		</form>
+	</dialog>
+
 	<section class="twofa-app-section mt-6">
 		{{- if eq $u.TwofaType "totp" }}
 		<div class="card content">

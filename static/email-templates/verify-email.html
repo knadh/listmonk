@@ -1,0 +1,10 @@
+{{ define "verify-email" }}
+{{ template "header" . }}
+
+<h2>{{ L.T "email.emailChange.subject" }}</h2>
+<p>{{ L.Ts "users.emailChangeInfo" "old" (html .OldEmail) "new" (html .Email) | Safe }}</p>
+<p>{{ L.Ts "email.requestInfo" "ip" .IP "userAgent" .UserAgent }}</p>
+<p><a href="{{ .VerifyURL }}" class="button">{{ L.T "globals.buttons.confirm" }}</a></p>
+
+{{ template "footer" }}
+{{ end }}
