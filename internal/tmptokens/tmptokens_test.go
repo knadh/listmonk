@@ -328,14 +328,12 @@ func TestConcurrent(t *testing.T) {
 		var wg sync.WaitGroup
 		start := make(chan struct{})
 		for range 64 {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				<-start
 				if run(id) {
 					successes.Add(1)
 				}
-			}()
+			})
 		}
 
 		close(start)

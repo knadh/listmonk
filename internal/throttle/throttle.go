@@ -32,10 +32,9 @@ func New(ttl time.Duration, cap int) *Throttle {
 	}
 }
 
-// Insert reserves the given key for the configured TTL. It returns true if the
-// key isn't currently throttled. If exceedCap is true, new keys are allowed
-// without being stored when the store is full.
-func (c *Throttle) Insert(key string, exceedCap bool) bool {
+// Insert reserves the given key for the configured TTL. It returns false if
+// the key is already throttled or the store is full.
+func (c *Throttle) Insert(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -57,7 +56,7 @@ func (c *Throttle) Insert(key string, exceedCap bool) bool {
 			return false
 		}
 	} else if len(c.expires) >= c.maxLen {
-		return exceedCap
+		return false
 	}
 	c.expires[key] = now.Add(c.ttl)
 
