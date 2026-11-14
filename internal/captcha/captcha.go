@@ -226,10 +226,9 @@ func (c *Captcha) verifyAltcha(payload string) (error, bool) {
 
 	// Disallow token reuse.
 	id := "altcha:" + solution.Challenge.Signature
-	if _, err := tmptokens.Check(id); err == nil {
+	if !tmptokens.Reserve(id, 5*time.Minute) {
 		return fmt.Errorf("captcha token already used"), false
 	}
-	tmptokens.Set(id, 5*time.Minute, nil)
 
 	return nil, true
 }

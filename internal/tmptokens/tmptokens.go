@@ -73,6 +73,20 @@ func SetNX(id string, ttl time.Duration, data any) any {
 	return data
 }
 
+// Reserve reserves a token until its TTL expires. It returns false if
+// it is already present and unexpired, regardless of its attempt count.
+func Reserve(id string, ttl time.Duration) bool {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if token, ok := tokens[id]; ok && time.Since(token.CreatedAt) <= token.TTL {
+		return false
+	}
+
+	tokens[id] = Token{TTL: ttl, CreatedAt: time.Now()}
+	return true
+}
+
 // Match checks a token without increasing attempt counts. If consume is true,
 // matching token is deleted atomically; a mismatch leaves it unchanged.
 func Match(id, value string, consume bool) bool {
