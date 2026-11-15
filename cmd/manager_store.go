@@ -72,6 +72,18 @@ func (s *store) GetCampaign(campID int) (*models.Campaign, error) {
 	return out, err
 }
 
+// GetCampaignListCounts returns the total number of lists attached to a
+// campaign and, of those, how many still exist (a deleted list leaves a
+// NULL campaign_lists.list_id behind).
+func (s *store) GetCampaignListCounts(campID int) (int, int, error) {
+	var res struct {
+		Total int `db:"total"`
+		Valid int `db:"valid"`
+	}
+	err := s.queries.GetCampaignListCounts.Get(&res, campID)
+	return res.Total, res.Valid, err
+}
+
 // UpdateCampaignStatus updates a campaign's status.
 func (s *store) UpdateCampaignStatus(campID int, status string) error {
 	_, err := s.queries.UpdateCampaignStatus.Exec(campID, status)

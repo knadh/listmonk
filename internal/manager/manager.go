@@ -52,6 +52,7 @@ type Store interface {
 	NextCampaigns(currentIDs []int64, sentCounts []int64, lastSubIDs []int64) ([]*models.Campaign, error)
 	NextSubscribers(campID, lastFetchedID, limit int) ([]models.Subscriber, error)
 	GetCampaign(campID int) (*models.Campaign, error)
+	GetCampaignListCounts(campID int) (int, int, error)
 	GetAttachment(mediaID int) (models.Attachment, error)
 	GetInlineAttachmentByFilename(filename string) (models.Attachment, string, error)
 	GetMediaURLByFilename(filename string) (string, error)

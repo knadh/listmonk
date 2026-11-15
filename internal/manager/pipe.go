@@ -284,18 +284,32 @@ func (p *pipe) cleanup() {
 		return
 	}
 
+	var reason string
+
 	// If a running campaign has exhausted subscribers, it's finished.
 	if c.Status == models.CampaignStatusRunning || c.Status == models.CampaignStatusScheduled {
 		c.Status = models.CampaignStatusFinished
-		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, models.CampaignStatusFinished); err != nil {
+
+		// A campaign that has no valid lists attached (all of its target lists
+		// were deleted, leaving NULL campaign_lists.list_ids that the subscriber
+		// query never joins on) can never reach a subscriber. Rather than
+		// reporting a silent 0/0 'finished', revert it to 'draft' instead.
+		if _, valid, err := p.m.store.GetCampaignListCounts(p.camp.ID); err != nil {
+			p.m.log.Printf("error fetching list counts of campaign (%s): %v", p.camp.Name, err)
+		} else if valid == 0 {
+			c.Status = models.CampaignStatusDraft
+			reason = "No valid lists"
+		}
+
+		if err := p.m.store.UpdateCampaignStatus(p.camp.ID, c.Status); err != nil {
 			p.m.log.Printf("error finishing campaign (%s): %v", p.camp.Name, err)
 		} else {
-			p.m.log.Printf("campaign (%s) finished", p.camp.Name)
+			p.m.log.Printf("campaign (%s) %s", p.camp.Name, c.Status)
 		}
 	} else {
 		p.m.log.Printf("finish processing campaign (%s)", p.camp.Name)
 	}
 
 	// Notify admin.
-	_ = p.m.sendNotif(c, c.Status, "")
+	_ = p.m.sendNotif(c, c.Status, reason)
 }
