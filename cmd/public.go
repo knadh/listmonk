@@ -101,6 +101,9 @@ type unsubTpl struct {
 	Subscriber       models.Subscriber
 	Subscriptions    []models.Subscription
 	SubUUID          string
+	ManageURL        string
+	ExportURL        string
+	WipeURL          string
 	AllowBlocklist   bool
 	AllowExport      bool
 	AllowWipe        bool
@@ -274,12 +277,18 @@ func (a *App) ViewCampaignMessage(c *echo.Context) error {
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	// Render the message body.
-	msg, err := a.manager.NewCampaignMessage(&camp, sub)
+	// Get the expiry validated by hasSignedURL() and use that again in the preview's signed URLs.
+	expiry := c.Get("linkExpiry").(time.Time)
+
+	msg, err := a.manager.NewCampaignMessage(&camp, sub, expiry)
 	if err != nil {
 		a.log.Printf("error rendering message: %v", err)
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
+	}
+
+	if camp.ContentType == models.CampaignContentTypePlain {
+		return c.String(http.StatusOK, string(msg.Body()))
 	}
 
 	return renderSandboxedHTML(c, string(msg.Body()))
@@ -300,10 +309,16 @@ func (a *App) SubscriptionPage(c *echo.Context) error {
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
 	}
 
+	// Get the expiry validated by hasSignedURL() and use that again in the preview's signed URLs.
+	expiry := c.Get("linkExpiry").(time.Time)
+
 	// Prepare the public template.
 	out := unsubTpl{
 		Subscriber:       s,
 		SubUUID:          subUUID,
+		ManageURL:        a.urlCfg.Signer.Sign(fmt.Sprintf(a.urlCfg.UnsubURL, c.Param("campUUID"), subUUID)+"?manage=true", expiry),
+		ExportURL:        a.urlCfg.Signer.Sign(a.urlCfg.RootURL+"/subscription/export/"+subUUID, expiry),
+		WipeURL:          a.urlCfg.Signer.Sign(a.urlCfg.RootURL+"/subscription/wipe/"+subUUID, expiry),
 		publicTpl:        publicTpl{Title: a.i18n.T("public.unsubscribeTitle")},
 		AllowBlocklist:   a.cfg.Privacy.AllowBlocklist,
 		AllowExport:      a.cfg.Privacy.AllowExport,
@@ -442,10 +457,17 @@ func (a *App) OptinPage(c *echo.Context) error {
 	var (
 		subUUID    = c.Param("subUUID")
 		confirm, _ = strconv.ParseBool(c.FormValue("confirm"))
-		req        optinReq
+		req        = optinReq{ListUUIDs: c.QueryParams()["l"]}
 	)
-	if err := c.Bind(&req); err != nil {
-		return err
+
+	// Older opt-in forms submit list IDs in the body while signed links must
+	// use only the list IDs covered by the URL signature.
+	if !a.cfg.Security.SignedLinks.Enabled {
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+	} else if len(req.ListUUIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidUUID"))
 	}
 
 	// Validate list UUIDs if there are incoming UUIDs in the request.

@@ -3,6 +3,7 @@ package manager
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/knadh/listmonk/models"
 )
@@ -10,15 +11,21 @@ import (
 // NewCampaignMessage creates and returns a CampaignMessage that is made available
 // to message templates while they're compiled. It represents a message from
 // a campaign that's bound to a single Subscriber.
-func (m *Manager) NewCampaignMessage(c *models.Campaign, s models.Subscriber) (CampaignMessage, error) {
+func (m *Manager) NewCampaignMessage(c *models.Campaign, s models.Subscriber, expiry ...time.Time) (CampaignMessage, error) {
+	expires := m.urlSigner.GetExpiry()
+	if len(expiry) > 0 {
+		expires = expiry[0]
+	}
+
 	msg := CampaignMessage{
 		Campaign:   c,
 		Subscriber: s,
 
-		subject:  c.Subject,
-		from:     c.FromEmail,
-		to:       s.Email,
-		unsubURL: fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID),
+		subject:    c.Subject,
+		from:       c.FromEmail,
+		to:         s.Email,
+		unsubURL:   m.urlSigner.Sign(fmt.Sprintf(m.cfg.UnsubURL, c.UUID, s.UUID), expires),
+		linkExpiry: expires,
 	}
 
 	if err := msg.render(); err != nil {

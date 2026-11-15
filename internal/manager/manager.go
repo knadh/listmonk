@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"html"
 	"html/template"
 	"log"
 	"mime"
@@ -22,6 +23,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/knadh/listmonk/internal/i18n"
 	"github.com/knadh/listmonk/internal/notifs"
+	"github.com/knadh/listmonk/internal/urlsign"
 	"github.com/knadh/listmonk/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -83,6 +85,7 @@ type Manager struct {
 	cfg        Config
 	store      Store
 	i18n       *i18n.I18n
+	urlSigner  *urlsign.Signer
 	messengers map[string]Messenger
 	fnNotify   func(subject string, data any) error
 	log        *log.Logger
@@ -122,13 +125,14 @@ type CampaignMessage struct {
 	Campaign   *models.Campaign
 	Subscriber models.Subscriber
 
-	from     string
-	to       string
-	subject  string
-	body     []byte
-	altBody  []byte
-	unsubURL string
-	headers  models.Headers
+	from       string
+	to         string
+	subject    string
+	body       []byte
+	altBody    []byte
+	unsubURL   string
+	linkExpiry time.Time
+	headers    models.Headers
 
 	pipe *pipe
 }
@@ -170,7 +174,7 @@ type Config struct {
 var pushTimeout = time.Second * 3
 
 // New returns a new instance of Mailer.
-func New(cfg Config, store Store, i *i18n.I18n, l *log.Logger) *Manager {
+func New(cfg Config, store Store, i *i18n.I18n, signer *urlsign.Signer, l *log.Logger) *Manager {
 	if cfg.BatchSize < 1 {
 		cfg.BatchSize = 1000
 	}
@@ -182,9 +186,10 @@ func New(cfg Config, store Store, i *i18n.I18n, l *log.Logger) *Manager {
 	}
 
 	m := &Manager{
-		cfg:   cfg,
-		store: store,
-		i18n:  i,
+		cfg:       cfg,
+		store:     store,
+		i18n:      i,
+		urlSigner: signer,
 		fnNotify: func(subject string, data any) error {
 			return notifs.NotifySystem(subject, notifs.TplCampaignStatus, data, nil)
 		},
@@ -409,15 +414,27 @@ func (m *Manager) TemplateFuncs(c *models.Campaign, opts ...models.CampOpt) temp
 			return msg.unsubURL
 		},
 		"ManageURL": func(msg *CampaignMessage) string {
-			return msg.unsubURL + "?manage=true"
+			return m.urlSigner.Sign(fmt.Sprintf(m.cfg.UnsubURL, msg.Campaign.UUID, msg.Subscriber.UUID)+"?manage=true", msg.linkExpiry)
 		},
-		"OptinURL": func(msg *CampaignMessage) string {
-			// Add list IDs.
-			// TODO: Show private lists list on optin e-mail
-			return fmt.Sprintf(m.cfg.OptinURL, msg.Subscriber.UUID, "")
+		"OptinURL": func(msg *CampaignMessage, query ...string) string {
+			var q string
+			if len(query) > 0 {
+				q = html.UnescapeString(query[0])
+			} else if m.urlSigner.Enabled() {
+				lists := url.Values{}
+				for _, uuid := range msg.Campaign.ListUUIDs {
+					lists.Add("l", uuid)
+				}
+				q = lists.Encode()
+				if q == "" {
+					return ""
+				}
+			}
+
+			return m.urlSigner.Sign(fmt.Sprintf(m.cfg.OptinURL, msg.Subscriber.UUID, q), msg.linkExpiry)
 		},
 		"MessageURL": func(msg *CampaignMessage) string {
-			return fmt.Sprintf(m.cfg.MessageURL, c.UUID, msg.Subscriber.UUID)
+			return m.urlSigner.Sign(fmt.Sprintf(m.cfg.MessageURL, c.UUID, msg.Subscriber.UUID), msg.linkExpiry)
 		},
 		"ArchiveURL": func() string {
 			return m.cfg.ArchiveURL

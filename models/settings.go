@@ -81,6 +81,10 @@ type Settings struct {
 
 	SecuritySessionDuration string   `json:"security.session_duration"`
 	SecurityTrustedURLs     []string `json:"security.trusted_urls"`
+	SecuritySignedLinks     struct {
+		Enabled bool   `json:"enabled"`
+		TTL     string `json:"ttl"`
+	} `json:"security.signed_links"`
 
 	UploadProvider             string   `json:"upload.provider"`
 	UploadExtensions           []string `json:"upload.extensions"`

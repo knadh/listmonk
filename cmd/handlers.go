@@ -319,14 +319,14 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		// Public subscriber facing views.
 		g.GET("/subscription/form", a.SubscriptionFormPage)
 		g.POST("/subscription/form", a.SubscriptionForm)
-		g.GET("/subscription/:campUUID/:subUUID", noIndex(a.hasUUID(a.hasSub(a.SubscriptionPage), "campUUID", "subUUID")))
-		g.POST("/subscription/:campUUID/:subUUID", a.hasUUID(a.hasSub(a.SubscriptionPrefs), "campUUID", "subUUID"))
-		g.GET("/subscription/optin/:subUUID", noIndex(a.hasUUID(a.hasSub(a.OptinPage), "subUUID")))
-		g.POST("/subscription/optin/:subUUID", a.hasUUID(a.hasSub(a.OptinPage), "subUUID"))
-		g.POST("/subscription/export/:subUUID", a.hasUUID(a.hasSub(a.SelfExportSubscriberData), "subUUID"))
-		g.POST("/subscription/wipe/:subUUID", a.hasUUID(a.hasSub(a.WipeSubscriberData), "subUUID"))
+		g.GET("/subscription/:campUUID/:subUUID", noIndex(a.hasUUID(a.hasSignedURL(a.hasSub(a.SubscriptionPage)), "campUUID", "subUUID")))
+		g.POST("/subscription/:campUUID/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.SubscriptionPrefs)), "campUUID", "subUUID"))
+		g.GET("/subscription/optin/:subUUID", noIndex(a.hasUUID(a.hasSignedURL(a.hasSub(a.OptinPage)), "subUUID")))
+		g.POST("/subscription/optin/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.OptinPage)), "subUUID"))
+		g.POST("/subscription/export/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.SelfExportSubscriberData)), "subUUID"))
+		g.POST("/subscription/wipe/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.WipeSubscriberData)), "subUUID"))
 		g.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(a.hasUUID(a.LinkRedirect, "linkUUID", "campUUID", "subUUID")))
-		g.GET("/campaign/:campUUID/:subUUID", noIndex(a.hasUUID(a.ViewCampaignMessage, "campUUID", "subUUID")))
+		g.GET("/campaign/:campUUID/:subUUID", noIndex(a.hasUUID(a.hasSignedURL(a.ViewCampaignMessage), "campUUID", "subUUID")))
 		g.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(a.hasUUID(a.RegisterCampaignView, "campUUID", "subUUID")))
 
 		if a.cfg.EnablePublicArchive {
@@ -418,15 +418,26 @@ func (a *App) hasUUID(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 	}
 }
 
-// hasID middleware validates the :id param in the URL and sets its int value in the context.
-func hasID(next echo.HandlerFunc) echo.HandlerFunc {
+// hasSignedURL validates signature in external subscriber links such as unsub and preference pages.
+func (a *App) hasSignedURL(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		id, _ := strconv.Atoi(c.Param("id"))
-		if id < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid ID")
-		}
+		c.Response().Header().Set("Referrer-Policy", "no-referrer")
+		c.Response().Header().Set("Cache-Control", "no-store")
 
-		c.Set("id", id)
+		// A link may start with /newsletter, but reach listmonk without it (proxy rewrite).
+		// Add it back to check the same URL that was signed in the email.
+		u := *c.Request().URL
+
+		u.Path = a.urlCfg.SigningPath + u.Path
+		// Use the rebuilt path instead of the original encoded copy.
+		u.RawPath = ""
+
+		expiry, ok := a.urlCfg.Signer.Verify(&u)
+		if !ok {
+			return c.Render(http.StatusForbidden, tplMessage,
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("users.invalidRequest")))
+		}
+		c.Set("linkExpiry", expiry)
 		return next(c)
 	}
 }
@@ -459,6 +470,19 @@ func (a *App) handleHTTPErr(c *echo.Context, err error) {
 	}
 
 	echo.DefaultHTTPErrorHandler(false)(c, err)
+}
+
+// hasID middleware validates the :id param in the URL and sets its int value in the context.
+func hasID(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		id, _ := strconv.Atoi(c.Param("id"))
+		if id < 1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid ID")
+		}
+
+		c.Set("id", id)
+		return next(c)
+	}
 }
 
 // noIndex adds the HTTP header requesting robots to not crawl the page.

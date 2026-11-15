@@ -57,9 +57,9 @@ There are several template functions and expressions that can be used in campaig
 | `{{ TrackView }}`                    | Inserts a single tracking pixel. Should only be used once, ideally in the template footer.                                                            |
 | `{{ IsPreview }}`                    | Returns `true` when previewing a campaign or template in the editor, and `false` otherwise.                                                            |
 | `{{ UnsubscribeURL }}`               | Unsubscription and Manage preferences URL. Ideal for use in the template footer.                                                                      |
-| `{{ UnsubscribeURL }}?manage=true`   | Direct URL to Manage Preferences page.                                                                                                                |
+| `{{ ManageURL }}`   | Direct URL to Manage Preferences page.                                                                                                                |
 | `{{ MessageURL }}`                   | URL to view the hosted version of an e-mail message.                                                                                                  |
-| `{{ OptinURL }}`                     | URL to the double opt-in confirmation page.                                                                                                           |
+| `{{ OptinURL }}`                     | URL to the double opt-in confirmation page. With signed links enabled, tied to the campaign's target lists; empty without target lists.              |
 | `{{ Safe "<!-- comment -->" }}`      | Add any HTML code as it is.                                                                                                                           |
 
 

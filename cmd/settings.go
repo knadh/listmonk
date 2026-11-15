@@ -398,6 +398,11 @@ func (a *App) UpdateSettingsByKey(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
 	}
 
+	// internal.secret_key cannot be updated.
+	if key == "internal.secret_key" {
+		return echo.NewHTTPError(http.StatusForbidden, "`internal.secret_key` cannot be updated")
+	}
+
 	// Read the raw JSON body as the value.
 	var b json.RawMessage
 	if err := c.Bind(&b); err != nil {

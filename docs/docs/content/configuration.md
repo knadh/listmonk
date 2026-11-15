@@ -50,6 +50,43 @@ When configuring auth proxies and web application firewalls, use this table.
 | `GET`       | `/api/public/captcha/altcha` | (if using altcha captcha) The api endpoint for altcha |
 
 
+### Signed subscriber links
+
+With `security.signed_links.enabled` enabled, unsubscribe, preference, opt-in,
+privacy export/deletion, and hosted message URLs require a signature. listmonk generates these links automatically. The signature
+covers the URL path and the `exp`, `l` (opt-in list IDs), and `manage` query parameters.
+Unrelated query parameters, such as UTM tracking tags, can be added, changed, or removed.
+Public signup forms and
+tracking links/pixels do not require signatures.
+
+**Defaults:** enabled on fresh installs, disabled when upgrading to v7 so existing
+links continue to work. Change this in Settings → Security. With signing disabled,
+links are generated and accepted without signatures. Enabling it rejects unsigned
+links in previously delivered messages; send fresh messages or opt-in confirmations
+to provide signed links. Upgrades preserve an existing choice.
+Custom public templates must preserve signed URLs: use `.Data.ManageURL`,
+`.Data.ExportURL`, and `.Data.WipeURL` in the subscription template, and retain the
+current URL (including its query) when submitting subscription and opt-in forms.
+Custom opt-in notification templates should use `.ManageURL` instead of appending
+`?manage=true` to `.UnsubURL`.
+
+A random secret key is created during installation or upgrade in the database setting
+`internal.secret_key`. Preserve this setting in backups and across instances;
+changing or deleting it invalidates all previously signed links. It is not exposed
+through the settings API. Possession of a signed subscription link permits the
+enabled preference and privacy actions.
+
+The `security.signed_links` setting defaults to:
+```json
+{"enabled": true, "ttl": "120d"}
+```
+The TTL supports Go duration units and `d` for 24-hour days: `120d` is 120 days; use `0` for no expiry.
+Positive durations must be at least one second. Expiry applies to unsubscribe
+links too. Each email's links share a signed expiry time, which is preserved when
+opening preference pages or hosted messages. Changing the TTL affects new emails
+only. With signing enabled, links without a signed expiry are rejected.
+
+
 ## Media uploads
 
 #### Using filesystem

@@ -231,6 +231,7 @@ CREATE TABLE settings (
 );
 DROP INDEX IF EXISTS idx_settings_key; CREATE INDEX idx_settings_key ON settings(key);
 INSERT INTO settings (key, value) VALUES
+    ('internal.secret_key', '""'),
     ('app.site_name', '"Mailing list"'),
     ('app.root_url', '"http://localhost:9000"'),
     ('app.favicon_url', '""'),
@@ -269,6 +270,7 @@ INSERT INTO settings (key, value) VALUES
     ('security.oidc', '{"enabled": false, "provider_url": "", "redirect_url": "", "provider_name": "", "client_id": "", "client_secret": "", "auto_create_users": false, "auto_sync_roles": false, "logout": false, "verify_email": true, "default_user_role_id": null, "default_list_role_id": null, "roles": []}'),
     ('security.trusted_urls', '[]'),
     ('security.session_duration', '"7d"'),
+    ('security.signed_links', '{"enabled": true, "ttl": "120d"}'),
     ('upload.provider', '"filesystem"'),
     ('upload.max_file_size', '5000'),
     ('upload.extensions', '["jpg","jpeg","png","gif","svg","*"]'),

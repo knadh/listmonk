@@ -1,0 +1,115 @@
+// Package urlsign cryptographically signs subscriber-facing URLs.
+package urlsign
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"net/url"
+	"strconv"
+	"time"
+)
+
+var signedParams = [...]string{"exp", "l", "manage"}
+
+// Signer signs a given URL.
+type Signer struct {
+	key     []byte
+	enabled bool
+	ttl     time.Duration
+	now     func() time.Time
+}
+
+// New returns a new Signer instance.
+func New(key []byte, enabled bool, ttl time.Duration) *Signer {
+	return &Signer{key: append([]byte(nil), key...), enabled: enabled, ttl: ttl, now: time.Now}
+}
+
+// Enabled reports whether links require signatures.
+func (s *Signer) Enabled() bool {
+	return s.enabled
+}
+
+// Sign adds an expiry and signature. Pass the verified parent link's expiry
+// when generating follow-on links, so browsing cannot extend their lifetime.
+func (s *Signer) Sign(raw string, expiry time.Time) string {
+	if !s.enabled {
+		return raw
+	}
+
+	u, err := url.Parse(raw)
+	if err != nil {
+		return ""
+	}
+
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return ""
+	}
+
+	var expires int64
+	if !expiry.IsZero() {
+		expires = expiry.Unix()
+		if expires <= 0 {
+			return ""
+		}
+	}
+	q.Set("exp", strconv.FormatInt(expires, 10))
+	q.Set("sig", base64.RawURLEncoding.EncodeToString(s.sign(u, q)))
+	u.RawQuery = q.Encode()
+
+	return u.String()
+}
+
+// Verify checks a URL and returns its validated expiry. The zero time means
+// no expiry, including when signing is disabled. Invalid URLs return time.Time{}, false.
+func (s *Signer) Verify(u *url.URL) (time.Time, bool) {
+	if !s.enabled {
+		return time.Time{}, true
+	}
+
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil || len(q["sig"]) != 1 || len(q["exp"]) != 1 {
+		return time.Time{}, false
+	}
+
+	expires, err := strconv.ParseInt(q.Get("exp"), 10, 64)
+	if err != nil || expires < 0 || (expires != 0 && s.now().Unix() >= expires) {
+		return time.Time{}, false
+	}
+
+	sig, err := base64.RawURLEncoding.DecodeString(q.Get("sig"))
+	if err != nil {
+		return time.Time{}, false
+	}
+	if !hmac.Equal(sig, s.sign(u, q)) {
+		return time.Time{}, false
+	}
+	if expires == 0 {
+		return time.Time{}, true
+	}
+
+	return time.Unix(expires, 0), true
+}
+
+// GetExpiry returns the deadline for a new message. Zero time means no expiry.
+func (s *Signer) GetExpiry() time.Time {
+	if s.ttl == 0 {
+		return time.Time{}
+	}
+
+	return s.now().Add(s.ttl)
+}
+
+// sign signs known listmonk parameters.
+func (s *Signer) sign(u *url.URL, q url.Values) []byte {
+	signed := make(url.Values, len(signedParams))
+	for _, key := range signedParams {
+		signed[key] = q[key]
+	}
+
+	m := hmac.New(sha256.New, s.key)
+	m.Write([]byte("listmonk-url-v2\n" + u.EscapedPath() + "?" + signed.Encode()))
+
+	return m.Sum(nil)
+}

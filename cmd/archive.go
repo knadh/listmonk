@@ -175,7 +175,7 @@ func (a *App) CampaignArchivePage(c *echo.Context) error {
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorFetchingCampaign")))
 	}
 
-	return c.HTML(http.StatusOK, string(msg.Body()))
+	return c.HTML(http.StatusOK, transformArchiveToTxt(msg))
 }
 
 // CampaignArchivePageLatest renders the latest public campaign.
@@ -245,7 +245,7 @@ func (a *App) getCampaignArchives(offset, limit int, renderBody bool, listUUID s
 			if err != nil {
 				return []campArchive{}, total, err
 			}
-			archive.Content = string(msg.Body())
+			archive.Content = transformArchiveToTxt(msg)
 		}
 
 		out = append(out, archive)
@@ -279,6 +279,9 @@ func (a *App) compileArchiveCampaigns(camps []models.Campaign, opts ...models.Ca
 			return nil, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorFetchingCampaign"))
 		}
 
+		// Archive metadata is user set manually.
+		sub.UUID = dummyUUID
+
 		m := manager.CampaignMessage{
 			Campaign:   &camp,
 			Subscriber: sub,
@@ -297,4 +300,14 @@ func (a *App) compileArchiveCampaigns(camps []models.Campaign, opts ...models.Ca
 	}
 
 	return out, nil
+}
+
+// transformArchiveToTxt converts plaintext campaigns into HTML-safe text for archive pages.
+func transformArchiveToTxt(msg manager.CampaignMessage) string {
+	body := string(msg.Body())
+	if msg.Campaign.ContentType == models.CampaignContentTypePlain {
+		return "<pre>" + template.HTMLEscapeString(body) + "</pre>"
+	}
+
+	return body
 }

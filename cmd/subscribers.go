@@ -57,9 +57,10 @@ type subQueryReq struct {
 type subOptin struct {
 	models.Subscriber
 
-	OptinURL string
-	UnsubURL string
-	Lists    []models.List
+	OptinURL  string
+	UnsubURL  string
+	ManageURL string
+	Lists     []models.List
 }
 
 var (
@@ -1205,12 +1206,16 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 			qListIDs = url.Values{}
 		)
 
+		// Use one expiry for all links in this notification.
+		expiry := u.Signer.GetExpiry()
+
 		// Construct the opt-in URL with list IDs.
 		for _, l := range out.Lists {
 			qListIDs.Add("l", l.UUID)
 		}
-		out.OptinURL = fmt.Sprintf(u.OptinURL, sub.UUID, qListIDs.Encode())
-		out.UnsubURL = fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
+		out.OptinURL = u.Signer.Sign(fmt.Sprintf(u.OptinURL, sub.UUID, qListIDs.Encode()), expiry)
+		out.UnsubURL = u.Signer.Sign(fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID), expiry)
+		out.ManageURL = u.Signer.Sign(fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)+"?manage=true", expiry)
 
 		// Unsub headers.
 		hdr := textproto.MIMEHeader{}
@@ -1218,7 +1223,7 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 
 		// Attach List-Unsubscribe headers?
 		if unsubHeader {
-			unsubURL := fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)
+			unsubURL := out.UnsubURL
 			hdr.Set("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
 			hdr.Set("List-Unsubscribe", `<`+unsubURL+`>`)
 		}

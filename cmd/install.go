@@ -130,6 +130,12 @@ func installSchema(curVer string, db *sqlx.DB, fs stuffbin.FileSystem) error {
 		return err
 	}
 
+	// Generate the installation's secret key.
+	if _, err := db.Exec(`UPDATE settings SET value = TO_JSONB(ENCODE(GEN_RANDOM_BYTES(32), 'hex'))
+		WHERE key = 'internal.secret_key'`); err != nil {
+		return err
+	}
+
 	// Insert the current migration version.
 	return recordMigrationVersion(curVer, db)
 }

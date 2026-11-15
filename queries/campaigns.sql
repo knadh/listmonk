@@ -85,6 +85,8 @@ ORDER BY %order% OFFSET $8 LIMIT (CASE WHEN $9 < 1 THEN NULL ELSE $9 END);
 
 -- name: get-campaign
 SELECT campaigns.*,
+    ARRAY(SELECT lists.uuid FROM campaign_lists JOIN lists ON lists.id = campaign_lists.list_id
+          WHERE campaign_lists.campaign_id = campaigns.id ORDER BY lists.id) AS list_uuids,
     COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1), '') AS template_body
     FROM campaigns
     LEFT JOIN templates ON (
@@ -99,6 +101,8 @@ SELECT campaigns.*,
 
 -- name: get-archived-campaigns
 SELECT COUNT(*) OVER () AS total, campaigns.*,
+    ARRAY(SELECT lists.uuid FROM campaign_lists JOIN lists ON lists.id = campaign_lists.list_id
+          WHERE campaign_lists.campaign_id = campaigns.id ORDER BY lists.id) AS list_uuids,
     COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1), '') AS template_body
     FROM campaigns
     LEFT JOIN templates ON (
@@ -157,6 +161,8 @@ ORDER BY ARRAY_POSITION($1, id);
 
 -- name: get-campaign-for-preview
 SELECT campaigns.*, COALESCE(templates.body, '') AS template_body,
+ARRAY(SELECT lists.uuid FROM campaign_lists JOIN lists ON lists.id = campaign_lists.list_id
+      WHERE campaign_lists.campaign_id = campaigns.id ORDER BY lists.id) AS list_uuids,
 (
 	SELECT COALESCE(ARRAY_TO_JSON(ARRAY_AGG(l)), '[]') FROM (
 		SELECT COALESCE(campaign_lists.list_id, 0) AS id,
@@ -241,7 +247,10 @@ u AS (
     FROM (SELECT * FROM counts) co
     WHERE ca.id = co.campaign_id
 )
-SELECT camps.*, campMedia.media_id FROM camps LEFT JOIN campMedia ON (campMedia.campaign_id = camps.id);
+SELECT camps.*, campMedia.media_id,
+    ARRAY(SELECT lists.uuid FROM campaign_lists JOIN lists ON lists.id = campaign_lists.list_id
+          WHERE campaign_lists.campaign_id = camps.id ORDER BY lists.id) AS list_uuids
+FROM camps LEFT JOIN campMedia ON (campMedia.campaign_id = camps.id);
 
 -- name: get-campaign-analytics-unique-counts
 WITH uniqIDs AS (

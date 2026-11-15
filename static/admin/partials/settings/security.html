@@ -9,6 +9,20 @@
 		</label>
 	</fieldset>
 
+	<fieldset class="card" data-keywords="security signed external subscriber links signature unsubscribe preferences">
+		<legend>{{ .L.T "settings.security.signedLinks" }}</legend>
+		<label data-field>
+			<input type="checkbox" role="switch" x-model="form['security.signed_links'].enabled" />
+			{{ .L.T "globals.buttons.enable" }}
+			<small data-hint>{{ .L.T "settings.security.signedLinksHelp" }}</small>
+		</label>
+		<label data-field>
+			{{ .L.T "settings.security.signedLinksTTL" }}
+			<input required placeholder="120d" x-model="form['security.signed_links'].ttl" />
+			<small data-hint>{{ .L.T "settings.security.signedLinksTTLHelp" }}</small>
+		</label>
+	</fieldset>
+
 	<hr />
 
 	<fieldset class="card" data-keywords="oidc sso single sign-on openid connect authentication login provider identity roles mapping claims groups">

@@ -91,6 +91,19 @@ var regTplFuncs = []regTplFunc{
 		replace: `{{ TrackLink "$1" . }}`,
 	},
 
+	// Backwards compatibility for the previously documented preference-link shorthand.
+	{
+		regExp:  regexp.MustCompile(`{{\s*UnsubscribeURL(?:\s+\.)?\s*}}\?manage=true`),
+		replace: `{{ ManageURL . }}`,
+	},
+
+	// Existing opt-in campaign bodies append list UUIDs to the template tag.
+	// Include them in URL generation.
+	{
+		regExp:  regexp.MustCompile(`{{\s*OptinURL(?:\s+\.)?\s*}}(l=[a-fA-F0-9-]+(?:(?:&amp;|&)l=[a-fA-F0-9-]+)*)`),
+		replace: `{{ OptinURL . "$1" }}`,
+	},
+
 	{
 		regExp:  regexp.MustCompile(`{{(\s+)?(TrackView|UnsubscribeURL|ManageURL|OptinURL|MessageURL)(\s+)?}}`),
 		replace: `{{ $2 . }}`,

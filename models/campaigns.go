@@ -101,6 +101,9 @@ type Campaign struct {
 	// while sending a campaign.
 	MediaIDs pq.Int64Array `json:"-" db:"media_id"`
 
+	// ListUUIDs for validating opt-in links to the campaign's target lists.
+	ListUUIDs pq.StringArray `json:"-" db:"list_uuids"`
+
 	// Fetched bodies of the attachments.
 	Attachments []Attachment `json:"-" db:"-"`
 
@@ -272,12 +275,24 @@ func (c *Campaign) CompileTemplate(f template.FuncMap) error {
 	}
 	c.Tpl = &tplRenderer{out}
 
+	// Prevent plaintext links from turning '&' into '&amp;' and breaking links.
+	if c.ContentType == CampaignContentTypePlain {
+		plain := txttpl.New(BaseTpl).Funcs(txttpl.FuncMap(f))
+		for _, t := range out.Templates() {
+			if _, err := plain.AddParseTree(t.Name(), t.Tree); err != nil {
+				return fmt.Errorf("error compiling plaintext message: %v", err)
+			}
+		}
+
+		c.Tpl = &tplRenderer{plain}
+	}
+
 	if HasTplExpr(c.AltBody.String) {
 		b := c.AltBody.String
 		for _, r := range regTplFuncs {
 			b = r.regExp.ReplaceAllString(b, r.replace)
 		}
-		bTpl, err := template.New(ContentTpl).Funcs(f).Parse(b)
+		bTpl, err := txttpl.New(ContentTpl).Funcs(txttpl.FuncMap(f)).Parse(b)
 		if err != nil {
 			return fmt.Errorf("error compiling alt plaintext message: %v", err)
 		}

@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"crypto/md5"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -52,6 +53,7 @@ import (
 	"github.com/knadh/listmonk/internal/messenger/postback"
 	"github.com/knadh/listmonk/internal/notifs"
 	"github.com/knadh/listmonk/internal/subimporter"
+	"github.com/knadh/listmonk/internal/urlsign"
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo/v5"
@@ -71,6 +73,7 @@ const (
 type UrlConfig struct {
 	RootURL      string `koanf:"root_url"`
 	RootPath     string
+	SigningPath  string
 	LogoURL      string `koanf:"logo_url"`
 	FaviconURL   string `koanf:"favicon_url"`
 	LoginURL     string `koanf:"login_url"`
@@ -80,6 +83,8 @@ type UrlConfig struct {
 	OptinURL     string
 	MessageURL   string
 	ArchiveURL   string
+
+	Signer *urlsign.Signer
 }
 
 // Config contains static, constant config values required by arbitrary handlers and functions.
@@ -136,6 +141,11 @@ type Config struct {
 		} `koanf:"captcha"`
 
 		TrustedURLs []string `koanf:"trusted_urls"`
+
+		SignedLinks struct {
+			Enabled bool   `koanf:"enabled"`
+			TTL     string `koanf:"ttl"`
+		} `koanf:"signed_links"`
 	} `koanf:"security"`
 
 	Appearance struct {
@@ -498,17 +508,20 @@ func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 
 	// rootPath is the path component of the root URL set in config.
 	// It's used as the base path for all admin/static asset URLs.
-	var rootPath string
+	var rootPath, signingPath string
 	if u, err := url.Parse(root); err == nil {
-		rootPath = "/" + strings.TrimSuffix(u.Path, "/")
+		signingPath = strings.TrimSuffix(u.Path, "/")
+		rootPath = "/" + signingPath
 	}
 
 	return &UrlConfig{
-		RootURL:    root,
-		RootPath:   rootPath,
-		LogoURL:    ko.String("app.logo_url"),
-		FaviconURL: ko.String("app.favicon_url"),
-		LoginURL:   path.Join(uriAdmin, "/login"),
+		Signer:      initURLSigner(ko),
+		RootURL:     root,
+		RootPath:    rootPath,
+		SigningPath: signingPath,
+		LogoURL:     ko.String("app.logo_url"),
+		FaviconURL:  ko.String("app.favicon_url"),
+		LoginURL:    path.Join(uriAdmin, "/login"),
 
 		// Static URLS.
 		// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -529,6 +542,22 @@ func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 		// url.com/campaign/{campaign_uuid}/{subscriber_uuid}/px.png
 		ViewTrackURL: fmt.Sprintf("%s/campaign/%%s/%%s/px.png", root),
 	}
+}
+
+// initURLSigner inits the URL signer with the secret key from config.
+func initURLSigner(ko *koanf.Koanf) *urlsign.Signer {
+	secret, err := hex.DecodeString(ko.String("internal.secret_key"))
+	if err != nil || len(secret) < 32 {
+		lo.Fatal("invalid `internal.secret_key`")
+	}
+
+	ttl := ko.Duration("security.signed_links.ttl")
+	if ttl < time.Second && ko.String("security.signed_links.ttl") != "0" {
+		lo.Printf("invalid `security.signed_links.ttl`. Using default '120 days': %v", ko.Get("security.signed_links.ttl"))
+		ttl = 120 * 24 * time.Hour
+	}
+
+	return urlsign.New(secret, ko.Bool("security.signed_links.enabled"), ttl)
 }
 
 // initConstConfig initializes the app's global constants from the given koanf instance.
@@ -680,7 +709,7 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		SlidingWindowRate:     ko.Int("app.message_sliding_window_rate"),
 		ScanInterval:          time.Second * 5,
 		ScanCampaigns:         !ko.Bool("passive"),
-	}, newManagerStore(q, co, md), i, lo)
+	}, newManagerStore(q, co, md), i, u.Signer, lo)
 
 	// Attach all messengers to the campaign manager.
 	for _, m := range msgrs {
