@@ -75,7 +75,7 @@
 						<visual-editor base="{{ URI "/admin/static/email-builder" }}" @editor-change="form.body = $event.detail.body; form.body_source = $event.detail.source"><textarea>{{ $t.BodySource.String }}</textarea></visual-editor>
 					</template>
 					<template x-if="form.type !== 'campaign_visual'">
-						<code-editor lang="html" @input="form.body = $event.target.value"><textarea>{{ $t.Body }}</textarea></code-editor>
+						<code-editor lang="html" @input.self="form.body = $event.target.value"><textarea>{{ $t.Body }}</textarea></code-editor>
 					</template>
 				</div>
 
