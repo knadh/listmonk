@@ -11,10 +11,10 @@
 				{{ template "richtext-editor" dict "Root" $root "Body" $c.Body "Attachments" true "Disabled" (not (or (eq $c.Status "draft") (eq $c.Status "scheduled") (eq $c.Status "paused"))) }}
 			</template>
 			<template x-if="contentReady && form.content_type === 'html'">
-				<code-editor lang="html" @input="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></code-editor>
+				<code-editor lang="html" @input.self="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></code-editor>
 			</template>
 			<template x-if="contentReady && form.content_type === 'markdown'">
-				<code-editor lang="markdown" @input="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></code-editor>
+				<code-editor lang="markdown" @input.self="form.body = $event.target.value"><textarea>{{ $c.Body }}</textarea></code-editor>
 			</template>
 			<template x-if="contentReady && form.content_type === 'plain'">
 				<textarea class="plain-editor m-0" name="content" x-model="form.body" :disabled="!canEdit"></textarea>
