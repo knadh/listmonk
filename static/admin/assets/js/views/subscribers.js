@@ -107,7 +107,7 @@ function component(sub = null) {
     },
 
     async onDeleteSubscriber(id, email) {
-      if (!(await u.confirm(i18n.ts('subscribers.confirmDelete', { num: 1 })))) {
+      if (!(await u.confirm(i18n.tc('subscribers.confirmDelete', 1)))) {
         return;
       }
 
@@ -182,7 +182,7 @@ function component(sub = null) {
     // Bulk actions.
     onExport(allSelected, selected, total) {
       const num = (!allSelected && selected.length > 0) ? selected.length : total;
-      u.confirm(i18n.ts('subscribers.confirmExport', { num })).then((ok) => {
+      u.confirm(i18n.tc('subscribers.confirmExport', num)).then((ok) => {
         if (!ok) {
           return;
         }
@@ -211,7 +211,7 @@ function component(sub = null) {
 
     async onDeleteSelected(allSelected, selected, total) {
       const num = allSelected ? total : selected.length;
-      if (!(await u.confirm(i18n.ts('subscribers.confirmDelete', { num })))) {
+      if (!(await u.confirm(i18n.tc('subscribers.confirmDelete', num)))) {
         return;
       }
 
@@ -223,12 +223,12 @@ function component(sub = null) {
         await api('subscribers', '/subscribers/query/delete', 'POST', this._queryBody());
       }
 
-      u.reload({ message: i18n.ts('subscribers.subscribersDeleted', { num }) });
+      u.reload({ message: i18n.tc('subscribers.subscribersDeleted', num) });
     },
 
     async onBlocklistSelected(allSelected, selected, total) {
       const num = allSelected ? total : selected.length;
-      if (!(await u.confirm(i18n.ts('subscribers.confirmBlocklist', { num })))) {
+      if (!(await u.confirm(i18n.tc('subscribers.confirmBlocklist', num)))) {
         return;
       }
 
