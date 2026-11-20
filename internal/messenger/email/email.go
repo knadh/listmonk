@@ -7,7 +7,9 @@ import (
 	"net/mail"
 	"net/smtp"
 	"net/textproto"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/knadh/listmonk/internal/utils"
 	"github.com/knadh/listmonk/models"
@@ -185,9 +187,8 @@ func (e *Emailer) Push(m models.Message) error {
 		if a, err := mail.ParseAddress(m.From); err == nil {
 			d = a.Address[strings.LastIndex(a.Address, "@")+1:]
 		}
-		if r, err := utils.GenerateRandomString(24); err == nil {
-			em.Headers.Set(hdrMessageID, fmt.Sprintf("<%s@%s>", r, d))
-		}
+		// Use smtppool's numeric local part. Some filters (Proofpoint) quarantine random alphanumeric ones.
+		em.Headers.Set(hdrMessageID, fmt.Sprintf("<%d.%d.%d@%s>", time.Now().UnixNano(), os.Getpid(), rand.Int63(), d))
 	}
 
 	// If the `Return-Path` header is set, it should be set as the
