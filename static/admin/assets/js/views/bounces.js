@@ -52,7 +52,7 @@ function component() {
         .filter((id) => id > 0))];
 
       const num = allSelected ? total : subIDs.length;
-      const message = i18n.ts('subscribers.confirmBlocklist', {
+      const message = i18n.tc('subscribers.confirmBlocklist', num, {
         num: allSelected ? i18n.t('globals.terms.all') : num,
       });
       if (num === 0 || !(await u.confirm(message))) {
