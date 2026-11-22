@@ -9,43 +9,6 @@ import (
 	"github.com/knadh/listmonk/models"
 )
 
-func TestStatusBounceType(t *testing.T) {
-	tests := []struct {
-		status string
-		want   string
-	}{
-		// 5.x.x are hard bounces.
-		{"5.1.1", models.BounceTypeHard},
-		{"5.4.4", models.BounceTypeHard},
-		{"5.7.1", models.BounceTypeHard},
-
-		// 5.6.x are message content / media failures and not recipient failures.
-		{"5.6.0", models.BounceTypeSoft},
-		{"5.6.1", models.BounceTypeSoft},
-		{"5.6.7", models.BounceTypeSoft},
-		{"5.6.9", models.BounceTypeSoft},
-
-		// A different class or subject sharing the "6" must not match.
-		{"5.60.1", models.BounceTypeHard},
-		{"5.1.6", models.BounceTypeHard},
-
-		// 4.x.x are soft bounces.
-		{"4.2.2", models.BounceTypeSoft},
-		{"4.6.0", models.BounceTypeSoft},
-
-		// Anything else is not a failure status.
-		{"2.0.0", ""},
-		{"", ""},
-		{"garbage", ""},
-	}
-
-	for _, tc := range tests {
-		if got := statusBounceType(tc.status); got != tc.want {
-			t.Errorf("statusBounceType(%q) = %q, want %q", tc.status, got, tc.want)
-		}
-	}
-}
-
 func TestClassifyBounce(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -55,8 +18,9 @@ func TestClassifyBounce(t *testing.T) {
 	}{
 		{"hard status", "Status: 5.1.1\n", models.BounceTypeHard, "smtp_status=5.1.1"},
 		{"soft status", "Status: 4.2.2\n", models.BounceTypeSoft, "smtp_status=4.2.2"},
-		{"smtputf8 status is soft", "Status: 5.6.7\n", models.BounceTypeSoft, "smtp_status=5.6.7"},
 		{"smtputf8 status is soft despite keywords", "Status: 5.6.7\nundeliverable\n", models.BounceTypeSoft, "smtp_status=5.6.7"},
+		{"different subject", "Status: 5.60.1\n", models.BounceTypeHard, "smtp_status=5.60.1"},
+		{"content status prefixed with reply code", "550 5.6.7 SMTPUTF8 required\n", models.BounceTypeSoft, "smtp_status=5.6.7"},
 		{"status prefixed with reply code", "550 5.1.1 user unknown\n", models.BounceTypeHard, "smtp_status=5.1.1"},
 		{"keyword fallback", "The address does not exist.\n", models.BounceTypeHard, "body_match=does not exist"},
 		{"default", "Something went wrong.\n", models.BounceTypeSoft, "default"},
@@ -104,5 +68,57 @@ func TestParseBounceDSN(t *testing.T) {
 		if got := string(out[0].Meta); !strings.Contains(got, tc.wantReason) {
 			t.Errorf("%s: meta = %s, want classify_reason %q", tc.file, got, tc.wantReason)
 		}
+	}
+}
+
+func TestBounceStatus(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("testdata", "dsn9.eml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tc := range []struct {
+		status  string
+		want    string
+		wantErr bool
+	}{
+		{"5.6.0", models.BounceTypeSoft, false},
+		{"5.6.1", models.BounceTypeSoft, false},
+		{"5.6.7", models.BounceTypeSoft, false},
+		{"5.6.9", models.BounceTypeSoft, false},
+		{"5.60.1", models.BounceTypeHard, false},
+		{"5.1.6", models.BounceTypeHard, false},
+		{"5.4.4", models.BounceTypeHard, false},
+		{"4.2.2", models.BounceTypeSoft, false},
+		{"4.6.0", models.BounceTypeSoft, false},
+		{"2.0.0", "", false},
+		{"", "", true},
+		{"garbage", "", true},
+	} {
+		t.Run(tc.status, func(t *testing.T) {
+			// Exercise the same status through the fallback and structured DSN paths.
+			if tc.want != "" {
+				got, _ := classifyBounce([]byte("Status: " + tc.status + "\n"))
+				if got != tc.want {
+					t.Errorf("classifyBounce() = %q, want %q", got, tc.want)
+				}
+			}
+
+			dsn := strings.Replace(string(raw), "5.6.7 (destination does not support SMTPUTF8 required for message delivery)", tc.status, 1)
+			if tc.status == "2.0.0" {
+				dsn = strings.Replace(dsn, "Action: failed", "Action: delivered", 1)
+			}
+			out, err := parseBounce([]byte(dsn))
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("parseBounce() error = %v, want error = %v", err, tc.wantErr)
+			}
+			if tc.want == "" {
+				if len(out) != 0 {
+					t.Fatalf("got %d bounces, want none", len(out))
+				}
+			} else if len(out) != 1 || out[0].Type != tc.want {
+				t.Fatalf("parseBounce() = %+v, want one %s bounce", out, tc.want)
+			}
+		})
 	}
 }
