@@ -48,6 +48,19 @@ const (
 	dummyUUID = "00000000-0000-0000-0000-000000000000"
 )
 
+type i18nReader interface {
+	T(string) string
+	Ts(string, ...string) string
+	Tc(string, int) string
+	FormatDate(time.Time, string) string
+}
+
+// tplI18n is a read-only abstraction over the i18n instance.
+type tplI18n struct {
+	Code, Name string
+	i18nReader
+}
+
 // Store represents a data backend, such as a database,
 // that provides subscriber and campaign records.
 type Store interface {
@@ -706,8 +719,12 @@ func (m *Manager) makeGnericFuncMap() template.FuncMap {
 			}
 			return time.Now().Format(layout)
 		},
-		"L": func() *i18n.I18n {
-			return m.i18n
+		"L": func() tplI18n {
+			return tplI18n{
+				Code:       m.i18n.Code,
+				Name:       m.i18n.Name,
+				i18nReader: m.i18n,
+			}
 		},
 		"Safe": func(safeHTML string) template.HTML {
 			return template.HTML(safeHTML)
