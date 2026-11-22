@@ -2407,30 +2407,45 @@ components:
           type: array
           items:
             type: object
+        upload.max_file_size:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 9007199254740991
+          default: 25000
+          description: Maximum size of each uploaded file in KB (1024 bytes).
         upload.provider:
           type: string
-        upload.filesystem.upload_path:
-          type: string
-        upload.filesystem.upload_uri:
-          type: string
-        upload.s3.url:
-          type: string
-        upload.s3.public_url:
-          type: string
-        upload.s3.aws_access_key_id:
-          type: string
-        upload.s3.aws_default_region:
-          type: string
-        upload.s3.bucket:
-          type: string
-        upload.s3.bucket_domain:
-          type: string
-        upload.s3.bucket_path:
-          type: string
-        upload.s3.bucket_type:
-          type: string
-        upload.s3.expiry:
-          type: string
+        upload.filesystem:
+          type: object
+          properties:
+            upload_path:
+              type: string
+            upload_uri:
+              type: string
+        upload.s3:
+          type: object
+          properties:
+            url:
+              type: string
+            public_url:
+              type: string
+            aws_access_key_id:
+              type: string
+            aws_secret_access_key:
+              type: string
+            aws_default_region:
+              type: string
+            bucket:
+              type: string
+            bucket_domain:
+              type: string
+            bucket_path:
+              type: string
+            bucket_type:
+              type: string
+            expiry:
+              type: string
         smtp:
           type: array
           items:
