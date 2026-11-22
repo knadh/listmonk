@@ -1,7 +1,7 @@
 # 1. Contributing
 
 > [!IMPORTANT]
-> **June 2026**: Until the next major version v7.0.0 is released, it would not be possible to accept code contributions (PRs) that involve changes to the admin frontend/UI. The entire Vue/Buefy frontend is being removed completely in favour of a server-side-rendered admin UI that eliminates the Javascript-ecosystem lockin. listmonk admin UI will no longer be a Vue SPA (Single-page App) after v7. [Read more](https://github.com/knadh/listmonk/issues/3073).
+> **November 2026**: I no longer accept code contributions. [Rationale](https://nadh.in/blog/code-is-cheap/).
 
 Welcome to listmonk! You can contribute to the project in the following ways:
 
@@ -21,22 +21,7 @@ Welcome to listmonk! You can contribute to the project in the following ways:
 4. **i18n translations:** The project is available in many languages thanks to user contributions. You can create a new language pack or submit corrections to existing ones. There is a UI available for making translations easy. [More info here](https://listmonk.app/docs/i18n/).
 
 
-# 2. Pull requests
-
-This is a tricky one for many reasons. A PR, be it a new feature or a small enhancement, has to make sense to the project's overall scope, goals, and technical aspects. The quality, style, and conventions of the code have to conform to that of the project's. Performance, usability, stability and other kinds of impacts of a PR should be well understood.
-
-This makes reviewing PRs a difficult and time consuming task. The bigger a PR, the more difficult it is to understand. Reviewing a PR in detail, engaging in back and forth discussions to improve it, and deciding that it is meaningful and safe to merge can often require more time and effort than what has gone into creating a PR. Thus, ultimately, whether a PR gets accepted or not, for whatever reason, is at the discretion of the maintainers. Please be respectful of the fact that maintainers have a much deeper understanding of the overall project. So, nitpicking on micro aspects may not be meaningful.
-
-To keep the process smooth:
-
-1. **Send a proposal first:** Open an issue describing what you aim to accomplish, how it makes sense to the project, and how you plan on implementing it (with useful technical details), before committing time and effort to writing code. This saves everyone time.
-
-2. **Send small PRs:** Whenever possible, send small PRs with well defined scopes. The smaller the PR, the easier it is to review and test. Bundling multiple features into a single PR is highly discouraged. 
-
-3. **PRs will be squashed in the end:** A PR may change considerably with multiple commits before it is approved. Once a PR is approved, if there are multiple commits, they will be squashed into a single commit during merging.
-
-
-# 3. Be respectful
+# 2. Be respectful
 
 Remember, most FOSS projects are fruits of love and labour of maintainers who share them with the world for free with no expectations of any returns. Free as in freedom, and free as in beer too. Really, *some people just want to watch the world turn*.
 
