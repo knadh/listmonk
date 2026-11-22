@@ -315,10 +315,11 @@ func parseBounce(raw []byte) ([]models.Bounce, error) {
 		switch {
 		case strings.HasPrefix(status, "2."), action == "delivered", action == "relayed", action == "expanded":
 			continue
+		// 5.6.x indicates content/media failures, not an invalid recipient.
+		case strings.HasPrefix(status, "4."), strings.HasPrefix(status, "5.6."):
+			b.Type = models.BounceTypeSoft
 		case strings.HasPrefix(status, "5."):
 			b.Type = models.BounceTypeHard
-		case strings.HasPrefix(status, "4."):
-			b.Type = models.BounceTypeSoft
 		default:
 			return nil, fmt.Errorf("invalid delivery status %q", status)
 		}
@@ -363,15 +364,12 @@ func classifyBounce(b []byte) (string, string) {
 				// Full status code (e.g., "5.1.1").
 				status := m[1]
 
-				// 5.x.x is hard bounce.
-				if status[0] == '5' {
+				// 5.x.x is hard, except content/media failures (5.6.x).
+				if status[0] == '5' && !bytes.HasPrefix(status, []byte("5.6.")) {
 					return models.BounceTypeHard, fmt.Sprintf("smtp_status=%s", status)
 				}
 
-				// 4.x.x  is soft bounce.
-				if status[0] == '4' {
-					return models.BounceTypeSoft, fmt.Sprintf("smtp_status=%s", status)
-				}
+				return models.BounceTypeSoft, fmt.Sprintf("smtp_status=%s", status)
 			}
 		}
 	}
