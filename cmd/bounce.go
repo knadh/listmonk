@@ -225,8 +225,12 @@ func (a *App) BounceWebhook(c *echo.Context) error {
 	}
 
 	// Read the request body instead of using c.Bind() to read to save the entire raw request as meta.
-	rawReq, err := io.ReadAll(c.Request().Body)
+	rawReq, err := io.ReadAll(http.MaxBytesReader(c.Response(), c.Request().Body, 1<<20))
 	if err != nil {
+		if _, ok := err.(*http.MaxBytesError); ok {
+			return echo.NewHTTPError(http.StatusRequestEntityTooLarge, http.StatusText(http.StatusRequestEntityTooLarge))
+		}
+
 		a.log.Printf("error reading ses notification body: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.internalError"))
 	}
