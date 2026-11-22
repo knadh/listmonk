@@ -288,6 +288,7 @@ func (a *App) ViewCampaignMessage(c *echo.Context) error {
 	}
 
 	if camp.ContentType == models.CampaignContentTypePlain {
+		c.Response().Header().Set("X-Content-Type-Options", "nosniff")
 		return c.String(http.StatusOK, string(msg.Body()))
 	}
 

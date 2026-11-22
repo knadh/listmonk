@@ -424,15 +424,8 @@ func (a *App) hasSignedURL(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Response().Header().Set("Referrer-Policy", "no-referrer")
 		c.Response().Header().Set("Cache-Control", "no-store")
 
-		// A link may start with /newsletter, but reach listmonk without it (proxy rewrite).
-		// Add it back to check the same URL that was signed in the email.
-		u := *c.Request().URL
-
-		u.Path = a.urlCfg.SigningPath + u.Path
-		// Use the rebuilt path instead of the original encoded copy.
-		u.RawPath = ""
-
-		expiry, ok := a.urlCfg.Signer.Verify(&u)
+		// Signatures cover listmonk's canonical paths without the root URL prefix.
+		expiry, ok := a.urlCfg.Signer.Verify(c.Request().URL)
 		if !ok {
 			return c.Render(http.StatusForbidden, tplMessage,
 				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("users.invalidRequest")))
@@ -527,6 +520,7 @@ func trustedURLsToCORSOrigins(urls []string) []string {
 // renderSandboxedHTML executes the HTML rendering handler with CSP sandboxing headers (for iframes).
 func renderSandboxedHTML(c *echo.Context, body string) error {
 	c.Response().Header().Add("Content-Security-Policy", "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox")
+	c.Response().Header().Set("X-Content-Type-Options", "nosniff")
 	return c.HTML(http.StatusOK, body)
 }
 

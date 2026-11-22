@@ -14,7 +14,7 @@ import (
 )
 
 func TestSignedMessageLinks(t *testing.T) {
-	signer := urlsign.New([]byte(strings.Repeat("k", 32)), true, time.Hour)
+	signer := urlsign.New([]byte(strings.Repeat("k", 32)), true, time.Hour, "")
 	m := New(Config{
 		UnsubURL:   "https://example.com/news/subscription/%s/%s",
 		OptinURL:   "https://example.com/news/subscription/optin/%s?%s",
@@ -122,7 +122,7 @@ func TestSignedMessageLinks(t *testing.T) {
 }
 
 func TestHostedMessageExpiry(t *testing.T) {
-	signer := urlsign.New([]byte(strings.Repeat("k", 32)), true, 120*24*time.Hour)
+	signer := urlsign.New([]byte(strings.Repeat("k", 32)), true, 120*24*time.Hour, "")
 	m := New(Config{
 		UnsubURL:   "https://example.com/subscription/%s/%s",
 		OptinURL:   "https://example.com/subscription/optin/%s?%s",
@@ -173,7 +173,7 @@ func TestHostedMessageExpiry(t *testing.T) {
 }
 
 func TestLegacyOptinScope(t *testing.T) {
-	m := New(Config{OptinURL: "https://example.com/subscription/optin/%s?%s"}, nil, nil, urlsign.New(nil, false, 0), nil)
+	m := New(Config{OptinURL: "https://example.com/subscription/optin/%s?%s"}, nil, nil, urlsign.New(nil, false, 0, ""), nil)
 	for _, lists := range [][]string{nil, {"aaaa", "bbbb"}} {
 		c := &models.Campaign{ContentType: models.CampaignContentTypePlain, ListUUIDs: lists, Body: `{{ OptinURL }}`}
 		if err := c.CompileTemplate(m.TemplateFuncs(c)); err != nil {

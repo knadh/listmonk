@@ -73,7 +73,6 @@ const (
 type UrlConfig struct {
 	RootURL      string `koanf:"root_url"`
 	RootPath     string
-	SigningPath  string
 	LogoURL      string `koanf:"logo_url"`
 	FaviconURL   string `koanf:"favicon_url"`
 	LoginURL     string `koanf:"login_url"`
@@ -508,20 +507,19 @@ func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 
 	// rootPath is the path component of the root URL set in config.
 	// It's used as the base path for all admin/static asset URLs.
-	var rootPath, signingPath string
+	var rootPath, basePath string
 	if u, err := url.Parse(root); err == nil {
-		signingPath = strings.TrimSuffix(u.Path, "/")
-		rootPath = "/" + signingPath
+		basePath = strings.TrimSuffix(u.Path, "/")
+		rootPath = "/" + basePath
 	}
 
 	return &UrlConfig{
-		Signer:      initURLSigner(ko),
-		RootURL:     root,
-		RootPath:    rootPath,
-		SigningPath: signingPath,
-		LogoURL:     ko.String("app.logo_url"),
-		FaviconURL:  ko.String("app.favicon_url"),
-		LoginURL:    path.Join(uriAdmin, "/login"),
+		Signer:     initURLSigner(ko, basePath),
+		RootURL:    root,
+		RootPath:   rootPath,
+		LogoURL:    ko.String("app.logo_url"),
+		FaviconURL: ko.String("app.favicon_url"),
+		LoginURL:   path.Join(uriAdmin, "/login"),
 
 		// Static URLS.
 		// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
@@ -545,7 +543,7 @@ func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 }
 
 // initURLSigner inits the URL signer with the secret key from config.
-func initURLSigner(ko *koanf.Koanf) *urlsign.Signer {
+func initURLSigner(ko *koanf.Koanf, basePath string) *urlsign.Signer {
 	secret, err := hex.DecodeString(ko.String("internal.secret_key"))
 	if err != nil || len(secret) < 32 {
 		lo.Fatal("invalid `internal.secret_key`")
@@ -557,7 +555,7 @@ func initURLSigner(ko *koanf.Koanf) *urlsign.Signer {
 		ttl = 120 * 24 * time.Hour
 	}
 
-	return urlsign.New(secret, ko.Bool("security.signed_links.enabled"), ttl)
+	return urlsign.New(secret, ko.Bool("security.signed_links.enabled"), ttl, basePath)
 }
 
 // initConstConfig initializes the app's global constants from the given koanf instance.

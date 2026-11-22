@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -14,15 +15,19 @@ var signedParams = [...]string{"exp", "l", "manage"}
 
 // Signer signs a given URL.
 type Signer struct {
-	key     []byte
-	enabled bool
-	ttl     time.Duration
-	now     func() time.Time
+	key      []byte
+	enabled  bool
+	ttl      time.Duration
+	basePath string
+	now      func() time.Time
 }
 
-// New returns a new Signer instance.
-func New(key []byte, enabled bool, ttl time.Duration) *Signer {
-	return &Signer{key: append([]byte(nil), key...), enabled: enabled, ttl: ttl, now: time.Now}
+// New returns a new Signer instance. basePath is the root URL's path prefix
+// (eg: /newsletter) that is stripped before signing so that signatures only
+// cover listmonk's canonical paths.
+func New(key []byte, enabled bool, ttl time.Duration, basePath string) *Signer {
+	return &Signer{key: append([]byte(nil), key...), enabled: enabled, ttl: ttl,
+		basePath: strings.TrimSuffix(basePath, "/"), now: time.Now}
 }
 
 // Enabled reports whether links require signatures.
@@ -55,7 +60,7 @@ func (s *Signer) Sign(raw string, expiry time.Time) string {
 		}
 	}
 	q.Set("exp", strconv.FormatInt(expires, 10))
-	q.Set("sig", base64.RawURLEncoding.EncodeToString(s.sign(u, q)))
+	q.Set("sig", base64.RawURLEncoding.EncodeToString(s.sign(strings.TrimPrefix(u.EscapedPath(), s.basePath), q)))
 	u.RawQuery = q.Encode()
 
 	return u.String()
@@ -82,7 +87,7 @@ func (s *Signer) Verify(u *url.URL) (time.Time, bool) {
 	if err != nil {
 		return time.Time{}, false
 	}
-	if !hmac.Equal(sig, s.sign(u, q)) {
+	if !hmac.Equal(sig, s.sign(u.EscapedPath(), q)) {
 		return time.Time{}, false
 	}
 	if expires == 0 {
@@ -101,15 +106,15 @@ func (s *Signer) GetExpiry() time.Time {
 	return s.now().Add(s.ttl)
 }
 
-// sign signs known listmonk parameters.
-func (s *Signer) sign(u *url.URL, q url.Values) []byte {
+// sign signs the canonical listmonk path (without the root URL prefix) and known listmonk parameters.
+func (s *Signer) sign(path string, q url.Values) []byte {
 	signed := make(url.Values, len(signedParams))
 	for _, key := range signedParams {
 		signed[key] = q[key]
 	}
 
 	m := hmac.New(sha256.New, s.key)
-	m.Write([]byte("listmonk-url-v2\n" + u.EscapedPath() + "?" + signed.Encode()))
+	m.Write([]byte("listmonk-url-v2\n" + path + "?" + signed.Encode()))
 
 	return m.Sum(nil)
 }

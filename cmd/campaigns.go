@@ -425,6 +425,7 @@ func (a *App) PreviewCampaign(c *echo.Context) error {
 
 	// Plaintext headers for plain body.
 	if camp.ContentType == models.CampaignContentTypePlain {
+		c.Response().Header().Set("X-Content-Type-Options", "nosniff")
 		return c.String(http.StatusOK, string(msg.Body()))
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 func TestSignVerify(t *testing.T) {
-	s := New([]byte(strings.Repeat("k", 32)), true, 0)
+	s := New([]byte(strings.Repeat("k", 32)), true, 0, "")
 	raw := "https://example.com/news/subscription/optin/subscriber?l=list1&l=list2"
 	signed := s.Sign(raw, s.GetExpiry())
 
@@ -48,11 +48,11 @@ func TestSignVerify(t *testing.T) {
 	f(strings.Replace(signed, "/news/", "/", 1), false)
 
 	u, _ := url.Parse(signed)
-	if _, ok := New([]byte(strings.Repeat("x", 32)), true, 0).Verify(u); ok {
+	if _, ok := New([]byte(strings.Repeat("x", 32)), true, 0, "").Verify(u); ok {
 		t.Fatal("wrong key accepted")
 	}
 
-	if _, ok := New([]byte(strings.Repeat("k", 32)), true, 0).Verify(u); !ok {
+	if _, ok := New([]byte(strings.Repeat("k", 32)), true, 0, "").Verify(u); !ok {
 		t.Fatal("same key did not survive reconstruction")
 	}
 
@@ -62,7 +62,7 @@ func TestSignVerify(t *testing.T) {
 }
 
 func TestUnrelatedQueryParams(t *testing.T) {
-	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour)
+	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour, "")
 	raw := "https://example.com/subscription/campaign/subscriber?manage=true"
 	expiry := s.GetExpiry()
 	base, _ := url.Parse(s.Sign(raw, expiry))
@@ -90,7 +90,7 @@ func TestUnrelatedQueryParams(t *testing.T) {
 }
 
 func TestDisabled(t *testing.T) {
-	s := New(nil, false, 0)
+	s := New(nil, false, 0, "")
 
 	f := func(raw string) {
 		t.Helper()
@@ -116,7 +116,7 @@ func TestDisabled(t *testing.T) {
 
 func TestExpiry(t *testing.T) {
 	now := time.Unix(2000000000, 0)
-	s := New([]byte(strings.Repeat("k", 32)), true, time.Minute)
+	s := New([]byte(strings.Repeat("k", 32)), true, time.Minute, "")
 	s.now = func() time.Time { return now }
 
 	raw := "https://example.com/subscription/campaign/subscriber"
@@ -167,7 +167,7 @@ func TestExpiry(t *testing.T) {
 }
 
 func TestInvalidExpiry(t *testing.T) {
-	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour)
+	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour, "")
 	u, _ := url.Parse(s.Sign("https://example.com/subscription/campaign/subscriber", s.GetExpiry()))
 
 	f := func(values ...string) {
@@ -182,7 +182,7 @@ func TestInvalidExpiry(t *testing.T) {
 		}
 
 		// Invalid expiry should fail despite signature being correct.
-		q.Set("sig", base64.RawURLEncoding.EncodeToString(s.sign(u, q)))
+		q.Set("sig", base64.RawURLEncoding.EncodeToString(s.sign(u.EscapedPath(), q)))
 
 		altered := *u
 		altered.RawQuery = q.Encode()
@@ -201,7 +201,7 @@ func TestInvalidExpiry(t *testing.T) {
 }
 
 func TestTamperedExpiry(t *testing.T) {
-	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour)
+	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour, "")
 	u, _ := url.Parse(s.Sign("https://example.com/subscription/campaign/subscriber", s.GetExpiry()))
 
 	f := func(expiry string) {
@@ -224,7 +224,7 @@ func TestTamperedExpiry(t *testing.T) {
 // Only the zero time may encode the non-expiring sentinel, not the Unix epoch
 // or a timestamp that truncates to it.
 func TestSignTimeExpiry(t *testing.T) {
-	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour)
+	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour, "")
 	raw := "https://example.com/subscription/campaign/subscriber"
 	for _, expiry := range []time.Time{time.Unix(-1, 0), time.Unix(0, 0), time.Unix(0, 500000000)} {
 		if got := s.Sign(raw, expiry); got != "" {
@@ -240,5 +240,35 @@ func TestSignTimeExpiry(t *testing.T) {
 	got, ok := s.Verify(u)
 	if !ok || !got.Equal(expiry.Truncate(time.Second)) {
 		t.Fatalf("expiry did not round-trip at URL precision: %v, %v", got, ok)
+	}
+}
+
+// TestSignBasePath checks that the root URL prefix is excluded from signatures,
+// so links verify against the canonical path listmonk receives.
+func TestSignBasePath(t *testing.T) {
+	s := New([]byte(strings.Repeat("k", 32)), true, time.Hour, "/newsletter/")
+	signed, err := url.Parse(s.Sign("https://example.com/newsletter/subscription/campaign/subscriber", s.GetExpiry()))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Path as received by listmonk (prefix stripped by the proxy).
+	u := *signed
+	u.Path = "/subscription/campaign/subscriber"
+	if _, ok := s.Verify(&u); !ok {
+		t.Fatal("canonical path did not verify")
+	}
+
+	// The prefixed path is not a listmonk route and should not verify.
+	if _, ok := s.Verify(signed); ok {
+		t.Fatal("prefixed path verified")
+	}
+
+	// Links signed under a different root prefix still verify.
+	other := New([]byte(strings.Repeat("k", 32)), true, time.Hour, "/old")
+	o, _ := url.Parse(other.Sign("https://example.com/old/subscription/campaign/subscriber", other.GetExpiry()))
+	o.Path = "/subscription/campaign/subscriber"
+	if _, ok := s.Verify(o); !ok {
+		t.Fatal("link signed under another root prefix did not verify")
 	}
 }
