@@ -54,7 +54,7 @@ When configuring auth proxies and web application firewalls, use this table.
 
 With `security.signed_links.enabled` enabled, unsubscribe, preference, opt-in,
 privacy export/deletion, and hosted message URLs require a signature. listmonk generates these links automatically. The signature
-covers the URL path and the `exp`, `l` (opt-in list IDs), and `manage` query parameters.
+covers the URL path and the `exp`, `l` (opt-in list IDs), `manage`, and `auth` query parameters.
 Unrelated query parameters, such as UTM tracking tags, can be added, changed, or removed.
 Public signup forms and
 tracking links/pixels do not require signatures.
@@ -68,13 +68,15 @@ Custom public templates must preserve signed URLs: use `.Data.ManageURL`,
 `.Data.ExportURL`, and `.Data.WipeURL` in the subscription template, and retain the
 current URL (including its query) when submitting subscription and opt-in forms.
 Custom opt-in notification templates should use `.ManageURL` instead of appending
-`?manage=true` to `.UnsubURL`.
+`?manage=true` to `.UnsubURL`. Management-link request forms must POST
+`action=request-manage` to `.Data.ManageURL`.
 
 A random secret key is created during installation or upgrade in the database setting
 `internal.secret_key`. Preserve this setting in backups and across instances;
 changing or deleting it invalidates all previously signed links. It is not exposed
-through the settings API. Possession of a signed subscription link permits the
-enabled preference and privacy actions.
+through the settings API. A signed subscription link permits campaign unsubscribe
+and requesting a management link by email. Preference changes, global blocklisting,
+export, and deletion require the separately emailed management link, which expires in an hour.
 
 The `security.signed_links` setting defaults to:
 ```json
@@ -85,6 +87,15 @@ Positive durations must be at least one second. Expiry applies to unsubscribe
 links too. Each email's links share a signed expiry time, which is preserved when
 opening preference pages or hosted messages. Changing the TTL affects new emails
 only. With signing enabled, links without a signed expiry are rejected.
+
+#### Secret key
+listmonk generates and stores a secret key in the settings table (`internal.secret_key`) when it's first setup. This secret is used to sign links.
+
+To rotate the key, run the following SQL and restart listmonk. This invalidates all previously sent signed links.
+```sql
+UPDATE settings SET value = TO_JSONB(ENCODE(GEN_RANDOM_BYTES(32), 'hex')) WHERE key = 'internal.secret_key';
+```
+
 
 
 ## Media uploads

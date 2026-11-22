@@ -272,3 +272,40 @@ func TestSignBasePath(t *testing.T) {
 		t.Fatal("link signed under another root prefix did not verify")
 	}
 }
+
+func TestAuth(t *testing.T) {
+	now := time.Unix(1_700_000_000, 0)
+	raw := "https://example.com/subscription/campaign/subscriber?manage=true"
+
+	for _, enabled := range []bool{true, false} {
+		s := New([]byte(strings.Repeat("k", 32)), enabled, 0, "")
+		s.now = func() time.Time { return now }
+
+		f := func(raw string, want bool) {
+			t.Helper()
+
+			u, _ := url.Parse(raw)
+			if _, got := s.VerifyAuth(u); got != want {
+				t.Fatalf("enabled=%v VerifyAuth(%q) = %v, want %v", enabled, raw, got, want)
+			}
+		}
+
+		signed := s.SignAuth(raw, now.Add(time.Hour))
+		f(signed, true)
+		f(raw, false)
+		f(raw+"&auth=1", false)
+		f(strings.Replace(signed, "auth=1&", "", 1), false)
+		f(strings.Replace(signed, "subscriber", "other", 1), false)
+
+		// Regular signed links don't shouldn't accept auth.
+		f(New([]byte(strings.Repeat("k", 32)), true, 0, "").Sign(raw+"&auth=1", now.Add(time.Hour)), false)
+
+		// Auth links require an expiry and expire.
+		if s.SignAuth(raw, time.Time{}) != "" {
+			t.Fatal("auth link signed without expiry")
+		}
+
+		s.now = func() time.Time { return now.Add(time.Hour) }
+		f(signed, false)
+	}
+}

@@ -1,0 +1,10 @@
+{{ define "subscriber-manage" }}
+{{ template "header" . }}
+
+<h2>{{ L.T "public.managePrefs" }}</h2>
+<p>{{ L.T "email.manage.info" }}</p>
+<p>{{ L.Ts "email.requestInfo" "ip" .IP "userAgent" .UserAgent }}</p>
+<p><a href="{{ .ManageURL }}" class="button">{{ L.T "public.managePrefs" }}</a></p>
+
+{{ template "footer" }}
+{{ end }}

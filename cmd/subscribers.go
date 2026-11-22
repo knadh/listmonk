@@ -1214,8 +1214,8 @@ func makeOptinNotifyHook(unsubHeader bool, u *UrlConfig, q *models.Queries, i *i
 			qListIDs.Add("l", l.UUID)
 		}
 		out.OptinURL = u.Signer.Sign(fmt.Sprintf(u.OptinURL, sub.UUID, qListIDs.Encode()), expiry)
-		out.UnsubURL = u.Signer.Sign(fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID), expiry)
-		out.ManageURL = u.Signer.Sign(fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)+"?manage=true", expiry)
+		out.UnsubURL = u.Signer.Sign(fmt.Sprintf(u.UnsubURL, dummyUUID, sub.UUID)+"?"+qListIDs.Encode(), expiry)
+		out.ManageURL = u.Signer.Sign(fmt.Sprintf(u.ManageURL, dummyUUID, sub.UUID)+"&"+qListIDs.Encode(), expiry)
 
 		// Unsub headers.
 		hdr := textproto.MIMEHeader{}

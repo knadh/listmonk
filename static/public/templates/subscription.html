@@ -1,36 +1,36 @@
 {{ define "subscription" }}
 {{ template "header" .}}
 <section class="section">
-    {{ if not .Data.ShowManage }}
+    {{ if .Data.ShowManageReq }}
+        <h2>{{ L.T "public.managePrefs" }}</h2>
+        <form method="post" class="manage-req-form" action="{{ .Data.ManageURL }}">
+            <input type="hidden" name="action" value="request-manage" />
+            <p>{{ L.T "public.manageReqHelp" }}</p>
+            <p>
+                <button type="submit" class="button">{{ L.T "public.manageReq" }}</button>
+            </p>
+        </form>
+    {{ else if not .Data.ShowManage }}
         <h2>{{ L.T "globals.buttons.unsubscribe" }}</h2>
-        <form method="post" class="unsub-form">
+        <form method="post" class="unsub-form" action="{{ .Data.UnsubURL }}">
             <div>
                 <p>{{ L.T "public.unsubHelp" }}</p>
-
-                {{ if .Data.AllowBlocklist }}
-                    <hr />
-                    <p class="small">
-                        <input id="privacy-blocklist" type="checkbox" name="blocklist" value="true" />
-                        <label for="privacy-blocklist">{{ L.T "public.unsubFull" }}</label>
-                    </p>
-                {{ end }}
 
                 <p>
                     <button type="submit" class="button" id="btn-unsub">{{ L.T "globals.buttons.unsubscribe" }}</button>
                 </p>
-                {{ if .Data.AllowPreferences }}
+                {{ if .Data.AllowManage }}
                     <a href="{{ .Data.ManageURL }}">{{ L.T "public.managePrefs" }}</a>
                 {{ end }}
             </div>
         </form>
-    {{ else }}
+    {{ else if or .Data.AllowPreferences .Data.AllowBlocklist }}
         <form method="post" class="manage-form">
             <div>
-                <input type="hidden" name="manage" value="true" />
-
                 <h2>{{ L.T "public.managePrefs" }}</h2>
+                {{ if .Data.AllowPreferences }}
                 <label>{{ L.T "globals.fields.name" }}</label>
-                <input type="text" name="name" value="{{ .Data.Subscriber.Name }}" maxlength="256" required />
+                <input type="text" name="name" value="{{ .Data.Subscriber.Name }}" maxlength="256" />
 
                 {{ if .Data.Subscriptions }}
                     <br /><br />
@@ -46,10 +46,11 @@
                         {{ end }}
                     </ul>
                 {{ end }}
+                {{ end }}
 
                 {{ if .Data.AllowBlocklist }}
                     <p class="small">
-                        <input id="privacy-blocklist" type="checkbox" name="blocklist" value="true" onchange="unsubAll(event)" />
+                        <input id="privacy-blocklist" type="checkbox" name="blocklist" value="true" {{ if not .Data.AllowPreferences }}required{{ end }} />
                         <label for="privacy-blocklist">{{ L.T "public.unsubFull" }}</label>
                     </p>
                 {{ end }}
@@ -62,7 +63,7 @@
     {{ end }}
 </section>
 
-{{ if or .Data.AllowExport .Data.AllowWipe }}
+{{ if and .Data.ShowManage (or .Data.AllowExport .Data.AllowWipe) }}
 <form id="data-form" class="data-form" method="post" action="" onsubmit="return handleData()">
     <section>
         <h2>{{ L.T "public.privacyTitle" }}</h2>
@@ -100,22 +101,6 @@
             return true;
         }
         return false;
-    }
-
-    function unsubAll(e) {
-        if (e.target.checked) {
-            document.querySelector("input[name=name]").disabled = "disabled";
-        } else {
-            document.querySelector("input[name=name]").removeAttribute("disabled");
-        }
-
-        document.querySelectorAll('input[type=checkbox][name=l]').forEach(function(l) {
-            if (e.target.checked) {
-                l.disabled = "disabled";
-            } else {
-                l.removeAttribute("disabled");
-            }
-        });
     }
 </script>
 {{ end }}

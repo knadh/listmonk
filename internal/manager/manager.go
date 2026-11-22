@@ -153,6 +153,7 @@ type Config struct {
 	DisableTracking       bool
 	LinkTrackURL          string
 	UnsubURL              string
+	ManageURL             string
 	OptinURL              string
 	MessageURL            string
 	ViewTrackURL          string
@@ -414,7 +415,7 @@ func (m *Manager) TemplateFuncs(c *models.Campaign, opts ...models.CampOpt) temp
 			return msg.unsubURL
 		},
 		"ManageURL": func(msg *CampaignMessage) string {
-			return m.urlSigner.Sign(fmt.Sprintf(m.cfg.UnsubURL, msg.Campaign.UUID, msg.Subscriber.UUID)+"?manage=true", msg.linkExpiry)
+			return m.urlSigner.Sign(fmt.Sprintf(m.cfg.ManageURL, msg.Campaign.UUID, msg.Subscriber.UUID), msg.linkExpiry)
 		},
 		"OptinURL": func(msg *CampaignMessage, query ...string) string {
 			var q string

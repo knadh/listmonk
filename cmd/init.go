@@ -77,6 +77,7 @@ type UrlConfig struct {
 	FaviconURL   string `koanf:"favicon_url"`
 	LoginURL     string `koanf:"login_url"`
 	UnsubURL     string
+	ManageURL    string
 	LinkTrackURL string
 	ViewTrackURL string
 	OptinURL     string
@@ -525,6 +526,9 @@ func initUrlConfig(ko *koanf.Koanf) *UrlConfig {
 		// url.com/subscription/{campaign_uuid}/{subscriber_uuid}
 		UnsubURL: fmt.Sprintf("%s/subscription/%%s/%%s", root),
 
+		// url.com/subscription/{campaign_uuid}/{subscriber_uuid}?manage=true
+		ManageURL: fmt.Sprintf("%s/subscription/%%s/%%s?manage=true", root),
+
 		// url.com/subscription/optin/{subscriber_uuid}
 		OptinURL: fmt.Sprintf("%s/subscription/optin/%%s?%%s", root),
 
@@ -695,6 +699,7 @@ func initCampaignManager(msgrs []manager.Messenger, q *models.Queries, u *UrlCon
 		IndividualTracking:    ko.Bool("privacy.individual_tracking"),
 		DisableTracking:       ko.Bool("privacy.disable_tracking"),
 		UnsubURL:              u.UnsubURL,
+		ManageURL:             u.ManageURL,
 		OptinURL:              u.OptinURL,
 		LinkTrackURL:          u.LinkTrackURL,
 		ViewTrackURL:          u.ViewTrackURL,

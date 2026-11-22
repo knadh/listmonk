@@ -18,12 +18,13 @@ import (
 )
 
 const (
-	TplImport          = "import-status"
-	TplCampaignStatus  = "campaign-status"
-	TplSubscriberOptin = "subscriber-optin"
-	TplSubscriberData  = "subscriber-data"
-	TplForgotPassword  = "forgot-password"
-	TplVerifyEmail     = "verify-email"
+	TplImport           = "import-status"
+	TplCampaignStatus   = "campaign-status"
+	TplSubscriberOptin  = "subscriber-optin"
+	TplSubscriberData   = "subscriber-data"
+	TplSubscriberManage = "subscriber-manage"
+	TplForgotPassword   = "forgot-password"
+	TplVerifyEmail      = "verify-email"
 )
 
 type FuncPush func(msg models.Message) error

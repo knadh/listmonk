@@ -237,7 +237,8 @@ listIDs AS (
     SELECT id FROM lists WHERE uuid = ANY($2::UUID[])
 )
 UPDATE subscriber_lists SET status='confirmed', meta=meta || $3, updated_at=NOW()
-    WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs);
+    WHERE subscriber_id = (SELECT id FROM subID) AND list_id = ANY(SELECT id FROM listIDs)
+        AND status = 'unconfirmed';
 
 -- name: unsubscribe-subscribers-from-lists
 WITH listIDs AS (

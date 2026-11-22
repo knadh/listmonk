@@ -17,6 +17,7 @@ func TestSignedMessageLinks(t *testing.T) {
 	signer := urlsign.New([]byte(strings.Repeat("k", 32)), true, time.Hour, "")
 	m := New(Config{
 		UnsubURL:   "https://example.com/news/subscription/%s/%s",
+		ManageURL:  "https://example.com/news/subscription/%s/%s?manage=true",
 		OptinURL:   "https://example.com/news/subscription/optin/%s?%s",
 		MessageURL: "https://example.com/news/campaign/%s/%s",
 	}, nil, nil, signer, nil)
@@ -125,6 +126,7 @@ func TestHostedMessageExpiry(t *testing.T) {
 	signer := urlsign.New([]byte(strings.Repeat("k", 32)), true, 120*24*time.Hour, "")
 	m := New(Config{
 		UnsubURL:   "https://example.com/subscription/%s/%s",
+		ManageURL:  "https://example.com/subscription/%s/%s?manage=true",
 		OptinURL:   "https://example.com/subscription/optin/%s?%s",
 		MessageURL: "https://example.com/campaign/%s/%s",
 	}, nil, nil, signer, nil)

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var signedParams = [...]string{"exp", "l", "manage"}
+var signedParams = [...]string{"auth", "exp", "l", "manage"}
 
 // Signer signs a given URL.
 type Signer struct {
@@ -42,6 +42,52 @@ func (s *Signer) Sign(raw string, expiry time.Time) string {
 		return raw
 	}
 
+	return s.signURL(raw, expiry, false)
+}
+
+// SignAuth signs a link that authorizes the subscriber management page.
+// Unlike Sign(), it signs even when signing is disabled and requires an expiry.
+func (s *Signer) SignAuth(raw string, expiry time.Time) string {
+	if expiry.IsZero() {
+		return ""
+	}
+
+	return s.signURL(raw, expiry, true)
+}
+
+// Verify checks a URL and returns its validated expiry. The zero time means
+// that there's no expiry (even when signing is disabled).
+func (s *Signer) Verify(u *url.URL) (time.Time, bool) {
+	if !s.enabled {
+		return time.Time{}, true
+	}
+
+	exp, _, ok := s.verify(u)
+	return exp, ok
+}
+
+// VerifyAuth checks a link signed with SignAuth(), even when signing is disabled,
+// and returns its expiry.
+func (s *Signer) VerifyAuth(u *url.URL) (time.Time, bool) {
+	exp, q, ok := s.verify(u)
+	if !ok || exp.IsZero() || q.Get("auth") != "1" {
+		return time.Time{}, false
+	}
+
+	return exp, true
+}
+
+// GetExpiry returns the deadline for a new message. Zero time means no expiry.
+func (s *Signer) GetExpiry() time.Time {
+	if s.ttl == 0 {
+		return time.Time{}
+	}
+
+	return s.now().Add(s.ttl)
+}
+
+// signURL adds the expiry, optional auth flag, and signature to the given URL.
+func (s *Signer) signURL(raw string, expiry time.Time, auth bool) string {
 	u, err := url.Parse(raw)
 	if err != nil {
 		return ""
@@ -59,6 +105,12 @@ func (s *Signer) Sign(raw string, expiry time.Time) string {
 			return ""
 		}
 	}
+
+	// Only SignAuth() can grant auth.
+	q.Del("auth")
+	if auth {
+		q.Set("auth", "1")
+	}
 	q.Set("exp", strconv.FormatInt(expires, 10))
 	q.Set("sig", base64.RawURLEncoding.EncodeToString(s.sign(strings.TrimPrefix(u.EscapedPath(), s.basePath), q)))
 	u.RawQuery = q.Encode()
@@ -66,44 +118,27 @@ func (s *Signer) Sign(raw string, expiry time.Time) string {
 	return u.String()
 }
 
-// Verify checks a URL and returns its validated expiry. The zero time means
-// no expiry, including when signing is disabled. Invalid URLs return time.Time{}, false.
-func (s *Signer) Verify(u *url.URL) (time.Time, bool) {
-	if !s.enabled {
-		return time.Time{}, true
-	}
-
+// verify checks the signature and expiry of a URL and returns its expiry and query.
+func (s *Signer) verify(u *url.URL) (time.Time, url.Values, bool) {
 	q, err := url.ParseQuery(u.RawQuery)
 	if err != nil || len(q["sig"]) != 1 || len(q["exp"]) != 1 {
-		return time.Time{}, false
+		return time.Time{}, nil, false
 	}
 
 	expires, err := strconv.ParseInt(q.Get("exp"), 10, 64)
 	if err != nil || expires < 0 || (expires != 0 && s.now().Unix() >= expires) {
-		return time.Time{}, false
+		return time.Time{}, nil, false
 	}
 
 	sig, err := base64.RawURLEncoding.DecodeString(q.Get("sig"))
-	if err != nil {
-		return time.Time{}, false
-	}
-	if !hmac.Equal(sig, s.sign(u.EscapedPath(), q)) {
-		return time.Time{}, false
+	if err != nil || !hmac.Equal(sig, s.sign(u.EscapedPath(), q)) {
+		return time.Time{}, nil, false
 	}
 	if expires == 0 {
-		return time.Time{}, true
+		return time.Time{}, q, true
 	}
 
-	return time.Unix(expires, 0), true
-}
-
-// GetExpiry returns the deadline for a new message. Zero time means no expiry.
-func (s *Signer) GetExpiry() time.Time {
-	if s.ttl == 0 {
-		return time.Time{}
-	}
-
-	return s.now().Add(s.ttl)
+	return time.Unix(expires, 0), q, true
 }
 
 // sign signs the canonical listmonk path (without the root URL prefix) and known listmonk parameters.

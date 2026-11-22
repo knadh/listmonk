@@ -10,6 +10,7 @@ import (
 	"image/png"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +26,10 @@ import (
 
 const (
 	tplMessage = "message"
+
+	// subManageLinkTTL is the  validity of the link e-mailed to subscribers
+	// for managing their prefs and data.
+	subManageLinkTTL = time.Hour
 )
 
 // pubTplRenderer wraps public templates for echo.
@@ -100,7 +105,7 @@ type unsubTpl struct {
 	publicTpl
 	Subscriber       models.Subscriber
 	Subscriptions    []models.Subscription
-	SubUUID          string
+	UnsubURL         string
 	ManageURL        string
 	ExportURL        string
 	WipeURL          string
@@ -108,7 +113,9 @@ type unsubTpl struct {
 	AllowExport      bool
 	AllowWipe        bool
 	AllowPreferences bool
+	AllowManage      bool
 	ShowManage       bool
+	ShowManageReq    bool
 }
 
 type optinReq struct {
@@ -300,42 +307,56 @@ func (a *App) ViewCampaignMessage(c *echo.Context) error {
 func (a *App) SubscriptionPage(c *echo.Context) error {
 	var (
 		subUUID       = c.Param("subUUID")
-		showManage, _ = strconv.ParseBool(c.FormValue("manage"))
+		showManage, _ = strconv.ParseBool(c.QueryParam("manage"))
 	)
 
-	// Get the subscriber from the DB.
-	s, err := a.core.GetSubscriber(0, subUUID, "")
-	if err != nil {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.errorProcessingRequest")))
-	}
+	s := c.Get("subscriber").(models.Subscriber)
 
 	// Get the expiry validated by hasSignedURL() and use that again in the preview's signed URLs.
 	expiry := c.Get("linkExpiry").(time.Time)
 
+	unsubURL := fmt.Sprintf(a.urlCfg.UnsubURL, c.Param("campUUID"), subUUID)
+	manageURL := fmt.Sprintf(a.urlCfg.ManageURL, c.Param("campUUID"), subUUID)
+	if lists := (url.Values{"l": c.QueryParams()["l"]}).Encode(); lists != "" {
+		unsubURL += "?" + lists
+		manageURL += "&" + lists
+	}
+
 	// Prepare the public template.
 	out := unsubTpl{
 		Subscriber:       s,
-		SubUUID:          subUUID,
-		ManageURL:        a.urlCfg.Signer.Sign(fmt.Sprintf(a.urlCfg.UnsubURL, c.Param("campUUID"), subUUID)+"?manage=true", expiry),
-		ExportURL:        a.urlCfg.Signer.Sign(a.urlCfg.RootURL+"/subscription/export/"+subUUID, expiry),
-		WipeURL:          a.urlCfg.Signer.Sign(a.urlCfg.RootURL+"/subscription/wipe/"+subUUID, expiry),
+		UnsubURL:         a.urlCfg.Signer.Sign(unsubURL, expiry),
+		ManageURL:        a.urlCfg.Signer.Sign(manageURL, expiry),
 		publicTpl:        publicTpl{Title: a.i18n.T("public.unsubscribeTitle")},
 		AllowBlocklist:   a.cfg.Privacy.AllowBlocklist,
 		AllowExport:      a.cfg.Privacy.AllowExport,
 		AllowWipe:        a.cfg.Privacy.AllowWipe,
 		AllowPreferences: a.cfg.Privacy.AllowPreferences,
+		AllowManage:      a.allowSubManage(),
 	}
 
 	// If the subscriber is blocklisted, throw an error.
-	if s.Status == models.SubscriberStatusBlockListed {
+	if !showManage && s.Status == models.SubscriberStatusBlockListed {
 		return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("public.noSubTitle"), "", a.i18n.Ts("public.blocklisted")))
 	}
 
-	// Only show preference management if it's enabled in settings.
-	if a.cfg.Privacy.AllowPreferences {
-		out.ShowManage = showManage
+	// Managing prefs and data requires the link e-mailed to the subscriber.
+	if showManage && out.AllowManage {
+		if authExp, ok := a.urlCfg.Signer.VerifyAuth(c.Request().URL); ok {
+			out.ShowManage = true
+			out.ExportURL = a.urlCfg.Signer.SignAuth(a.urlCfg.RootURL+"/subscription/export/"+subUUID, authExp)
+			out.WipeURL = a.urlCfg.Signer.SignAuth(a.urlCfg.RootURL+"/subscription/wipe/"+subUUID, authExp)
+		} else if c.Request().URL.Query().Has("auth") {
+			// Invalid or expired e-mailed link.
+			return c.Render(http.StatusForbidden, tplMessage,
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("users.invalidRequest")))
+		} else {
+			out.ShowManageReq = true
+		}
+	}
 
+	// Get the subscriber's lists for managing preferences.
+	if out.ShowManage && a.cfg.Privacy.AllowPreferences {
 		// Get the subscriber's lists from the DB to render in the template.
 		subs, err := a.core.GetSubscriptions(0, subUUID, false)
 		if err != nil {
@@ -356,16 +377,18 @@ func (a *App) SubscriptionPage(c *echo.Context) error {
 	return c.Render(http.StatusOK, "subscription", out)
 }
 
-// SubscriptionPrefs renders the subscription management page and
-// s unsubscriptions. This is the view that {{ UnsubscribeURL }} in
-// campaigns link to.
+// SubscriptionPrefs handles unsubscribe, management, pref update requests.
 func (a *App) SubscriptionPrefs(c *echo.Context) error {
+	manage, _ := strconv.ParseBool(c.QueryParam("manage"))
+	if manage && c.FormValue("action") == "request-manage" {
+		return a.sendSubManageLink(c)
+	}
+
 	// Read the form.
 	var req struct {
 		Name      string   `form:"name" json:"name"`
 		ListUUIDs []string `form:"l" json:"list_uuids"`
 		Blocklist bool     `form:"blocklist" json:"blocklist"`
-		Manage    bool     `form:"manage" json:"manage"`
 	}
 	if err := c.Bind(&req); err != nil {
 		return c.Render(http.StatusBadRequest, tplMessage,
@@ -378,8 +401,21 @@ func (a *App) SubscriptionPrefs(c *echo.Context) error {
 		subUUID   = c.Param("subUUID")
 		blocklist = a.cfg.Privacy.AllowBlocklist && req.Blocklist
 	)
-	if !req.Manage || blocklist {
-		if err := a.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist, campUUID == dummyUUID); err != nil {
+	if (manage || blocklist) && !a.hasManageAuth(c) {
+		return c.Render(http.StatusForbidden, tplMessage,
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("users.invalidRequest")))
+	}
+
+	if !manage || blocklist {
+		var err error
+		if listUUIDs := c.QueryParams()["l"]; campUUID == dummyUUID && len(listUUIDs) > 0 && !blocklist {
+			sub := c.Get("subscriber").(models.Subscriber)
+			err = a.core.UnsubscribeLists([]int{sub.ID}, nil, listUUIDs)
+		} else {
+			err = a.core.UnsubscribeByCampaign(subUUID, campUUID, blocklist, campUUID == dummyUUID)
+		}
+
+		if err != nil {
 			return c.Render(http.StatusInternalServerError, tplMessage,
 				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
 		}
@@ -401,13 +437,7 @@ func (a *App) SubscriptionPrefs(c *echo.Context) error {
 			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("globals.messages.invalidName")))
 	}
 
-	// Get the subscriber from the DB.
-	sub, err := a.core.GetSubscriber(0, subUUID, "")
-	if err != nil {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("globals.messages.notFound",
-				"name", a.i18n.T("globals.terms.subscriber"))))
-	}
+	sub := c.Get("subscriber").(models.Subscriber)
 	sub.Name = req.Name
 
 	// Update the subscriber properties in the DB.
@@ -463,7 +493,7 @@ func (a *App) OptinPage(c *echo.Context) error {
 
 	// Older opt-in forms submit list IDs in the body while signed links must
 	// use only the list IDs covered by the URL signature.
-	if !a.cfg.Security.SignedLinks.Enabled {
+	if !a.urlCfg.Signer.Enabled() {
 		if err := c.Bind(&req); err != nil {
 			return err
 		}
@@ -919,4 +949,45 @@ func (a *App) processSubForm(c *echo.Context) (bool, error) {
 		return false, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("%s", e.Message))
 	}
 	return false, echo.NewHTTPError(http.StatusInternalServerError, a.i18n.T("public.errorProcessingRequest"))
+}
+
+// sendSubManageLink e-mails the subscriber a short-lived signed link to manage their preferences and data.
+func (a *App) sendSubManageLink(c *echo.Context) error {
+	if !a.allowSubManage() {
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.Ts("public.invalidFeature")))
+	}
+
+	sub := c.Get("subscriber").(models.Subscriber)
+
+	// Allow one e-mail per subscriber per throttled window.
+	if a.throttle.Insert(strings.ToLower(sub.Email)) {
+		data := struct {
+			ManageURL string
+			IP        string
+			UserAgent string
+		}{
+			ManageURL: a.urlCfg.Signer.SignAuth(fmt.Sprintf(a.urlCfg.ManageURL, c.Param("campUUID"), sub.UUID), time.Now().Add(subManageLinkTTL)),
+			IP:        c.RealIP(),
+			UserAgent: c.Request().UserAgent(),
+		}
+
+		if err := notifs.Notify([]string{sub.Email}, a.i18n.T("public.managePrefs"), notifs.TplSubscriberManage, data, nil); err != nil {
+			a.log.Printf("error sending manage link e-mail for subscriber %d (%s): %v", sub.ID, sub.UUID, err)
+			return c.Render(http.StatusInternalServerError, tplMessage, makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
+		}
+	}
+
+	return c.Render(http.StatusOK, tplMessage, makeMsgTpl(a.i18n.T("public.managePrefs"), "", a.i18n.T("public.manageLinkSent")))
+}
+
+// hasManageAuth reports whether the request URL is a valid management link e-mailed by sendSubManageLink().
+func (a *App) hasManageAuth(c *echo.Context) bool {
+	_, ok := a.urlCfg.Signer.VerifyAuth(c.Request().URL)
+	return ok
+}
+
+// allowSubManage reports whether any of the subscriber preference or data management features are enabled.
+func (a *App) allowSubManage() bool {
+	return a.cfg.Privacy.AllowPreferences || a.cfg.Privacy.AllowBlocklist || a.cfg.Privacy.AllowExport || a.cfg.Privacy.AllowWipe
 }

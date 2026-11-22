@@ -323,8 +323,8 @@ func initHTTPHandlers(e *echo.Echo, a *App) {
 		g.POST("/subscription/:campUUID/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.SubscriptionPrefs)), "campUUID", "subUUID"))
 		g.GET("/subscription/optin/:subUUID", noIndex(a.hasUUID(a.hasSignedURL(a.hasSub(a.OptinPage)), "subUUID")))
 		g.POST("/subscription/optin/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.OptinPage)), "subUUID"))
-		g.POST("/subscription/export/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.SelfExportSubscriberData)), "subUUID"))
-		g.POST("/subscription/wipe/:subUUID", a.hasUUID(a.hasSignedURL(a.hasSub(a.WipeSubscriberData)), "subUUID"))
+		g.POST("/subscription/export/:subUUID", a.hasUUID(a.hasManageLink(a.hasSub(a.SelfExportSubscriberData)), "subUUID"))
+		g.POST("/subscription/wipe/:subUUID", a.hasUUID(a.hasManageLink(a.hasSub(a.WipeSubscriberData)), "subUUID"))
 		g.GET("/link/:linkUUID/:campUUID/:subUUID", noIndex(a.hasUUID(a.LinkRedirect, "linkUUID", "campUUID", "subUUID")))
 		g.GET("/campaign/:campUUID/:subUUID", noIndex(a.hasUUID(a.hasSignedURL(a.ViewCampaignMessage), "campUUID", "subUUID")))
 		g.GET("/campaign/:campUUID/:subUUID/px.png", noIndex(a.hasUUID(a.RegisterCampaignView, "campUUID", "subUUID")))
@@ -435,13 +435,28 @@ func (a *App) hasSignedURL(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// hasSub middleware checks if a subscriber exists given the UUID
-// param in a request.
+// hasManageLink validates the temp management page link e-mailed by sendSubManageLink()
+// for destructive actions (wipe, export).
+func (a *App) hasManageLink(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		c.Response().Header().Set("Referrer-Policy", "no-referrer")
+		c.Response().Header().Set("Cache-Control", "no-store")
+
+		if !a.hasManageAuth(c) {
+			return c.Render(http.StatusForbidden, tplMessage,
+				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("users.invalidRequest")))
+		}
+		return next(c)
+	}
+}
+
+// hasSub loads the subscriber identified by the UUID param into the context.
 func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		subUUID := c.Param("subUUID")
 
-		if _, err := a.core.GetSubscriber(0, subUUID, ""); err != nil {
+		sub, err := a.core.GetSubscriber(0, subUUID, "")
+		if err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
 					makeMsgTpl(a.i18n.T("globals.terms.notFound"), "", er.Message))
@@ -452,6 +467,7 @@ func (a *App) hasSub(next echo.HandlerFunc) echo.HandlerFunc {
 				makeMsgTpl(a.i18n.T("globals.terms.error"), "", a.i18n.T("public.errorProcessingRequest")))
 		}
 
+		c.Set("subscriber", sub)
 		return next(c)
 	}
 }
