@@ -161,8 +161,9 @@ type Config struct {
 	CustomAssetVersion string
 
 	MediaUpload struct {
-		Provider   string
-		Extensions []string
+		MaxFileSize int64 // KB
+		Provider    string
+		Extensions  []string
 	}
 
 	BounceWebhooksEnabled     bool
@@ -583,6 +584,7 @@ func initConstConfig(ko *koanf.Koanf) *Config {
 	c.FromEmail = getDefaultFromEmail(ko)
 	c.Lang = ko.String("app.lang")
 	c.Privacy.Exportable = koanfmaps.StringSliceToLookupMap(ko.Strings("privacy.exportable"))
+	c.MediaUpload.MaxFileSize = ko.Int64("upload.max_file_size")
 	c.MediaUpload.Provider = ko.String("upload.provider")
 	c.MediaUpload.Extensions = ko.Strings("upload.extensions")
 	c.Privacy.DomainBlocklist = ko.Strings("privacy.domain_blocklist")

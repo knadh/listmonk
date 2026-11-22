@@ -88,12 +88,15 @@ function component(mode, tags) {
             throw new Error(out.message || resp.statusText);
           }
         }).catch((err) => {
-          u.toast(`${file.name}: ${err.message}`, 'danger');
+          return `${file.name}: ${err.message}`;
         });
       }));
 
       this.isUploading = false;
-      u.reload({ message: i18n.ts('globals.messages.done') });
+      const errors = results.filter(Boolean);
+      u.reload(errors.length
+        ? { message: errors.join('\n'), variant: 'danger' }
+        : { message: i18n.ts('globals.messages.done') });
       return results;
     },
 

@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/disintegration/imaging"
@@ -107,6 +108,15 @@ func (a *App) UploadMedia(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			a.i18n.Ts("globals.messages.invalidFile", "error", err.Error()))
+	}
+
+	if file.Size == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
+	}
+
+	if file.Size > a.cfg.MediaUpload.MaxFileSize*1024 {
+		return echo.NewHTTPError(http.StatusRequestEntityTooLarge,
+			a.i18n.Ts("media.fileTooLarge", "size", strconv.FormatInt(a.cfg.MediaUpload.MaxFileSize, 10)))
 	}
 
 	// Read the file from the HTTP form.

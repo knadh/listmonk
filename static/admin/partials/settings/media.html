@@ -5,6 +5,12 @@
 		<ot-taginput x-model="form['upload.extensions']"><input placeholder="jpg, png, gif .." /></ot-taginput>
 	</fieldset>
 
+	<fieldset class="card" data-keywords="media upload maximum file size limit kb attachments">
+		<legend>{{ .L.T "settings.media.upload.maxFileSize" }}</legend>
+		<input type="number" min="1" max="9007199254740991" step="1" required aria-label="{{ .L.T "settings.media.upload.maxFileSize" }}" x-model.number="form['upload.max_file_size']" />
+		<small data-hint>{{ .L.T "settings.media.upload.maxFileSizeHelp" }}</small>
+	</fieldset>
+
 	<fieldset class="card" data-field data-keywords="media upload provider storage filesystem s3">
 		<legend>{{ .L.T "globals.fields.provider" }}</legend>
 		<select id="upload-provider" x-model="form['upload.provider']">
@@ -17,12 +23,12 @@
 		<legend style="text-transform: capitalize" x-text="form['upload.provider']"></legend>
 		<label data-field>
 			{{ .L.T "settings.media.upload.path" }}
-			<input maxlength="200" placeholder="/home/listmonk/uploads" :required="form['upload.provider'] === 'filesystem'" x-model="form['upload.filesystem.upload_path']" />
+			<input maxlength="200" placeholder="/home/listmonk/uploads" :required="form['upload.provider'] === 'filesystem'" x-model="form['upload.filesystem'].upload_path" />
 			<small data-hint>{{ .L.T "settings.media.upload.pathHelp" }}</small>
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.upload.uri" }}
-			<input maxlength="200" placeholder="/uploads" pattern="^\/(.+?)" :required="form['upload.provider'] === 'filesystem'" x-model="form['upload.filesystem.upload_uri']" />
+			<input maxlength="200" placeholder="/uploads" pattern="^\/(.+?)" :required="form['upload.provider'] === 'filesystem'" x-model="form['upload.filesystem'].upload_uri" />
 			<small data-hint>{{ .L.T "settings.media.upload.uriHelp" }}</small>
 		</label>
 	</fieldset>
@@ -31,46 +37,46 @@
 		<legend style="text-transform: capitalize" x-text="form['upload.provider']"></legend>
 		<label data-field>
 			{{ .L.T "globals.fields.region" }}
-			<input maxlength="200" placeholder="ap-south-1" @input="onS3URLChange" x-model="form['upload.s3.aws_default_region']" />
+			<input maxlength="200" placeholder="ap-south-1" @input="onS3URLChange" x-model="form['upload.s3'].aws_default_region" />
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.s3.key" }}
-			<input maxlength="200" x-model="form['upload.s3.aws_access_key_id']" />
+			<input maxlength="200" x-model="form['upload.s3'].aws_access_key_id" />
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.s3.secret" }}
-			<input type="password" maxlength="200" x-model="form['upload.s3.aws_secret_access_key']" />
+			<input type="password" maxlength="200" x-model="form['upload.s3'].aws_secret_access_key" />
 			<small data-hint>{{ .L.T "globals.messages.passwordChange" }}</small>
 		</label>
 		<div data-field>
 			<label for="s3-bucket-type">{{ .L.T "settings.media.s3.bucketType" }}</label>
-			<select id="s3-bucket-type" x-model="form['upload.s3.bucket_type']">
+			<select id="s3-bucket-type" x-model="form['upload.s3'].bucket_type">
 				<option value="private">{{ .L.T "globals.terms.private" }}</option>
 				<option value="public">{{ .L.T "globals.terms.public" }}</option>
 			</select>
 		</div>
 		<label data-field>
 			{{ .L.T "settings.media.s3.bucket" }}
-			<input maxlength="200" @input="onS3URLChange" x-model="form['upload.s3.bucket']" />
+			<input maxlength="200" @input="onS3URLChange" x-model="form['upload.s3'].bucket" />
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.s3.bucketPath" }}
-			<input maxlength="200" placeholder="/" x-model="form['upload.s3.bucket_path']" />
+			<input maxlength="200" placeholder="/" x-model="form['upload.s3'].bucket_path" />
 			<small data-hint>{{ .L.T "settings.media.s3.bucketPathHelp" }}</small>
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.s3.uploadExpiry" }}
-			<input maxlength="10" placeholder="14d" x-model="form['upload.s3.expiry']" />
+			<input maxlength="10" placeholder="14d" x-model="form['upload.s3'].expiry" />
 			<small data-hint>{{ .L.T "settings.media.s3.uploadExpiryHelp" }}</small>
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.s3.url" }}
-			<input type="url" pattern="https?://.*" maxlength="200" placeholder="https://s3.$region.amazonaws.com" :required="form['upload.provider'] === 's3'" x-model="form['upload.s3.url']" />
+			<input type="url" pattern="https?://.*" maxlength="200" placeholder="https://s3.$region.amazonaws.com" :required="form['upload.provider'] === 's3'" x-model="form['upload.s3'].url" />
 			<small data-hint>{{ .L.T "settings.media.s3.urlHelp" }}</small>
 		</label>
 		<label data-field>
 			{{ .L.T "settings.media.s3.publicURL" }}
-			<input maxlength="200" pattern="(https?://.*|/.+)" placeholder="https://files.yourdomain.com" x-model="form['upload.s3.public_url']" />
+			<input maxlength="200" pattern="(https?://.*|/.+)" placeholder="https://files.yourdomain.com" x-model="form['upload.s3'].public_url" />
 			<small data-hint>{{ .L.T "settings.media.s3.publicURLHelp" }}</small>
 		</label>
 	</fieldset>

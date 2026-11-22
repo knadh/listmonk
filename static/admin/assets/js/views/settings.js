@@ -251,10 +251,10 @@ function component(settings, userRoles, listRoles) {
 
     onS3URLChange() {
       // Don't touch a custom non-AWS URL.
-      if (this.form['upload.s3.url'] !== '' && !this.form['upload.s3.url'].match(/amazonaws\.com/)) {
+      if (this.form['upload.s3'].url !== '' && !this.form['upload.s3'].url.match(/amazonaws\.com/)) {
         return;
       }
-      this.form['upload.s3.url'] = `https://s3.${this.form['upload.s3.aws_default_region']}.amazonaws.com`;
+      this.form['upload.s3'].url = `https://s3.${this.form['upload.s3'].aws_default_region}.amazonaws.com`;
     },
 
     // ===============
@@ -380,19 +380,8 @@ function component(settings, userRoles, listRoles) {
         }
       }
 
-      // Standalone secrets.
-      const secrets = [
-        ['upload.s3.aws_secret_access_key', form, 's3'],
-      ];
-      secrets.forEach(([key, obj, name]) => {
-        if (isDummy(obj[key])) {
-          obj[key] = '';
-        } else if (hasDummy(obj[key])) {
-          dummy = name;
-        }
-      });
-
       const nested = [
+        [form['upload.s3'], 'aws_secret_access_key', 's3'],
         [form['bounce.sendgrid'], 'key', 'sendgrid'],
         [form['bounce.azure'], 'shared_secret', 'azure shared secret'],
         [form['security.captcha'].hcaptcha, 'secret', 'captcha'],

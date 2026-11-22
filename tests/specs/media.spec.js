@@ -26,6 +26,39 @@ test.beforeEach(async ({ browser }) => {
   await resetDB(browser);
 });
 
+test('enforces upload limits and preserves failures after a mixed upload', async ({ page }) => {
+  await page.goto('/admin/settings');
+  await page.getByRole('tab', { name: 'Media uploads', exact: true }).click();
+  await page.getByRole('spinbutton', { name: 'Maximum file size (KB)' }).fill('1');
+  const saved = page.waitForResponse((r) => r.url().endsWith('/api/settings') && r.request().method() === 'PUT');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  expect((await saved).ok()).toBeTruthy();
+  await expect(page.getByText('"Settings" updated', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
+
+  for (const [size, status] of [[0, 400], [1023, 200], [1024, 200], [1025, 413]]) {
+    const res = await page.request.post('/api/media', { multipart: {
+      file: { name: `boundary-${size}.txt`, mimeType: 'text/plain', buffer: Buffer.alloc(size, 97) },
+    } });
+    expect(res.status(), await res.text()).toBe(status);
+  }
+
+  await page.goto(MEDIA);
+  await page.locator('button[popovertarget="media-upload"]').click();
+  const upload = page.locator('#media-upload');
+  await upload.locator('input[type="file"]').setInputFiles([
+    { name: 'accepted.txt', mimeType: 'text/plain', buffer: Buffer.from('accepted') },
+    { name: 'empty.txt', mimeType: 'text/plain', buffer: Buffer.alloc(0) },
+    { name: 'oversized.txt', mimeType: 'text/plain', buffer: Buffer.alloc(1025) },
+  ]);
+  await upload.locator('button[type="submit"]').click();
+  await expect(page.getByText(/empty.txt: Invalid data/)).toBeVisible();
+  await expect(page.getByText(/oversized.txt: File exceeds the maximum upload size/)).toBeVisible();
+  await expect(card(page, 'accepted.txt')).toHaveCount(1);
+  await expect(card(page, 'empty.txt')).toHaveCount(0);
+  await expect(card(page, 'oversized.txt')).toHaveCount(0);
+});
+
 test('uploads multiple files with normalized tags and previews images and documents', async ({ page }) => {
   await seed(page, 'existing.json', 'news');
   await page.goto(MEDIA);
