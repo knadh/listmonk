@@ -25,3 +25,6 @@ From [OWASP](https://owasp.org/www-community/attacks/CSV_Injection):
 > This attack is difficult to mitigate, and explicitly disallowed from quite a few bug bounty programs.
 
 CSV formula injection in subscriber export is not accepted as as security issue on listmonk. The formula characters (=, | etc.) are "unwanted" only from a CSV export + Windows + old Excel perspective. A generic, cross-platform tool like listmonk shouldn't impose arbitrary restrictions universally. There may be legitimate usecases where a subscriber name has to be begin with "=" (a subscriber doesn't have to be a human).
+
+### Privileged permissions
+Certain permissions such as `users:manage`, `subscribers:sql_query` etc. give super-admin powers to inspect and change the administrative state of the system. They are [documented](https://listmonk.app/docs/roles-and-permissions/) on the websites and the permissions UI also show warnings. They are only meant for super admins.
