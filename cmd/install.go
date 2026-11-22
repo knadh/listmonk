@@ -180,7 +180,7 @@ func installSubs(defListID, optinListID int, q *models.Queries) {
 		`{"type": "known", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(defListID)},
 		models.SubscriptionStatusUnconfirmed,
-		true, true); err != nil {
+		true, true, nil); err != nil {
 		lo.Fatalf("Error creating subscriber: %v", err)
 	}
 	if _, err := q.UpsertSubscriber.Exec(
@@ -190,7 +190,7 @@ func installSubs(defListID, optinListID int, q *models.Queries) {
 		`{"type": "unknown", "good": true, "city": "Bengaluru"}`,
 		pq.Int64Array{int64(optinListID)},
 		models.SubscriptionStatusUnconfirmed,
-		true, true); err != nil {
+		true, true, nil); err != nil {
 		lo.Fatalf("error creating subscriber: %v", err)
 	}
 }

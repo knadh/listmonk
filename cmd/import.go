@@ -74,6 +74,7 @@ func (a *App) ImportSubscribers(c *echo.Context) error {
 	// Filter list IDs against the current user's permitted lists.
 	// Blocklist mode doesn't require list subscriptions.
 	user := auth.GetUser(c)
+	opt.PermittedListIDs = user.GetPermittedListIDs(auth.PermTypeManage, nil)
 
 	// Because blocklisting is a global subscriber-level action that supercedes all lists,
 	// mandate the full list management permission.

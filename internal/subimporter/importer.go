@@ -100,6 +100,7 @@ type SessionOpt struct {
 	OverwriteSubStatus bool   `json:"overwrite_subscription_status"`
 	Delim              string `json:"delim"`
 	ListIDs            []int  `json:"lists"`
+	PermittedListIDs   []int  `json:"-"`
 }
 
 // Status represents statistics from an ongoing import session.
@@ -278,6 +279,7 @@ func (im *Importer) sendNotif(status string) error {
 func (s *Session) Start() {
 	var (
 		tx    *sql.Tx
+		res   sql.Result
 		stmt  *sql.Stmt
 		err   error
 		total = 0
@@ -311,15 +313,26 @@ func (s *Session) Start() {
 		}
 
 		if s.opt.Mode == ModeSubscribe {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.OverwriteUserInfo, s.opt.OverwriteSubStatus)
+			res, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs, pq.Array(listIDs), s.opt.SubStatus, s.opt.OverwriteUserInfo, s.opt.OverwriteSubStatus, pq.Array(s.opt.PermittedListIDs))
 		} else if s.opt.Mode == ModeBlocklist {
-			_, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
+			res, err = stmt.Exec(uu, sub.Email, sub.Name, sub.Attribs)
 		}
 		if err != nil {
 			s.log.Printf("error executing insert: %v", err)
 			tx.Rollback()
 			break
 		}
+
+		// Skip blocklist queries membership check as the count can be 0.
+		if n, _ := res.RowsAffected(); s.opt.Mode == ModeSubscribe && n == 0 {
+			s.log.Printf("skipping '%s': subscriber outside permitted lists", sub.Email)
+			if cur == 0 {
+				tx.Rollback()
+			}
+
+			continue
+		}
+
 		cur++
 		total++
 
