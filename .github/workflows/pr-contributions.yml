@@ -1,0 +1,20 @@
+name: Check PR contributions
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  check-paths:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: knadh/approve-pr-from-issue@v1.1.1
+        with:
+          allowed_paths: |
+            i18n/**
+            docs/**
+          require_approval: 'false'
+          pr_autoclose_message: 'Thank you, but this repo no longer accepts code contributions. Please refer to CONTRIBUTING.md'
