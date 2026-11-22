@@ -453,6 +453,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#signed-subscriber-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signed subscriber links
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signed subscriber links">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secret-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#media-uploads" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1707,6 +1735,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#signed-subscriber-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signed subscriber links
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signed subscriber links">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secret-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#media-uploads" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2024,6 +2080,43 @@
 </tr>
 </tbody>
 </table>
+<h3 id="signed-subscriber-links">Signed subscriber links<a class="headerlink" href="#signed-subscriber-links" title="Permanent link">&para;</a></h3>
+<p>With <code>security.signed_links.enabled</code> enabled, unsubscribe, preference, opt-in,
+privacy export/deletion, and hosted message URLs require a signature. listmonk generates these links automatically. The signature
+covers the URL path and the <code>exp</code>, <code>l</code> (opt-in list IDs), <code>manage</code>, and <code>auth</code> query parameters.
+Unrelated query parameters, such as UTM tracking tags, can be added, changed, or removed.
+Public signup forms and
+tracking links/pixels do not require signatures.</p>
+<p><strong>Defaults:</strong> enabled on fresh installs, disabled when upgrading to v7 so existing
+links continue to work. Change this in Settings → Security. With signing disabled,
+links are generated and accepted without signatures. Enabling it rejects unsigned
+links in previously delivered messages; send fresh messages or opt-in confirmations
+to provide signed links. Upgrades preserve an existing choice.
+Custom public templates must preserve signed URLs: use <code>.Data.ManageURL</code>,
+<code>.Data.ExportURL</code>, and <code>.Data.WipeURL</code> in the subscription template, and retain the
+current URL (including its query) when submitting subscription and opt-in forms.
+Custom opt-in notification templates should use <code>.ManageURL</code> instead of appending
+<code>?manage=true</code> to <code>.UnsubURL</code>. Management-link request forms must POST
+<code>action=request-manage</code> to <code>.Data.ManageURL</code>.</p>
+<p>A random secret key is created during installation or upgrade in the database setting
+<code>internal.secret_key</code>. Preserve this setting in backups and across instances;
+changing or deleting it invalidates all previously signed links. It is not exposed
+through the settings API. A signed subscription link permits campaign unsubscribe
+and requesting a management link by email. Preference changes, global blocklisting,
+export, and deletion require the separately emailed management link, which expires in an hour.</p>
+<p>The <code>security.signed_links</code> setting defaults to:
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"120d"</span><span class="p">}</span>
+</code></pre></div>
+The TTL supports Go duration units and <code>d</code> for 24-hour days: <code>120d</code> is 120 days; use <code>0</code> for no expiry.
+Positive durations must be at least one second. Expiry applies to unsubscribe
+links too. Each email's links share a signed expiry time, which is preserved when
+opening preference pages or hosted messages. Changing the TTL affects new emails
+only. With signing enabled, links without a signed expiry are rejected.</p>
+<h4 id="secret-key">Secret key<a class="headerlink" href="#secret-key" title="Permanent link">&para;</a></h4>
+<p>listmonk generates and stores a secret key in the settings table (<code>internal.secret_key</code>) when it's first setup. This secret is used to sign links.</p>
+<p>To rotate the key, run the following SQL and restart listmonk. This invalidates all previously sent signed links.
+<div class="highlight"><pre><span></span><code><span class="k">UPDATE</span><span class="w"> </span><span class="n">settings</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TO_JSONB</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">(</span><span class="n">GEN_RANDOM_BYTES</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span><span class="w"> </span><span class="s1">'hex'</span><span class="p">))</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'internal.secret_key'</span><span class="p">;</span>
+</code></pre></div></p>
 <h2 id="media-uploads">Media uploads<a class="headerlink" href="#media-uploads" title="Permanent link">&para;</a></h2>
 <h4 id="using-filesystem">Using filesystem<a class="headerlink" href="#using-filesystem" title="Permanent link">&para;</a></h4>
 <p>When configuring <code>docker</code> volume mounts for using filesystem media uploads, you can follow either of two approaches. <a href="https://github.com/knadh/listmonk/issues/1169#issuecomment-1674475945">The second option may be necessary if</a> your setup requires you to use <code>sudo</code> for docker commands. </p>

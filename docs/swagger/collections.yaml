@@ -2099,7 +2099,7 @@ paths:
 
   "/public/subscription":
     post:
-      description: handles subscription requests coming from public API calls.
+      description: Requires app.enable_public_subscription_api (disabled by default). Independent of the public subscription page and does not enforce CAPTCHA. Configure rate limits or access restrictions at your reverse proxy as needed.
       operationId: handlePublicSubscription
       tags:
         - Public
@@ -2362,6 +2362,9 @@ components:
             type: string
         app.enable_public_subscription_page:
           type: boolean
+        app.enable_public_subscription_api:
+          type: boolean
+          default: false
         app.enable_public_archive:
           type: boolean
         app.send_optin_confirmation:

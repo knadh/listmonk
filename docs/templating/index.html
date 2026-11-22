@@ -1818,8 +1818,8 @@
 <td>Unsubscription and Manage preferences URL. Ideal for use in the template footer.</td>
 </tr>
 <tr>
-<td><code>{{ UnsubscribeURL }}?manage=true</code></td>
-<td>Direct URL to Manage Preferences page.</td>
+<td><code>{{ ManageURL }}</code></td>
+<td>URL to request a link to manage preferences and data, which is e-mailed to the subscriber and expires in an hour.</td>
 </tr>
 <tr>
 <td><code>{{ MessageURL }}</code></td>
@@ -1827,7 +1827,7 @@
 </tr>
 <tr>
 <td><code>{{ OptinURL }}</code></td>
-<td>URL to the double opt-in confirmation page.</td>
+<td>URL to the double opt-in confirmation page. With signed links enabled, tied to the campaign's target lists; empty without target lists.</td>
 </tr>
 <tr>
 <td><code>{{ Safe "&lt;!-- comment --&gt;" }}</code></td>

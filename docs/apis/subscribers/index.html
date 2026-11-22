@@ -3772,6 +3772,7 @@
 <hr />
 <h4 id="post-apipublicsubscription">POST /api/public/subscription<a class="headerlink" href="#post-apipublicsubscription" title="Permanent link">&para;</a></h4>
 <p>Create a public subscription, accepts both form encoded or JSON encoded body.</p>
+<p>Requires <code>Enable public subscription API</code> turned on in Settings → General. This is independent of the public subscription page. Note that this API does not enforce CAPTCHA and if you are turning it on, you might want to configure rate limits and other protections in a reverse proxy or WAF.</p>
 <h5 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h5>
 <table>
 <thead>
