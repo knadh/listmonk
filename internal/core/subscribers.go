@@ -796,7 +796,7 @@ func (c *Core) sendOptinConfirmation(sub models.Subscriber, listIDs []int, publi
 		// so that new subscriptions don't get throttled.
 		slices.Sort(pending)
 		key := fmt.Sprintf("%s:%v", strings.ToLower(strings.TrimSpace(sub.Email)), pending)
-		if !c.optinThrottle.Insert(key) {
+		if !c.optinThrottle.Set(key) {
 			return len(pending), nil
 		}
 		listIDs = pending

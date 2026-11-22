@@ -961,7 +961,7 @@ func (a *App) sendSubManageLink(c *echo.Context) error {
 	sub := c.Get("subscriber").(models.Subscriber)
 
 	// Allow one e-mail per subscriber per throttled window.
-	if a.throttle.Insert(strings.ToLower(sub.Email)) {
+	if a.throttle.Set(strings.ToLower(sub.Email)) {
 		data := struct {
 			ManageURL string
 			IP        string

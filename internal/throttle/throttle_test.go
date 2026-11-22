@@ -5,8 +5,72 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"testing/synctest"
 	"time"
 )
+
+func TestInsertWithTTL(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		c := New(time.Minute, 5)
+		if !c.Set("default") || !c.SetWithTTL("short", time.Second, 1) ||
+			!c.SetWithTTL("long", 2*time.Minute, 1) || !c.SetWithTTL("zero", 0, 1) ||
+			!c.SetWithTTL("negative", -time.Second, 1) {
+			t.Fatal("initial insert rejected")
+		}
+
+		if c.SetWithTTL("default", time.Second, 1) || c.Set("short") ||
+			c.SetWithTTL("full", time.Second, 1) {
+			t.Fatal("accepted a live key or exceeded capacity")
+		}
+
+		time.Sleep(2 * time.Second)
+		if !c.SetWithTTL("short", time.Second, 1) || c.Set("default") {
+			t.Fatal("override did not expire independently of the default TTL")
+		}
+
+		time.Sleep(time.Minute)
+		if !c.Set("default") || !c.Set("zero") || !c.Set("negative") || c.Set("long") {
+			t.Fatal("default or extended TTL was not preserved")
+		}
+	})
+}
+
+func TestSetWithTTLLimit(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		var (
+			c        = New(time.Minute, 1)
+			accepted atomic.Int32
+			wg       sync.WaitGroup
+		)
+
+		for range 100 {
+			wg.Go(func() {
+				if c.SetWithTTL("login:admin", time.Minute, 10) {
+					accepted.Add(1)
+				}
+			})
+		}
+		wg.Wait()
+
+		if got := accepted.Load(); got != 10 {
+			t.Fatalf("accepted %d attempts, want 10", got)
+		}
+
+		if c.SetWithTTL("other", time.Minute, 10) {
+			t.Fatal("exceeded store capacity")
+		}
+
+		time.Sleep(59 * time.Second)
+		if c.SetWithTTL("login:admin", time.Minute, 10) {
+			t.Fatal("allowed attempt before window expired")
+		}
+
+		time.Sleep(time.Second)
+		if !c.SetWithTTL("login:admin", time.Minute, 10) {
+			t.Fatal("rejected attempt extended the window")
+		}
+	})
+}
 
 func TestInsert(t *testing.T) {
 	f := func(capacity int) {
@@ -14,17 +78,18 @@ func TestInsert(t *testing.T) {
 
 		c := New(time.Minute, capacity)
 		for i := range capacity {
-			if !c.Insert(strconv.Itoa(i)) {
+			if !c.Set(strconv.Itoa(i)) {
 				t.Fatal("rejected a key before reaching capacity")
 			}
 		}
 
 		// Neither existing nor new keys should succeed when it's full even on retry.
 		for range 100 {
-			if c.Insert("0") || c.Insert("new") {
+			if c.Set("0") || c.Set("new") {
 				t.Fatal("accepted a key while full")
 			}
 		}
+
 		if len(c.expires) != capacity {
 			t.Fatalf("store size: got %d, want %d", len(c.expires), capacity)
 		}
@@ -39,21 +104,21 @@ func TestExpiry(t *testing.T) {
 		t.Helper()
 
 		c := New(time.Minute, 2)
-		c.Insert("expired")
-		c.Insert("live")
+		c.Set("expired")
+		c.Set("live")
 		liveExpiry := c.expires["live"]
-		c.expires["expired"] = time.Now().Add(-time.Minute)
+		c.expires["expired"] = entry{expiry: time.Now().Add(-time.Minute), count: 1}
 		if cleanupDue {
 			c.cleanAt = time.Time{}
 		}
 
-		if got := c.Insert(key); got != want {
+		if got := c.Set(key); got != want {
 			t.Fatalf("Insert: got %v, want %v", got, want)
 		}
-		if c.Insert("live") || c.expires["live"] != liveExpiry {
+		if c.Set("live") || c.expires["live"] != liveExpiry {
 			t.Fatal("live reservation changed")
 		}
-		if want && c.Insert(key) {
+		if want && c.Set(key) {
 			t.Fatal("new reservation was not retained")
 		}
 	}
@@ -82,7 +147,7 @@ func TestConcurrentInsert(t *testing.T) {
 				if distinct {
 					key = strconv.Itoa(i)
 				}
-				if c.Insert(key) {
+				if c.Set(key) {
 					accepted.Add(1)
 				}
 			})
