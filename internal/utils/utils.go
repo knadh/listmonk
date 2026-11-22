@@ -70,7 +70,7 @@ func SanitizeURI(u string) string {
 	}
 
 	p, err := url.Parse(u)
-	if err != nil || strings.Contains(p.Path, "..") {
+	if err != nil || strings.Contains(p.Path, "..") || strings.Contains(p.Path, `\`) {
 		return "/"
 	}
 
