@@ -475,7 +475,7 @@
     "public.subPrivateList": "Lista privada",
     "public.unsubFull": "Bloquear también todos los correos electrónicos futuros de este servicio.",
     "public.unsubHelp": "¿Desea darse de baja de esta lista de correo?",
-    "public.unsubbedInfo": "Ud. se ha dado de baja de correctamente",
+    "public.unsubbedInfo": "Ud. se ha dado de baja correctamente.",
     "public.unsubscribeTitle": "Darse de baja de una lista de correo",
     "settings.appearance.adminHelp": "CSS adicional para aplicar en la interaz de administración.",
     "settings.appearance.customCSS": "CSS adicional",
