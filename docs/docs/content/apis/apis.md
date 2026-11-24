@@ -24,7 +24,7 @@ curl -H "Authorization: token api_user:token" http://localhost:9000/api/lists
 
 **List role**: Read / write permissions per-list can be defined as a *List role* (Admin -> User roles) and then attached to a user. 
 
-In a *User role*, `lists:get_all` or `lists:manage_all` permission supercede and override any list specific permissions for a user defined in a *List role*.
+In a *User role*, `lists:get_all` or `lists:manage_all` permission supersede and override any list specific permissions for a user defined in a *List role*.
 
 To manage lists and subscriber list subscriptions via API requests, ensure that the appropriate permissions are attached to the API user.
 
