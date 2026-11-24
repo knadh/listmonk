@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -277,18 +278,28 @@ func TestImportZIP(t *testing.T) {
 
 			im := New(Options{}, nil, nil)
 			s := importerSession(t, im, SessionOpt{})
-			dir, got, err := s.ExtractZIP(importerFile(t, "input.zip", b.Bytes()), 1)
+			path := importerFile(t, "input.zip", b.Bytes())
+			before, err := os.ReadDir(os.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			dir, got, err := s.ExtractZIP(path, 1)
 			if (err == nil) != valid || s.failed.Load() == valid {
 				t.Fatalf("valid=%v: files=%v err=%v failed=%v", valid, got, err, s.failed.Load())
 			}
 			if !valid {
+				after, err := os.ReadDir(os.TempDir())
+				if err != nil || len(before) != len(after) {
+					t.Fatal("failed extraction left temporary files")
+				}
 				if _, ok := <-s.subQueue; ok {
 					t.Fatal("failed extraction did not close queue")
 				}
 				return
 			}
 			// Successful extraction must produce readable, sanitized CSV files.
-			if len(got) == 0 {
+			defer os.RemoveAll(dir)
+			if len(got) != 1 {
 				t.Fatal("no CSV extracted")
 			}
 			for _, name := range got {
@@ -305,6 +316,7 @@ func TestImportZIP(t *testing.T) {
 	}
 
 	f("single", []string{"one.csv"}, true)
+	f("first only", []string{"one.csv", "two.csv"}, true)
 	f("uppercase", []string{"ONE.CSV"}, true)
 	f("nested and unrelated", []string{"dir/", "readme.txt", "dir/one.csv"}, true)
 	f("traversal", []string{"../../escape.csv"}, true)
@@ -935,5 +947,76 @@ func importStats(t *testing.T, im *Importer, status string, count int) {
 
 	if got := im.GetStats(); got.Status != status || got.Imported != count {
 		t.Fatalf("stats=%+v, want %s/%d; logs: %s", got, status, count, im.GetLogs())
+	}
+}
+
+func TestRecordLimit(t *testing.T) {
+	for _, tc := range []struct {
+		name, input string
+		fail        bool
+	}{
+		{"boundary", strings.Repeat("a", maxRecordBytes-1) + "\n", false},
+		{"boundary EOF", strings.Repeat("a", maxRecordBytes), false},
+		{"oversized", strings.Repeat("a", maxRecordBytes) + "\n", true},
+		{"quoted multiline", "\"" + strings.Repeat("a\n", maxRecordBytes/2) + "\"\n", true},
+		{"unterminated", "\"" + strings.Repeat("a", maxRecordBytes+1), true},
+		{"many fields", strings.Repeat(",", maxRecordBytes) + "\n", true},
+		{"escaped quotes", "\"" + strings.Repeat("a\"\"\n", 100) + "\"\n", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			input := &rowReader{Reader: strings.NewReader(tc.input)}
+			rd := csv.NewReader(input)
+			_, err := input.ReadRow(rd)
+			if tc.fail && !errors.Is(err, errRecordTooLarge) {
+				t.Fatalf("expected record limit, got %v", err)
+			}
+			if !tc.fail && err != nil {
+				t.Fatal(err)
+			}
+			if input.read > maxRecordBytes+1 {
+				t.Fatalf("read %d bytes", input.read)
+			}
+		})
+	}
+}
+
+func TestRecordLimitReadAhead(t *testing.T) {
+	input := &rowReader{Reader: strings.NewReader("header\n" + strings.Repeat("a", maxRecordBytes-1) + "\nlast\n")}
+	rd := csv.NewReader(input)
+	for i := 0; i < 3; i++ {
+		if _, err := input.ReadRow(rd); err != nil {
+			t.Fatalf("record %d: %v", i, err)
+		}
+	}
+	if _, err := input.ReadRow(rd); err != io.EOF {
+		t.Fatalf("EOF: %v", err)
+	}
+}
+
+func TestImportZIPExpansionLimit(t *testing.T) {
+	t.Setenv("TMPDIR", t.TempDir())
+	var b bytes.Buffer
+	zw := zip.NewWriter(&b)
+	if _, err := zw.CreateRaw(&zip.FileHeader{Name: "large.csv", UncompressedSize64: maxExtractedBytes + 1}); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	path := importerFile(t, "large.zip", b.Bytes())
+	before, err := os.ReadDir(os.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := importerSession(t, New(Options{}, nil, nil), SessionOpt{})
+	if _, _, err := s.ExtractZIP(path, 1); !errors.Is(err, errZIPTooLarge) {
+		t.Fatalf("expected expansion limit: %v", err)
+	}
+	after, err := os.ReadDir(os.TempDir())
+	if err != nil || len(before) != len(after) {
+		t.Fatal("failed extraction left temporary files")
+	}
+	if !s.failed.Load() {
+		t.Fatal("oversized archive did not fail the session")
 	}
 }

@@ -133,11 +133,23 @@ func (a *App) ImportSubscribers(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			a.i18n.Ts("globals.messages.errorCopyingFile", "error", err.Error()))
 	}
-	defer out.Close()
+
+	// Cleanup.
+	removeUpload := true
+	defer func() {
+		out.Close()
+		if removeUpload {
+			os.Remove(out.Name())
+		}
+	}()
 
 	if _, err = io.Copy(out, src); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			a.i18n.Ts("globals.messages.errorCopyingFile", "error", err.Error()))
+	}
+
+	if err := out.Close(); err != nil {
+		return err
 	}
 
 	// Start the importer session.
@@ -150,7 +162,11 @@ func (a *App) ImportSubscribers(c *echo.Context) error {
 	go sess.Start()
 
 	if strings.HasSuffix(strings.ToLower(file.Filename), ".csv") {
-		go sess.LoadCSV(out.Name(), rune(opt.Delim[0]))
+		removeUpload = false
+		go func() {
+			defer os.Remove(out.Name())
+			sess.LoadCSV(out.Name(), rune(opt.Delim[0]))
+		}()
 	} else {
 		// Only 1 CSV from the ZIP is considered. If multiple files have
 		// to be processed, counting the net number of lines (to track progress),
@@ -164,7 +180,10 @@ func (a *App) ImportSubscribers(c *echo.Context) error {
 				a.i18n.Ts("import.errorProcessingZIP", "error", err.Error()))
 		}
 
-		go sess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]))
+		go func() {
+			defer os.RemoveAll(dir)
+			sess.LoadCSV(dir+"/"+files[0], rune(opt.Delim[0]))
+		}()
 	}
 
 	return c.JSON(http.StatusOK, okResp{a.importer.GetStats()})

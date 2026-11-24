@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"errors"
+	"image"
 	"mime"
 	"mime/multipart"
 	"net/http"
@@ -18,6 +20,9 @@ import (
 const (
 	thumbPrefix   = "thumb_"
 	thumbnailSize = 250
+
+	// Max number of pixels below which a thumbnail is generated (to prevent memory exhaustion). 16megapixels.
+	maxThumbnailPixels = 16 * 1000 * 1000
 )
 
 var (
@@ -195,15 +200,17 @@ func (a *App) UploadMedia(c *echo.Context) error {
 		width = wi
 		height = he
 
-		// Upload thumbnail.
-		tf, err := a.media.Put(thumbPrefix+fName, contentType, thumbFile)
-		if err != nil {
-			cleanUp = true
-			a.log.Printf("error saving thumbnail: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError,
-				a.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
+		// Large originals are retained without generating a thumbnail.
+		if thumbFile != nil {
+			tf, err := a.media.Put(thumbPrefix+fName, contentType, thumbFile)
+			if err != nil {
+				cleanUp = true
+				a.log.Printf("error saving thumbnail: %v", err)
+				return echo.NewHTTPError(http.StatusInternalServerError,
+					a.i18n.Ts("media.errorSavingThumbnail", "error", err.Error()))
+			}
+			thumbfName = tf
 		}
-		thumbfName = tf
 	}
 	if inArray(ext, vectorExts) {
 		thumbfName = fName
@@ -338,13 +345,31 @@ func (a *App) ServeS3Media(c *echo.Context) error {
 }
 
 // processImage reads the image file and returns thumbnail bytes and
-// the original image's width, and height.
+// the original image's width, and height. Images above maxThumbnailPixels
+// don't generate thumbnails to prevent potential memory exhaustion.
 func processImage(file *multipart.FileHeader) (*bytes.Reader, int, int, error) {
 	src, err := file.Open()
 	if err != nil {
 		return nil, 0, 0, err
 	}
 	defer src.Close()
+
+	cfg, _, err := image.DecodeConfig(src)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	if cfg.Width <= 0 || cfg.Height <= 0 {
+		return nil, 0, 0, errors.New("invalid image dimensions")
+	}
+
+	// Skip thumbnail generation for lage images.
+	if cfg.Width > maxThumbnailPixels/cfg.Height {
+		return nil, cfg.Width, cfg.Height, nil
+	}
+	if _, err := src.Seek(0, 0); err != nil {
+		return nil, 0, 0, err
+	}
 
 	img, err := imaging.Decode(src)
 	if err != nil {
@@ -353,7 +378,7 @@ func processImage(file *multipart.FileHeader) (*bytes.Reader, int, int, error) {
 
 	// Encode the image into a byte slice as PNG.
 	var (
-		thumb = imaging.Resize(img, thumbnailSize, 0, imaging.Lanczos)
+		thumb = imaging.Fit(img, thumbnailSize, thumbnailSize, imaging.Lanczos)
 		out   bytes.Buffer
 	)
 	if err := imaging.Encode(&out, thumb, imaging.PNG); err != nil {
