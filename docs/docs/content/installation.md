@@ -143,6 +143,10 @@ $ helm upgrade \
 <a href="https://zop.dev/zopday/app/deploy?image=listmonk/listmonk&port=9000&name=listmonk&utm_source=github&utm_medium=one_click&utm_content=listmonk"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" style="max-width: 150px;"/></a>
 <br />
 <a href="https://docs.controlplane.com/template-catalog/templates/listmonk?utm_source=github&utm_medium=readme&utm_campaign=upstream-listmonk"><img src="https://docs.controlplane.com/images/deploy-on-controlplane.svg" alt="Deploy on Control Plane" style="max-width: 150px;"/></a>
+<br />
+<a href="https://www.hostg.xyz/aff_c?offer_id=815&aff_id=249561&url_id=7169"><img src="https://listmonk.app/static/images/host-hostinger.svg" alt="Deploy on Hostinger" style="max-width: 150px;"/></a>
+<br />
+**Self-host on Hostinger**: listmonk is available as a one-click deployment on Hostinger. It sets up a listmonk instance with Docker in a few minutes, with full root access.
 
 ## Tutorials
 * [Listmonk with Forward Email for Secure Newsletter Delivery](https://forwardemail.net/en/guides/newsletter-with-listmonk)
