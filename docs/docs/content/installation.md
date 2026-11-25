@@ -143,6 +143,8 @@ $ helm upgrade \
 <a href="https://zop.dev/zopday/app/deploy?image=listmonk/listmonk&port=9000&name=listmonk&utm_source=github&utm_medium=one_click&utm_content=listmonk"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" style="max-width: 150px;"/></a>
 <br />
 <a href="https://docs.controlplane.com/template-catalog/templates/listmonk?utm_source=github&utm_medium=readme&utm_campaign=upstream-listmonk"><img src="https://docs.controlplane.com/images/deploy-on-controlplane.svg" alt="Deploy on Control Plane" style="max-width: 150px;"/></a>
+<br />
+<a href="https://selfhost.dev/deploy/listmonk/?utm_source=listmonk&utm_medium=docs&utm_campaign=oss_partnerships"><img src="https://listmonk.app/static/images/host-selfhost.svg" alt="Deploy on Selfhost.dev" style="max-width: 150px;"/></a>
 
 ## Tutorials
 * [Listmonk with Forward Email for Secure Newsletter Delivery](https://forwardemail.net/en/guides/newsletter-with-listmonk)
