@@ -5,9 +5,9 @@
 | GET    | [/api/subscribers](#get-apisubscribers)                                                 | Query and retrieve subscribers.                |
 | GET    | [/api/subscribers/{subscriber_id}](#get-apisubscriberssubscriber_id)                    | Retrieve a specific subscriber.                |
 | GET    | [/api/subscribers/{subscriber_id}/export](#get-apisubscriberssubscriber_idexport)       | Export a specific subscriber.                  |
-| GET    | [/api/subscribers/{subscriber_id}/bounces](#get-apisubscriberssubscriber_idbounces)     | Retrieve a  subscriber bounce records.         |
+| GET    | [/api/subscribers/{subscriber_id}/bounces](#get-apisubscriberssubscriber_idbounces)     | Retrieve a subscriber's bounce records.        |
 | POST   | [/api/subscribers](#post-apisubscribers)                                                | Create a new subscriber.                       |
-| POST   | [/api/subscribers/{subscriber_id}/optin](#post-apisubscriberssubscriber_idoptin)        | Sends optin confirmation email to subscribers. |
+| POST   | [/api/subscribers/{subscriber_id}/optin](#post-apisubscriberssubscriber_idoptin)        | Sends opt-in confirmation email to subscribers. |
 | POST   | [/api/public/subscription](#post-apipublicsubscription)                                 | Create a public subscription.                  |
 | PUT    | [/api/subscribers/lists](#put-apisubscriberslists)                                      | Modify subscriber list memberships.            |
 | PUT    | [/api/subscribers/query/lists](#put-apisubscribersquerylists)                           | Bulk modify list memberships using SQL/Search queries. |
@@ -191,7 +191,7 @@ ______________________________________________________________________
 
 #### GET /api/subscribers/{subscriber_id}/export
 
-Export a specific subscriber data that gives profile, list subscriptions, campaign views and link clicks information. Names of private lists are replaced with "Private list". 
+Export a specific subscriber's data that gives profile, list subscriptions, campaign views and link clicks information. Names of private lists are replaced with "Private list". 
 
 ##### Parameters
 
@@ -241,7 +241,7 @@ ______________________________________________________________________
 
 #### GET /api/subscribers/{subscriber_id}/bounces
 
-Get a specific subscriber bounce records.
+Get a specific subscriber's bounce records.
 ##### Parameters
 
 | Name          | Type   | Required | Description      |
@@ -343,7 +343,7 @@ curl -u 'api_username:access_token' 'http://localhost:9000/api/subscribers' -H '
 
 ______________________________________________________________________
 
-#### POST /api/subscribers/{subscribers_id}/optin
+#### POST /api/subscribers/{subscriber_id}/optin
 
 Sends opt-in confirmation email to subscribers.
 
@@ -365,7 +365,7 @@ ______________________________________________________________________
 
 #### POST /api/public/subscription
 
-Create a public subscription, accepts both form encoded or JSON encoded body.
+Create a public subscription, accepts either a form-encoded or JSON-encoded body.
 
 Requires `Enable public subscription API` turned on in Settings → General. This is independent of the public subscription page. Note that this API does not enforce CAPTCHA and if you are turning it on, you might want to configure rate limits and other protections in a reverse proxy or WAF.
 
@@ -570,7 +570,7 @@ ______________________________________________________________________
 
 #### PUT /api/subscribers/blocklist
 
-Blocklist multiple subscriber.
+Blocklist multiple subscribers.
 
 ##### Parameters
 

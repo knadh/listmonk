@@ -29,7 +29,7 @@ Run `make stop-dev-docker` to stop the container and `make rm-dev-docker` to com
 
 ### Frontend tests
 
-listmonk maintains a Playwright suite in `tests/` for end-to-end testing the admin UI. It runs in the Docker dev environment that bundles all the necessary dependencies (Postgres, Mailhog, Bug etc.).
+listmonk maintains a Playwright suite in `tests/` for end-to-end testing the admin UI. It runs in the Docker dev environment that bundles all the necessary dependencies (Postgres, Mailhog, Bun etc.).
 
 #### Running
 

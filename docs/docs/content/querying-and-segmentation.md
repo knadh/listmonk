@@ -54,7 +54,7 @@ subscribers.email LIKE '%@domain.com'
 #### Find a subscriber by name
 
 ```sql
--- Find all subscribers whose name start with John.
+-- Find all subscribers whose name starts with John.
 subscribers.email LIKE 'John%'
 
 ```
@@ -99,4 +99,4 @@ subscribers.status = 'blocklisted' AND
 
 ```
 
-To learn how to write SQL expressions to do advancd querying on JSON attributes, refer to the Postgres [JSONB documentation](https://www.postgresql.org/docs/11/functions-json.html).
+To learn how to write SQL expressions to do advanced querying on JSON attributes, refer to the Postgres [JSONB documentation](https://www.postgresql.org/docs/11/functions-json.html).

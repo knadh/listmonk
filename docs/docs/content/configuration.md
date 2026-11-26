@@ -42,7 +42,7 @@ When configuring auth proxies and web application firewalls, use this table.
 | Methods     | Route                        | Description                                   |
 | ----------- | ---------------------------- | --------------------------------------------- |
 | `GET, POST` | `/subscription/*`            | HTML subscription pages                       |
-| `GET, `     | `/link/*`                    | Tracked link redirection                      |
+| `GET`       | `/link/*`                    | Tracked link redirection                      |
 | `GET`       | `/campaign/*`                | Pixel tracking image                          |
 | `GET`       | `/public/*`                  | Static files for HTML subscription pages      |
 | `POST`      | `/webhooks/service/*`        | Bounce webhook endpoints for SES, Azure ACS, Sendgrid, and other supported providers |
@@ -89,7 +89,7 @@ opening preference pages or hosted messages. Changing the TTL affects new emails
 only. With signing enabled, links without a signed expiry are rejected.
 
 #### Secret key
-listmonk generates and stores a secret key in the settings table (`internal.secret_key`) when it's first setup. This secret is used to sign links.
+listmonk generates and stores a secret key in the settings table (`internal.secret_key`) when it's first set up. This secret is used to sign links.
 
 To rotate the key, run the following SQL and restart listmonk. This invalidates all previously sent signed links.
 ```sql
@@ -126,7 +126,7 @@ volumes:
 
 !!! note
 
-    This volume is managed by `docker` itself, and you can see find the host path with `docker volume inspect listmonk_listmonk-uploads`.
+    This volume is managed by `docker` itself, and you can find the host path with `docker volume inspect listmonk_listmonk-uploads`.
 
 #### Using bind mounts
 
@@ -192,7 +192,7 @@ The `Settings -> SMTP -> Retries` denotes the number of times a message that fai
 Some server hosts block outgoing SMTP ports (25, 465). You may have to contact your host to unblock them before being able to send e-mails. Eg: [Hetzner](https://docs.hetzner.com/cloud/servers/faq/#why-can-i-not-send-any-mails-from-my-server).
 
 ## HELO hostname
-By default, listmonk will auto-generate a hostname and advertise that to the SMTP server. Certain hosts such as Google Workspace SMTP and relay require it to be set to an valid hostname (FQDN).
+By default, listmonk will auto-generate a hostname and advertise that to the SMTP server. Certain hosts such as Google Workspace SMTP and relay require it to be set to a valid hostname (FQDN).
 
 
 ## Performance

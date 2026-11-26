@@ -266,7 +266,7 @@ ______________________________________________________________________
 
 Delete multiple lists by IDs or by a search query.
 
-> **Note:** Users can only delete lists they have `manage` permission for. Any lists in the query that the user doesn't have permission to manage is ignored.
+> **Note:** Users can only delete lists they have `manage` permission for. Any lists in the query that the user doesn't have permission to manage are ignored.
 
 ##### Parameters
 

@@ -93,9 +93,9 @@ In the Google Cloud Console interface, create a new Project.
     - **App name**: `Listmonk` (or any preferred name, this will be visible to the users.)
     - **Authorised domains**: `listmonk.example.com` (or domains that your instance is available on.)
 
-After creating the project, goto **Clients**.
+After creating the project, go to **Clients**.
 
-### 2. Create an client in project.
+### 2. Create a client in the project.
 Create a new client and configure it.
 
 - **Application Settings**:

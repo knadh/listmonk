@@ -123,7 +123,7 @@ If you use Azure Communication Services Email, listmonk can receive delivery rep
 
 Bounces can be exported via the JSON API:
 ```shell
-curl -u 'username:passsword' 'http://localhost:9000/api/bounces'
+curl -u 'username:password' 'http://localhost:9000/api/bounces'
 ```
 
 Or by querying the database directly:
