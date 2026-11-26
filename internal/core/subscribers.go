@@ -174,7 +174,7 @@ func (c *Core) QuerySubscribers(searchStr, queryExp string, listIDs []int, subSt
 	}
 
 	// Lazy load lists for each subscriber.
-	if err := out.LoadLists(c.q.GetSubscriberListsLazy); err != nil {
+	if err := out.LoadLists(tx.Stmtx(c.q.GetSubscriberListsLazy)); err != nil {
 		c.log.Printf("error fetching subscriber lists: %v", err)
 		return nil, 0, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
