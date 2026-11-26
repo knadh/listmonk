@@ -9,6 +9,7 @@ import (
 	"image"
 	"image/png"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -548,8 +549,8 @@ func (a *App) confirmOptinSubscription(c *echo.Context, subUUID string, listUUID
 	if a.cfg.Privacy.RecordOptinIP {
 		if h := c.Request().Header.Get("X-Forwarded-For"); h != "" {
 			meta["optin_ip"] = h
-		} else if h := c.Request().RemoteAddr; h != "" {
-			meta["optin_ip"] = strings.Split(h, ":")[0]
+		} else if h, _, err := net.SplitHostPort(c.Request().RemoteAddr); err == nil {
+			meta["optin_ip"] = h
 		}
 	}
 
