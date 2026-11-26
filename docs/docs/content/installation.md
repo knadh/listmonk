@@ -140,7 +140,7 @@ $ helm upgrade \
 <br />
 <a href="https://www.simafri.com/en/guides/self-host-listmonk/"><img src="https://listmonk.app/static/images/host-simafri.svg" alt="Self-host on Simafri" style="max-width: 150px;"/></a>
 <br />
-<a href="https://zop.dev/zopday/app/deploy?image=listmonk/listmonk&port=9000&name=listmonk&utm_source=github&utm_medium=one_click&utm_content=listmonk"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" style="max-width: 150px;"/></a>
+<a href="https://zop.dev/zopday/app/deploy?image=listmonk%2Flistmonk%3Av6.2.0&port=9000&db=postgres&env=LISTMONK_db__host%3D%7Bpostgres.host%7D&env=LISTMONK_db__port%3D%7Bpostgres.port%7D&env=LISTMONK_db__user%3D%7Bpostgres.user%7D&env=LISTMONK_db__password%3D%7Bpostgres.password%7D&env=LISTMONK_db__database%3D%7Bpostgres.name%7D&env=LISTMONK_db__ssl_mode%3Ddisable&env=LISTMONK_app__address%3D0.0.0.0%3A9000&cmd=.%2Flistmonk+--install+--idempotent+--yes+--config+%27%27+%26%26+.%2Flistmonk+--config+%27%27&utm_source=github&utm_medium=one_click&utm_content=listmonk"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" style="max-width: 150px;"/></a>
 <br />
 <a href="https://docs.controlplane.com/template-catalog/templates/listmonk?utm_source=github&utm_medium=readme&utm_campaign=upstream-listmonk"><img src="https://docs.controlplane.com/images/deploy-on-controlplane.svg" alt="Deploy on Control Plane" style="max-width: 150px;"/></a>
 <br />
