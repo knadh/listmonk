@@ -185,7 +185,7 @@ func (c *Core) UpdateListRole(id int, r auth.ListRole) (auth.ListRole, error) {
 // DeleteRole deletes a given role.
 func (c *Core) DeleteRole(id int) error {
 	if _, err := c.q.DeleteRole.Exec(id); err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "users_role_id_fkey" {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "users_user_role_id_fkey" {
 			return echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("users.cantDeleteRole"))
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError,
