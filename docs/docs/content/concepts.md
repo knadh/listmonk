@@ -29,12 +29,12 @@ A subscriber can be added to one or more lists, and each such relationship can h
 | Status         | Description                                                                                                                                                                                 |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `unconfirmed`  | The subscriber was added to the list directly without their explicit confirmation. Nonetheless, the subscriber will receive campaign messages sent to single opt-in campaigns.              |
-| `confirmed`    | The subscriber confirmed their subscription by clicking on 'accept' in the confirmation e-mail. Only confirmed subscribers in opt-in lists will receive campaign messages send to the list. |
+| `confirmed`    | The subscriber confirmed their subscription by clicking on 'accept' in the confirmation e-mail. Only confirmed subscribers in opt-in lists will receive campaign messages sent to the list. |
 | `unsubscribed` | The subscriber is unsubscribed from the list and will not receive any campaign messages sent to the list.                                                                                   |
 
 ### Segmentation
 
-Segmentation is the process of filtering a large list of subscribers into a smaller group based on arbitrary conditions, primarily based on their attributes. For instance, if an e-mail needs to be sent subscribers who live in a particular city, given their city is described in their attributes, it's possible to quickly filter them out into a new list and e-mail them. [Learn more](querying-and-segmentation.md).
+Segmentation is the process of filtering a large list of subscribers into a smaller group based on arbitrary conditions, primarily based on their attributes. For instance, if an e-mail needs to be sent to subscribers who live in a particular city, given their city is described in their attributes, it's possible to quickly filter them out into a new list and e-mail them. [Learn more](querying-and-segmentation.md).
 
 ## List
 
@@ -52,11 +52,11 @@ A transactional message is an arbitrary message sent to a subscriber using the t
 
 ## Template
 
-A template is a re-usable HTML design that can be used across campaigns and when sending arbitrary transactional messages. Most commonly, templates have standard header and footer areas with logos and branding elements, where campaign content is inserted in the middle. listmonk supports [Go template](https://gowebexamples.com/templates/) expressions that lets you create powerful, dynamic HTML templates. [Learn more](templating.md).
+A template is a re-usable HTML design that can be used across campaigns and when sending arbitrary transactional messages. Most commonly, templates have standard header and footer areas with logos and branding elements, where campaign content is inserted in the middle. listmonk supports [Go template](https://gowebexamples.com/templates/) expressions that let you create powerful, dynamic HTML templates. [Learn more](templating.md).
 
 ## Messenger
 
-listmonk supports multiple custom messaging backends in additional to the default SMTP e-mail backend, enabling not just e-mail campaigns, but arbitrary message campaigns such as SMS, FCM notifications etc. A *Messenger* is a web service that accepts a campaign message pushed to it as a JSON request, which the service can in turn broadcast as SMS, FCM etc. [Learn more](messengers.md).
+listmonk supports multiple custom messaging backends in addition to the default SMTP e-mail backend, enabling not just e-mail campaigns, but arbitrary message campaigns such as SMS, FCM notifications etc. A *Messenger* is a web service that accepts a campaign message pushed to it as a JSON request, which the service can in turn broadcast as SMS, FCM etc. [Learn more](messengers.md).
 
 ## Tracking pixel
 
@@ -68,4 +68,4 @@ It is possible to track the clicks on every link that is sent in an e-mail. This
 
 ## Bounce
 
-A bounce occurs when an e-mail that is sent to a recipient "bounces" back for one of many reasons including the recipient address being invalid, their mailbox being full, or the recipient's e-mail service provider marking the e-mail as spam. listmonk can automatically process such bounce e-mails that land in a configured POP mailbox, or via APIs of SMTP e-mail providers such as AWS SES and Sengrid. Based on settings, subscribers returning bounced e-mails can either be blocklisted or deleted automatically. [Learn more](bounces.md).
+A bounce occurs when an e-mail that is sent to a recipient "bounces" back for one of many reasons including the recipient address being invalid, their mailbox being full, or the recipient's e-mail service provider marking the e-mail as spam. listmonk can automatically process such bounce e-mails that land in a configured POP mailbox, or via APIs of SMTP e-mail providers such as AWS SES and SendGrid. Based on settings, subscribers returning bounced e-mails can either be blocklisted or deleted automatically. [Learn more](bounces.md).

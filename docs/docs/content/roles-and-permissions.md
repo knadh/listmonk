@@ -1,4 +1,4 @@
-listmonk supports (>= v4.0.0) creating systems users with granular permissions to various features, including list-specific permissions. Users can login with a username and password, or via an OIDC (OpenID Connect) handshake if an auth provider is connected. Various permissions can be grouped into "user roles", which can be assigned to users. List-specific permissions can be grouped into "list roles".
+listmonk supports (>= v4.0.0) creating system users with granular permissions to various features, including list-specific permissions. Users can login with a username and password, or via an OIDC (OpenID Connect) handshake if an auth provider is connected. Various permissions can be grouped into "user roles", which can be assigned to users. List-specific permissions can be grouped into "list roles".
 
 ## User roles
 
@@ -37,7 +37,7 @@ A user role is a collection of user related permissions. User roles are attached
 
 ## List roles
 
-A list role is a collection of permissions assigned per list. Each list can be assigned a view (read) or manage (update) permission. List roles are attached to user accounts. Only the lists defined in a list role is accessible by the user, be it on the admin UI or via API calls. Do note that the `lists:get_all` and `lists:manage_all` permissions in user roles override all per-list permissions.
+A list role is a collection of permissions assigned per list. Each list can be assigned a view (read) or manage (update) permission. List roles are attached to user accounts. Only the lists defined in a list role are accessible by the user, be it on the admin UI or via API calls. Do note that the `lists:get_all` and `lists:manage_all` permissions in user roles override all per-list permissions.
 
 ## API users
 
@@ -45,7 +45,7 @@ A user account can be of two types, a regular user or an API user. API users are
 
 ## `subscribers:sql_query`
 
-This permission allowers users to write and execute arbitrary SQL queries on the database. Although it is executed as a read-only transaction disallowing changing of data in the database tables, it allows querying of all lists, subscribers and other data directly from the database superseding individual list and subscriber permissions.
+This permission allows users to write and execute arbitrary SQL queries on the database. Although it is executed as a read-only transaction disallowing changing of data in the database tables, it allows querying of all lists, subscribers and other data directly from the database superseding individual list and subscriber permissions.
 
 Raw SQL expressions also make it possible to obtain Postgres database configuration and potentially interact with other Postgres system features. Give this permission ONLY to trusted users.
 

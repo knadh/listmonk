@@ -6,10 +6,10 @@
 ## Binary
 - Stop the running instance of listmonk.
 - Download the [latest release](https://github.com/knadh/listmonk/releases) and extract the listmonk binary and overwrite the previous version.
-- `./listmonk --upgrade` to upgrade an existing database schema. Upgrades are idempotent and running them multiple times have no side effects.
+- `./listmonk --upgrade` to upgrade an existing database schema. Upgrades are idempotent and running them multiple times has no side effects.
 - Run `./listmonk` again.
 
-If you installed listmonk as a service, you will need to stop it before overwriting the binary. Something like `sudo systemctl stop listmonk` or `sudo service listmonk stop` should work. Then overwrite the binary with the new version, then run `./listmonk --upgrade, and `start` it back with the same commands.
+If you installed listmonk as a service, you will need to stop it before overwriting the binary. Something like `sudo systemctl stop listmonk` or `sudo service listmonk stop` should work. Then overwrite the binary with the new version, then run `./listmonk --upgrade`, and `start` it back with the same commands.
 
 If it's not running as a service, `pkill -9 listmonk` will stop the listmonk process.
 

@@ -2,16 +2,16 @@
 
 A template is a re-usable HTML design that can be used across campaigns and transactional messages. Most commonly, templates have standard header and footer areas with logos and branding elements, where campaign content is inserted in the middle.
 
-listmonk supports [Go template](https://pkg.go.dev/text/template) expressions that lets you create powerful, dynamic HTML templates. It also integrates 100+ useful [Sprig template functions](https://masterminds.github.io/sprig/).
+listmonk supports [Go template](https://pkg.go.dev/text/template) expressions that let you create powerful, dynamic HTML templates. It also integrates 100+ useful [Sprig template functions](https://masterminds.github.io/sprig/).
 
 !!! Warning
     Sprig template functions are powerful and Turing-complete, allowing programming of complex behaviour in templates. This means that it is also possible to program undesired behaviour, such as overloading memory on the host by concatenating large strings in a loop. Ensure that templating (campaigns, templates) permissions are given only to trusted users.
 
 ## Campaign templates
-Campaign templates are used in an e-mail campaigns. These template are created and managed on the UI under `Campaigns -> Templates`, and are selected when creating new campaigns.
+Campaign templates are used in e-mail campaigns. These templates are created and managed on the UI under `Campaigns -> Templates`, and are selected when creating new campaigns.
 
 ## Transactional templates
-Transactional templates are used for sending arbitrary transactional messages using the transactional API. These template are created and managed on the UI under `Campaigns -> Templates`.
+Transactional templates are used for sending arbitrary transactional messages using the transactional API. These templates are created and managed on the UI under `Campaigns -> Templates`.
 
 ## Template expressions
 

@@ -7,7 +7,7 @@ All features that are available on the listmonk dashboard are also available as 
 
 
 ## Auth
-HTTP API requests support BasicAuth and a Authorization `token` headers. API users and tokens with the required permissions can be created and managed on the admin UI (Admin -> Users).
+HTTP API requests support BasicAuth and `Authorization: token` headers. API users and tokens with the required permissions can be created and managed on the admin UI (Admin -> Users).
 
 ##### BasicAuth example
 ```shell
@@ -67,7 +67,7 @@ All timestamp fields are in the format `2019-01-01T09:00:00.000000+05:30`. The s
 | Code  |                                                                             |
 | ----- | ----------------------------------------------------------------------------|
 |  400  | Missing or bad request parameters or values                                 |
-|  403  | Session expired or invalidate. Must relogin                                 |
+|  403  | Session expired or invalid. Must relogin                                    |
 |  404  | Request resource was not found                                              |
 |  405  | Request method (GET, POST etc.) is not allowed on the requested endpoint    |
 |  410  | The requested resource is gone permanently                                  |
