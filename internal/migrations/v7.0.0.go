@@ -11,6 +11,16 @@ import (
 func V7_0_0(db *sqlx.DB, fs stuffbin.FileSystem, ko *koanf.Koanf, lo *log.Logger) error {
 	lo.Println("IMPORTANT: this upgrade might take a while if you have a large database. Please be patient ...")
 
+	// Preserve users when their list role is deleted.
+	if _, err := db.Exec(`
+        ALTER TABLE users
+            DROP CONSTRAINT IF EXISTS users_list_role_id_fkey,
+            ADD CONSTRAINT users_list_role_id_fkey
+                FOREIGN KEY (list_role_id) REFERENCES roles(id) ON DELETE SET NULL;
+	`); err != nil {
+		return err
+	}
+
 	// Settings.
 	if _, err := db.Exec(`
         -- Migrate existing from_email to from_email[].
