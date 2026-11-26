@@ -8,7 +8,6 @@ import (
 	"math"
 	"net/http"
 	"net/mail"
-	"net/url"
 	"regexp"
 	"runtime"
 	"strings"
@@ -154,22 +153,34 @@ func (a *App) UpdateSettings(c *echo.Context) error {
 		return err
 	}
 
-	if err := validateUploadMaxFileSize(set.UploadMaxFileSize); err != nil {
-		return err
-	}
-
-	// Sanitize `from` addresses.
-	addr, err := sanitizeFromAddresses(set.AppFromEmail)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	set.AppFromEmail = addr
-
 	// Get the existing settings.
 	cur, err := a.core.GetSettings()
 	if err != nil {
 		return err
 	}
+
+	if err := a.prepareSettings(&set, cur); err != nil {
+		return err
+	}
+	if err := a.validateSettings(set); err != nil {
+		return err
+	}
+
+	// Update the settings in the DB.
+	if err := a.core.UpdateSettings(set); err != nil {
+		return err
+	}
+
+	return a.handleSettingsRestart(c)
+}
+
+// prepareSettings preserves omitted secrets before validating the effective configuration.
+func (a *App) prepareSettings(set *models.Settings, cur models.Settings) error {
+	addr, err := sanitizeFromAddresses(set.AppFromEmail)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "app.from_email: "+err.Error())
+	}
+	set.AppFromEmail = addr
 
 	// Preserve the OIDC role mapping when older clients do not send the field.
 	// An explicit empty array still clears the mapping.
@@ -268,10 +279,6 @@ func (a *App) UpdateSettings(c *echo.Context) error {
 		// This is a common mistake when copy-pasting SMTP settings.
 		set.BounceBoxes[i].Host = strings.TrimSpace(s.Host)
 
-		if d, _ := time.ParseDuration(s.ScanInterval); d.Minutes() < 1 {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("settings.bounces.invalidScanInterval"))
-		}
-
 		// If there's no password coming in from the frontend, copy the existing
 		// password by matching the UUID.
 		if s.Password == "" {
@@ -336,10 +343,6 @@ func (a *App) UpdateSettings(c *echo.Context) error {
 		set.OIDC.ClientSecret = cur.OIDC.ClientSecret
 	}
 
-	if err := a.validateOIDCSettings(set); err != nil {
-		return err
-	}
-
 	for n, v := range set.UploadExtensions {
 		set.UploadExtensions[n] = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(v), "."))
 	}
@@ -361,39 +364,15 @@ func (a *App) UpdateSettings(c *echo.Context) error {
 	}
 	set.DomainAllowlist = doms
 
-	// Validate and clean trusted URLs.
 	urls := make([]string, 0, len(set.SecurityTrustedURLs))
-	for _, d := range set.SecurityTrustedURLs {
-		if d = strings.TrimSpace(d); d != "" {
-			if d == "*" {
-				urls = append(urls, d)
-				continue
-			}
-
-			// Parse and validate the URL.
-			u, err := url.Parse(d)
-			if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-				return echo.NewHTTPError(http.StatusBadRequest,
-					a.i18n.Ts("globals.messages.invalidData")+": invalid trusted URL: "+d)
-			}
-			urls = append(urls, d)
+	for _, u := range set.SecurityTrustedURLs {
+		if u = strings.TrimSpace(u); u != "" {
+			urls = append(urls, u)
 		}
 	}
 	set.SecurityTrustedURLs = urls
 
-	// Validate slow query caching cron.
-	if set.CacheSlowQueries {
-		if _, err := parseCronString(set.CacheSlowQueriesInterval); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.Ts("globals.messages.invalidData")+": slow query cron: "+err.Error())
-		}
-	}
-
-	// Update the settings in the DB.
-	if err := a.core.UpdateSettings(set); err != nil {
-		return err
-	}
-
-	return a.handleSettingsRestart(c)
+	return nil
 }
 
 // UpdateSettingsByKey updates a single setting key-value in the DB.
@@ -414,30 +393,30 @@ func (a *App) UpdateSettingsByKey(c *echo.Context) error {
 		return err
 	}
 
-	if key == "upload.max_file_size" {
-		var size int64
-		if err := json.Unmarshal(b, &size); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-		if err := validateUploadMaxFileSize(size); err != nil {
-			return err
-		}
+	cur, err := a.core.GetSettings()
+	if err != nil {
+		return err
 	}
 
-	// Validate OIDC defaults and mappings on both settings endpoints.
-	if key == "security.oidc" {
-		var set models.Settings
-		if err := json.Unmarshal(b, &set.OIDC); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, a.i18n.T("globals.messages.invalidData"))
-		}
-
-		if err := a.validateOIDCSettings(set); err != nil {
-			return err
-		}
+	set, err := settingsWithKey(cur, key, b)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Update the value in the DB.
-	if err := a.core.UpdateSettingsByKey(key, b); err != nil {
+	// Single-key writes replace the value, including empty secrets. Using the
+	// candidate as the source retains that contract during shared preparation.
+	if err := a.prepareSettings(&set, set); err != nil {
+		return err
+	}
+	if err := a.validateSettings(set); err != nil {
+		return err
+	}
+
+	values, err := settingsVals(set)
+	if err != nil {
+		return err
+	}
+	if err := a.core.UpdateSettingsByKey(key, values[key]); err != nil {
 		return err
 	}
 
@@ -458,13 +437,16 @@ func (a *App) validateOIDCSettings(set models.Settings) error {
 	if err != nil {
 		return err
 	}
+
 	listRoles, err := a.core.GetListRoles("", "", "")
 	if err != nil {
 		return err
 	}
+
 	if err := validateOIDCSettings(set, userRoles, listRoles); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	return nil
 }
 
@@ -583,7 +565,7 @@ func (a *App) GetAboutInfo(c *echo.Context) error {
 
 func sanitizeFromAddresses(addresses []string) ([]string, error) {
 	if len(addresses) > 250 {
-		return nil, fmt.Errorf("omax 250 `from` addresses are allowed")
+		return nil, fmt.Errorf("max 250 `from` addresses are allowed")
 	}
 
 	out := make([]string, 0, len(addresses))
