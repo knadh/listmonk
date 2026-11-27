@@ -2,9 +2,9 @@ import Alpine from 'alpinejs';
 import { lineChart } from '../charts.js';
 import {
   api,
-  urls,
   config,
   i18n,
+  urls,
 } from '../main.js';
 import * as u from '../utils.js';
 
@@ -54,7 +54,7 @@ function component(list = null) {
       if (count === 0 || !(await u.confirm(i18n.ts('globals.messages.confirmDelete', {
         num: count,
         name: i18n.tc('globals.terms.list', count).toLowerCase(),
-      })))) {
+      }) + ' ' + i18n.t('lists.confirmDelete')))) {
         return;
       }
 

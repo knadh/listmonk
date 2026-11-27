@@ -153,7 +153,7 @@ export class ListTag {
 
 // List selector rendering and its locally available suggestions.
 export function listTagNode(list, small = false) {
-  return tagNode(list, 'list', small);
+  return tagNode(list, 'list', small, list.id ? list.name : `${list.name} ${i18n.t('lists.deleted')}`);
 }
 
 export function listAutocomplete(el) {

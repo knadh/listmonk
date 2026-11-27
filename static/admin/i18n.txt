@@ -62,6 +62,7 @@ editor.contentType.markdown
 editor.contentType.plain
 editor.contentType.visual
 lists.confirmDelete
+lists.deleted
 lists.confirmSub
 lists.optinTo
 lists.newList

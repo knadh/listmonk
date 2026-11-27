@@ -108,8 +108,13 @@
 									{{- range $i, $l := .ParsedLists }}
 										{{- if lt $i 3 }}
 											<div class="avatar xsmall">
+												{{- if .ID }}
 												{{ template "avatar-icon" dict "Kind" "list" "Name" .Name "Href" (printf "%s/%d" (URI "/admin/lists") .ID) "Title" (printf "%s %s" ($root.L.T "globals.buttons.view") .Name) }}
 												<a class="unstyled text-light avatar-label" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $root.L.T "globals.buttons.filter" }} {{ .Name }}">{{ .Name }}</a>
+												{{- else }}
+												{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
+												<span class="text-light avatar-label">{{ .Name }} {{ $root.L.T "lists.deleted" }}</span>
+												{{- end }}
 											</div>
 										{{- end }}
 									{{- end }}
@@ -118,10 +123,10 @@
 											<button type="button" class="ghost small text-8" popovertarget="camp-lists-{{ .ID }}" aria-label="{{ $root.L.T "globals.terms.lists" }}">+{{ sub (len .ParsedLists) 3 }} {{ $root.L.T "globals.terms.lists" | lower }}</button>
 											<menu popover id="camp-lists-{{ .ID }}">
 												{{- range slice .ParsedLists 3 }}
-													<a role="menuitem" class="button ghost" href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $root.L.T "globals.buttons.filter" }} {{ .Name }}">
+													<a role="menuitem" class="button ghost" {{ if .ID }}href="{{ URI "/admin/subscribers/lists" }}/{{ .ID }}" title="{{ $root.L.T "globals.buttons.filter" }} {{ .Name }}"{{ end }}>
 														<span class="avatar xsmall">
 															{{ template "avatar-icon" dict "Kind" "list" "Name" .Name }}
-															<span class="avatar-label text-light">{{ .Name }}</span>
+															<span class="avatar-label text-light">{{ .Name }}{{ if not .ID }} {{ $root.L.T "lists.deleted" }}{{ end }}</span>
 														</span>
 													</a>
 												{{- end }}

@@ -295,6 +295,10 @@ func (c *Core) UpdateCampaignStatus(id int, status string) (models.Campaign, err
 	}
 
 	if n, _ := res.RowsAffected(); n == 0 {
+		if status == models.CampaignStatusRunning || status == models.CampaignStatusScheduled {
+			return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.fieldInvalidListIDs"))
+		}
+
 		return models.Campaign{}, echo.NewHTTPError(http.StatusBadRequest,
 			c.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))
 	}

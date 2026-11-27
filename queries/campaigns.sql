@@ -196,12 +196,22 @@ SELECT EXISTS (
 -- Also saves sent counts and resume checkpoints for active campaigns.
 -- In addition, it finds the max_subscriber_id, the upper limit across all lists of
 -- a campaign. This is used to fetch and slice subscribers for the campaign in next-campaign-subscribers.
-WITH camps AS (
+WITH invalid AS (
+    -- Scheduled campaigns with no valid lists, force-switch to draft.
+    UPDATE campaigns SET status = 'draft', updated_at = NOW()
+    WHERE status = 'scheduled' AND NOT(id = ANY($1::INT[]))
+        AND NOT EXISTS (SELECT 1 FROM campaign_lists WHERE campaign_id = campaigns.id AND list_id IS NOT NULL)
+    RETURNING id
+),
+camps AS (
     -- Get all running campaigns and their template bodies (if the template's deleted, the default template body instead)
     SELECT campaigns.*, COALESCE(templates.body, (SELECT body FROM templates WHERE is_default = true LIMIT 1), '') AS template_body
     FROM campaigns
     LEFT JOIN templates ON (templates.id = campaigns.template_id)
-    WHERE (status='running' OR (status='scheduled' AND NOW() >= campaigns.send_at))
+    WHERE (status='running' OR (
+        status='scheduled' AND NOW() >= campaigns.send_at
+        AND NOT EXISTS (SELECT 1 FROM invalid WHERE invalid.id = campaigns.id)
+    ))
     AND NOT(campaigns.id = ANY($1::INT[]))
 ),
 campLists AS (
@@ -419,7 +429,7 @@ WITH camp AS (
 ),
 clists AS (
     -- Reset list relationships
-    DELETE FROM campaign_lists WHERE campaign_id = $1 AND NOT(list_id = ANY($14))
+    DELETE FROM campaign_lists WHERE campaign_id = $1 AND (list_id IS NULL OR NOT(list_id = ANY($14)))
 ),
 med AS (
     DELETE FROM campaign_media WHERE campaign_id = $1
@@ -451,7 +461,11 @@ UPDATE campaigns SET
         END
     ),
     updated_at=NOW()
-WHERE id = $1;
+WHERE id = $1 AND (
+    $2 NOT IN ('running', 'scheduled') OR EXISTS (
+        SELECT 1 FROM campaign_lists WHERE campaign_id = campaigns.id AND list_id IS NOT NULL
+    )
+);
 
 -- name: update-campaign-archive
 UPDATE campaigns SET
