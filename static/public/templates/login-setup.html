@@ -10,19 +10,19 @@
 		<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
 		<div data-field>
 			<label for="email">{{ .L.T "globals.fields.email" }}</label>
-			<input id="email" type="email" name="email" autofocus required minlength="3" />
+			<input id="email" type="email" name="email" autocomplete="email" autofocus required minlength="3" />
 		</div>
 		<div data-field>
 			<label for="username">{{ .L.T "globals.fields.username" }}</label>
-			<input id="username" type="text" name="username" required minlength="3" />
+			<input id="username" type="text" name="username" autocomplete="username" required minlength="3" />
 		</div>
 		<div data-field>
 			<label for="password">{{ .L.T "globals.fields.password" }}</label>
-			<input id="password" type="password" name="password" required minlength="8" />
+			<input id="password" type="password" name="password" autocomplete="new-password" required minlength="8" />
 		</div>
 		<div data-field>
 			<label for="password2">{{ .L.T "globals.fields.passwordRepeat" }}</label>
-			<input id="password2" type="password" name="password2" required minlength="8" />
+			<input id="password2" type="password" name="password2" autocomplete="new-password" required minlength="8" />
 		</div>
 
 		{{ if .Data.Error }}<div role="alert" data-variant="danger" class="mb-4">{{ .Data.Error }}</div>{{ end }}
