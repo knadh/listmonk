@@ -9,11 +9,11 @@
 		<input type="hidden" name="next" value="{{ .Data.NextURI }}" />
 		<div data-field>
 			<label for="username">{{ .L.T "globals.fields.username" }}</label>
-			<input id="username" type="text" name="username" autofocus required minlength="3" />
+			<input id="username" type="text" name="username" autocomplete="username" autofocus required minlength="3" />
 		</div>
 		<div data-field>
 			<label for="password">{{ .L.T "globals.fields.password" }}</label>
-			<input id="password" type="password" name="password" required minlength="8" />
+			<input id="password" type="password" name="password" autocomplete="current-password" required minlength="8" />
 		</div>
 
 		{{ if .Data.Error }}<div role="alert" data-variant="danger" class="mb-4">{{ .Data.Error }}</div>{{ end }}
