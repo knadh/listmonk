@@ -807,7 +807,7 @@ func (a *App) TestCampaign(c *echo.Context) error {
 	user := auth.GetUser(c)
 	validSubs := subs[:0]
 	for _, s := range subs {
-		if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{s.ID}); err == nil {
+		if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{s.ID}, false); err == nil {
 			validSubs = append(validSubs, s)
 		}
 	}
@@ -1034,7 +1034,7 @@ func (a *App) checkCampaignPerm(types auth.PermType, id int, c *echo.Context) er
 	// all campaigns. If there are no *_all permissions, then ensure that the
 	// campaign belongs to the lists that the user has access to.
 	if hasAllPerm, permittedListIDs := user.GetPermittedLists(listPerm); !hasAllPerm {
-		if ok, err := a.core.CampaignHasLists(id, permittedListIDs); err != nil {
+		if ok, err := a.core.CampaignHasLists(id, permittedListIDs, types&auth.PermTypeGet == 0); err != nil {
 			return err
 		} else if !ok {
 			return echo.NewHTTPError(http.StatusForbidden,

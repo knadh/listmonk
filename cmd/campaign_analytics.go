@@ -349,7 +349,7 @@ func (a *App) loadCampaignActivity(c *echo.Context, data *analyticsView, ids []i
 
 		// Check if the user has permission to view this subscriber's activity.
 		if !user.HasPerm(auth.PermSubscribersGetAll) {
-			if err := a.hasSubPerm(user, auth.PermTypeGet, []int{id}); err != nil {
+			if err := a.hasSubPerm(user, auth.PermTypeGet, []int{id}, false); err != nil {
 				return err
 			}
 		}

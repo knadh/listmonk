@@ -356,10 +356,10 @@ func (c *Core) DeleteCampaigns(ids []int, query string, statuses, tags []string,
 	return nil
 }
 
-// CampaignHasLists checks if a campaign has any of the given list IDs.
-func (c *Core) CampaignHasLists(id int, listIDs []int) (bool, error) {
+// CampaignHasLists checks for a permitted list, optionally requiring all lists to be permitted.
+func (c *Core) CampaignHasLists(id int, listIDs []int, requireAll bool) (bool, error) {
 	has := false
-	if err := c.q.CampaignHasLists.Get(&has, id, pq.Array(listIDs)); err != nil {
+	if err := c.q.CampaignHasLists.Get(&has, id, pq.Array(listIDs), requireAll); err != nil {
 		c.log.Printf("error checking campaign lists: %v", err)
 		return false, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.campaign}", "error", pqErrMsg(err)))

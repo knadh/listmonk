@@ -184,10 +184,12 @@ WHERE status=$1
     );
 
 -- name: campaign-has-lists
--- Returns TRUE if the campaign $1 has any of the lists given in $2.
+-- Checks for a permitted list; $3 requires all remaining lists to be permitted.
 SELECT EXISTS (
     SELECT TRUE FROM campaign_lists WHERE campaign_id = $1 AND list_id = ANY($2::INT[])
-);
+) AND (NOT $3 OR NOT EXISTS (
+    SELECT 1 FROM campaign_lists WHERE campaign_id = $1 AND NOT (list_id = ANY($2::INT[]))
+));
 
 -- name: next-campaigns
 -- Retrieves campaigns that are running (or scheduled and the time's up) and need
@@ -492,9 +494,11 @@ WHERE (
 )
 -- Get all campaigns or filter by permitted list IDs.
 AND (
-    $3 OR EXISTS (
+    $3 OR (EXISTS (
         SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND list_id = ANY($4::INT[])
-    )
+    ) AND NOT EXISTS (
+        SELECT 1 FROM campaign_lists WHERE campaign_id = c.id AND NOT (list_id = ANY($4::INT[]))
+    ))
 );
 
 -- name: register-campaign-view

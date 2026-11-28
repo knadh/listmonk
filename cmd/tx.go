@@ -137,7 +137,7 @@ func (a *App) SendTxMessage(c *echo.Context) error {
 				}
 			} else {
 				// Make sure the user has permission to read the subscriber.
-				if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{sub.ID}); err != nil {
+				if err := a.hasSubPerm(user, auth.PermTypeGet|auth.PermTypeManage, []int{sub.ID}, false); err != nil {
 					return err
 				}
 

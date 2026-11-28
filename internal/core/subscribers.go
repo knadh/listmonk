@@ -69,14 +69,14 @@ func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, err
 	return out[0], nil
 }
 
-// HasSubscriberLists checks if the given subscribers have at least one of the given lists.
-func (c *Core) HasSubscriberLists(subIDs []int, listIDs []int) (map[int]bool, error) {
+// HasSubscriberLists checks for a permitted list, optionally requiring all lists to be permitted.
+func (c *Core) HasSubscriberLists(subIDs []int, listIDs []int, requireAll bool) (map[int]bool, error) {
 	res := []struct {
 		SubID int  `db:"subscriber_id"`
 		Has   bool `db:"has"`
 	}{}
 
-	if err := c.q.HasSubscriberLists.Select(&res, pq.Array(subIDs), pq.Array(listIDs)); err != nil {
+	if err := c.q.HasSubscriberLists.Select(&res, pq.Array(subIDs), pq.Array(listIDs), requireAll); err != nil {
 		c.log.Printf("error fetching subscriber: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
@@ -505,8 +505,8 @@ func (c *Core) BlocklistSubscribers(subIDs []int) error {
 }
 
 // BlocklistSubscribersByQuery blocklists the given list of subscribers.
-func (c *Core) BlocklistSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) error {
-	if err := c.execSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.BlocklistSubscribersByQuery, listIDs, subStatus, subscriberStatus); err != nil {
+func (c *Core) BlocklistSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string, permittedListIDs []int) error {
+	if err := c.execSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.BlocklistSubscribersByQuery, listIDs, subStatus, subscriberStatus, pq.Array(permittedListIDs)); err != nil {
 		c.log.Printf("error blocklisting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("subscribers.errorBlocklisting", "error", pqErrMsg(err)))
@@ -534,8 +534,8 @@ func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
 }
 
 // DeleteSubscribersByQuery deletes subscribers by a given arbitrary query expression.
-func (c *Core) DeleteSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string) error {
-	err := c.execSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.DeleteSubscribersByQuery, listIDs, subStatus, subscriberStatus)
+func (c *Core) DeleteSubscribersByQuery(searchStr, queryExp string, listIDs []int, subStatus, subscriberStatus string, permittedListIDs []int) error {
+	err := c.execSubQueryTpl(searchStr, sanitizeSQLExp(queryExp), c.q.DeleteSubscribersByQuery, listIDs, subStatus, subscriberStatus, pq.Array(permittedListIDs))
 	if err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

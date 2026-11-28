@@ -85,10 +85,13 @@ WITH subs AS (
         AND ($3 = '' OR source = $3)
         AND ($4 = '' OR type = $4::bounce_type)
     END)
-    AND ($5 OR EXISTS (
+    AND ($5 OR (EXISTS (
         SELECT 1 FROM subscriber_lists
         WHERE subscriber_id = bounces.subscriber_id AND list_id = ANY($6::INT[])
-    ))
+    ) AND NOT EXISTS (
+        SELECT 1 FROM subscriber_lists
+        WHERE subscriber_id = bounces.subscriber_id AND NOT (list_id = ANY($6::INT[]))
+    )))
 ),
 b AS (
     UPDATE subscribers SET status='blocklisted', updated_at=NOW()

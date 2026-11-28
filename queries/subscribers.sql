@@ -11,11 +11,10 @@ SELECT * FROM subscribers WHERE
 -- name: has-subscriber-list
 -- Used for checking access permission by list.
 SELECT s.id AS subscriber_id,
-    CASE
-        WHEN EXISTS (SELECT 1 FROM subscriber_lists sl WHERE sl.subscriber_id = s.id AND sl.list_id = ANY($2))
-        THEN TRUE
-        ELSE FALSE
-    END AS has
+    EXISTS (SELECT 1 FROM subscriber_lists sl WHERE sl.subscriber_id = s.id AND sl.list_id = ANY($2))
+    AND (NOT $3 OR NOT EXISTS (
+        SELECT 1 FROM subscriber_lists sl WHERE sl.subscriber_id = s.id AND NOT (sl.list_id = ANY($2))
+    )) AS has
 FROM subscribers s WHERE s.id = ANY($1);
 
 -- name: get-subscribers-by-emails
@@ -390,12 +389,20 @@ LIMIT (CASE WHEN $1 THEN 1 END)
 
 -- name: delete-subscribers-by-query
 -- raw: true
-WITH subs AS (%query%)
+WITH subs AS (
+    SELECT id FROM (%query%) matched WHERE $2::INT[] IS NULL OR NOT EXISTS (
+        SELECT 1 FROM subscriber_lists WHERE subscriber_id = matched.id AND NOT (list_id = ANY($2))
+    )
+)
 DELETE FROM subscribers WHERE id=ANY(SELECT id FROM subs);
 
 -- name: blocklist-subscribers-by-query
 -- raw: true
-WITH subs AS (%query%),
+WITH subs AS (
+    SELECT id FROM (%query%) matched WHERE $2::INT[] IS NULL OR NOT EXISTS (
+        SELECT 1 FROM subscriber_lists WHERE subscriber_id = matched.id AND NOT (list_id = ANY($2))
+    )
+),
 b AS (
     UPDATE subscribers SET status='blocklisted', updated_at=NOW()
     WHERE id = ANY(SELECT id FROM subs)

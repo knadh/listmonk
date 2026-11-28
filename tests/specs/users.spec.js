@@ -254,6 +254,7 @@ test.describe('Users, roles & login', () => {
     await page.locator('select[name=user_role]').selectOption({ label: 'second' });
     await page.locator('select[name=list_role]').selectOption({ label: 'second' });
     await Promise.all([
+      page.waitForEvent('load'),
       page.waitForResponse((r) => /\/api\/users\/\d+/.test(r.url()) && r.request().method() === 'PUT'),
       page.getByTestId('btn-save').click(),
     ]);

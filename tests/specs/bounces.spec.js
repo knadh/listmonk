@@ -120,6 +120,26 @@ test.describe('Bounces: bulk actions', () => {
     });
     try {
       await data(await context.request.put(`/api/bounces/blocklist?id=${bounces[0].id}`));
+
+      // A bounce must not grant global write access to a shared subscriber.
+      const shared = await data(await page.request.post('/api/subscribers', { data: {
+        email: 'shared@example.com', name: 'Shared', status: 'enabled', lists: [1, 2],
+        preconfirm_subscriptions: true,
+      } }));
+      await postBounce(page, 'soft', shared.email);
+      let sharedBounce;
+      await expect.poll(async () => {
+        const all = (await data(await page.request.get('/api/bounces'))).results;
+        sharedBounce = all.find((b) => b.subscriber_id === shared.id);
+        return !!sharedBounce;
+      }).toBe(true);
+      for (const scope of [`id=${sharedBounce.id}`, 'source=api']) {
+        await data(await context.request.put(`/api/bounces/blocklist?${scope}`));
+        expect(await subStatus(page, shared.id)).toBe('enabled');
+      }
+      await data(await page.request.put(`/api/bounces/blocklist?id=${sharedBounce.id}`));
+      expect(await subStatus(page, shared.id)).toBe('blocklisted');
+      await data(await page.request.delete(`/api/subscribers/${shared.id}`));
     } finally {
       await context.close();
     }
