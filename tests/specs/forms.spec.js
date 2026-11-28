@@ -21,6 +21,39 @@ function redirectURLs(page) {
   return page.locator('[data-testid=redirect-urls] input[type=radio]');
 }
 
+async function subscriberMail(email, previous = new Set()) {
+  let mail;
+  await expect.poll(async () => {
+    mail = (await getMail()).find((m) => !previous.has(m.ID) && m.Content.Headers.To.some((to) => to.includes(email)));
+    return !!mail;
+  }).toBe(true);
+  return mail;
+}
+
+async function mailLink(page, mail, text) {
+  // Decode the quoted-printable HTML sent by the notification mailer.
+  const html = mail.Content.Body.replace(/=\r?\n/g, '')
+    .replace(/=([0-9a-f]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+  return page.evaluate(({ html, text }) => [...new DOMParser().parseFromString(html, 'text/html').querySelectorAll('a')]
+    .find((a) => a.textContent === text).href, { html, text });
+}
+
+async function unsubscribeURL(page, email) {
+  return mailLink(page, await subscriberMail(email), 'Unsubscribe');
+}
+
+async function managePreferences(page, email) {
+  await page.getByRole('link', { name: 'Manage preferences', exact: true }).click();
+  await expect(page.locator('.manage-req-form')).toBeVisible();
+  await expect(page.locator('input[name=name]')).toHaveCount(0);
+  const previous = new Set((await getMail()).map((m) => m.ID));
+  await page.locator('.manage-req-form button').click();
+
+  const mail = await subscriberMail(email, previous);
+  await page.goto(await mailLink(page, mail, 'Manage preferences'));
+  await expect(page.locator('.manage-form')).toBeVisible();
+}
+
 // Saving trusted URLs SIGHUPs the process, which re-execs. Wait for the reload
 // to expose the new redirect URLs in the server config.
 async function setTrustedURLs(page, urls) {
@@ -122,15 +155,9 @@ test.describe('Forms', () => {
   });
 
   test('unsubscribes from a list and then blocklists', async ({ page }) => {
-    // Point the seeded campaign at the opt-in list the subscribers are on.
-    await page.request.put('/api/campaigns/1', { data: { lists: [2] } });
+    const url = await unsubscribeURL(page, 'test0@test.com');
 
-    const subs = (await (await page.request.get('/api/subscribers')).json()).data.results;
-    const sub = subs.find((s) => s.email === 'test0@test.com');
-    const camp = (await (await page.request.get('/api/campaigns')).json()).data.results[0];
-    const url = `/subscription/${camp.uuid}/${sub.uuid}`;
-
-    // Unsubscribe from the campaign's list only.
+    // The opt-in email's signed link targets only the double opt-in list.
     await page.goto(url);
     await page.locator('#btn-unsub').click();
 
@@ -141,6 +168,7 @@ test.describe('Forms', () => {
 
     // Unsubscribe from everything and blocklist.
     await page.goto(url);
+    await managePreferences(page, 'test0@test.com');
     await page.locator('#privacy-blocklist').check();
     await page.locator('#btn-unsub').click();
 
@@ -152,11 +180,8 @@ test.describe('Forms', () => {
   });
 
   test('manages subscription preferences', async ({ page }) => {
-    const subs = (await (await page.request.get('/api/subscribers')).json()).data.results;
-    const sub = subs.find((s) => s.email === 'test1@test.com');
-    const camp = (await (await page.request.get('/api/campaigns')).json()).data.results[0];
-
-    await page.goto(`/subscription/${camp.uuid}/${sub.uuid}?manage=true`);
+    await page.goto(await unsubscribeURL(page, 'test1@test.com'));
+    await managePreferences(page, 'test1@test.com');
 
     await page.locator('input[name=name]').fill('new-name');
     await page.locator('ul.lists input').first().uncheck();
