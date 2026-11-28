@@ -189,6 +189,13 @@ SELECT EXISTS (
     SELECT TRUE FROM campaign_lists WHERE campaign_id = $1 AND list_id = ANY($2::INT[])
 );
 
+-- name: get-campaign-list-counts
+-- Returns the number of lists attached to a campaign and, of those, how many
+-- still exist. A deleted list leaves behind a campaign_lists row with a NULL
+-- list_id, preserving the association as a historical record.
+SELECT COUNT(*) AS total, COUNT(list_id) AS valid
+    FROM campaign_lists WHERE campaign_id = $1;
+
 -- name: next-campaigns
 -- Retrieves campaigns that are running (or scheduled and the time's up) and need
 -- to be processed. It updates the to_send count and max_subscriber_id of the campaign,
